@@ -1,0 +1,11 @@
+OVDF v1.1
+UnityEngine.Vector3, UnityEngine.CoreModule
+
+# x
+Position: $root:127
+
+# z
+Position: $root:129
+
+# y
+Position: $root:128

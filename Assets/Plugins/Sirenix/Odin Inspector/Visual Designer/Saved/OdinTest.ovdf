@@ -1,0 +1,35 @@
+OVDF v1.1
+OdinTest, Assembly-CSharp
+MetaGuid:9425ac9454a8917e59661da190122271
+
+# testInt
++ [Sirenix.OdinInspector.MinValueAttribute]
+	MinValue = 1
+
+# testVector2
++ [Sirenix.OdinInspector.MinMaxSliderAttribute]
+	MaxValue = 10
++ [Sirenix.OdinInspector.InfoBoxAttribute]
+	Message = "Hello GHellasgasgasj asjg asjgip"
+	InfoMessageType = Warning
+
+# testList
++ [Sirenix.OdinInspector.TableListAttribute]
+	ShowIndexLabels = True
+	IsReadOnly = False
+
+# testArray2D
+Position: $root:16
++ [Sirenix.OdinInspector.TableMatrixAttribute]
+	VerticalTitle = "TYest"
+	HorizontalTitle = "afgasga"
+	SquareCells = True
+
+# testVector3
+Position: $4sT9kgoNFnKTRUxpoABxcT:0
+
+# testDictionary
+Position: $root:15
+
+# TestHashSet
+Position: $root:14
