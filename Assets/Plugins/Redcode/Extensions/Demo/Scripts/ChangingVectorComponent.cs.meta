@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 11738bcb775e0e240bd3bb1252881faf
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 214756
+  packageName: Extensions
+  packageVersion: 1.3.1
+  assetPath: Assets/Redcode/Extensions/Demo/Scripts/ChangingVectorComponent.cs
+  uploadId: 538739
