@@ -99,7 +99,7 @@ namespace FitMe.Grid
         [TableMatrix(SquareCells = true, HorizontalTitle = "Cell Array", IsReadOnly = true,
             DrawElementMethod = nameof(DrawCellArrayMatrix), Transpose = true)]
         #endif
-        [SerializeField] private CellView[,] _cellArray = {};
+        [SerializeField] private CellModel[,] _cellArray = {};
         #if UNITY_EDITOR
         [TableMatrix(SquareCells = true, HorizontalTitle = "Vacant Schema", IsReadOnly = true,
             DrawElementMethod = nameof(DrawVacantSchemaMatrix), Transpose = true)]
@@ -129,7 +129,7 @@ namespace FitMe.Grid
 
         #region Fields and Properties
         
-        private List<CellView> _previousValidationCells = new();
+        private List<CellModel> _previousValidationCells = new();
         public static event Action<Block> OnBlockStateChanged;
         public static event Action<Block> OnBlockPlaced;
         public static event Action<Block> OnBlockDestroyed;
@@ -372,9 +372,9 @@ namespace FitMe.Grid
             ResetPreviousValidationCells();
             foreach (var cell in _cellArray)
             {
-                if (cell) Object.Destroy(cell.gameObject);
+                cell?.Dispose();
             }
-            _cellArray = new CellView[0, 0];
+            _cellArray = new CellModel[0, 0];
             _vacantSchema = new int[0, 0];
             SetUpGameplayGridPreset();
             CreateCells();
@@ -421,7 +421,7 @@ namespace FitMe.Grid
             var row = currentGridSize.y;
             var column = currentGridSize.x;
             var cellSize = _grid.cellSize.x;
-            _cellArray = new CellView[row, column];
+            _cellArray = new CellModel[row, column];
             for (int x = 0; x < row; x++)
             {
                 for (int y = 0; y < column; y++)
@@ -432,12 +432,11 @@ namespace FitMe.Grid
                         (Vector3)(new Vector2(halfSize, halfSize) +
                                   new Vector2(y + currentOffset.x, currentOffset.y - x) * cellSize) +
                         _grid.transform.position;
-                    var cell = _cellFactory.Create(spawnPosition, Quaternion.identity, out _);
-                    cell.transform.localScale = Vector3.one * cellSize;
-                    cell.name = $"Cell {x}_{y}";
-                    cell.ArrayIndex = new Vector2Int(x, y);
-                    cell.GridIndex = ArrayToGridIndex(new Vector2Int(x, y));
-                    cell.OnArrayIndexChanged(x, y);
+                    var cell = _cellFactory.Create(spawnPosition, Quaternion.identity, out var cellGameObject);
+                    cellGameObject.transform.localScale = Vector3.one * cellSize;
+                    cellGameObject.name = $"Cell {x}_{y}";
+                    cell.ArrayIndex.Value = new Vector2Int(x, y);
+                    cell.GridIndex.Value = ArrayToGridIndex(new Vector2Int(x, y));
                     _cellArray[x, y] = cell;
                 }
             }
@@ -452,17 +451,17 @@ namespace FitMe.Grid
         /// <returns>true if the placement is valid, false otherwise</returns>
         public bool ValidatePlacement(Block block)
         {
-            List<CellView> cells = new List<CellView>();
+            List<CellModel> cells = new List<CellModel>();
             foreach (var atom in block.Atoms)
             {
                 Vector3 atomPosition = atom.transform.position;
                 Vector3 cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
-                CellView cellView = GetCellByPosition(cellPosition);
-                if (!cellView || cellView.CurrentAtom)
+                CellModel cellModel = GetCellByPosition(cellPosition);
+                if (cellModel == null || cellModel.CurrentAtom.Value)
                 {
                     continue;
                 }
-                cells.Add(cellView);
+                cells.Add(cellModel);
             }
             if (_previousValidationCells.Count > 0)
             {
@@ -471,10 +470,10 @@ namespace FitMe.Grid
             _previousValidationCells = cells;
             if (cells.Count < block.Atoms.Count)
             {
-                cells.ForEach(cell => cell.SpriteRenderer.color = cannotBePlacedColor);
+                cells.ForEach(cell => cell.State.Value = CellState.CannotBePlaced);
                 return false;
             }
-            cells.ForEach(cell => cell.SpriteRenderer.color = canBePlacedColor);
+            cells.ForEach(cell => cell.State.Value = CellState.CanBePlaced);
             return true;
         }
         
@@ -487,26 +486,26 @@ namespace FitMe.Grid
         {
             var cellSize = _grid.cellSize.x;
             block.transform.localScale = Vector3.one * cellSize;
-            Vector3 atomPositionBeforePlacement = block.Atoms[0].transform.position;
-            List<CellView> cells = new List<CellView>();
+            var atomPositionBeforePlacement = block.Atoms[0].transform.position;
+            var cells = new List<CellModel>();
             foreach (var atom in block.Atoms)
             {
-                Vector3 atomPosition = atom.transform.position;
-                Vector3 cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
-                CellView cellView = GetCellByPosition(cellPosition);
-                if (!cellView || cellView.CurrentAtom)
+                var atomPosition = atom.transform.position;
+                var cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
+                var cellModel = GetCellByPosition(cellPosition);
+                if (cellModel == null || cellModel.CurrentAtom.Value)
                 {
                     return false;
                 }
-                cells.Add(cellView);
+                cells.Add(cellModel);
             }
             for (var i = 0; i < block.Atoms.Count; i++)
             {
                 var atom = block.Atoms[i];
-                cells[i].SetAtom(atom);
+                cells[i].CurrentAtom.Value = atom;
             }
-            Vector3 atomPositionAfterPlacement = cells[0].transform.position;
-            Vector3 blockPositionRelativeToAtom = atomPositionAfterPlacement - atomPositionBeforePlacement;
+            var atomPositionAfterPlacement = block.Atoms[0].transform.position;
+            var blockPositionRelativeToAtom = atomPositionAfterPlacement - atomPositionBeforePlacement;
             block.transform.position += blockPositionRelativeToAtom;
             block.transform.SetParent(_grid.transform);
             block.BlockCells = cells;
@@ -606,12 +605,12 @@ namespace FitMe.Grid
                 await block.Explode(fitType, destroy);
             foreach (var atom in atoms)
             {
-                var cell = GetCellByPosition(atom.transform.position);
-                if (!cell || cell.CurrentAtom != atom)
+                var cellModel = GetCellByPosition(atom.transform.position);
+                if (cellModel == null || cellModel.CurrentAtom.Value != atom)
                 {
                     continue;
                 }
-                cell.SetAtom(null);
+                cellModel.CurrentAtom.Value = null;
             }
         }
 
@@ -637,7 +636,7 @@ namespace FitMe.Grid
         public void ResetPreviousValidationCells()
         {
             if (_previousValidationCells.Count == 0) return;
-            _previousValidationCells.ForEach(cell => cell.SpriteRenderer.color = cell.OriginalColor);
+            _previousValidationCells.ForEach(cell => cell.State.Value = CellState.None);
             _previousValidationCells.Clear();
         }
         
@@ -667,15 +666,15 @@ namespace FitMe.Grid
             contactedBlocks.Add(block);
             foreach (var cell in block.BlockCells)
             {
-                var upCell = GetCellByArrayIndex(cell.ArrayIndex[0] - 1, cell.ArrayIndex[1]);
-                var downCell = GetCellByArrayIndex(cell.ArrayIndex[0] + 1, cell.ArrayIndex[1]);
-                var leftCell = GetCellByArrayIndex(cell.ArrayIndex[0], cell.ArrayIndex[1] - 1);
-                var rightCell = GetCellByArrayIndex(cell.ArrayIndex[0], cell.ArrayIndex[1] + 1);
-                var adjacentCells = new List<CellView> {upCell, downCell, leftCell, rightCell};
+                var upCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0] - 1, cell.ArrayIndex.Value[1]);
+                var downCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0] + 1, cell.ArrayIndex.Value[1]);
+                var leftCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0], cell.ArrayIndex.Value[1] - 1);
+                var rightCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0], cell.ArrayIndex.Value[1] + 1);
+                var adjacentCells = new List<CellModel> {upCell, downCell, leftCell, rightCell};
                 foreach (var adjacentCell in adjacentCells)
                 {
-                    if (!adjacentCell || !adjacentCell.CurrentAtom) continue;
-                    var adjacentBlock = adjacentCell.CurrentAtom.ParentBlock;
+                    if (adjacentCell == null || !adjacentCell.CurrentAtom.Value) continue;
+                    var adjacentBlock = adjacentCell.CurrentAtom.Value.ParentBlock;
                     if (adjacentBlock.BlockState is BlockState.Infected or BlockState.Exploding) continue;
                     if (adjacentBlock.BlockType != currentType) continue;
                     if (contactedBlocks.Contains(adjacentBlock)) continue;
@@ -701,10 +700,10 @@ namespace FitMe.Grid
                 for (int y = 0; y < column; y++)
                 {
                     var cell = _cellArray[x, y];
-                    if (!cell) continue;
-                    if (cell.CurrentAtom 
-                        && cell.CurrentAtom.ParentBlock 
-                        && cell.CurrentAtom.ParentBlock.BlockState is not BlockState.Exploding) continue;
+                    if (cell == null) continue;
+                    if (cell.CurrentAtom.Value
+                        && cell.CurrentAtom.Value.ParentBlock 
+                        && cell.CurrentAtom.Value.ParentBlock.BlockState is not BlockState.Exploding) continue;
                     vacantSchema[x, y] = 1;
                     vacantCount++;
                     isVacant = true;
@@ -882,7 +881,7 @@ namespace FitMe.Grid
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns>A Cell if it exists, null otherwise</returns>
-        public CellView GetCellByArrayIndex(int x, int y)
+        public CellModel GetCellByArrayIndex(int x, int y)
         {
             if (x < 0 || x >= currentGridSize.y || y < 0 || y >= currentGridSize.x)
             {
@@ -891,17 +890,17 @@ namespace FitMe.Grid
             return _cellArray[x, y];
         }
         
-        public CellView GetCellByArrayIndex(Vector2Int index)
+        public CellModel GetCellByArrayIndex(Vector2Int index)
         {
             return GetCellByArrayIndex(index.x, index.y);
         }
         
-        public CellView GetCellByGridIndex(int x, int y)
+        public CellModel GetCellByGridIndex(int x, int y)
         {
             return GetCellByGridIndex(new Vector2Int(x, y));
         }
         
-        public CellView GetCellByGridIndex(Vector2Int gridIndex)
+        public CellModel GetCellByGridIndex(Vector2Int gridIndex)
         {
             return GetCellByArrayIndex(GridToArrayIndex(gridIndex));
         }
@@ -921,7 +920,7 @@ namespace FitMe.Grid
         /// </summary>
         /// <param name="position">Position to try to get a cell</param>
         /// <returns>A Cell if it exists, null otherwise</returns>
-        public CellView GetCellByPosition(Vector3 position)
+        public CellModel GetCellByPosition(Vector3 position)
         {
             var worldToCell = _grid.WorldToCell(position);
             int x = worldToCell.x;
@@ -929,9 +928,9 @@ namespace FitMe.Grid
             return GetCellByGridIndex(x, y);
         }
         
-        public Bounds GetCellBounds(CellView cellView)
+        public Bounds GetCellBounds(CellModel cellModel)
         {
-            var index = cellView.GridIndex;
+            var index = cellModel.GridIndex.Value;
             return GetCellBounds(index);
         }
 
@@ -1014,11 +1013,11 @@ namespace FitMe.Grid
             return value;
         }
         
-        private static CellView DrawCellArrayMatrix(Rect rect, CellView cellView)
+        private static CellModel DrawCellArrayMatrix(Rect rect, CellModel cellModel)
         {
-            if (!cellView) return null;
-            EditorGUI.DrawRect(rect.Padding(1), cellView.CurrentAtom ? Color.green : Color.grey);
-            return cellView;
+            if (cellModel == null) return null;
+            EditorGUI.DrawRect(rect.Padding(1), cellModel.CurrentAtom.Value ? Color.green : Color.grey);
+            return cellModel;
         }
         #endregion
         #endif

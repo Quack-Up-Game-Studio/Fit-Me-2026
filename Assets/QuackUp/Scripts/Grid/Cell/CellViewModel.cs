@@ -8,6 +8,7 @@ namespace FitMe.Grid
     {
         public ReadOnlyReactiveProperty<Vector2Int> ArrayIndex { get; private set; }
         public ReadOnlyReactiveProperty<CellState> State { get; private set; }
+        public event Action OnDisposed;
 
         private readonly CellModel _model;
         private IDisposable _bindings;
@@ -27,12 +28,23 @@ namespace FitMe.Grid
             State = _model.State
                 .ToReadOnlyReactiveProperty()
                 .AddTo(ref disposableBuilder);
+            Observable.FromEvent(
+                h => _model.OnDisposed += h,
+                h => _model.OnDisposed -= h)
+                .Subscribe(_ => OnModelDisposed())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
+        }
+        
+        private void OnModelDisposed()
+        {
+            Dispose();
         }
 
         public void Dispose()
         {
             _bindings?.Dispose();
+            OnDisposed?.Invoke();
         }
     }
 }

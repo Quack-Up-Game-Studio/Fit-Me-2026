@@ -70,7 +70,7 @@ namespace FitMe.Grid
         [SerializeField, DisplayAsString] private FlashState flashState;
         [field: SerializeField, DisplayAsString] public BlockState BlockState { get; private set; } = BlockState.Normal;
         [field: SerializeField, DisplayAsString] public bool IsPlaced { get; private set; }
-        [field: SerializeField, ReadOnly] public List<CellView> BlockCells { get; set; }
+        [field: SerializeField, ReadOnly] public List<CellModel> BlockCells { get; set; }
         [field: SerializeField, ReadOnly] public BlockView BlockView { get; private set; }
         public int SpawnIndex { get; set; }
         public BlockState beforeExplodeState = BlockState.Normal;

@@ -50,6 +50,11 @@ namespace FitMe.Grid
             _viewModel.State
                 .Subscribe(OnCellStateChanged)
                 .AddTo(ref disposableBuilder);
+            Observable.FromEvent(
+                    h => _viewModel.OnDisposed += h,
+                    h => _viewModel.OnDisposed -= h)
+                .Subscribe(_ => OnViewModelDisposed())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 
@@ -89,6 +94,11 @@ namespace FitMe.Grid
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
             }
+        }
+        
+        private void OnViewModelDisposed()
+        {
+            Destroy(gameObject);
         }
     }
 }

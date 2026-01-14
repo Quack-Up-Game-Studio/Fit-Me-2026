@@ -27,7 +27,10 @@ namespace FitMe.Grid
                 parent = cellParent
             };
             var view = Object.Instantiate(cellViewPrefab, position, rotation, instantiateParameters.Value);
-            Current = new CellModel();
+            var model = new CellModel();
+            var viewModel = new CellViewModel(model);
+            view.Construct(viewModel);
+            Current = model;
             CurrentGameObject = view.gameObject;
             gameObject = CurrentGameObject;
             return Current;
