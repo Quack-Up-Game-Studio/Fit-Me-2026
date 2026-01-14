@@ -107,8 +107,8 @@ namespace FitMe.Grid
         [SerializeField] private int[,] _vacantSchema = {};
 
         [ShowInInspector, Sirenix.OdinInspector.ReadOnly]
-        private List<Block> DebugBlockOnGrid => new(BlocksOnGrid);
-        public ObservableList<Block> BlocksOnGrid { get; private set; } = new();
+        private List<BlockModel> DebugBlockOnGrid => new(BlocksOnGrid);
+        public ObservableList<BlockModel> BlocksOnGrid { get; private set; } = new();
         [SerializeField, ShowIf("@CurrentGridPreset && CurrentGridPreset.PresetGridType.HasFlag(GridType.Custom)")]
         private bool drawAllCustomGridCells = true;
 
@@ -130,9 +130,9 @@ namespace FitMe.Grid
         #region Fields and Properties
         
         private List<CellModel> _previousValidationCells = new();
-        public static event Action<Block> OnBlockStateChanged;
-        public static event Action<Block> OnBlockPlaced;
-        public static event Action<Block> OnBlockDestroyed;
+        public static event Action<BlockModel> OnBlockStateChanged;
+        public static event Action<BlockModel> OnBlockPlaced;
+        public static event Action<BlockModel> OnBlockDestroyed;
         public delegate void ScoreAdded(ScoreTypes scoreTypes, int contactCount = 0, Vector3 worldPosition = default);
         public static event ScoreAdded OnScoreAdded;
         public static event Action<FitType> OnFitCheck;
@@ -447,12 +447,12 @@ namespace FitMe.Grid
         /// <summary>
         /// Validate the placement of the block and change the color of the cells
         /// </summary>
-        /// <param name="block">Block to validate</param>
+        /// <param name="blockModel">Block to validate</param>
         /// <returns>true if the placement is valid, false otherwise</returns>
-        public bool ValidatePlacement(Block block)
+        public bool ValidatePlacement(BlockModel blockModel)
         {
             List<CellModel> cells = new List<CellModel>();
-            foreach (var atom in block.Atoms)
+            foreach (var atom in blockModel.Atoms)
             {
                 Vector3 atomPosition = atom.transform.position;
                 Vector3 cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
@@ -468,7 +468,7 @@ namespace FitMe.Grid
                 ResetPreviousValidationCells();
             }
             _previousValidationCells = cells;
-            if (cells.Count < block.Atoms.Count)
+            if (cells.Count < blockModel.Atoms.Count)
             {
                 cells.ForEach(cell => cell.State.Value = CellState.CannotBePlaced);
                 return false;
@@ -480,15 +480,15 @@ namespace FitMe.Grid
         /// <summary>
         /// Place the block in the grid
         /// </summary>
-        /// <param name="block">Block to place</param>
+        /// <param name="blockModel">Block to place</param>
         /// <returns>true if the placement is valid, false otherwise</returns>
-        public bool PlaceBlock(Block block)
+        public bool PlaceBlock(BlockModel blockModel)
         {
             var cellSize = _grid.cellSize.x;
-            block.transform.localScale = Vector3.one * cellSize;
-            var atomPositionBeforePlacement = block.Atoms[0].transform.position;
+            blockModel.transform.localScale = Vector3.one * cellSize;
+            var atomPositionBeforePlacement = blockModel.Atoms[0].transform.position;
             var cells = new List<CellModel>();
-            foreach (var atom in block.Atoms)
+            foreach (var atom in blockModel.Atoms)
             {
                 var atomPosition = atom.transform.position;
                 var cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
@@ -499,36 +499,36 @@ namespace FitMe.Grid
                 }
                 cells.Add(cellModel);
             }
-            for (var i = 0; i < block.Atoms.Count; i++)
+            for (var i = 0; i < blockModel.Atoms.Count; i++) 
             {
-                var atom = block.Atoms[i];
+                var atom = blockModel.Atoms[i];
                 cells[i].CurrentAtom.Value = atom;
             }
-            var atomPositionAfterPlacement = block.Atoms[0].transform.position;
+            var atomPositionAfterPlacement = blockModel.Atoms[0].transform.position;
             var blockPositionRelativeToAtom = atomPositionAfterPlacement - atomPositionBeforePlacement;
-            block.transform.position += blockPositionRelativeToAtom;
-            block.transform.SetParent(_grid.transform);
-            block.BlockCells = cells;
-            BlocksOnGrid.Add(block);
-            block.ResetSortingLayer();
+            blockModel.transform.position += blockPositionRelativeToAtom;
+            blockModel.transform.SetParent(_grid.transform);
+            blockModel.BlockCells = cells;
+            BlocksOnGrid.Add(blockModel);
+            blockModel.ResetSortingLayer();
             ReorderRenderingOrder();
-            OnScoreAdded?.Invoke(ScoreTypes.Placement, worldPosition: block.transform.position);
+            OnScoreAdded?.Invoke(ScoreTypes.Placement, worldPosition: blockModel.transform.position);
             ResetPreviousValidationCells();
-            var blockView = block.BlockView;
+            var blockView = blockModel.BlockView;
             if (blockView) blockView.Place();
-            var fit = UpdateBlockOnGrid(block);
+            var fit = UpdateBlockOnGrid(blockModel);
             OnFitCheck?.Invoke(fit);
             if (_currentSceneType == SceneType.Gameplay)
             {
                 if (fit is FitType.FitMe)
                 {
-                    BlockManager.Instance.FreeSpawnPoint(block.SpawnIndex);
+                    BlockManager.Instance.FreeSpawnPoint(blockModel.SpawnIndex);
                     BlockManager.Instance.ResetSpawnPoint();
                     BlockManager.Instance.SpawnRandomBlock();
                 }
                 else
                 {
-                    BlockManager.Instance.FreeSpawnPoint(block.SpawnIndex);
+                    BlockManager.Instance.FreeSpawnPoint(blockModel.SpawnIndex);
                     BlockManager.Instance.ResetSpawnPoint();
                     BlockManager.Instance.SpawnRandomBlock();
                 }
@@ -537,15 +537,15 @@ namespace FitMe.Grid
                     BlockManager.Instance.GameOverCheck().Forget();
                 }
             }
-            OnBlockPlaced?.Invoke(block);
+            OnBlockPlaced?.Invoke(blockModel);
             return true;
         }
         /// <summary>
         /// Update the block on the grid, check for contacts and validate placement
         /// </summary>
-        /// <param name="block"></param>
+        /// <param name="blockModel"></param>
         /// <returns>FitType indicating the result of the update</returns>
-        public FitType UpdateBlockOnGrid(Block block)
+        public FitType UpdateBlockOnGrid(BlockModel blockModel)
         {
             if (!CreateVacantSchema(out var vacantSchema, out _)) //Fit Me!
             {
@@ -553,8 +553,8 @@ namespace FitMe.Grid
                 FitMe().Forget();
                 return FitType.FitMe;
             }
-            var contacts = new List<Block>();
-            if (!CheckForContact(block, contacts))
+            var contacts = new List<BlockModel>();
+            if (!CheckForContact(blockModel, contacts))
             {
                 return FitType.None;
             }
@@ -574,7 +574,7 @@ namespace FitMe.Grid
             RegenerateGrid();
         }
 
-        private async UniTask Combo(List<Block> contacts)
+        private async UniTask Combo(List<BlockModel> contacts)
         {
             var middleOfBlocks = contacts.Select(block => block.transform.position)
                 .Aggregate(Vector3.zero, (current, position) => current + position) / contacts.Count;
@@ -591,18 +591,18 @@ namespace FitMe.Grid
         /// <summary>
         /// Remove the block from the grid
         /// </summary>
-        /// <param name="block">Block to remove</param>
+        /// <param name="blockModel">Block to remove</param>
         /// <param name="destroy">Destroy the block, false by default</param>
-        public async UniTask RemoveBlock(Block block, FitType fitType, bool destroy = false)
+        public async UniTask RemoveBlock(BlockModel blockModel, FitType fitType, bool destroy = false)
         {
             //DisinfectBlock(block);
-            BlocksOnGrid.Remove(block);
+            BlocksOnGrid.Remove(blockModel);
             // infectedBlocks.Remove(block);
             // preInfectBlocks.Remove(block);
-            OnBlockDestroyed?.Invoke(block);
-            var atoms = new List<Atom>(block.Atoms);
+            OnBlockDestroyed?.Invoke(blockModel);
+            var atoms = new List<AtomView>(blockModel.Atoms);
             if (_currentSceneType is SceneType.Gameplay) 
-                await block.Explode(fitType, destroy);
+                await blockModel.Explode(fitType, destroy);
             foreach (var atom in atoms)
             {
                 var cellModel = GetCellByPosition(atom.transform.position);
@@ -626,7 +626,7 @@ namespace FitMe.Grid
         /// <param name="destroy">Destroy the blocks, false by default</param>
         public async UniTask RemoveAllBlocks(bool destroy = false)
         {
-            List<Block> blocksToRemove = new List<Block>(BlocksOnGrid);
+            List<BlockModel> blocksToRemove = new List<BlockModel>(BlocksOnGrid);
             await UniTask.WhenAll(blocksToRemove.Select(block => RemoveBlock(block, FitType.FitMe, destroy)));
         }
         
@@ -657,14 +657,14 @@ namespace FitMe.Grid
         /// <summary>
         /// Check for contact with other blocks
         /// </summary>
-        /// <param name="block">Current block</param>
+        /// <param name="blockModel">Current block</param>
         /// <param name="contactedBlocks">List of contacted blocks</param>
         /// <returns>true if the contacted blocks count is greater than or equal to the destroy threshold, false otherwise</returns>
-        private bool CheckForContact(Block block, List<Block> contactedBlocks)
+        private bool CheckForContact(BlockModel blockModel, List<BlockModel> contactedBlocks)
         {
-            BlockTypes currentType = block.BlockType;
-            contactedBlocks.Add(block);
-            foreach (var cell in block.BlockCells)
+            BlockTypes currentType = blockModel.BlockType;
+            contactedBlocks.Add(blockModel);
+            foreach (var cell in blockModel.BlockCells)
             {
                 var upCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0] - 1, cell.ArrayIndex.Value[1]);
                 var downCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0] + 1, cell.ArrayIndex.Value[1]);
@@ -674,7 +674,7 @@ namespace FitMe.Grid
                 foreach (var adjacentCell in adjacentCells)
                 {
                     if (adjacentCell == null || !adjacentCell.CurrentAtom.Value) continue;
-                    var adjacentBlock = adjacentCell.CurrentAtom.Value.ParentBlock;
+                    var adjacentBlock = adjacentCell.CurrentAtom.Value.ParentBlockModel;
                     if (adjacentBlock.BlockState is BlockState.Infected or BlockState.Exploding) continue;
                     if (adjacentBlock.BlockType != currentType) continue;
                     if (contactedBlocks.Contains(adjacentBlock)) continue;
@@ -702,8 +702,8 @@ namespace FitMe.Grid
                     var cell = _cellArray[x, y];
                     if (cell == null) continue;
                     if (cell.CurrentAtom.Value
-                        && cell.CurrentAtom.Value.ParentBlock 
-                        && cell.CurrentAtom.Value.ParentBlock.BlockState is not BlockState.Exploding) continue;
+                        && cell.CurrentAtom.Value.ParentBlockModel 
+                        && cell.CurrentAtom.Value.ParentBlockModel.BlockState is not BlockState.Exploding) continue;
                     vacantSchema[x, y] = 1;
                     vacantCount++;
                     isVacant = true;
@@ -719,11 +719,11 @@ namespace FitMe.Grid
         /// <param name="blockToCheck">Blocks to check</param>
         /// <param name="availableBlocks">Available blocks</param>
         /// <returns>true if the block can be placed, false otherwise</returns>
-        public bool CheckAvailableBlock(List<Block> blockToCheck, out List<Block> availableBlocks)
+        public bool CheckAvailableBlock(List<BlockModel> blockToCheck, out List<BlockModel> availableBlocks)
         {
             CreateVacantSchema(out var vacantSchema, out _);
             _vacantSchema = vacantSchema;
-            availableBlocks = new List<Block>();
+            availableBlocks = new List<BlockModel>();
             foreach (var block in blockToCheck)
             {
                 if (CompareSchema(block, block.transform.eulerAngles.z))
@@ -741,29 +741,29 @@ namespace FitMe.Grid
         /// <summary>
         /// Compare the schema of the block with the vacant schema
         /// </summary>
-        /// <param name="block">Block to compare</param>
+        /// <param name="blockModel">Block to compare</param>
         /// <param name="currentZEulerAngle">current Z euler angle of the block</param>
         /// <returns>true if the block can be placed, false otherwise</returns>
-        private bool CompareSchema(Block block, float currentZEulerAngle)
+        private bool CompareSchema(BlockModel blockModel, float currentZEulerAngle)
         {
             var index = (int)currentZEulerAngle / 90;
-            Debug.Log("Block " + block.name + " angle: " + currentZEulerAngle + ", index: " + index);
-            if (ArrayHelper.CanBFitInA(_vacantSchema, block.BlockPreset.BlockSchemas[index].schema, out _))
+            Debug.Log("Block " + blockModel.name + " angle: " + currentZEulerAngle + ", index: " + index);
+            if (ArrayHelper.CanBFitInA(_vacantSchema, blockModel.BlockPreset.BlockSchemas[index].schema, out _))
             {
-                Debug.Log("Block " + block.name + " can be placed");
+                Debug.Log("Block " + blockModel.name + " can be placed");
                 return true;
             }
             return false;
         }
         
-        public bool CompareSchema(Block block, int schemaIndex)
+        public bool CompareSchema(BlockModel blockModel, int schemaIndex)
         {
-            if (schemaIndex < 0 || schemaIndex >= block.BlockPreset.BlockSchemas.Count)
+            if (schemaIndex < 0 || schemaIndex >= blockModel.BlockPreset.BlockSchemas.Count)
             {
                 Debug.LogError("Invalid schema index: " + schemaIndex);
                 return false;
             }
-            return CompareSchema(block, schemaIndex * 90f);
+            return CompareSchema(blockModel, schemaIndex * 90f);
         }
         #endregion
         

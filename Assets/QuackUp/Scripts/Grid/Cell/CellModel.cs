@@ -10,9 +10,11 @@ namespace FitMe.Grid
         CanBePlaced,
         CannotBePlaced,
     }
+    
+    [Serializable]
     public class CellModel : IDisposable
     {
-        public ReactiveProperty<Atom> CurrentAtom { get; set; } = new();
+        public ReactiveProperty<AtomView> CurrentAtom { get; set; } = new();
         public ReactiveProperty<Vector2Int> ArrayIndex { get; set; } = new();
         public ReactiveProperty<Vector2Int> GridIndex { get; set; } = new();
         public ReactiveProperty<CellState> State { get; set; } = new(CellState.None);

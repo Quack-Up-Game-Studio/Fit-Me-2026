@@ -86,6 +86,14 @@ namespace FitMe.Grid
         #endregion
 
         #region Fields and Properties
+        private Color _infectColor;
+        private Vector3 _originalPosition;
+        private Vector3 _originalRotation;
+        private Color _beforeFlashColor;
+        private Vector3 _mousePositionDifference;
+        private Tween _transformTween;
+        private Tween _flashTween;
+        private Tween _preInfectTween;
         private BlockTypes _blockType;
         private MeshRenderer _meshRenderer;
         private Vector3 _originalScale;
@@ -260,6 +268,102 @@ namespace FitMe.Grid
             {
                 Debug.LogWarning("InfectedSpriteRenderer is not assigned. Infected sprite will not be visible.");
             }
+        }
+        
+        public void PickUpBlock()
+        {
+            //Tween the block to (1, 1, 1) scale
+            if (_transformTween.isAlive)
+            {
+                _transformTween.Stop();
+            }
+            var gridSize = GridManager.Instance.Grid.cellSize;
+            Tween.Scale(transform, gridSize, 0.2f);
+            if (BlockView) BlockView.PickUp();
+        }
+
+        /// <summary>
+        /// Return the block to its original position, rotation and scale
+        /// </summary>
+        public void ReturnToOriginal()
+        {
+            if (_transformTween.isAlive)
+            {
+                _transformTween.Stop();
+            }
+            SetSortingLayer(originalSortingLayer);
+            _transformTween = Tween.Position(transform, _originalPosition, 0.2f);
+            Tween.Rotation(transform, _originalRotation, 0.2f);
+            Tween.Scale(transform, _originalScale, 0.2f);
+            if (BlockView) BlockView.Place();
+            GridManager.Instance.ResetPreviousValidationCells();
+        }
+        
+        public void ResetSortingLayer()
+        {
+            if (useAtomSprite)
+            {
+                Atoms.ForEach(atom => atom.SpriteRenderer.sortingLayerID = originalSortingLayer);
+                return;
+            }
+            BlockView.SetSortingLayer(originalSortingLayer);
+        }
+
+        public void SetSortingLayer(int layer)
+        {
+            if (useAtomSprite)
+            {
+                Atoms.ForEach(atom => atom.SpriteRenderer.sortingLayerID = layer);
+                return;
+            }
+            BlockView.SetSortingLayer(layer);
+        }
+
+        /// <summary>
+        /// Set the sorting order of atoms
+        /// </summary>
+        /// <param name="order">Order to render</param>
+        public void SetSortingOrder(int order)
+        {
+            if (useAtomSprite)
+            {
+                Atoms.ForEach(atom => atom.SpriteRenderer.sortingOrder = order);
+                return;
+            }
+            BlockView.SetSortingOrder(order);
+        }
+        
+        public void ChangeSortingOrder(int change)
+        {
+            if (useAtomSprite)
+            {
+                Atoms.ForEach(atom => atom.SpriteRenderer.sortingOrder += change);
+                return;
+            }
+            BlockView.ChangeSortingOrder(change);
+        }
+
+        public void SetColor(Color color)
+        {
+            if (useAtomSprite)
+            {
+                Atoms.ForEach(atom => atom.SpriteRenderer.color = color);
+                return;
+            }
+            BlockView.SetColor(color);
+        }
+
+        public async UniTask Explode(FitType fitType, bool destroy = false)
+        {
+            BlockState = BlockState.Exploding;
+            StopPreInfectFlash();
+            SetColor(originalAtomColor);
+            if (BlockView)
+            {
+                await BlockView.Explode(fitType);
+            }
+            Debug.Log($"Block {BlockType} exploded at position {transform.position}");
+            if (destroy) Destroy(gameObject);
         }
         #endregion
     }
