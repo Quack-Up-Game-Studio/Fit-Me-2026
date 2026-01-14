@@ -1,12 +1,11 @@
 ﻿using System;
-using QuackUp.Core;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace QuackUp.Core
+namespace QuackUp.SceneManagement
 {
     [Serializable]
     public record LoadSceneManagerDebugData : IDebugData

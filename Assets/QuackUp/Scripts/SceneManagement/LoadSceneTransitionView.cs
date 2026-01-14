@@ -1,11 +1,11 @@
 ﻿using System.Threading;
 using Cysharp.Threading.Tasks;
-using QuackUp.Utils;
 using PrimeTween;
+using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace QuackUp.Core
+namespace QuackUp.SceneManagement
 {
     public class LoadSceneTransitionView : MonoBehaviour, ITransitionable
     {

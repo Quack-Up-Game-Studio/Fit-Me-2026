@@ -1,11 +1,15 @@
 {
-    "name": "QuackUp.Core",
-    "rootNamespace": "QuackUp.Core",
+    "name": "QuackUp.SceneManagement",
+    "rootNamespace": "QuackUp.SceneManagement",
     "references": [
         "GUID:11c1da7ad5eea0631bd966b09402e5f3",
+        "GUID:5b07139c813055a45b749292fa7fbcdd",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
         "GUID:08b38f39e2d9e594389b7a4cf4c2c338",
+        "GUID:80ecb87cae9c44d19824e70ea7229748",
+        "GUID:b52c6daf0f9f3974fb04e400a06c9369",
         "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
-        "GUID:4f682e06dbb3e624faedad9cc27106cc"
+        "GUID:0c752da273b17c547ae705acf0f2adf2"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

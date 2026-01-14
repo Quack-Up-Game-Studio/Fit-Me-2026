@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 
-namespace QuackUp.Core
+namespace QuackUp.SceneManagement
 {
     [CreateAssetMenu(fileName = "LoadSceneManagerConfig", menuName = "QuackUp/Core/LoadSceneManagerConfig")]
     [ShowOdinSerializedPropertiesInInspector]
@@ -24,5 +24,17 @@ namespace QuackUp.Core
         [field: ShowIf(nameof(MinimumLoadingScreenDuration)),
                 SerializeField] public float LoadingScreenDuration { get; private set; } = 1f;
         [field: SerializeField] public EventReference TransitionSfx { get; private set; }
+        
+        public bool TryGetSceneType(string scenePath, out SceneType? sceneType)
+        {
+            foreach (var pair in SceneReferences)
+            {
+                if (pair.Value.Path != scenePath) continue;
+                sceneType =  pair.Key;
+                return true;
+            }
+            sceneType = null;
+            return false;
+        }
     }
 }
