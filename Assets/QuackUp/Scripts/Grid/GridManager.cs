@@ -6,6 +6,7 @@ using FMODUnity;
 using MessagePipe;
 using ObservableCollections;
 using QuackUp.SceneManagement;
+using QuackUp.Utils;
 using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
@@ -71,6 +72,7 @@ namespace FitMe.Grid
         private readonly UnityEngine.Grid _grid;
         private readonly GridManagerConfig _config;
         private readonly CellFactory _cellFactory;
+        private readonly IViewLocator _viewLocator;
         private readonly ISubscriber<LoadSceneStageEvent> _sceneStageSubscriber;
         
         private IDisposable _subscriptions;
@@ -111,9 +113,6 @@ namespace FitMe.Grid
         public ObservableList<BlockModel> BlocksOnGrid { get; private set; } = new();
         [SerializeField, ShowIf("@CurrentGridPreset && CurrentGridPreset.PresetGridType.HasFlag(GridType.Custom)")]
         private bool drawAllCustomGridCells = true;
-
-        // [Title("Infected Debug")]
-        // [ShowInInspector, DisplayAsString] public int TotalInfected => preInfectBlocks.Count + infectedBlocks.Count;
         
         [Button("Test Fit-me")]
         private void TestFitMe()
@@ -121,10 +120,6 @@ namespace FitMe.Grid
             OnScoreAdded?.Invoke(ScoreTypes.FitMe, worldPosition: GetGridCenter());
             OnNextGameDifficulty?.Invoke();
         }
-        // [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public float RandomInfectedTime { get; private set; }
-        // [SerializeField, Sirenix.OdinInspector.ReadOnly] private List<Block> preInfectBlocks = new();
-        // [SerializeField, Sirenix.OdinInspector.ReadOnly] private List<Block> infectedBlocks = new();
-        // [ShowInInspector, Sirenix.OdinInspector.ReadOnly] private Dictionary<GameDifficulty, List<GridPreset>> _difficultyGridPresets = new();
         #endregion
 
         #region Fields and Properties
@@ -138,10 +133,6 @@ namespace FitMe.Grid
         public static event Action<FitType> OnFitCheck;
         public static event Action OnNextGameDifficulty;
         public UnityEngine.Grid Grid => _grid;
-        // private IRequestHandler<GameStateRequest, GameState> _gameStateRequestHandler;
-        // private IRequestHandler<GameDifficultyRequest, GameDifficulty> _gameDifficultyRequestHandler;
-        // private IRequestHandler<BlockPresetRequest, List<BlockPreset>> _blockPresetRequestHandler;
-        // private IPublisher<StartSpawnEvent> _startSpawnPublisher;
         private int _currentPresetIndex;
         private SceneType _currentSceneType;
         #endregion
@@ -152,11 +143,13 @@ namespace FitMe.Grid
             UnityEngine.Grid grid,
             GridManagerConfig config,
             CellFactory cellFactory,
+            IViewLocator viewLocator,
             ISubscriber<LoadSceneStageEvent> sceneStageSubscriber)
         {
             _grid = grid;
             _config = config;
             _cellFactory = cellFactory;
+            _viewLocator = viewLocator;
             _sceneStageSubscriber = sceneStageSubscriber;
             Subscribe();
         }
@@ -189,10 +182,9 @@ namespace FitMe.Grid
                     OnMainMenuSceneActivated();
                     break;
                 case SceneType.Gameplay:
+                default:
                     OnGameplaySceneActivated();
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(sceneType), sceneType, null);
             }
         }
         
@@ -213,39 +205,6 @@ namespace FitMe.Grid
             // _startSpawnPublisher.Publish(new StartSpawnEvent(randomPreset));
         }
         #endregion
-        
-        // #region Initialization
-        // protected void Awake()
-        // {
-        //     if (!_grid.cellSize.x.Equals(_grid.cellSize.y))
-        //     {
-        //         Debug.LogError("Grid cell size must be the same in both axes!");
-        //     }
-        //     // var infectionConfig = CurrentGridPreset.InfectionSettings;
-        //     // RandomInfectedTime = Random.Range(infectionConfig.InfectionCountRange.x, infectionConfig.InfectionCountRange.y);
-        // }
-        //
-        // private static Dictionary<GameDifficulty, List<GridPreset>> BucketByFlags(
-        //     IEnumerable<GridPreset> source)
-        // {
-        //     // build the empty buckets first (one per defined flag)
-        //     var flags = Enum.GetValues(typeof(GameDifficulty))
-        //         .Cast<GameDifficulty>()
-        //         .Where(f => f != 0 && (f & (f - 1)) == 0)  // only single-bit values
-        //         .ToList();
-        //     var lookup = flags.ToDictionary(f => f, _ => new List<GridPreset>());
-        //     // fill the buckets
-        //     foreach (var item in source)
-        //     {
-        //         foreach (var flag in flags)
-        //         {
-        //             if (item.GameDifficulty.HasFlag(flag))
-        //                 lookup[flag].Add(item);
-        //         }
-        //     }
-        //     return lookup;
-        // }
-        // #endregion
         
         #region Grid Generation
         private void SetUpGameplayGridPreset()
@@ -454,10 +413,11 @@ namespace FitMe.Grid
             List<CellModel> cells = new List<CellModel>();
             foreach (var atom in blockModel.Atoms)
             {
-                Vector3 atomPosition = atom.transform.position;
+                //if (!_viewLocator.TryGetView<AtomView>(atom.Id, out var atomView)) continue;
+                Vector3 atomPosition = atom.TransformData.Position.Value;
                 Vector3 cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
                 CellModel cellModel = GetCellByPosition(cellPosition);
-                if (cellModel == null || cellModel.CurrentAtom.Value)
+                if (cellModel == null || cellModel.CurrentAtom.Value != null)
                 {
                     continue;
                 }
@@ -484,16 +444,21 @@ namespace FitMe.Grid
         /// <returns>true if the placement is valid, false otherwise</returns>
         public bool PlaceBlock(BlockModel blockModel)
         {
+            //if (!_viewLocator.TryGetView<BlockView>(blockModel.Id, out var blockView)) return false;
+            var blockTransformData = blockModel.TransformData;
             var cellSize = _grid.cellSize.x;
-            blockModel.transform.localScale = Vector3.one * cellSize;
-            var atomPositionBeforePlacement = blockModel.Atoms[0].transform.position;
+            blockTransformData.LocalScale.Value = Vector3.one * cellSize;
+            //if (!_viewLocator.TryGetView<AtomView>(blockModel.Atoms[0].Id, out var firstAtomView)) return false;
+            var firstAtomTransformData = blockModel.Atoms[0].TransformData;
+            var atomPositionBeforePlacement = firstAtomTransformData.Position.Value;
             var cells = new List<CellModel>();
             foreach (var atom in blockModel.Atoms)
             {
-                var atomPosition = atom.transform.position;
+                //if (!_viewLocator.TryGetView<AtomView>(atom.Id, out var atomView)) continue;
+                var atomPosition = atom.TransformData.Position.Value;
                 var cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
                 var cellModel = GetCellByPosition(cellPosition);
-                if (cellModel == null || cellModel.CurrentAtom.Value)
+                if (cellModel == null || cellModel.CurrentAtom.Value != null)
                 {
                     return false;
                 }
@@ -504,37 +469,36 @@ namespace FitMe.Grid
                 var atom = blockModel.Atoms[i];
                 cells[i].CurrentAtom.Value = atom;
             }
-            var atomPositionAfterPlacement = blockModel.Atoms[0].transform.position;
+            var atomPositionAfterPlacement = firstAtomTransformData.Position.Value;
             var blockPositionRelativeToAtom = atomPositionAfterPlacement - atomPositionBeforePlacement;
-            blockModel.transform.position += blockPositionRelativeToAtom;
-            blockModel.transform.SetParent(_grid.transform);
+            blockTransformData.Position.Value += blockPositionRelativeToAtom;
             blockModel.BlockCells = cells;
             BlocksOnGrid.Add(blockModel);
-            blockModel.ResetSortingLayer();
-            ReorderRenderingOrder();
-            OnScoreAdded?.Invoke(ScoreTypes.Placement, worldPosition: blockModel.transform.position);
+            OnScoreAdded?.Invoke(ScoreTypes.Placement, worldPosition: blockTransformData.Position.Value);
             ResetPreviousValidationCells();
-            var blockView = blockModel.BlockView;
-            if (blockView) blockView.Place();
+            blockModel.BlockInteractionState.Value = BlockInteractionState.Placed;
+            blockModel.BlockView.SetParent(_grid.transform);
+            //blockView.ResetSortingLayer();
+            ReorderRenderingOrder();
             var fit = UpdateBlockOnGrid(blockModel);
             OnFitCheck?.Invoke(fit);
             if (_currentSceneType == SceneType.Gameplay)
             {
                 if (fit is FitType.FitMe)
                 {
-                    BlockManager.Instance.FreeSpawnPoint(blockModel.SpawnIndex);
-                    BlockManager.Instance.ResetSpawnPoint();
-                    BlockManager.Instance.SpawnRandomBlock();
+                    // BlockManager.Instance.FreeSpawnPoint(blockModel.SpawnIndex);
+                    // BlockManager.Instance.ResetSpawnPoint();
+                    // BlockManager.Instance.SpawnRandomBlock();
                 }
                 else
                 {
-                    BlockManager.Instance.FreeSpawnPoint(blockModel.SpawnIndex);
-                    BlockManager.Instance.ResetSpawnPoint();
-                    BlockManager.Instance.SpawnRandomBlock();
+                    // BlockManager.Instance.FreeSpawnPoint(blockModel.SpawnIndex);
+                    // BlockManager.Instance.ResetSpawnPoint();
+                    // BlockManager.Instance.SpawnRandomBlock();
                 }
                 if (fit is FitType.None)
                 {
-                    BlockManager.Instance.GameOverCheck().Forget();
+                    // BlockManager.Instance.GameOverCheck().Forget();
                 }
             }
             OnBlockPlaced?.Invoke(blockModel);
@@ -576,7 +540,7 @@ namespace FitMe.Grid
 
         private async UniTask Combo(List<BlockModel> contacts)
         {
-            var middleOfBlocks = contacts.Select(block => block.transform.position)
+            var middleOfBlocks = contacts.Select(block => block.TransformData.Position.Value)
                 .Aggregate(Vector3.zero, (current, position) => current + position) / contacts.Count;
             List<(BlockState beforeExplodeState, BlockTypes blockType)> blocksToSave = 
                 contacts.Select(block => (block.BlockState, block.BlockType)).ToList();
@@ -585,7 +549,7 @@ namespace FitMe.Grid
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.Combo, blocksToSave);
             OnScoreAdded?.Invoke(ScoreTypes.Combo, contacts.Count, middleOfBlocks);
             OnScoreAdded?.Invoke(ScoreTypes.Bomb, contacts.Count, middleOfBlocks);
-            BlockManager.Instance.GameOverCheck().Forget();
+            //BlockManager.Instance.GameOverCheck().Forget();
         }
         
         /// <summary>
@@ -595,17 +559,14 @@ namespace FitMe.Grid
         /// <param name="destroy">Destroy the block, false by default</param>
         public async UniTask RemoveBlock(BlockModel blockModel, FitType fitType, bool destroy = false)
         {
-            //DisinfectBlock(block);
             BlocksOnGrid.Remove(blockModel);
-            // infectedBlocks.Remove(block);
-            // preInfectBlocks.Remove(block);
             OnBlockDestroyed?.Invoke(blockModel);
-            var atoms = new List<AtomView>(blockModel.Atoms);
+            var atoms = new List<AtomModel>(blockModel.Atoms);
             if (_currentSceneType is SceneType.Gameplay) 
-                await blockModel.Explode(fitType, destroy);
+                await blockModel.BlockView.Explode(fitType, destroy);
             foreach (var atom in atoms)
             {
-                var cellModel = GetCellByPosition(atom.transform.position);
+                var cellModel = GetCellByPosition(atom.TransformData.Position.Value);
                 if (cellModel == null || cellModel.CurrentAtom.Value != atom)
                 {
                     continue;
@@ -648,7 +609,8 @@ namespace FitMe.Grid
             for (var i = 0; i < BlocksOnGrid.Count; i++)
             {
                 var block = BlocksOnGrid[i];
-                block.SetSortingOrder(i);
+                //if (!_viewLocator.TryGetView<BlockView>(block.Id, out var blockView)) continue;
+                block.BlockView.SetSortingOrder(i);
             }
         }
         #endregion
@@ -673,7 +635,7 @@ namespace FitMe.Grid
                 var adjacentCells = new List<CellModel> {upCell, downCell, leftCell, rightCell};
                 foreach (var adjacentCell in adjacentCells)
                 {
-                    if (adjacentCell == null || !adjacentCell.CurrentAtom.Value) continue;
+                    if (adjacentCell?.CurrentAtom.Value == null) continue;
                     var adjacentBlock = adjacentCell.CurrentAtom.Value.ParentBlockModel;
                     if (adjacentBlock.BlockState is BlockState.Infected or BlockState.Exploding) continue;
                     if (adjacentBlock.BlockType != currentType) continue;
@@ -701,9 +663,14 @@ namespace FitMe.Grid
                 {
                     var cell = _cellArray[x, y];
                     if (cell == null) continue;
-                    if (cell.CurrentAtom.Value
-                        && cell.CurrentAtom.Value.ParentBlockModel 
-                        && cell.CurrentAtom.Value.ParentBlockModel.BlockState is not BlockState.Exploding) continue;
+                    if (cell.CurrentAtom.Value is
+                        {
+                            ParentBlockModel:
+                            {
+                                BlockState: not BlockState.Exploding
+                            }
+                        }) 
+                        continue;
                     vacantSchema[x, y] = 1;
                     vacantCount++;
                     isVacant = true;
@@ -726,153 +693,35 @@ namespace FitMe.Grid
             availableBlocks = new List<BlockModel>();
             foreach (var block in blockToCheck)
             {
-                if (CompareSchema(block, block.transform.eulerAngles.z))
+                //if (!_viewLocator.TryGetView<BlockView>(block.Id, out var blockView)) continue;
+                if (CompareSchema(block, block.TransformData.Rotation.Value.eulerAngles.z))
                 {
                     availableBlocks.Add(block);
                     continue;
                 }
-                Debug.Log("Block " + block.name + " cannot be placed");
+                //Debug.Log("Block " + blockView.name + " cannot be placed");
             }
             if (availableBlocks.Count != 0) return true;
             Debug.Log("No blocks can be placed");
             return false;
         }
-
-        /// <summary>
-        /// Compare the schema of the block with the vacant schema
-        /// </summary>
-        /// <param name="blockModel">Block to compare</param>
-        /// <param name="currentZEulerAngle">current Z euler angle of the block</param>
-        /// <returns>true if the block can be placed, false otherwise</returns>
-        private bool CompareSchema(BlockModel blockModel, float currentZEulerAngle)
+        
+        public bool CompareSchema(BlockModel block, float zAngle)
         {
-            var index = (int)currentZEulerAngle / 90;
-            Debug.Log("Block " + blockModel.name + " angle: " + currentZEulerAngle + ", index: " + index);
-            if (ArrayHelper.CanBFitInA(_vacantSchema, blockModel.BlockPreset.BlockSchemas[index].schema, out _))
-            {
-                Debug.Log("Block " + blockModel.name + " can be placed");
-                return true;
-            }
-            return false;
+            var index = (int)zAngle / 90;
+            if (!CompareSchema(block, index)) return false;
+            return true;
         }
         
         public bool CompareSchema(BlockModel blockModel, int schemaIndex)
         {
-            if (schemaIndex < 0 || schemaIndex >= blockModel.BlockPreset.BlockSchemas.Count)
-            {
-                Debug.LogError("Invalid schema index: " + schemaIndex);
-                return false;
-            }
-            return CompareSchema(blockModel, schemaIndex * 90f);
+            if (schemaIndex >= 0 && schemaIndex < blockModel.BlockPreset.BlockSchemas.Count)
+                return ArrayHelper.CanBFitInA(_vacantSchema, blockModel.BlockPreset.BlockSchemas[schemaIndex].schema,
+                    out _);
+            Debug.LogError("Invalid schema index: " + schemaIndex);
+            return false;
         }
         #endregion
-        
-        /*#region Infection
-        
-        public void StopAllPreInfectFlash()
-        {
-            foreach (var block in preInfectBlocks)
-            {
-                block.StopAllFlash();
-            }
-        }
-
-        /// <summary>
-        /// Check if more blocks can be infected
-        /// </summary>
-        /// <returns>>true if more blocks can be infected, false otherwise</returns>
-        private bool CanInfectMore()
-        {
-            var infectionConfig = CurrentGridPreset.InfectionSettings;
-            return TotalInfected < infectionConfig.InfectionCountRange.y;
-        }
-
-        public void InfectBlock(Block block)
-        {
-            if (_gameStateRequestHandler == null) return;
-            var currentGameState = _gameStateRequestHandler.Invoke(new GameStateRequest());
-            if (currentGameState is not (GameState.PlaceBlock or GameState.UseItem)) return;
-            preInfectBlocks.Remove(block);
-            infectedBlocks.Add(block);
-            block.Infect();
-            OnBlockStateChanged?.Invoke(block);
-            var infectionConfig = CurrentGridPreset.InfectionSettings;
-            RandomInfectedTime = Random.Range(infectionConfig.InfectionTimeRange.x, infectionConfig.InfectionTimeRange.y);
-        }
-
-        public void DisinfectBlock(Block block, bool updateGrid = false)
-        {
-            if (_gameStateRequestHandler == null) return;
-            var currentGameState = _gameStateRequestHandler.Invoke(new GameStateRequest());
-            if (currentGameState is not (GameState.PlaceBlock or GameState.UseItem)) return;
-            block.Disinfect();
-            OnBlockStateChanged?.Invoke(block);
-            infectedBlocks.Remove(block);
-            if (updateGrid) UpdateBlockOnGrid(block);
-        }
-        
-        public bool InfectRandomBlock(out Block block)
-        {
-            block = null;
-            if (preInfectBlocks.Count >= 1) return false;
-            if (!CanInfectMore()) return false;
-            if (BlocksOnGrid.Count == 0) return false;
-            
-            var infectableBlocks = BlocksOnGrid.Where(block => block.BlockState == BlockState.Normal).ToList();
-            if (infectableBlocks.Count == 0) return false;
-            var infectBlock = infectableBlocks.GetRandomElement();
-            infectBlock.PreInfect().Forget();
-            OnBlockStateChanged?.Invoke(infectBlock);
-            preInfectBlocks.Add(infectBlock);
-            block = infectBlock;
-            return true;
-        }
-
-        public void InfectAdjacentBlocks(Block sourceBlock)
-        {
-            if (!CanInfectMore()) return;
-            if (preInfectBlocks.Count >= 1) return;
-            if (!sourceBlock || sourceBlock.BlockState is not (BlockState.Infected or BlockState.PreInfected)) return;
-
-            var candidatesForInfection = new List<Block>();
-
-            foreach (var atom in sourceBlock.Atoms)
-            {
-                Cell cell = GetCellByPosition(atom.transform.position);
-                if (!cell) continue;
-
-                int x = cell.ArrayIndex[0];
-                int y = cell.ArrayIndex[1];
-                
-                Cell[] adjacentCells =
-                {
-                    GetCellByArrayIndex(x - 1, y),
-                    GetCellByArrayIndex(x + 1, y),
-                    GetCellByArrayIndex(x, y - 1),
-                    GetCellByArrayIndex(x, y + 1)
-                };
-
-                foreach (var adjacentCell in adjacentCells)
-                {
-                    if (!adjacentCell || !adjacentCell.CurrentAtom) continue;
-                    Block adjacentBlock = adjacentCell.CurrentAtom.ParentBlock;
-            
-                    if (adjacentBlock && adjacentBlock.BlockState == BlockState.Normal)
-                    {
-                        candidatesForInfection.Add(adjacentBlock);
-                    }
-                }
-            }
-            
-            if (candidatesForInfection.Count > 0)
-            {
-                var blockToInfect = candidatesForInfection.GetRandomElement(); 
-                blockToInfect.PreInfect().Forget();
-                OnBlockStateChanged?.Invoke(blockToInfect);
-                preInfectBlocks.Add(blockToInfect);
-            }
-        }
-        #endregion*/
         
         #region Utils
         /// <summary>
@@ -1016,7 +865,7 @@ namespace FitMe.Grid
         private static CellModel DrawCellArrayMatrix(Rect rect, CellModel cellModel)
         {
             if (cellModel == null) return null;
-            EditorGUI.DrawRect(rect.Padding(1), cellModel.CurrentAtom.Value ? Color.green : Color.grey);
+            EditorGUI.DrawRect(rect.Padding(1), cellModel.CurrentAtom.Value != null ? Color.green : Color.grey);
             return cellModel;
         }
         #endregion

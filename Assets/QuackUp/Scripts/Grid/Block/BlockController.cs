@@ -78,7 +78,8 @@ namespace FitMe.Grid
                 return;
             }
             if (GameStatic.CurrentGameState is not GameState.PlaceBlock) return;
-            if (_model.IsPlaced && !_config.AllowPickUpAfterPlacement) return;
+            if (_model.BlockInteractionState.Value is BlockInteractionState.Placed 
+                && !_config.AllowPickUpAfterPlacement) return;
             var position = transform.position;
             var mousePosition = PointerManager.Instance.MouseWorldPosition;
             _mousePositionDifference = new Vector3(mousePosition.x - position.x,
@@ -96,7 +97,8 @@ namespace FitMe.Grid
                 return;
             }
             if (GameStatic.CurrentGameState is not GameState.PlaceBlock) return;
-            if (_model.IsPlaced && !_config.AllowPickUpAfterPlacement) return;
+            if (_model.BlockInteractionState.Value is BlockInteractionState.Placed 
+                && !_config.AllowPickUpAfterPlacement) return;
             HandleBlockManipulation();
             _gridManager.ValidatePlacement(_model);
             var mousePosition = PointerManager.Instance.MouseWorldPosition;
@@ -114,7 +116,7 @@ namespace FitMe.Grid
             var placed = _gridManager.PlaceBlock(_model);
             if (placed)
             {
-                _model.IsPlaced = true;
+                _model.BlockInteractionState.Value = BlockInteractionState.Placed;
                 _audioManager.PlayAudioOneShot(_config.PlaceSucceedSfx, Vector3.zero);
                 _mousePositionDifference = Vector3.zero;
             }
@@ -122,7 +124,7 @@ namespace FitMe.Grid
             {
                 _audioManager.PlayAudioOneShot(_config.PlaceFailSfx, Vector3.zero);
                 ReturnToOriginal();
-                _model.IsPlaced = false;
+                _model.BlockInteractionState.Value = BlockInteractionState.None;
             }
             _isDragging = false;
         }

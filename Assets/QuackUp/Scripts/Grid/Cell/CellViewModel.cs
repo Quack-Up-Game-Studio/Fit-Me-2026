@@ -1,4 +1,5 @@
 using System;
+using QuackUp.Utils;
 using R3;
 using UnityEngine;
 
@@ -8,7 +9,13 @@ namespace FitMe.Grid
     {
         public ReadOnlyReactiveProperty<Vector2Int> ArrayIndex { get; private set; }
         public ReadOnlyReactiveProperty<CellState> State { get; private set; }
-        public event Action OnDisposed;
+        public TransformData TransformData => _model.TransformData;
+        //expose event directly from the model
+        public event Action OnDisposed
+        {
+            add => _model.OnDisposed += value;
+            remove => _model.OnDisposed -= value;
+        }
 
         private readonly CellModel _model;
         private IDisposable _bindings;
@@ -28,11 +35,6 @@ namespace FitMe.Grid
             State = _model.State
                 .ToReadOnlyReactiveProperty()
                 .AddTo(ref disposableBuilder);
-            Observable.FromEvent(
-                h => _model.OnDisposed += h,
-                h => _model.OnDisposed -= h)
-                .Subscribe(_ => OnModelDisposed())
-                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
@@ -44,7 +46,6 @@ namespace FitMe.Grid
         public void Dispose()
         {
             _bindings?.Dispose();
-            OnDisposed?.Invoke();
         }
     }
 }

@@ -22,18 +22,12 @@ namespace FitMe.Grid
         Exploding
     }
 
-    public enum BlockInteractionType
+    public enum BlockInteractionState
     {
         None,
-        PickUp
+        PickUp,
+        Placed
     }
-    
-    // public enum FlashState
-    // {
-    //     None,
-    //     Flashing,
-    //     PreInfectFlash
-    // }
     
     public enum BlockTypes
     {
@@ -54,51 +48,37 @@ namespace FitMe.Grid
         [Inject]
         public BlockModel(
             BlockConfig config,
-            AtomFactory atomFactory)
+            AtomFactory atomFactory,
+            IBlockView blockView)
         {
             _config = config;
             _atomFactory = atomFactory;
+            BlockView = blockView;
             Initialize();
         }
         
         #region Inspectors
         [field: Title("Block Debug")]
-        [field: SerializeField, DisplayAsString] public BlockTypes BlockType { get; private set; }
-        [field: SerializeField, DisplayAsString] public string BlockFace { get; private set; }
-        [field: SerializeField, ReadOnly] public List<AtomModel> Atoms { get; private set; } = new();
-        [field: SerializeField, ReadOnly] public BlockPreset BlockPreset { get; private set; }
-        // [SerializeField, DisplayAsString] private FlashState flashState;
-        [field: SerializeField, DisplayAsString] public BlockState BlockState { get; private set; } = BlockState.Normal;
-        [field: SerializeField, DisplayAsString] public BlockInteractionType BlockInteractionType { get; private set; } = BlockInteractionType.None;
-        [field: SerializeField, DisplayAsString] public bool IsPlaced { get; set; }
-        [field: SerializeField, ReadOnly] public List<CellModel> BlockCells { get; set; }
-        //[field: SerializeField, ReadOnly] public BlockView BlockView { get; private set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public BlockTypes BlockType { get; private set; }
+        public string BlockFace { get; private set; }
+        public List<AtomModel> Atoms { get; private set; } = new(); 
+        public BlockPreset BlockPreset { get; private set; }
+        public BlockState BlockState { get; private set; } = BlockState.Normal;
+        public ReactiveProperty<BlockInteractionState> BlockInteractionState { get; private set; } = new(Grid.BlockInteractionState.None);
+        public List<CellModel> BlockCells { get; set; }
         public int SpawnIndex { get; set; }
-        //public BlockState beforeExplodeState = BlockState.Normal;
+        public int RotationalIndex { get; set; }
+        public IBlockView BlockView { get; private set; }
+        public TransformData TransformData { get; set; } = new();
+        
+        private int _originalSortingOrder;
         #endregion
-
-        #region Initialization
-        private void Initialize()
+        
+        public void Initialize()
         {
-            Atoms.ForEach(a => a.ParentBlockModel = this);
+            Atoms.ForEach(x => x.ParentBlockModel = this);
         }
-
-        // private void StartInfectTimer()
-        // {
-        //     _infectionSubscription?.Dispose();
-        //     if (BlockState is not BlockState.Infected) return;
-        //     _infectionSubscription = Observable
-        //         .Interval(TimeSpan.FromSeconds(GridManager.Instance.RandomInfectedTime))
-        //         .Subscribe(_ => GridManager.Instance.InfectAdjacentBlocks(this));
-        // }
-        #endregion
-
-        #region Events
-        void OnDestroy()
-        {
-            
-        }
-        #endregion
 
         #region Schema
         public void GenerateAtom(string blockFace, BlockPreset preset)
@@ -153,55 +133,6 @@ namespace FitMe.Grid
             }
         }
         #endregion
-
-        /*#region Infection
-
-        /// <summary>
-        /// Change state of the block to Protected state.
-        /// In a Protected state, the block cannot be PreInfect and Infect.
-        /// </summary>
-        public async UniTask Protected()
-        {
-            BlockState = BlockState.Protected;
-            
-            await UniTask.WaitForSeconds(_protectedTime,
-                cancellationToken: destroyCancellationToken);
-            BlockState = BlockState.Normal;
-        }
-        
-        public async UniTask PreInfect()
-        {
-            var infectionConfig = GridManager.Instance.CurrentGridPreset.InfectionSettings;
-            BlockState = BlockState.PreInfected;
-            if (BlockView) BlockView.PreInfect();
-            StartFlashing(FlashState.PreInfectFlash);
-            beforeExplodeState = BlockState.PreInfected;
-            AudioManager.Instance.PlayAudioOneShot(preInfectSfx, transform.position);
-            await UniTask.WaitForSeconds(infectionConfig.PreInfectTime,
-                cancellationToken: destroyCancellationToken);
-            if (BlockState is BlockState.Exploding) return;
-            GridManager.Instance.InfectBlock(this);
-        }
-        
-        public void Infect()
-        {
-            BlockState = BlockState.Infected;
-            beforeExplodeState = BlockState.Infected;
-            if (BlockView) BlockView.Infect();
-            StopFlashing();
-            StartInfectTimer();
-            AudioManager.Instance.PlayAudioOneShot(infectSfx, transform.position);
-        }
-        
-        public void Disinfect()
-        {
-            SetColor(originalAtomColor);
-            BlockState = BlockState.Normal;
-            _infectionSubscription?.Dispose();
-        }
-        #endregion*/
-        
-        
         
         #region Utils
         public void ChangeType(BlockTypes type, bool updateGrid = true)
@@ -217,12 +148,12 @@ namespace FitMe.Grid
                     ChangeType(type, updateGrid);
                     return;
                 }
-                if (BlockView)
+                if (Grid.BlockView)
                 {
-                    Destroy(BlockView.gameObject);
+                    Destroy(Grid.BlockView.gameObject);
                 }
-                BlockView = Instantiate(blockViewPrefab, transform.position, Quaternion.identity, transform);
-                BlockView.SetType(type);
+                Grid.BlockView = Instantiate(blockViewPrefab, transform.position, Quaternion.identity, transform);
+                Grid.BlockView.SetType(type);
             }
             else
             {
@@ -253,90 +184,6 @@ namespace FitMe.Grid
             }
             return true;
         }
-        
-        /*public void StartFlashing(FlashState flashState)
-        {
-            switch (flashState)
-            {
-                case FlashState.Flashing:
-                    if(_flashTween.isAlive) return;
-                    
-                    if (_preInfectTween.isAlive)
-                    { _preInfectTween.Complete(); }
-                    SetColor(originalAtomColor);
-                    _flashTween = Tween.Custom(originalAtomColor, Color.red, flashDuration, cycles: -1, cycleMode: CycleMode.Yoyo,
-                        onValueChange: SetColor);
-                    break;
-                
-                case FlashState.PreInfectFlash:
-                    if (BlockState != BlockState.PreInfected) return;
-                    if(_preInfectTween.isAlive) return;
-                    SetColor(originalAtomColor);
-                    _preInfectTween = Tween.Custom(originalAtomColor, _infectColor, flashDuration, cycles: -1, cycleMode: CycleMode.Yoyo,
-                        onValueChange: SetColor);
-                    break;
-                
-                case FlashState.None:
-                    if (BlockState is BlockState.PreInfected)
-                        StartFlashing(FlashState.PreInfectFlash);
-                    else if (BlockState is BlockState.Infected or BlockState.Normal)
-                        StopFlashing();
-                    break;
-            }
-        }
-        
-        public void StopFlashing()
-        {
-            if (_flashTween.isAlive)
-            {
-                _flashTween.Complete();
-                _flashTween = default;
-                SetColor(originalAtomColor);
-            }
-
-            switch (BlockState)
-            {
-                case BlockState.Infected or BlockState.PreInfected:
-                    StopPreInfectFlash();
-                    break;
-                
-                case BlockState.Normal:
-                    flashState = FlashState.None;
-                    break;
-            }
-        }
-        
-        public void StopPreInfectFlash()
-        {
-            if (_preInfectTween.isAlive)
-            {
-                _preInfectTween.Complete();
-                _preInfectTween = default;
-            }
-            
-            switch (BlockState)
-            {
-                case BlockState.PreInfected:
-                    StartFlashing(FlashState.PreInfectFlash);
-                    break;
-                
-                case BlockState.Infected:
-                    flashState = FlashState.None;
-                    SetColor(_infectColor);
-                    break;
-            }
-        }
-        
-        public void StopAllFlash()
-        {
-            if (_flashTween.isAlive)
-            { _flashTween.Stop(); }
-            
-            if (_preInfectTween.isAlive)
-            { _preInfectTween.Stop(); }
-            
-            SetColor(originalAtomColor);
-        }*/
         #endregion
     }
 }

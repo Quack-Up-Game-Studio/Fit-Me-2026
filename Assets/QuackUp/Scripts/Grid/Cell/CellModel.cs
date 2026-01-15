@@ -1,4 +1,5 @@
 using System;
+using QuackUp.Utils;
 using R3;
 using UnityEngine;
 
@@ -14,10 +15,12 @@ namespace FitMe.Grid
     [Serializable]
     public class CellModel : IDisposable
     {
-        public ReactiveProperty<AtomView> CurrentAtom { get; set; } = new();
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public ReactiveProperty<AtomModel> CurrentAtom { get; set; } = new();
         public ReactiveProperty<Vector2Int> ArrayIndex { get; set; } = new();
         public ReactiveProperty<Vector2Int> GridIndex { get; set; } = new();
         public ReactiveProperty<CellState> State { get; set; } = new(CellState.None);
+        public TransformData TransformData { get; set; }
 
         public event Action OnDisposed;
 

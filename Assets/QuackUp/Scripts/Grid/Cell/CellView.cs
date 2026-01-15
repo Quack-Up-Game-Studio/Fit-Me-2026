@@ -1,4 +1,5 @@
 using System;
+using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -50,12 +51,24 @@ namespace FitMe.Grid
             _viewModel.State
                 .Subscribe(OnCellStateChanged)
                 .AddTo(ref disposableBuilder);
+            _viewModel.TransformData.OnChanged
+                .Subscribe(OnTransformDataChanged)
+                .AddTo(ref disposableBuilder);
             Observable.FromEvent(
                     h => _viewModel.OnDisposed += h,
                     h => _viewModel.OnDisposed -= h)
                 .Subscribe(_ => OnViewModelDisposed())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
+        }
+        
+        private void OnTransformDataChanged(TransformData transformData)
+        {
+            transform.position = transformData.Position.Value;
+            transform.localPosition = transformData.LocalPosition.Value;
+            transform.rotation = transformData.Rotation.Value;
+            transform.localRotation = transformData.LocalRotation.Value;
+            transform.localScale = transformData.LocalScale.Value;
         }
 
         private void OnArrayIndexChanged(Vector2Int arrayIndex)

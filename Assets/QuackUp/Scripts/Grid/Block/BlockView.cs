@@ -2,17 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
 using PrimeTween;
 using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
+using VContainer;
 
 namespace FitMe.Grid
 {
+    public interface IBlockView
+    {
+        void SetParent([CanBeNull] Transform parent);
+        void SetSortingLayer(int layer);
+        void SetSortingOrder(int order);
+        UniTask Explode(FitType fitType, bool destroy = true);
+    }
+    
     [ShowOdinSerializedPropertiesInInspector]
-    public class BlockView : SerializedMonoBehaviour
+    public class BlockView : SerializedMonoBehaviour, IDisposable, IBlockView
     {
         [Serializable]
         private record SkinWrapper
@@ -86,22 +96,67 @@ namespace FitMe.Grid
         #endregion
 
         #region Fields and Properties
-        private Color _infectColor;
+
+        private MeshRenderer _meshRenderer;
         private Vector3 _originalPosition;
         private Vector3 _originalRotation;
-        private Color _beforeFlashColor;
         private Vector3 _mousePositionDifference;
         private Tween _transformTween;
-        private Tween _flashTween;
-        private Tween _preInfectTween;
         private BlockTypes _blockType;
-        private MeshRenderer _meshRenderer;
         private Vector3 _originalScale;
         private Tween _pickUpTween;
         private IDisposable _switchIdleTimer;
         private CancellationTokenSource _switchIdleCts;
+
+        private BlockViewModel _viewModel;
+        private IDisposable _bindings;
         #endregion
+
+        [Inject]
+        public void Construct(
+            BlockViewModel viewModel)
+        {
+            _viewModel = viewModel;
+            Bind();
+        }
+
+        private void Bind()
+        {
+            var disposableBuilder = Disposable.CreateBuilder();
+            _viewModel.BlockInteractionState
+                .Subscribe(OnInteractionStateChanged)
+                .AddTo(ref disposableBuilder);
+            _bindings = disposableBuilder.Build();
+        }
+
+        public void Dispose()
+        {
+            _bindings?.Dispose();
+        }
         
+        private void OnDestroy()
+        {
+            CancelIdleTimer();
+            Dispose();
+        }
+        
+        public void OnInteractionStateChanged(BlockInteractionState state)
+        {
+            switch (state)
+            {
+                case BlockInteractionState.None:
+                    break;
+                case BlockInteractionState.PickUp:
+                    PickUp();
+                    break;
+                case BlockInteractionState.Placed:
+                    Place();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+        }
+
         #region Initalization
         private void Awake()
         {
@@ -153,11 +208,6 @@ namespace FitMe.Grid
             _switchIdleCts = null;
         }
 
-        private void OnDestroy()
-        {
-            CancelIdleTimer();
-        }
-
         public void PickUp()
         {
             CancelIdleTimer();
@@ -173,8 +223,11 @@ namespace FitMe.Grid
             StartIdleTimer();
         }
         
-        public async UniTask Explode(FitType fitType)
+        public async UniTask Explode(FitType fitType, bool destroy = true)
         {
+            BlockState = BlockState.Exploding;
+            SetColor(originalAtomColor);
+            Debug.Log($"Block {BlockType} exploded at position {transform.position}");
             CancelIdleTimer();
             var speedMultiplier = fitType == FitType.FitMe ? 2f : 6.67f;
             var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, explodeAnimation, false);
@@ -190,6 +243,30 @@ namespace FitMe.Grid
             {
                 Debug.LogWarning($"No explosion VFX found for block type: {_blockType}");
             }
+            if (destroy) Destroy(gameObject);
+        }
+
+        public void SetParent(Transform parent)
+        {
+            transform.SetParent(parent, true);
+        }
+        
+        public void SetSortingLayer(int layer)
+        {
+            _meshRenderer.sortingLayerID = layer;
+            if (infectedSpriteRenderer)
+            {
+                infectedSpriteRenderer.sortingLayerID = layer;
+            }
+        }
+        
+        public void SetSortingOrder(int order)
+        {
+            _meshRenderer.sortingOrder = order;
+            if (infectedSpriteRenderer)
+            {
+                infectedSpriteRenderer.sortingOrder = order;
+            }
         }
 
         public void SetType(BlockTypes type)
@@ -202,72 +279,6 @@ namespace FitMe.Grid
             _blockType = type;
             skeletonAnimation.Skeleton.SetSkin(skin);
             skeletonAnimation.Skeleton.SetSlotsToSetupPose();
-        }
-
-        public void SetSortingLayer(int layer)
-        {
-            _meshRenderer.sortingLayerID = layer;
-            if (infectedSpriteRenderer)
-            {
-                infectedSpriteRenderer.sortingLayerID = layer;
-            }
-            else
-            {
-                Debug.LogWarning("InfectedSpriteRenderer is not assigned. Sorting layer will not be set for infected sprite.");
-            }
-        }
-        
-        public void SetSortingOrder(int order)
-        {
-            _meshRenderer.sortingOrder = order;
-            if (infectedSpriteRenderer)
-            {
-                infectedSpriteRenderer.sortingOrder = order;
-            }
-            else
-            {
-                Debug.LogWarning("InfectedSpriteRenderer is not assigned. Sorting order will not be set for infected sprite.");
-            }
-        }
-
-        public void ChangeSortingOrder(int change)
-        {
-            _meshRenderer.sortingOrder += change;
-            if (infectedSpriteRenderer)
-            {
-                infectedSpriteRenderer.sortingOrder += change;
-            }
-            else
-            {
-                Debug.LogWarning("InfectedSpriteRenderer is not assigned. Sorting order will not be changed for infected sprite.");
-            }
-        }
-
-        public void SetColor(Color color)
-        {
-            skeletonAnimation.Skeleton.SetColor(color);
-        }
-
-        public void PreInfect()
-        {
-            CancelIdleTimer();
-            skeletonAnimation.AnimationState.SetAnimation(0, preInfectedAnimation, true);
-        }
-
-        public void Infect()
-        {
-            CancelIdleTimer();
-            if (infectedSpriteRenderer)
-            {
-                infectedSpriteRenderer.enabled = true;
-                _meshRenderer.enabled = false;
-                skeletonAnimation.AnimationState.ClearTrack(0);
-                skeletonAnimation.AnimationState.SetEmptyAnimation(0, 0);
-            }
-            else
-            {
-                Debug.LogWarning("InfectedSpriteRenderer is not assigned. Infected sprite will not be visible.");
-            }
         }
         
         public void PickUpBlock()
@@ -297,73 +308,6 @@ namespace FitMe.Grid
             Tween.Scale(transform, _originalScale, 0.2f);
             if (BlockView) BlockView.Place();
             GridManager.Instance.ResetPreviousValidationCells();
-        }
-        
-        public void ResetSortingLayer()
-        {
-            if (useAtomSprite)
-            {
-                Atoms.ForEach(atom => atom.SpriteRenderer.sortingLayerID = originalSortingLayer);
-                return;
-            }
-            BlockView.SetSortingLayer(originalSortingLayer);
-        }
-
-        public void SetSortingLayer(int layer)
-        {
-            if (useAtomSprite)
-            {
-                Atoms.ForEach(atom => atom.SpriteRenderer.sortingLayerID = layer);
-                return;
-            }
-            BlockView.SetSortingLayer(layer);
-        }
-
-        /// <summary>
-        /// Set the sorting order of atoms
-        /// </summary>
-        /// <param name="order">Order to render</param>
-        public void SetSortingOrder(int order)
-        {
-            if (useAtomSprite)
-            {
-                Atoms.ForEach(atom => atom.SpriteRenderer.sortingOrder = order);
-                return;
-            }
-            BlockView.SetSortingOrder(order);
-        }
-        
-        public void ChangeSortingOrder(int change)
-        {
-            if (useAtomSprite)
-            {
-                Atoms.ForEach(atom => atom.SpriteRenderer.sortingOrder += change);
-                return;
-            }
-            BlockView.ChangeSortingOrder(change);
-        }
-
-        public void SetColor(Color color)
-        {
-            if (useAtomSprite)
-            {
-                Atoms.ForEach(atom => atom.SpriteRenderer.color = color);
-                return;
-            }
-            BlockView.SetColor(color);
-        }
-
-        public async UniTask Explode(FitType fitType, bool destroy = false)
-        {
-            BlockState = BlockState.Exploding;
-            StopPreInfectFlash();
-            SetColor(originalAtomColor);
-            if (BlockView)
-            {
-                await BlockView.Explode(fitType);
-            }
-            Debug.Log($"Block {BlockType} exploded at position {transform.position}");
-            if (destroy) Destroy(gameObject);
         }
         #endregion
     }
