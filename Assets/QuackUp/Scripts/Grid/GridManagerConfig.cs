@@ -9,6 +9,8 @@ namespace FitMe.Grid
     {
         [TitleGroup("Grid Settings")]
         [field: SerializeField]
+        public Vector2 GridSize { get; private set; } = new(10, 10);
+        [field: SerializeField]
         [ValidateInput("@EndlessType != EndlessType.None", "Endless type cannot be None")]
         public EndlessType EndlessType { get; private set; } = EndlessType.All;
         [TitleGroup("Grid Settings")]

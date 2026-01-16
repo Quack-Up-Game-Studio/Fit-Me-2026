@@ -18,24 +18,24 @@ namespace FitMe.Grid
         private readonly BlockModel _model;
         private readonly GridManager _gridManager;
         private readonly IAudioManager _audioManager;
-        private readonly IPlayerInputHandler _inputHandler;
+        private readonly IPointerHandler _pointerHandler;
         
         private IDisposable _bindings;
         private bool _isDragging;
-        private Vector3 _mousePositionDifference;
+        private Vector2 _mousePositionDifference;
 
         public BlockController(
             BlockConfig config,
             BlockModel model, 
             GridManager gridManager,
             IAudioManager audioManager,
-            IPlayerInputHandler inputHandler)
+            IPointerHandler inputHandler)
         {
             _config = config;
             _model = model;
             _gridManager = gridManager;
             _audioManager = audioManager;
-            _inputHandler = inputHandler;
+            _pointerHandler = inputHandler;
             Bind();
         }
 
@@ -70,7 +70,8 @@ namespace FitMe.Grid
         {
             
         }
-        public void OnBeginDrag(PointerEventData eventData)
+
+        private void OnBeginDrag(PointerEventData eventData)
         {
             if (GameStatic.CurrentGameState is GameState.GameOver or GameState.GameClear)
             {
@@ -80,16 +81,16 @@ namespace FitMe.Grid
             if (GameStatic.CurrentGameState is not GameState.PlaceBlock) return;
             if (_model.BlockInteractionState.Value is BlockInteractionState.Placed 
                 && !_config.AllowPickUpAfterPlacement) return;
-            var position = transform.position;
-            var mousePosition = PointerManager.Instance.MouseWorldPosition;
-            _mousePositionDifference = new Vector3(mousePosition.x - position.x,
-                mousePosition.y - position.y, 0);
+            var position = _model.TransformData.Position.Value;
+            var mousePosition = _pointerHandler.MouseWorldPosition;
+            _mousePositionDifference = new Vector2(mousePosition.x - position.x,
+                mousePosition.y - position.y);
             //ChangeSortingOrder(1);
             //AudioManager.Instance.PlayAudioOneShot(BlockPreset.PickupSfx, transform.position);
-            SetSortingLayer(pickUpSortingLayer);
+            _model.BlockView.SetSortingLayer(_config.PickUpSortingLayer);
         }
 
-        public void OnDrag(PointerEventData eventData)
+        private void OnDrag(PointerEventData eventData)
         {
             if (GameStatic.CurrentGameState is GameState.GameOver or GameState.GameClear)
             {
@@ -101,19 +102,20 @@ namespace FitMe.Grid
                 && !_config.AllowPickUpAfterPlacement) return;
             HandleBlockManipulation();
             _gridManager.ValidatePlacement(_model);
-            var mousePosition = PointerManager.Instance.MouseWorldPosition;
-            transform.position = mousePosition - _mousePositionDifference;
+            var mousePosition = _pointerHandler.MouseWorldPosition;
+            var position = mousePosition - _mousePositionDifference;
+            _model.TransformData.Position.Value = position;
             if (_isDragging) return; //Prevent unnecessary calculations
-            PickUpBlock();
+            _model.BlockInteractionState.Value = BlockInteractionState.PickUp;
             //GridManager.Instance.RemoveBlock(this);
             _isDragging = true;
         }
 
-        public void OnEndDrag(PointerEventData eventData)
+        private void OnEndDrag(PointerEventData eventData)
         {
             if (GameStatic.CurrentGameState is GameState.CountOff or GameState.Pause) return;
             if (!_isDragging) return;
-            var placed = _gridManager.PlaceBlock(_model);
+            var placed = _gridManager.TryPlaceBlock(_model);
             if (placed)
             {
                 _model.BlockInteractionState.Value = BlockInteractionState.Placed;
@@ -123,7 +125,6 @@ namespace FitMe.Grid
             else
             {
                 _audioManager.PlayAudioOneShot(_config.PlaceFailSfx, Vector3.zero);
-                ReturnToOriginal();
                 _model.BlockInteractionState.Value = BlockInteractionState.None;
             }
             _isDragging = false;

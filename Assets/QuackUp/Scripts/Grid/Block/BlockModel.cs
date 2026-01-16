@@ -60,11 +60,14 @@ namespace FitMe.Grid
         #region Inspectors
         [field: Title("Block Debug")]
         public Guid Id { get; set; } = Guid.NewGuid();
-        public BlockTypes BlockType { get; private set; }
+        /// <remarks>
+        /// Use <see cref="ChangeType"/> to change the block type.
+        /// </remarks>
+        public ReadOnlyReactiveProperty<BlockTypes> BlockType => _blockType.ToReadOnlyReactiveProperty();
         public string BlockFace { get; private set; }
         public List<AtomModel> Atoms { get; private set; } = new(); 
         public BlockPreset BlockPreset { get; private set; }
-        public BlockState BlockState { get; private set; } = BlockState.Normal;
+        public BlockState BlockState { get; set; } = BlockState.Normal;
         public ReactiveProperty<BlockInteractionState> BlockInteractionState { get; private set; } = new(Grid.BlockInteractionState.None);
         public List<CellModel> BlockCells { get; set; }
         public int SpawnIndex { get; set; }
@@ -72,12 +75,15 @@ namespace FitMe.Grid
         public IBlockView BlockView { get; private set; }
         public TransformData TransformData { get; set; } = new();
         
+        public Subject<Unit> UpdateGridRequested { get; } = new();
+        
+        private ReactiveProperty<BlockTypes> _blockType = new();
         private int _originalSortingOrder;
         #endregion
         
         public void Initialize()
         {
-            Atoms.ForEach(x => x.ParentBlockModel = this);
+            //Atoms.ForEach(x => x.ParentBlockModel.Value = this);
         }
 
         #region Schema
@@ -99,7 +105,7 @@ namespace FitMe.Grid
                     float spawnPosY = row / 2f - 0.5f - x;
                     Vector3 spawnPosition = new Vector3(spawnPosX, spawnPosY, 0);
                     var atom = _atomFactory.Create(spawnPosition, Quaternion.identity, out _);
-                    atom.ParentBlockModel = this;
+                    atom.ParentBlockModel.Value = this;
                     var hasTop = HasElement(x - 1, y);
                     var hasBottom = HasElement(x + 1, y);
                     var hasLeft = HasElement(x, y - 1);
@@ -137,52 +143,9 @@ namespace FitMe.Grid
         #region Utils
         public void ChangeType(BlockTypes type, bool updateGrid = true)
         {
-            BlockType = type;
-            if (!useAtomSprite)
-            {
-                if (!GetBlockView(out var blockViewPrefab))
-                {
-                    Debug.LogWarning($"BlockView for block type {BlockType} not found. Fall back to atom sprite.");
-                    useAtomSprite = true;
-                    Atoms.ForEach(atom => atom.SpriteRenderer.enabled = true);
-                    ChangeType(type, updateGrid);
-                    return;
-                }
-                if (Grid.BlockView)
-                {
-                    Destroy(Grid.BlockView.gameObject);
-                }
-                Grid.BlockView = Instantiate(blockViewPrefab, transform.position, Quaternion.identity, transform);
-                Grid.BlockView.SetType(type);
-            }
-            else
-            {
-                if (!BlockManager.Instance.AtomColorDictionary.TryGetValue(type, out var color))
-                {
-                    Debug.LogError($"Color for block type {type} not found.");
-                    return;
-                }
-                originalAtomColor = color;
-                SetColor(color);
-            }
+            _blockType.Value = type;
             if (!updateGrid) return;
-            GridManager.Instance.UpdateBlockOnGrid(this);
-        }
-
-        private bool GetBlockView(out BlockView blockView)
-        {
-            blockView = null;
-            if (!BlockManager.Instance.BlockViewDictionary.TryGetValue(BlockFace, out blockView))
-            {
-                Debug.LogWarning($"BlockView for block type {BlockType} not found in the database.");
-                return false;
-            }
-            if (!blockView)
-            {
-                Debug.LogWarning($"BlockView for block type {BlockType} and face {BlockFace} is null.");
-                return false;
-            }
-            return true;
+            UpdateGridRequested.OnNext(Unit.Default);
         }
         #endregion
     }

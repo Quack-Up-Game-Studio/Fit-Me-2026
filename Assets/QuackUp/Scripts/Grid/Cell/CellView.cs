@@ -54,10 +54,8 @@ namespace FitMe.Grid
             _viewModel.TransformData.OnChanged
                 .Subscribe(OnTransformDataChanged)
                 .AddTo(ref disposableBuilder);
-            Observable.FromEvent(
-                    h => _viewModel.OnDisposed += h,
-                    h => _viewModel.OnDisposed -= h)
-                .Subscribe(_ => OnViewModelDisposed())
+            _viewModel.DestroyRequested
+                .Subscribe(_ => OnDestroyRequested())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -109,7 +107,7 @@ namespace FitMe.Grid
             }
         }
         
-        private void OnViewModelDisposed()
+        private void OnDestroyRequested()
         {
             Destroy(gameObject);
         }

@@ -11,11 +11,7 @@ namespace FitMe.Grid
         public ReadOnlyReactiveProperty<CellState> State { get; private set; }
         public TransformData TransformData => _model.TransformData;
         //expose event directly from the model
-        public event Action OnDisposed
-        {
-            add => _model.OnDisposed += value;
-            remove => _model.OnDisposed -= value;
-        }
+        public Subject<Unit> DestroyRequested => _model.DestroyRequested;
 
         private readonly CellModel _model;
         private IDisposable _bindings;
@@ -36,11 +32,6 @@ namespace FitMe.Grid
                 .ToReadOnlyReactiveProperty()
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
-        }
-        
-        private void OnModelDisposed()
-        {
-            Dispose();
         }
 
         public void Dispose()

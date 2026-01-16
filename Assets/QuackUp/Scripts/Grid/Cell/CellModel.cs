@@ -21,8 +21,7 @@ namespace FitMe.Grid
         public ReactiveProperty<Vector2Int> GridIndex { get; set; } = new();
         public ReactiveProperty<CellState> State { get; set; } = new(CellState.None);
         public TransformData TransformData { get; set; }
-
-        public event Action OnDisposed;
+        public Subject<Unit> DestroyRequested { get; } = new();
 
         public void Dispose()
         {
@@ -30,7 +29,7 @@ namespace FitMe.Grid
             ArrayIndex?.Dispose();
             GridIndex?.Dispose();
             State?.Dispose();
-            OnDisposed?.Invoke();
+            DestroyRequested?.Dispose();
         }
     }
 }
