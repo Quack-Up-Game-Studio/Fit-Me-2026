@@ -54,7 +54,6 @@ namespace FitMe.Grid
             _config = config;
             _atomFactory = atomFactory;
             BlockView = blockView;
-            Initialize();
         }
         
         #region Inspectors
@@ -80,11 +79,6 @@ namespace FitMe.Grid
         private ReactiveProperty<BlockTypes> _blockType = new();
         private int _originalSortingOrder;
         #endregion
-        
-        public void Initialize()
-        {
-            //Atoms.ForEach(x => x.ParentBlockModel.Value = this);
-        }
 
         #region Schema
         public void GenerateAtom(string blockFace, BlockPreset preset)
@@ -110,11 +104,14 @@ namespace FitMe.Grid
                     var hasBottom = HasElement(x + 1, y);
                     var hasLeft = HasElement(x, y - 1);
                     var hasRight = HasElement(x, y + 1);
-                    // atom.SpriteOutlineController.outlineTop = !hasTop;
-                    // atom.SpriteOutlineController.outlineBottom = !hasBottom;
-                    // atom.SpriteOutlineController.outlineLeft = !hasLeft;
-                    // atom.SpriteOutlineController.outlineRight = !hasRight;
-                    // atom.SpriteOutlineController.UpdateOutline();
+                    var settings = new SpriteOutlineSettings
+                    {
+                        OutlineTop = !hasTop,
+                        OutlineBottom = !hasBottom,
+                        OutlineLeft = !hasLeft,
+                        OutlineRight = !hasRight
+                    };
+                    atom.SetOutlineCommand.Execute(settings);
                     Atoms.Add(atom);
                 }
             }

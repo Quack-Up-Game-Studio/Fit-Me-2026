@@ -1,29 +1,17 @@
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using MadDuck.Scripts.Units;
-using MadDuck.Scripts.Utils;
 using MessagePipe;
 using PrimeTween;
+using R3;
 using Redcode.Extensions;
-using Sherbert.Framework.Generic;
 using Sirenix.OdinInspector;
-using Unity.VisualScripting;
-using UnityCommunity.UnitySingleton;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.U2D.Animation;
 using VContainer;
-using VContainer.Unity;
-using Random = UnityEngine.Random;
 
-namespace MadDuck.Scripts.Managers
+namespace FitMe.Grid
 {
-    public struct BlockPresetRequest{}
-
     public struct StartSpawnEvent
     {
         public readonly BlockPreset blockPreset;
@@ -33,17 +21,16 @@ namespace MadDuck.Scripts.Managers
             this.blockPreset = blockPreset;
         }
     }
-    public class BlockManager : MonoSingleton<BlockManager>,
-        IRequestHandler<BlockPresetRequest, List<BlockPreset>>
+    public class BlockManager : IDisposable
     {
         #region Data Structures
         [Serializable]
-        public record SpawnPoint
+        public record SpawnPointData
         {
             [field: SerializeField] public Transform Transform { get; private set; }
 
             [field: SerializeField, DisplayAsString] public bool IsFree { get; set; } = true;
-            [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public Block CurrentBlock { get; set; }
+            [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public BlockModel CurrentBlock { get; set; }
         }
         
         private struct FaceAndSchemaData
@@ -70,66 +57,58 @@ namespace MadDuck.Scripts.Managers
             }
         }
         #endregion
-
-        #region Inspectors
-
-        [Title("Random References")] 
-        [SerializeField] private Block blockPrefab;
-        [field: SerializeField] public SerializableDictionary<string, BlockView> BlockViewDictionary { get; private set; } = new();
-        [field: SerializeField] public SerializableDictionary<BlockTypes, Color> AtomColorDictionary { get; private set; } = new();
-        [SerializeField] [DictionaryDrawerSettings(KeyLabel = "Block Face", ValueLabel = "Block Preset")] 
-        private SerializableDictionary<string, BlockPreset> blockPresetDictionary = new();
-        [SerializeField] private SpawnPoint[] spawnPoints;
-
-        [Title("Random Settings")]
-        [SerializeField] private int maxRandomAmount = 3;
-        [SerializeField] private bool smartRandom = true;
-        [SerializeField, ShowIf(nameof(smartRandom)), MinValue(1)] private int smartRandomThreshold = 6;
-        [SerializeField, ShowIf(nameof(smartRandom)), MinValue(1)] private int smartRandomDepth = 1;
-        [SerializeField] private float objectScale = 0.5f;
-        #endregion
         
         #region Fields
-        private Tween _scaleTween;
-        private readonly Dictionary<string, Block> _blockPool = new();
         public static event Action OnGameOver;
-        public static event Action<List<Block>> OnBlockSpawned;
-        private IDisposable _startSpawnSubscription;
+        public static event Action<List<BlockModel>> OnBlockSpawned;
+
+        private readonly GridManager _gridManager;
+        private readonly SpawnPointData[] _spawnPoints;
+        private readonly BlockManagerConfig _config;
+        private readonly BlockFactory _blockFactory;
+        private IDisposable _subscriptions;
+        private ISubscriber<StartSpawnEvent> _startSpawnSubscription;
         #endregion
-        
-        #region Events
-        private void OnEnable()
+
+        [Inject]
+        public BlockManager(
+            GridManager gridManager,
+            BlockManagerConfig config,
+            SpawnPointData[] spawnPoints,
+            BlockFactory blockFactory,
+            ISubscriber<StartSpawnEvent> startSpawnSubscription)
         {
-            _startSpawnSubscription = GlobalMessagePipe.GetSubscriber<StartSpawnEvent>()
-                .Subscribe(SpawnAtStart);
+            _gridManager = gridManager;
+            _config = config;
+            _spawnPoints = spawnPoints;
+            _blockFactory = blockFactory;
+            _subscriptions = startSpawnSubscription.Subscribe(SpawnAtStart);
+            Subscribe();
         }
 
-        private void OnDisable()
+        private void Subscribe()
         {
-            _startSpawnSubscription?.Dispose();
+            var disposableBuilder = Disposable.CreateBuilder();
+            _startSpawnSubscription
+                .Subscribe(SpawnAtStart)
+                .AddTo(ref disposableBuilder);
+            _subscriptions = disposableBuilder.Build();
         }
+
+        public void Dispose()
+        {
+            _subscriptions?.Dispose();
+        }
+
+        #region Events
         
         private void SpawnAtStart(StartSpawnEvent eventData)
         {
-            SetupPool();
-            spawnPoints.ForEach(FreeSpawnPoint);
+            _spawnPoints.ForEach(FreeSpawnPoint);
             if (!eventData.blockPreset)
                 SpawnRandomBlock();
             else
                 SpawnBlock(eventData.blockPreset);
-        }
-        
-        private void SetupPool()
-        {
-           foreach (var pair in blockPresetDictionary)
-           {
-               if (_blockPool.ContainsKey(pair.Key)) continue;
-               var block = _objectResolver.Instantiate(blockPrefab, transform);
-               block.name = pair.Key;
-               block.GenerateAtom(pair.Key, pair.Value);
-               block.gameObject.SetActive(false);
-               _blockPool.Add(pair.Key, block);
-           }
         }
         #endregion
         
@@ -141,20 +120,20 @@ namespace MadDuck.Scripts.Managers
         {
             //if (spawnPoints.Any(x => !x.IsFree)) return;
             var blockTypes = Enum.GetValues(typeof(BlockTypes)).Cast<BlockTypes>().ToList();
-            var allSchemas = _blockPool
-                .SelectMany(x => x.Value.BlockPreset.BlockSchemas
+            var allSchemas = _config.BlockPresetDictionary
+                .SelectMany(x => x.Value.BlockSchemas
                     .Select(schema => new FaceAndSchemaData(x.Key, schema))).ToList();
             var shuffledSchemas = allSchemas.Shuffled().ToList();
             List<FaceAndSchemaData> randomSchemas;
-            GridManager.Instance.CreateVacantSchema(out var vacantSchema,out var vacantCount);
-            if (smartRandom && vacantCount <= smartRandomThreshold)
+            _gridManager.CreateVacantSchema(out var vacantSchema, out var vacantCount);
+            if (_config.UseSmartRandom && vacantCount <= _config.SmartRandomThreshold)
             {
                 var bestFits = FindBestFitSorted(vacantSchema, shuffledSchemas);
                 var bestFitSchemas = bestFits
                     .SelectMany(x => x.schemaList)
-                    .Take(maxRandomAmount)
+                    .Take(_config.MaxRandomAmount)
                     .ToList();
-                var remainingAmount = maxRandomAmount - bestFitSchemas.Count;
+                var remainingAmount = _config.MaxRandomAmount - bestFitSchemas.Count;
                 if (remainingAmount > 0)
                 {
                     bestFitSchemas.AddRange(shuffledSchemas.Take(remainingAmount));
@@ -164,37 +143,32 @@ namespace MadDuck.Scripts.Managers
             else
             {
                 randomSchemas = shuffledSchemas
-                    .Take(maxRandomAmount)
+                    .Take(_config.MaxRandomAmount)
                     .ToList();
             }
-            var spawnedBlocks = new List<Block>();
+            var spawnedBlocks = new List<BlockModel>();
             for (int i = 0; i < randomSchemas.Count; i++)
             {
-                if (!spawnPoints[i].IsFree)
+                if (!_spawnPoints[i].IsFree)
                 {
                     continue;
                 }
-                Transform spawnTransform = spawnPoints[i].Transform;
+                Transform spawnTransform = _spawnPoints[i].Transform;
                 var randomBlock = randomSchemas[i];
                 var blockType = blockTypes.GetRandomElement();
                 var blockFace = randomBlock.blockFace;
                 var index = randomBlock.blockSchema.Index;
-                if (!_blockPool.TryGetValue(blockFace, out var blockToSpawn))
-                {
-                    Debug.LogError($"Block face {blockFace} not found in block pool.");
-                    continue;
-                }
-                Block block = _objectResolver.Instantiate(blockToSpawn, spawnTransform.position, Quaternion.identity, transform);
-                block.gameObject.SetActive(true);
+                BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, Quaternion.identity, out var blockGameObject);
                 block.ChangeType(blockType, false);
                 block.SpawnIndex = i;
-                block.transform.localScale = Vector3.zero;
-                Vector3 scale = new Vector3(objectScale, objectScale, 1f);
+                block.TransformData.LocalScale.Value = Vector3.zero;
+                Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
                 int randomRotation = index * 90;
-                block.transform.eulerAngles = new Vector3(0, 0, randomRotation);
-                _scaleTween = Tween.Scale(block.transform, scale, 0.2f).OnComplete(() => block.Initialize());
-                spawnPoints[i].IsFree = false;
-                spawnPoints[i].CurrentBlock = block;
+                Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
+                block.TransformData.Rotation.Value = randomRotationQuaternion;
+                block.BlockView.ScaleIn(scale);
+                _spawnPoints[i].IsFree = false;
+                _spawnPoints[i].CurrentBlock = block;
                 spawnedBlocks.Add(block);
             }
             if (spawnedBlocks.Count > 0)
@@ -203,27 +177,20 @@ namespace MadDuck.Scripts.Managers
 
         private void SpawnBlock(BlockPreset preset)
         {
-            var spawnedBlocks = new List<Block>();
-            if (!spawnPoints[0].IsFree) return;
-            Transform spawnTransform = spawnPoints[0].Transform;
+            var spawnedBlocks = new List<BlockModel>();
+            if (!_spawnPoints[0].IsFree) return;
+            Transform spawnTransform = _spawnPoints[0].Transform;
             var blockTypes = Enum.GetValues(typeof(BlockTypes)).Cast<BlockTypes>().ToList();
             var blockType = blockTypes.GetRandomElement();
-            var blockFace = blockPresetDictionary.FirstOrDefault(x => x.Value == preset).Key;
-            if (!_blockPool.TryGetValue(blockFace, out var blockToSpawn))
-            {
-                Debug.LogError($"Block face {blockFace} not found in block pool.");
-                return;
-            }
-            Block block = _objectResolver.Instantiate(blockToSpawn, spawnTransform.position, Quaternion.identity, transform);
-            block.gameObject.SetActive(true);
+            var blockFace = _config.BlockPresetDictionary.FirstOrDefault(x => x.Value == preset).Key;
+            BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, Quaternion.identity, out var blockGameObject);
             block.ChangeType(blockType, false);
             block.SpawnIndex = 0;
-            block.transform.localScale = Vector3.zero;
-            Vector3 scale = new Vector3(objectScale, objectScale, 1f);
-            block.transform.eulerAngles = Vector3.zero;
-            _scaleTween = Tween.Scale(block.transform, scale, 0.2f).OnComplete(() => block.Initialize());
-            spawnPoints[0].IsFree = false;
-            spawnPoints[0].CurrentBlock = block;
+            block.TransformData.LocalScale.Value = Vector3.zero;
+            Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
+            block.BlockView.ScaleIn(scale);
+            _spawnPoints[0].IsFree = false;
+            _spawnPoints[0].CurrentBlock = block;
             spawnedBlocks.Add(block);
             if (spawnedBlocks.Count > 0)
                 OnBlockSpawned?.Invoke(spawnedBlocks);
@@ -268,7 +235,7 @@ namespace MadDuck.Scripts.Managers
         {
             List<BestFitResult> unsorted = new();
             var vacantCount = vacantSchema.CountMember(x => x == 1);
-            if (currentDepth >= smartRandomDepth)
+            if (currentDepth >= _config.SmartRandomDepth)
             {
                 if (previouslyTraversed != null)
                 {
@@ -320,44 +287,38 @@ namespace MadDuck.Scripts.Managers
         #region Utils
         public void FreeSpawnPoint(int index)
         {
-            spawnPoints[index].IsFree = true;
-            spawnPoints[index].CurrentBlock = null;
+            _spawnPoints[index].IsFree = true;
+            _spawnPoints[index].CurrentBlock = null;
         }
 
-        public void FreeSpawnPoint(SpawnPoint spawnPoint)
+        public void FreeSpawnPoint(SpawnPointData spawnPointData)
         {
-            spawnPoint.IsFree = true;
-            spawnPoint.CurrentBlock = null;
+            spawnPointData.IsFree = true;
+            spawnPointData.CurrentBlock = null;
         }
         
         public void ResetSpawnPoint()
         {
-            foreach (var spawnPoint in spawnPoints)
+            foreach (var spawnPoint in _spawnPoints)
             {
                 spawnPoint.IsFree = true;
-                if (spawnPoint.CurrentBlock)
-                    Destroy(spawnPoint.CurrentBlock.gameObject);
+                spawnPoint.CurrentBlock?.BlockView.Destroy();
                 spawnPoint.CurrentBlock = null;
             }
         }
 
         public async UniTask GameOverCheck()
         {
-            if (_scaleTween.isAlive)
-            {
-                await _scaleTween.ToUniTask();
-            }
-            List<Block> blockToCheck = spawnPoints.Where(x => !x.IsFree).Select(spawnPoint => spawnPoint.CurrentBlock).ToList();
-            if (!GridManager.Instance.CheckAvailableBlock(blockToCheck, out _))
+            // if (_scaleTween.isAlive)
+            // {
+            //     await _scaleTween.ToUniTask();
+            // }
+            List<BlockModel> blockToCheck = _spawnPoints.Where(x => !x.IsFree).Select(spawnPoint => spawnPoint.CurrentBlock).ToList();
+            if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
                 OnGameOver?.Invoke();
             }
         }
         #endregion
-
-        public List<BlockPreset> Invoke(BlockPresetRequest request)
-        {
-            return blockPresetDictionary.Values.ToList();
-        }
     }
 }

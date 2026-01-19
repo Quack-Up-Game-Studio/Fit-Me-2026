@@ -11,9 +11,10 @@ namespace QuackUp.SceneManagement
     {
         [Title("References")]
         [SerializeField] private CanvasGroup canvasGroup;
-        [SerializeField] private RectTransform circleTransform;
+        //[SerializeField] private RectTransform circleTransform;
+        
         [Title("Tween")]
-        [SerializeField] private TweenSettings<Vector2> tweenSettings;
+        [SerializeField] private TweenSettings<float> tweenSettings;
         
         [Title("Debug")]
         [Button("Transition In")]
@@ -27,22 +28,19 @@ namespace QuackUp.SceneManagement
         {
             canvasGroup.blocksRaycasts = true;
             cancellationToken.Register(CancelTransition);
-            circleTransform.sizeDelta = tweenSettings.startValue;
+            canvasGroup.alpha = tweenSettings.startValue;
             _transitionSequence = Sequence.Create()
-                .Group(
-                    Tween.UISizeDelta(circleTransform, tweenSettings.WithDirection(true)));
+                .Group(Tween.Alpha(canvasGroup, tweenSettings.WithDirection(true)));
             await _transitionSequence.ToYieldInstruction().ToUniTask(cancellationToken: cancellationToken);
             canvasGroup.blocksRaycasts = false;
         }
 
         public async UniTask TransitionOut(CancellationToken cancellationToken = default)
         {
-            DebugUtils.Log("Transition Out");
             canvasGroup.blocksRaycasts = true;
             cancellationToken.Register(CancelTransition);
             _transitionSequence = Sequence.Create()
-                .Group(
-                    Tween.UISizeDelta(circleTransform, tweenSettings.WithDirection(false)));
+                .Group(Tween.Alpha(canvasGroup, tweenSettings.WithDirection(false)));
             await _transitionSequence.ToYieldInstruction().ToUniTask(cancellationToken: cancellationToken);
             canvasGroup.blocksRaycasts = false;
         }

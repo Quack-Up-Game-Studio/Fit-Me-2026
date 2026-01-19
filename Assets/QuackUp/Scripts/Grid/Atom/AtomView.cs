@@ -9,6 +9,7 @@ namespace FitMe.Grid
     public class AtomView : MonoBehaviour, IDisposable
     {
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private SpriteOutlineController spriteOutlineController;
         
         private BlockConfig _config;
         private AtomViewModel _viewModel;
@@ -36,6 +37,9 @@ namespace FitMe.Grid
                 .Where(x => x != null)
                 .Subscribe(OnParentBlockModelChanged)
                 .AddTo(ref disposableBuilder);
+            _viewModel.SetOutlineCommand
+                .Subscribe(OnSpriteOutlineChanged)
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 
@@ -58,6 +62,11 @@ namespace FitMe.Grid
                 Debug.LogError($"BlockType.CurrentValue {type} is not defined");
             }
             spriteRenderer.color = color;
+        }
+
+        private void OnSpriteOutlineChanged(SpriteOutlineSettings settings)
+        {
+            spriteOutlineController.UpdateOutline(settings);
         }
         
         private void OnTransformDataChanged(TransformData transformData)

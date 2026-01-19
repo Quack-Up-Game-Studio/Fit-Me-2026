@@ -18,6 +18,8 @@ namespace FitMe.Grid
         void SetParent([CanBeNull] Transform parent);
         void SetSortingLayer(int layer);
         void SetSortingOrder(int order);
+        void Destroy();
+        UniTask ScaleIn(Vector3 scale);
         UniTask Explode(FitType fitType, bool destroy = true);
     }
     
@@ -40,7 +42,9 @@ namespace FitMe.Grid
         //     }
         // }
         #region Inspectors
-        [TitleGroup("References")]
+
+        [Title("Tween")] 
+        [SerializeField] private TweenSettings scaleTweenSettings;
         //[SerializeField] private SkeletonAnimation skeletonAnimation;
         //[SerializeField] private SpriteRenderer infectedSpriteRenderer;
         
@@ -328,5 +332,16 @@ namespace FitMe.Grid
             Place();
         }
         #endregion
+
+        public UniTask ScaleIn(Vector3 scale)
+        {
+            var sequence = Tween.Scale(transform, new TweenSettings<Vector3>(scale, scaleTweenSettings));
+            return sequence.ToUniTask();
+        }
+
+        public void Destroy()
+        {
+            Destroy(gameObject);
+        }
     }
 }

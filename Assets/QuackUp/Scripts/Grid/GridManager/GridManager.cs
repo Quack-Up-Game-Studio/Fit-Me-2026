@@ -166,6 +166,7 @@ namespace FitMe.Grid
             var disposableBuilder = Disposable.CreateBuilder();
             _sceneStageSubscriber
                 .AsObservable().ToObservable()
+                .Do(x => Debug.Log("GridManager: LoadSceneStageEvent " + x.Stage + " for " + x.NextSceneType))
                 .Where(x => x.Stage == LoadSceneStage.FinishLoading)
                 .Select(x => x.NextSceneType)
                 .Subscribe(OnFinishedLoading)
@@ -182,6 +183,7 @@ namespace FitMe.Grid
 
         private void OnFinishedLoading(SceneType sceneType)
         {
+            Debug.Log("GridManager: OnFinishedLoading " + sceneType);
             _currentSceneType = sceneType;
             switch (sceneType)
             {
@@ -399,7 +401,7 @@ namespace FitMe.Grid
                                   new Vector2(y + currentOffset.x, currentOffset.y - x) * cellSize) +
                         _grid.transform.position;
                     var cell = _cellFactory.Create(spawnPosition, Quaternion.identity, out var cellGameObject);
-                    cellGameObject.transform.localScale = Vector3.one * cellSize;
+                    cell.TransformData.LocalScale.Value = Vector3.one * cellSize;
                     cellGameObject.name = $"Cell {x}_{y}";
                     cell.ArrayIndex.Value = new Vector2Int(x, y);
                     cell.GridIndex.Value = ArrayToGridIndex(new Vector2Int(x, y));
