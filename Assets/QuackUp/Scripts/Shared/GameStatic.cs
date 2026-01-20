@@ -12,6 +12,6 @@ namespace FitMe.Shared
     }
     public static class GameStatic
     {
-        public static GameState CurrentGameState = GameState.CountOff;
+        public static GameState CurrentGameState = GameState.PlaceBlock;
     }
 }

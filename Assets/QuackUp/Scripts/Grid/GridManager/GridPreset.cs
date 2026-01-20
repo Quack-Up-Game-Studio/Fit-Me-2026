@@ -16,7 +16,7 @@ namespace FitMe.Grid
         [ShowInInspector, ReadOnly] public bool CanInfect => InfectionCountRange.x >= 1;
     }
     
-    [CreateAssetMenu(fileName = "Grid Preset", menuName = "MadDuck/Grid Preset", order = 1)]
+    [CreateAssetMenu(fileName = "Grid Preset", menuName = "FitMe/Grid/Grid Preset", order = 1)]
     [ShowOdinSerializedPropertiesInInspector]
     public class GridPreset : SerializedScriptableObject
     {

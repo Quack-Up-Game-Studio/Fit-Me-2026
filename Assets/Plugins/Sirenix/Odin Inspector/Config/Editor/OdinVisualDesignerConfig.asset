@@ -12,5 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 240468018, guid: a4865f1ab4504ed8a368670db22f409c, type: 3}
   m_Name: OdinVisualDesignerConfig
   m_EditorClassIdentifier: Sirenix.OdinInspector.Editor.dll::Sirenix.OdinInspector.Editor.OdinVisualDesignerConfig
-  SerializedFavoriteAttributes: []
+  SerializedFavoriteAttributes:
+  - TypeBinding: Sirenix.OdinInspector.HideIfAttribute, Sirenix.OdinInspector.Attributes
+  - TypeBinding: Sirenix.OdinInspector.HideLabelAttribute, Sirenix.OdinInspector.Attributes
+  - TypeBinding: Sirenix.OdinInspector.TitleAttribute, Sirenix.OdinInspector.Attributes
+  - TypeBinding: Sirenix.OdinInspector.RequiredAttribute, Sirenix.OdinInspector.Attributes
   savePath: Assets/Plugins/Sirenix/Odin Inspector/Visual Designer/Saved

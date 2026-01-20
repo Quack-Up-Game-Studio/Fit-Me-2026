@@ -1,0 +1,72 @@
+OVDF v1.1
+FitMe.Grid.GridManagerConfig, FitMe.Grid
+MetaGuid:13ee27d42ef549c29c81282538a2a537
+
+# "Grid Settings"
+Position: $root:16
+- [Sirenix.OdinInspector.TitleGroupAttribute]
+
+# $HEnHVf8utKnpWZVuReL4BE
+Position: $root:36
++ [Sirenix.OdinInspector.TitleGroupAttribute]
+	GroupName = "Reference"
+
+# $12tmww8L3gdVBDdCa2H58S
+Position: $root:2
++ [Sirenix.OdinInspector.TitleGroupAttribute]
+	GroupName = "Settings"
+
+# <RandomGridXRange>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:5
++ [Sirenix.OdinInspector.HideIfAttribute]
+	Condition = "@EndlessType == FitMe.Grid.EndlessType.Preset"
+
+# <RandomGridYRange>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:6
++ [Sirenix.OdinInspector.HideIfAttribute]
+	Condition = "@EndlessType == FitMe.Grid.EndlessType.Preset"
+
+# <PresetRandomType>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:3
++ [Sirenix.OdinInspector.HideIfAttribute]
+	Condition = "@EndlessType == FitMe.Grid.EndlessType.Generated"
+
+# <GeneratedGridType>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:2
++ [Sirenix.OdinInspector.HideIfAttribute]
+	Condition = "@EndlessType == FitMe.Grid.EndlessType.Preset"
+
+# <BridgeWidthRange>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:7
++ [Sirenix.OdinInspector.HideIfAttribute]
+	Condition = "@EndlessType == FitMe.Grid.EndlessType.Preset"
+
+# <GridSize>k__BackingField
+Position: $root:2
+
+# gridPresets
+Position: $HEnHVf8utKnpWZVuReL4BE:0
+
+# <CellSize>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:0
+
+# <EndlessType>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:1
+
+# <UseDifficultyPreset>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:4
+
+# <GridHorizontalOffsetType>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:8
+
+# <CustomOffsetX>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:9
+
+# <GridVerticalOffsetType>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:10
+
+# <CustomOffsetY>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:11
+
+# <DestroyThreshold>k__BackingField
+Position: $12tmww8L3gdVBDdCa2H58S:12

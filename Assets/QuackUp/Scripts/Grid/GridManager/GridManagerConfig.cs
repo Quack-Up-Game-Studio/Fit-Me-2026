@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -7,49 +9,34 @@ namespace FitMe.Grid
     [CreateAssetMenu(fileName = "GridManagerConfig", menuName = "FitMe/Grid/GridManagerConfig")]
     public class GridManagerConfig : SerializedScriptableObject
     {
-        [TitleGroup("Grid Settings")]
         [field: SerializeField]
-        public Vector2 GridSize { get; private set; } = new(10, 10);
-        [field: SerializeField]
-        [ValidateInput("@EndlessType != EndlessType.None", "Endless type cannot be None")]
+        public Vector2 CellSize { get; private set; } = new(0.5f, 0.5f);
+        [field: NoNoneFlag, SerializeField]
         public EndlessType EndlessType { get; private set; } = EndlessType.All;
-        [TitleGroup("Grid Settings")]
-        [field: SerializeField][ValidateInput("@GeneratedGridType != GridType.None", "Grid type cannot be None")]
-        [ShowIf("@EndlessType.HasFlag(EndlessType.Generated)")]
+        [field: NoNoneFlag, SerializeField]
         public GridType GeneratedGridType { get; private set; } = GridType.Rectangle;
-        [TitleGroup("Grid Settings")]
         [field: SerializeField]
-        [ShowIf(nameof(EndlessType), EndlessType.Preset)]
         public PresetRandomType PresetRandomType { get; private set; } = PresetRandomType.Random;
-        [TitleGroup("Grid Settings")]
         [field: SerializeField]
         public bool UseDifficultyPreset { get; private set; } = true;
-        [TitleGroup("Grid Settings")]
-        [field: SerializeField][MinMaxSlider(1, 20, ShowFields = true)]
+        [field: SerializeField]
         public Vector2Int RandomGridXRange { get; private set; } = new(1, 10);
-        [TitleGroup("Grid Settings")]
-        [field: SerializeField][MinMaxSlider(1, 20, ShowFields = true)]
+        [field: SerializeField]
         public Vector2Int RandomGridYRange { get; private set; } = new(1, 10);
-        [TitleGroup("Grid Settings")]
-        [field: SerializeField][MinMaxSlider(1, 20, ShowFields = true)] 
-        [ShowIf("@GeneratedGridType.HasFlag(GridType.Custom)")]
+        [field: SerializeField]
         public Vector2Int BridgeWidthRange { get; private set; } = new(2, 3);
-        [TitleGroup("Grid Settings")] 
-        //[field: SerializeField][OnValueChanged(nameof(UpdateGridOffset))]
+        [field: SerializeField]
         public GridOffsetType GridHorizontalOffsetType { get; private set; } = GridOffsetType.Automatic;
-        [TitleGroup("Grid Settings")]
         [field: SerializeField]
-        //[OnValueChanged(nameof(UpdateGridOffset))]
         public int CustomOffsetX { get; private set; } = 0;
-        [TitleGroup("Grid Settings")]
-        //[field: SerializeField][OnValueChanged(nameof(UpdateGridOffset))]
-        public GridOffsetType GridVerticalOffsetType { get; private set; } = GridOffsetType.Custom;
-        [TitleGroup("Grid Settings")]
         [field: SerializeField]
-        //[OnValueChanged(nameof(UpdateGridOffset))]
+        public GridOffsetType GridVerticalOffsetType { get; private set; } = GridOffsetType.Custom;
+        [field: SerializeField]
         public int CustomOffsetY { get; private set; } = 0;
-        [TitleGroup("Grid Settings")]
         [field: SerializeField]
         public int DestroyThreshold { get; private set; } = 3;
+        
+        [field: SerializeField] private List<GridPreset> gridPresets = new();
+        public IReadOnlyList<GridPreset> GridPresets => gridPresets;
     }
 }

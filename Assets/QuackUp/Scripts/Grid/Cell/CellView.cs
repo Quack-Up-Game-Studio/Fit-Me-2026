@@ -11,6 +11,7 @@ namespace FitMe.Grid
     {
         #region Inspectors
         [Title("References")]
+        [SerializeField] private bool useDedicatedSprite = true;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Sprite[] whitePatterns;
         [SerializeField] private Sprite[] blackPatterns;
@@ -63,9 +64,7 @@ namespace FitMe.Grid
         private void OnTransformDataChanged(TransformData transformData)
         {
             transform.position = transformData.Position.Value;
-            transform.localPosition = transformData.LocalPosition.Value;
             transform.rotation = transformData.Rotation.Value;
-            transform.localRotation = transformData.LocalRotation.Value;
             transform.localScale = transformData.LocalScale.Value;
         }
 
@@ -73,19 +72,39 @@ namespace FitMe.Grid
         {
             var row = arrayIndex.x;
             var column = arrayIndex.y;
-            //white first
-            if (row % 2 == 0)
+            if (useDedicatedSprite)
             {
-                spriteRenderer.sprite = column % 2 == 0
-                    ? whitePatterns[0]
-                    : blackPatterns[0];
+                //white first
+                if (row % 2 == 0)
+                {
+                    spriteRenderer.sprite = column % 2 == 0
+                        ? whitePatterns[0]
+                        : blackPatterns[0];
+                }
+                //black first
+                else
+                {
+                    spriteRenderer.sprite = column % 2 == 0
+                        ? blackPatterns[1]
+                        : whitePatterns[1];
+                }
             }
-            //black first
             else
             {
-                spriteRenderer.sprite = column % 2 == 0
-                    ? blackPatterns[1]
-                    : whitePatterns[1];
+                //white first
+                if (row % 2 == 0)
+                {
+                    spriteRenderer.color = column % 2 == 0
+                        ? whiteColor
+                        : blackColor;
+                }
+                //black first
+                else
+                {
+                    spriteRenderer.color = column % 2 == 0
+                        ? blackColor
+                        : whiteColor;
+                }
             }
         }
 

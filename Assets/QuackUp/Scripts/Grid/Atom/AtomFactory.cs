@@ -6,17 +6,17 @@ using Object = UnityEngine.Object;
 
 namespace FitMe.Grid
 {
-    [Serializable]
     public class AtomFactory : IGameObjectFactory<AtomModel>
     {
-        [SerializeField] private AtomView atomViewPrefab;
-        [SerializeField] private Transform atomParent;
-        
+        private readonly AtomView _atomViewPrefab;
         private readonly BlockConfig _blockConfig;
         
         [Inject]
-        public AtomFactory(BlockConfig blockConfig)
+        public AtomFactory(
+            AtomView atomViewPrefab,
+            BlockConfig blockConfig)
         {
+            _atomViewPrefab = atomViewPrefab;
             _blockConfig = blockConfig;
         }
         
@@ -33,12 +33,14 @@ namespace FitMe.Grid
         {
             instantiateParameters ??= new InstantiateParameters
             {
-                parent = atomParent
+                //parent = atomParent
+                worldSpace = false
             };
-            var view = Object.Instantiate(atomViewPrefab, position, rotation,
+            var view = Object.Instantiate(_atomViewPrefab, position, rotation,
                 instantiateParameters.Value);
             var model = new AtomModel
             {
+                AtomView = view,
                 TransformData = new TransformData(view.transform)
             };
             var viewModel = new AtomViewModel(model);

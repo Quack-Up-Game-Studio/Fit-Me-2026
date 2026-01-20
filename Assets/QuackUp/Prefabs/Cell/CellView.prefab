@@ -104,6 +104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3bbff0b2ffa09368b2b941c3dcdd9ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.CellView
+  useDedicatedSprite: 0
   spriteRenderer: {fileID: 4210760980716306993}
   whitePatterns:
   - {fileID: 7482667652216324306, guid: 0eca6b9dff73b81948ddfcbebb175778, type: 3}

@@ -1,9 +1,11 @@
-﻿using Sirenix.OdinInspector;
+﻿using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace FitMe.Grid
 {
     
+    [Serializable]
     public record SpriteOutlineSettings
     {
         public bool OutlineTop = true;
@@ -20,7 +22,7 @@ namespace FitMe.Grid
         [PropertyRange(0, 0.5f)] public float outlineWidth = 0.05f;
     
         [Title("Edge Toggles")]
-        private SpriteOutlineSettings outlineSettings = new();
+        [SerializeField] private SpriteOutlineSettings outlineSettings = new();
 
         private MaterialPropertyBlock _propBlock;
         private SpriteRenderer _spriteRenderer;

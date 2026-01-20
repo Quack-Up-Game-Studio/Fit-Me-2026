@@ -9,6 +9,7 @@ using Redcode.Extensions;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 namespace FitMe.Grid
 {
@@ -21,7 +22,7 @@ namespace FitMe.Grid
             this.blockPreset = blockPreset;
         }
     }
-    public class BlockManager : IDisposable
+    public class BlockManager : IDisposable, IStartable
     {
         #region Data Structures
         [Serializable]
@@ -66,8 +67,9 @@ namespace FitMe.Grid
         private readonly SpawnPointData[] _spawnPoints;
         private readonly BlockManagerConfig _config;
         private readonly BlockFactory _blockFactory;
+        private readonly ISubscriber<StartSpawnEvent> _startSpawnSubscription;
+        
         private IDisposable _subscriptions;
-        private ISubscriber<StartSpawnEvent> _startSpawnSubscription;
         #endregion
 
         [Inject]
@@ -82,7 +84,7 @@ namespace FitMe.Grid
             _config = config;
             _spawnPoints = spawnPoints;
             _blockFactory = blockFactory;
-            _subscriptions = startSpawnSubscription.Subscribe(SpawnAtStart);
+            _startSpawnSubscription = startSpawnSubscription;
             Subscribe();
         }
 
@@ -101,7 +103,12 @@ namespace FitMe.Grid
         }
 
         #region Events
-        
+
+        public void Start()
+        {
+            SpawnAtStart(new StartSpawnEvent());
+        }
+
         private void SpawnAtStart(StartSpawnEvent eventData)
         {
             _spawnPoints.ForEach(FreeSpawnPoint);
@@ -158,7 +165,12 @@ namespace FitMe.Grid
                 var blockType = blockTypes.GetRandomElement();
                 var blockFace = randomBlock.blockFace;
                 var index = randomBlock.blockSchema.Index;
-                BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, Quaternion.identity, out var blockGameObject);
+                BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, Quaternion.identity, out var blockGameObject, new InstantiateParameters
+                {
+                    parent = spawnTransform,
+                    worldSpace = true,
+                });
+                blockGameObject.name = $"Block_{blockFace}";
                 block.ChangeType(blockType, false);
                 block.SpawnIndex = i;
                 block.TransformData.LocalScale.Value = Vector3.zero;
@@ -183,7 +195,11 @@ namespace FitMe.Grid
             var blockTypes = Enum.GetValues(typeof(BlockTypes)).Cast<BlockTypes>().ToList();
             var blockType = blockTypes.GetRandomElement();
             var blockFace = _config.BlockPresetDictionary.FirstOrDefault(x => x.Value == preset).Key;
-            BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, Quaternion.identity, out var blockGameObject);
+            BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, Quaternion.identity, out var blockGameObject, new InstantiateParameters
+            {
+                parent = spawnTransform
+            });
+            blockGameObject.name = $"Block_{blockFace}";
             block.ChangeType(blockType, false);
             block.SpawnIndex = 0;
             block.TransformData.LocalScale.Value = Vector3.zero;

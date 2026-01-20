@@ -51,7 +51,7 @@ namespace FitMe.Grid
         
     }
     
-    [CreateAssetMenu(fileName = "Block Preset", menuName = "MadDuck/Block Preset", order = 1)]
+    [CreateAssetMenu(fileName = "Block Preset", menuName = "FitMe/Block/Block Preset", order = 1)]
     [ShowOdinSerializedPropertiesInInspector]
     public class BlockPreset : SerializedScriptableObject
     {

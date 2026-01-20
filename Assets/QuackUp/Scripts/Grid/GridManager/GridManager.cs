@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using FMODUnity;
 using MessagePipe;
 using ObservableCollections;
 using QuackUp.SceneManagement;
@@ -10,14 +9,10 @@ using QuackUp.Utils;
 using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
-using Sirenix.Serialization;
 using Sirenix.Utilities;
 using UnityEditor;
 using UnityEngine;
 using VContainer;
-using DisposableBag = R3.DisposableBag;
-using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace FitMe.Grid
@@ -69,8 +64,8 @@ namespace FitMe.Grid
 
     public record GridBlockData
     {
-        public BlockModel Block;
-        public IDisposable Subscription;
+        public readonly BlockModel Block;
+        public readonly IDisposable Subscription;
         
         public GridBlockData(BlockModel block, IDisposable subscription)
         {
@@ -90,25 +85,12 @@ namespace FitMe.Grid
         private IDisposable _subscriptions;
         
         #region Inspector
-        
-        [Title("Grid References")]
-        [SerializeField] private List<GridPreset> gridPresets = new();
-        
         [field: Title("Grid Debug")] 
-        [field: SerializeField, DisableInPlayMode] [OnValueChanged(nameof(OnPresetChanged))]
-        [field: InlineEditor]
+        [field: SerializeField, InlineEditor]
         public GridPreset CurrentGridPreset { get; private set; }
-        [Button("Refresh Grid Size")]
-        private void OnPresetChanged()
-        {
-            currentGridSize = CurrentGridPreset ? CurrentGridPreset.GridSize : new Vector2Int(6, 8);
-            UpdateGridOffset();
-        }
-        [SerializeField, Sirenix.OdinInspector.ReadOnly] [OnValueChanged(nameof(UpdateGridOffset))]
-        [MinValue(1)]
-        private Vector2Int currentGridSize = new(10, 10);
-        [SerializeField, Sirenix.OdinInspector.ReadOnly] 
-        private Vector2Int currentOffset = new(0, 0);
+        public Vector2Int CurrentGridSize => CurrentGridPreset.GridSize;
+        [field: SerializeField, Sirenix.OdinInspector.ReadOnly] 
+        public Vector2Int CurrentOffset { get; private set; } = new(0, 0);
         #if UNITY_EDITOR
         [TableMatrix(SquareCells = true, HorizontalTitle = "Cell Array", IsReadOnly = true,
             DrawElementMethod = nameof(DrawCellArrayMatrix), Transpose = true)]
@@ -119,13 +101,11 @@ namespace FitMe.Grid
             DrawElementMethod = nameof(DrawVacantSchemaMatrix), Transpose = true)]
         #endif
         [SerializeField] private int[,] _vacantSchema = {};
-        [SerializeField, ShowIf("@CurrentGridPreset && CurrentGridPreset.PresetGridType.HasFlag(GridType.Custom)")]
-        private bool drawAllCustomGridCells = true;
         
         [Button("Test Fit-me")]
         private void TestFitMe()
         {
-            OnScoreAdded?.Invoke(ScoreTypes.FitMe, worldPosition: GetGridCenter());
+            OnScoreAdded?.Invoke(ScoreTypes.FitMe, worldPosition: _grid.GetGridCenter(CurrentGridSize, CurrentOffset));
             OnNextGameDifficulty?.Invoke();
         }
         #endregion
@@ -142,7 +122,6 @@ namespace FitMe.Grid
         public static event ScoreAdded OnScoreAdded;
         public static event Action<FitType> OnFitCheck;
         public static event Action OnNextGameDifficulty;
-        public UnityEngine.Grid Grid => _grid;
         private int _currentPresetIndex;
         private SceneType _currentSceneType;
         #endregion
@@ -158,6 +137,7 @@ namespace FitMe.Grid
             _config = config;
             _cellFactory = cellFactory;
             _sceneStageSubscriber = sceneStageSubscriber;
+            _grid.cellSize = config.CellSize;
             Subscribe();
         }
 
@@ -166,7 +146,6 @@ namespace FitMe.Grid
             var disposableBuilder = Disposable.CreateBuilder();
             _sceneStageSubscriber
                 .AsObservable().ToObservable()
-                .Do(x => Debug.Log("GridManager: LoadSceneStageEvent " + x.Stage + " for " + x.NextSceneType))
                 .Where(x => x.Stage == LoadSceneStage.FinishLoading)
                 .Select(x => x.NextSceneType)
                 .Subscribe(OnFinishedLoading)
@@ -177,6 +156,7 @@ namespace FitMe.Grid
         public void Dispose()
         {
             _subscriptions.Dispose();
+            _blockOnGrid.ForEach(x => x.Subscription?.Dispose());
         }
 
         #region Events
@@ -223,7 +203,7 @@ namespace FitMe.Grid
             {
                 currentEndlessType = Random.Range(0, 2) == 0 ? EndlessType.Preset : EndlessType.Generated;
             }
-            if (currentEndlessType is EndlessType.Preset && gridPresets.Count > 0)
+            if (currentEndlessType is EndlessType.Preset && _config.GridPresets.Count > 0)
             {
                 GetPreset();
                 return;
@@ -264,13 +244,13 @@ namespace FitMe.Grid
         {
             if (_config.PresetRandomType is PresetRandomType.Random)
             {
-                CurrentGridPreset = gridPresets.GetRandomElement();
+                CurrentGridPreset = _config.GridPresets.GetRandomElement();
             }
             else
             {
-                CurrentGridPreset = gridPresets[_currentPresetIndex];
+                CurrentGridPreset = _config.GridPresets[_currentPresetIndex];
                 _currentPresetIndex++;
-                if (_currentPresetIndex >= gridPresets.Count)
+                if (_currentPresetIndex >= _config.GridPresets.Count)
                 {
                     _currentPresetIndex = 0;
                 }
@@ -334,6 +314,7 @@ namespace FitMe.Grid
             }
             return bridgeIndices;
         }
+        
         public void RegenerateGrid()
         {
             Debug.Log("Regenerating grid...");
@@ -350,32 +331,15 @@ namespace FitMe.Grid
         
         private void UpdateGridOffset()
         {
-            switch (_config.GridHorizontalOffsetType)
+            var offset = GridUtils.CalculateGridOffset(_config, CurrentGridSize);
+            CurrentOffset = offset;
+            if (CurrentGridSize.x % 2 != 0)
             {
-                case GridOffsetType.Automatic:
-                    currentOffset.x = -Mathf.FloorToInt(currentGridSize.x / 2f) + _config.CustomOffsetX;
-                    if (currentGridSize.x % 2 != 0)
-                    {
-                        _grid.transform.SetPositionX(-_grid.cellSize.x / 2f);
-                    }
-                    else
-                    {
-                        _grid.transform.SetPositionX(0f);
-                    }
-                    break;
-                case GridOffsetType.Custom:
-                    currentOffset.x = _config.CustomOffsetX;
-                    break;
+                _grid.transform.SetPositionX(-_grid.cellSize.x / 2f);
             }
-            
-            switch (_config.GridVerticalOffsetType)
+            else
             {
-                case GridOffsetType.Automatic:
-                    currentOffset.y = Mathf.FloorToInt(currentGridSize.y / 2f) + _config.CustomOffsetY;
-                    break;
-                case GridOffsetType.Custom:
-                    currentOffset.y = _config.CustomOffsetY;
-                    break;
+                _grid.transform.SetPositionX(0f);
             }
         }
         
@@ -384,10 +348,9 @@ namespace FitMe.Grid
         /// </summary>
         private void CreateCells()
         {
-            currentGridSize = CurrentGridPreset.GridSize;
             UpdateGridOffset();
-            var row = currentGridSize.y;
-            var column = currentGridSize.x;
+            var row = CurrentGridSize.y;
+            var column = CurrentGridSize.x;
             var cellSize = _grid.cellSize.x;
             _cellArray = new CellModel[row, column];
             for (int x = 0; x < row; x++)
@@ -398,13 +361,13 @@ namespace FitMe.Grid
                     var halfSize = cellSize / 2;
                     var spawnPosition =
                         (Vector3)(new Vector2(halfSize, halfSize) +
-                                  new Vector2(y + currentOffset.x, currentOffset.y - x) * cellSize) +
-                        _grid.transform.position;
+                                  new Vector2(y + CurrentOffset.x, CurrentOffset.y - x) * cellSize);
+                        //+ _grid.transform.position;
                     var cell = _cellFactory.Create(spawnPosition, Quaternion.identity, out var cellGameObject);
                     cell.TransformData.LocalScale.Value = Vector3.one * cellSize;
                     cellGameObject.name = $"Cell {x}_{y}";
                     cell.ArrayIndex.Value = new Vector2Int(x, y);
-                    cell.GridIndex.Value = ArrayToGridIndex(new Vector2Int(x, y));
+                    cell.GridIndex.Value = GridUtils.ArrayToGridIndex(new Vector2Int(x, y), CurrentOffset);
                     _cellArray[x, y] = cell;
                 }
             }
@@ -422,7 +385,6 @@ namespace FitMe.Grid
             List<CellModel> cells = new List<CellModel>();
             foreach (var atom in blockModel.Atoms)
             {
-                //if (!_viewLocator.TryGetView<AtomView>(atom.Id, out var atomView)) continue;
                 Vector3 atomPosition = atom.TransformData.Position.Value;
                 Vector3 cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
                 CellModel cellModel = GetCellByPosition(cellPosition);
@@ -542,7 +504,7 @@ namespace FitMe.Grid
                 _blockOnGrid.Select(x => (x.Block.BlockState, x.Block.BlockType.CurrentValue)).ToList();
             await ClearGrid();
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
-            OnScoreAdded?.Invoke(ScoreTypes.FitMe, worldPosition:GetGridCenter());
+            OnScoreAdded?.Invoke(ScoreTypes.FitMe, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset));
             OnNextGameDifficulty?.Invoke();
             RegenerateGrid();
         }
@@ -586,6 +548,7 @@ namespace FitMe.Grid
                 }
                 cellModel.CurrentAtom.Value = null;
             }
+            gridBlockData.Subscription.Dispose();
         }
 
         public async UniTask ClearGrid()
@@ -665,8 +628,8 @@ namespace FitMe.Grid
         public bool CreateVacantSchema(out int[,] vacantSchema, out int vacantCount)
         {
             vacantCount = 0;
-            var row = currentGridSize.y;
-            var column = currentGridSize.x;
+            var row = CurrentGridSize.y;
+            var column = CurrentGridSize.x;
             vacantSchema = new int[row, column];
             bool isVacant = false;
             for (int x = 0; x < row; x++)
@@ -730,7 +693,6 @@ namespace FitMe.Grid
         }
         #endregion
         
-        #region Utils
         /// <summary>
         /// Get the cell by array index
         /// </summary>
@@ -739,7 +701,7 @@ namespace FitMe.Grid
         /// <returns>A Cell if it exists, null otherwise</returns>
         public CellModel GetCellByArrayIndex(int x, int y)
         {
-            if (x < 0 || x >= currentGridSize.y || y < 0 || y >= currentGridSize.x)
+            if (x < 0 || x >= CurrentGridSize.y || y < 0 || y >= CurrentGridSize.x)
             {
                 return null;
             }
@@ -758,19 +720,9 @@ namespace FitMe.Grid
         
         public CellModel GetCellByGridIndex(Vector2Int gridIndex)
         {
-            return GetCellByArrayIndex(GridToArrayIndex(gridIndex));
+            return GetCellByArrayIndex(GridUtils.GridToArrayIndex(gridIndex, CurrentOffset));
         }
         
-        public Vector2Int ArrayToGridIndex(Vector2Int arrayIndex)
-        {
-            return new Vector2Int(arrayIndex.y + currentOffset.x, currentOffset.y - arrayIndex.x);
-        }
-        
-        public Vector2Int GridToArrayIndex(Vector2Int gridIndex)
-        {
-            return new Vector2Int(currentOffset.y - gridIndex.y, gridIndex.x - currentOffset.x);
-        }
-    
         /// <summary>
         /// Get the cell by position, it will be rounded to the nearest cell
         /// </summary>
@@ -784,84 +736,7 @@ namespace FitMe.Grid
             return GetCellByGridIndex(x, y);
         }
         
-        public Bounds GetCellBounds(CellModel cellModel)
-        {
-            var index = cellModel.GridIndex.Value;
-            return GetCellBounds(index);
-        }
-
-        public Bounds GetCellBounds(Vector2Int gridIndex)
-        {
-            var cellBounds = _grid.GetBoundsLocal((Vector3Int)gridIndex);
-            var centerWorld = _grid.GetCellCenterWorld((Vector3Int)gridIndex);
-            cellBounds.center = centerWorld;
-            return cellBounds;
-        }
-
-        public Vector2 GetGridCenter()
-        {
-            var column = currentGridSize.x;
-            var row = currentGridSize.y;
-            List<int> centerRows = column % 2 == 0
-                ? new List<int> { column / 2 - 1, column / 2 }
-                : new List<int> { Mathf.FloorToInt(column / 2f) };
-            List<int> centerColumn = row % 2 == 0
-                ? new List<int> { row / 2 - 1, row / 2 }
-                : new List<int> { Mathf.FloorToInt(row / 2f) };
-            List<Vector2Int> centerCells = (from x in centerRows from y in centerColumn 
-                select ArrayToGridIndex(new Vector2Int(y, x))).ToList();
-            Debug.Log("Center Cells: " + string.Join(", ", centerCells.Select(c => c.ToString())));
-            List<Bounds> centerCellBounds = centerCells.Select(GetCellBounds).ToList();
-            var center = centerCellBounds.Aggregate(Vector3.zero, (current, bounds) => current + bounds.center) 
-                         / centerCellBounds.Count;
-            return center;
-        }
-        #endregion
-        
-        #region Editor
-        #if UNITY_EDITOR
-        public void OnSceneGUI()
-        {
-            DrawGrid();
-        }
-        private void DrawGrid()
-        {
-            if (!CurrentGridPreset) return;
-            var row = currentGridSize.y;
-            var column = currentGridSize.x;
-            for (int x = 0; x < row; x++)
-            {
-                for (int y = 0; y < column; y++)
-                {
-                    var textColor = Color.green;
-                    var handleColor = Color.green;
-                    if (CurrentGridPreset.PresetGridType is GridType.Custom && CurrentGridPreset.customGrid[x, y] == 0)
-                    {
-                        if (!drawAllCustomGridCells) continue;
-                        handleColor = Color.red;
-                        textColor = Color.red;
-                    }
-                    Handles.color = handleColor;
-                    var arrayIndex = new Vector2Int(x, y);
-                    var gridIndex = ArrayToGridIndex(arrayIndex);
-                    var bounds = GetCellBounds(gridIndex);
-                    Handles.DrawWireCube(bounds.center, bounds.size);
-                    Handles.Label(bounds.center, arrayIndex.ToString(), style: new GUIStyle()
-                    {
-                        fontSize = 10,
-                        normal = new GUIStyleState()
-                        {
-                            textColor = textColor
-                        },
-                        alignment = TextAnchor.MiddleCenter
-                    });
-                }
-            }
-        }
-        #endif
-        #endregion
-        
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         #region Table Matrix
         private static int DrawVacantSchemaMatrix(Rect rect, int value)
         {
@@ -876,18 +751,6 @@ namespace FitMe.Grid
             return cellModel;
         }
         #endregion
-        #endif
+#endif
     }
-
-    // #if UNITY_EDITOR
-    // [CustomEditor(typeof(GridManager), true)]
-    // public class GridManagerEditor : OdinEditor
-    // {
-    //     public void OnSceneGUI()
-    //     {
-    //         if (target is not GridManager proceduralGrid) return;
-    //         proceduralGrid.OnSceneGUI();
-    //     }
-    // }
-    // #endif
 }

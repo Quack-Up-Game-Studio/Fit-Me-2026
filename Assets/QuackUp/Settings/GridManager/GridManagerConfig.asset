@@ -21,14 +21,17 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  <GridSize>k__BackingField: {x: 10, y: 10}
-  <EndlessType>k__BackingField: 3
+  <CellSize>k__BackingField: {x: 0.5, y: 0.5}
+  <EndlessType>k__BackingField: 1
   <GeneratedGridType>k__BackingField: 1
   <PresetRandomType>k__BackingField: 0
   <UseDifficultyPreset>k__BackingField: 1
-  <RandomGridXRange>k__BackingField: {x: 1, y: 10}
-  <RandomGridYRange>k__BackingField: {x: 1, y: 10}
+  <RandomGridXRange>k__BackingField: {x: 9, y: 9}
+  <RandomGridYRange>k__BackingField: {x: 9, y: 9}
   <BridgeWidthRange>k__BackingField: {x: 2, y: 3}
+  <GridHorizontalOffsetType>k__BackingField: 0
   <CustomOffsetX>k__BackingField: 0
-  <CustomOffsetY>k__BackingField: 0
+  <GridVerticalOffsetType>k__BackingField: 1
+  <CustomOffsetY>k__BackingField: 6
   <DestroyThreshold>k__BackingField: 3
+  gridPresets: []

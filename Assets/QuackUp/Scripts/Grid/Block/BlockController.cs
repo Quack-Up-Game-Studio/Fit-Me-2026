@@ -5,6 +5,7 @@ using QuackUp.Input;
 using R3;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using VContainer;
 
 namespace FitMe.Grid
 {
@@ -13,10 +14,10 @@ namespace FitMe.Grid
         public ReactiveCommand<PointerEventData> BeingDragCommand { get; } = new();
         public ReactiveCommand<PointerEventData> DragCommand { get; } = new();
         public ReactiveCommand<PointerEventData> EndDragCommand { get; } = new();
-
+        
         private readonly BlockConfig _config;
-        private readonly BlockModel _model;
         private readonly GridManager _gridManager;
+        private readonly BlockModel _model;
         private readonly IAudioManager _audioManager;
         private readonly IPointerHandler _pointerHandler;
         
@@ -24,18 +25,19 @@ namespace FitMe.Grid
         private bool _isDragging;
         private Vector2 _mousePositionDifference;
 
+        [Inject]
         public BlockController(
             BlockConfig config,
-            BlockModel model, 
             GridManager gridManager,
+            BlockModel model,
             IAudioManager audioManager,
-            IPointerHandler inputHandler)
+            IPointerHandler pointerHandler)
         {
             _config = config;
-            _model = model;
             _gridManager = gridManager;
+            _model = model;
             _audioManager = audioManager;
-            _pointerHandler = inputHandler;
+            _pointerHandler = pointerHandler;
             Bind();
         }
 
@@ -63,14 +65,6 @@ namespace FitMe.Grid
         }
 
         #region Interactions
-        /// <summary>
-        /// Handle rotation of the block
-        /// </summary>
-        private void HandleBlockManipulation()
-        {
-            
-        }
-
         private void OnBeginDrag(PointerEventData eventData)
         {
             if (GameStatic.CurrentGameState is GameState.GameOver or GameState.GameClear)
@@ -100,7 +94,6 @@ namespace FitMe.Grid
             if (GameStatic.CurrentGameState is not GameState.PlaceBlock) return;
             if (_model.BlockInteractionState.Value is BlockInteractionState.Placed 
                 && !_config.AllowPickUpAfterPlacement) return;
-            HandleBlockManipulation();
             _gridManager.ValidatePlacement(_model);
             var mousePosition = _pointerHandler.MouseWorldPosition;
             var position = mousePosition - _mousePositionDifference;

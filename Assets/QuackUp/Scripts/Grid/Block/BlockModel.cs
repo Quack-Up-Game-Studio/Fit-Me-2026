@@ -95,10 +95,16 @@ namespace FitMe.Grid
                     {
                         continue;
                     }
-                    float spawnPosX = -column / 2f + 0.5f + y;
-                    float spawnPosY = row / 2f - 0.5f - x;
-                    Vector3 spawnPosition = new Vector3(spawnPosX, spawnPosY, 0);
-                    var atom = _atomFactory.Create(spawnPosition, Quaternion.identity, out _);
+                    var spawnPosX = -column / 2f + 0.5f + y; //0
+                    var spawnPosY = row / 2f - 0.5f - x;
+                    var spawnPosition = new Vector3(spawnPosX, spawnPosY, 0);
+                    //Debug.Log("Spawning atom at: " + spawnPosition);
+                    var atom = _atomFactory.Create(spawnPosition, Quaternion.identity, out _, new InstantiateParameters
+                    {
+                        worldSpace = false,
+                        parent = BlockView.GetGameObject().transform
+                    });
+                    //atom.AtomView?.SetParent(BlockView);
                     atom.ParentBlockModel.Value = this;
                     var hasTop = HasElement(x - 1, y);
                     var hasBottom = HasElement(x + 1, y);
@@ -127,7 +133,8 @@ namespace FitMe.Grid
             //     Atoms.ForEach(a => a.SpriteRenderer.enabled = false);
             // }
             BlockPreset.GenerateSchema();
-            
+            return;
+
             bool HasElement(int x, int y)
             {
                 if (x < 0 || x >= row || y < 0 || y >= column)

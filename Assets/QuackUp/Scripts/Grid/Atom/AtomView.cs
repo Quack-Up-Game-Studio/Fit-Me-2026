@@ -6,7 +6,11 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public class AtomView : MonoBehaviour, IDisposable
+    public interface IAtomView
+    {
+    }
+    
+    public class AtomView : MonoBehaviour, IAtomView, IDisposable
     {
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private SpriteOutlineController spriteOutlineController;

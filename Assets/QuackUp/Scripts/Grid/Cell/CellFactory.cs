@@ -1,15 +1,26 @@
 using System;
 using QuackUp.Utils;
 using UnityEngine;
+using VContainer;
 using Object = UnityEngine.Object;
 
 namespace FitMe.Grid
 {
-    [Serializable]
     public class CellFactory : IGameObjectFactory<CellModel>
     {
-        [SerializeField] private CellView cellViewPrefab;
-        [SerializeField] private Transform cellParent;
+        private readonly CellView _cellViewPrefab;
+        private readonly Transform _cellParent;
+        
+        public const string CellParentKey = "CellParent";
+        
+        [Inject]
+        public CellFactory(
+            CellView cellViewPrefab,
+            [Key(CellParentKey)] Transform cellParent)
+        {
+            _cellViewPrefab = cellViewPrefab;
+            _cellParent = cellParent;
+        }
         
         public CellModel Current { get; private set; }
         
@@ -24,9 +35,9 @@ namespace FitMe.Grid
         {
             instantiateParameters ??= new InstantiateParameters
             {
-                parent = cellParent
+                parent = _cellParent
             };
-            var view = Object.Instantiate(cellViewPrefab, position, rotation, instantiateParameters.Value);
+            var view = Object.Instantiate(_cellViewPrefab, position, rotation, instantiateParameters.Value);
             var model = new CellModel
             {
                 TransformData = new TransformData(view.transform)
