@@ -6,8 +6,9 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public interface IAtomView
+    public interface IAtomView : ITransformProvider
     {
+        void SetOutline(SpriteOutlineSettings settings);
     }
     
     public class AtomView : MonoBehaviour, IAtomView, IDisposable
@@ -19,6 +20,8 @@ namespace FitMe.Grid
         private AtomViewModel _viewModel;
         private IDisposable _bindings;
         private IDisposable _parentBlockSubscriptions;
+        
+        public Transform Transform => transform;
         
         [Inject]
         public void Construct(
@@ -34,15 +37,9 @@ namespace FitMe.Grid
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _viewModel.TransformData.OnChanged
-                .Subscribe(OnTransformDataChanged)
-                .AddTo(ref disposableBuilder);
             _viewModel.ParentBlockModel
                 .Where(x => x != null)
                 .Subscribe(OnParentBlockModelChanged)
-                .AddTo(ref disposableBuilder);
-            _viewModel.SetOutlineCommand
-                .Subscribe(OnSpriteOutlineChanged)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -56,7 +53,23 @@ namespace FitMe.Grid
             model.BlockType
                 .Subscribe(OnBlockTypeChanged)
                 .AddTo(ref disposableBuilder);
+            model.SetSortingLayerCommand
+                .Subscribe(OnSetSortingLayer)
+                .AddTo(ref disposableBuilder);
+            model.SetSortingOrderCommand
+                .Subscribe(OnSetSortingOrder)
+                .AddTo(ref disposableBuilder);
             _parentBlockSubscriptions = disposableBuilder.Build();
+        }
+        
+        private void OnSetSortingLayer(int layer)
+        {
+            spriteRenderer.sortingLayerID = layer;
+        }
+        
+        private void OnSetSortingOrder(int order)
+        {
+            spriteRenderer.sortingOrder = order;
         }
 
         private void OnBlockTypeChanged(BlockTypes type)
@@ -68,16 +81,9 @@ namespace FitMe.Grid
             spriteRenderer.color = color;
         }
 
-        private void OnSpriteOutlineChanged(SpriteOutlineSettings settings)
+        public void SetOutline(SpriteOutlineSettings settings)
         {
             spriteOutlineController.UpdateOutline(settings);
-        }
-        
-        private void OnTransformDataChanged(TransformData transformData)
-        {
-            transform.position = transformData.Position.Value;
-            transform.rotation = transformData.Rotation.Value;
-            transform.localScale = transformData.LocalScale.Value;
         }
 
         private void OnDestroy()

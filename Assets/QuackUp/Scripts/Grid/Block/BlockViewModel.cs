@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using QuackUp.Utils;
 using R3;
 using VContainer;
@@ -9,7 +10,10 @@ namespace FitMe.Grid
     {
         public ReadOnlyReactiveProperty<BlockInteractionState> BlockInteractionState => _model.BlockInteractionState;
         public ReadOnlyReactiveProperty<BlockTypes> BlockType => _model.BlockType;
-        public TransformData TransformData => _model.TransformData;
+        public ReactiveCommand<int> SetSortingLayerCommand => _model.SetSortingLayerCommand;
+        public ReactiveCommand<int> SetSortingOrderCommand => _model.SetSortingOrderCommand;
+        //public IReadOnlyList<AtomModel> Atoms => _model.Atoms;
+        
         
         private readonly BlockModel _model;
         private IDisposable _bindings;

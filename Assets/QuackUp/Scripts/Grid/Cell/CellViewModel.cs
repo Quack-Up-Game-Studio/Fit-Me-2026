@@ -9,9 +9,6 @@ namespace FitMe.Grid
     {
         public ReadOnlyReactiveProperty<Vector2Int> ArrayIndex { get; private set; }
         public ReadOnlyReactiveProperty<CellState> State { get; private set; }
-        public TransformData TransformData => _model.TransformData;
-        //expose event directly from the model
-        public Subject<Unit> DestroyRequested => _model.DestroyRequested;
 
         private readonly CellModel _model;
         private IDisposable _bindings;

@@ -63,10 +63,7 @@ namespace FitMe.Grid
             };
             var view = Object.Instantiate(blockViewPrefab, position, rotation,
                 instantiateParameters.Value);
-            var model = new BlockModel(_blockConfig, _atomFactory, view)
-            {
-                TransformData = new TransformData(view.transform)
-            };
+            var model = new BlockModel(_blockConfig, _atomFactory, view);
             model.GenerateAtom(blockFace, blockPreset);
             var viewModel = new BlockViewModel(model);
             var controller = new BlockController(

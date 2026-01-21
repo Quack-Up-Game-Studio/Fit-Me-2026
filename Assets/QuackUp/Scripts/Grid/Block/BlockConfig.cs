@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 
 namespace FitMe.Grid
 {
-    [CreateAssetMenu(fileName = "BlockConfig", menuName = "FitMe/Grid/BlockConfig")]
+    [CreateAssetMenu(fileName = "BlockConfig", menuName = "FitMe/Block/BlockConfig")]
     [ShowOdinSerializedPropertiesInInspector]
     public class BlockConfig : SerializedScriptableObject
     {
@@ -19,15 +19,12 @@ namespace FitMe.Grid
         [field: SerializeField] public Color OriginalAtomColor { get; private set; } = Color.white;
         [field: OdinSerialize] private Dictionary<BlockTypes, Color> _atomColorDict = new();
         public IReadOnlyDictionary<BlockTypes, Color> AtomColorDict => _atomColorDict;
-        // [field: SerializeField] public Color InfectColor { get; private set; } = Color.gray;
-        // [field: SerializeField] public float FlashDuration { get; private set; } = 0.2f;
         [field: SerializeField] public bool AllowPickUpAfterPlacement { get; private set; }
+        [field: SerializeField] public bool RotateClockwise { get; private set; } = true;
         
         [Title("Audios")] 
         [field: SerializeField] public EventReference PlaceSucceedSfx { get; private set; }
         [field: SerializeField] public EventReference PlaceFailSfx { get; private set; }
-        // [field: SerializeField] public EventReference preInfectSfx;
-        // [field: SerializeField] public EventReference infectSfx;
         
         [Title("VFX")]
         [field: OdinSerialize] private Dictionary<BlockTypes, ParticleSystem> _explodeVfx = new();

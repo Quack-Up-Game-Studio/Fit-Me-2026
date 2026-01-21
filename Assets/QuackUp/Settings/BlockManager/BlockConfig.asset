@@ -199,8 +199,8 @@ MonoBehaviour:
       Entry: 8
       Data: 
   <UseAtomSprite>k__BackingField: 1
-  <OriginalSortingLayer>k__BackingField: 0
-  <PickUpSortingLayer>k__BackingField: 0
+  <OriginalSortingLayer>k__BackingField: -382830213
+  <PickUpSortingLayer>k__BackingField: -1842356849
   <OriginalAtomColor>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
   <AllowPickUpAfterPlacement>k__BackingField: 0
   <PlaceSucceedSfx>k__BackingField:

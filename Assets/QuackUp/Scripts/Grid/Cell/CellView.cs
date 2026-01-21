@@ -7,7 +7,11 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public class CellView : MonoBehaviour, IDisposable
+    public interface ICellView : ITransformProvider
+    {
+        void Destroy();
+    }
+    public class CellView : MonoBehaviour, IDisposable, ICellView
     {
         #region Inspectors
         [Title("References")]
@@ -24,6 +28,8 @@ namespace FitMe.Grid
         private Color _originalColor;
         private IDisposable _bindings;
         #endregion
+        
+        public Transform Transform => transform;
         
         [Inject]
         public void Construct(CellViewModel viewModel)
@@ -52,22 +58,9 @@ namespace FitMe.Grid
             _viewModel.State
                 .Subscribe(OnCellStateChanged)
                 .AddTo(ref disposableBuilder);
-            _viewModel.TransformData.OnChanged
-                .Subscribe(OnTransformDataChanged)
-                .AddTo(ref disposableBuilder);
-            _viewModel.DestroyRequested
-                .Subscribe(_ => OnDestroyRequested())
-                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
-        private void OnTransformDataChanged(TransformData transformData)
-        {
-            transform.position = transformData.Position.Value;
-            transform.rotation = transformData.Rotation.Value;
-            transform.localScale = transformData.LocalScale.Value;
-        }
-
         private void OnArrayIndexChanged(Vector2Int arrayIndex)
         {
             var row = arrayIndex.x;
@@ -105,6 +98,7 @@ namespace FitMe.Grid
                         ? blackColor
                         : whiteColor;
                 }
+                _originalColor = spriteRenderer.color;
             }
         }
 
@@ -125,8 +119,8 @@ namespace FitMe.Grid
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
             }
         }
-        
-        private void OnDestroyRequested()
+
+        public void Destroy()
         {
             Destroy(gameObject);
         }

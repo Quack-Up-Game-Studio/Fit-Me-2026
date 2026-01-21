@@ -11,17 +11,17 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public interface IBlockView
+    public interface IBlockView : ITransformProvider
     {
-        void SetSortingLayer(int layer);
-        void SetSortingOrder(int order);
         void Destroy();
         UniTask ScaleIn(Vector3 scale);
+        UniTask Rotate(Quaternion rotation);
         UniTask Explode(FitType fitType, bool destroy = true);
     }
     
     [ShowOdinSerializedPropertiesInInspector]
-    public class BlockView : SerializedMonoBehaviour, IDisposable, IBlockView, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public class BlockView : SerializedMonoBehaviour, IDisposable, IBlockView, 
+        IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
         // [Serializable]
         // private record SkinWrapper
@@ -96,10 +96,11 @@ namespace FitMe.Grid
 
         #region Fields and Properties
         
+        public Transform Transform => transform;
+        
         private Transform _originalParent;
         private Vector3 _originalPosition;
         private Vector3 _originalRotation;
-        private Color _originalAtomColor;
         private int _originalSortingLayer;
         private Vector3 _mousePositionDifference;
         private Tween _transformTween;
@@ -131,7 +132,6 @@ namespace FitMe.Grid
             _originalPosition = transform.position;
             _originalRotation = transform.eulerAngles;
             _originalSortingLayer = meshRenderer.sortingLayerID;
-            _originalAtomColor = originalColor;
             Bind();
         }
 
@@ -139,14 +139,18 @@ namespace FitMe.Grid
         {
             var disposableBuilder = Disposable.CreateBuilder();
             _viewModel.BlockInteractionState
+                .IgnoreFirstValueWhenSubscribe()
                 .DistinctUntilChanged()
                 .Subscribe(OnInteractionStateChanged)
                 .AddTo(ref disposableBuilder);
             _viewModel.BlockType
                 .Subscribe(OnBlockTypeChanged)
                 .AddTo(ref disposableBuilder);
-            _viewModel.TransformData.OnChanged
-                .Subscribe(OnTransformDataChanged)
+            _viewModel.SetSortingLayerCommand
+                .Subscribe(OnSetSortingLayer)
+                .AddTo(ref disposableBuilder);
+            _viewModel.SetSortingOrderCommand
+                .Subscribe(OnSetSortingOrder)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -162,24 +166,17 @@ namespace FitMe.Grid
             Dispose();
         }
         
-        private void OnTransformDataChanged(TransformData transformData)
-        {
-            transform.position = transformData.Position.Value;
-            transform.rotation = transformData.Rotation.Value;
-            transform.localScale = transformData.LocalScale.Value;
-        }
-        
         private void OnInteractionStateChanged(BlockInteractionState state)
         {
             switch (state)
             {
-                case BlockInteractionState.None:
+                case BlockInteractionState.PlacedOnSpawn:
                     ReturnToOriginal();
                     break;
                 case BlockInteractionState.PickUp:
                     PickUp();
                     break;
-                case BlockInteractionState.Placed:
+                case BlockInteractionState.PlacedOnGrid:
                     Place();
                     break;
                 default:
@@ -213,8 +210,7 @@ namespace FitMe.Grid
             //StartIdleTimer();
         }
         #endregion
-
-        #region Utils
+        
         // private void StartIdleTimer()
         // {
         //     var randomSwitchTime = UnityEngine.Random.Range(switchIdleTimeRange.x, switchIdleTimeRange.y);
@@ -238,7 +234,7 @@ namespace FitMe.Grid
             _switchIdleCts = null;
         }
 
-        public void PickUp()
+        private void PickUp()
         {
             Debug.Log("Block picked up");
             if (_transformTween.isAlive)
@@ -248,13 +244,13 @@ namespace FitMe.Grid
             transform.SetParent(null);
             //var gridSize = GridManager.Instance.Grid.cellSize;
             var gridSize = _gridConfig.CellSize;
-            Tween.Scale(transform, gridSize, 0.2f);
+            _pickUpTween = Tween.Scale(transform, gridSize, 0.2f);
             CancelIdleTimer();
-            _pickUpTween = Tween.Scale(transform, _originalScale * pickUpScaleMultiplier, 0.2f);
+            //_pickUpTween = Tween.Scale(transform, _originalScale * pickUpScaleMultiplier, 0.2f);
             //skeletonAnimation.AnimationState.SetAnimation(0, pickUpAnimation, true);
         }
         
-        public void Place()
+        private void Place()
         {
             _pickUpTween.Stop();
             _pickUpTween = Tween.Scale(transform, _originalScale, 0.2f);
@@ -264,7 +260,6 @@ namespace FitMe.Grid
         
         public async UniTask Explode(FitType fitType, bool destroy = true)
         {
-            SetColor(_originalAtomColor);
             Debug.Log($"Block {_blockType} exploded at position {transform.position}");
             CancelIdleTimer();
             // var speedMultiplier = fitType == FitType.FitMe ? 2f : 6.67f;
@@ -283,8 +278,8 @@ namespace FitMe.Grid
             }
             if (destroy) Destroy(gameObject);
         }
-        
-        public void SetSortingLayer(int layer)
+
+        private void OnSetSortingLayer(int layer)
         {
             meshRenderer.sortingLayerID = layer;
             // if (infectedSpriteRenderer)
@@ -292,8 +287,8 @@ namespace FitMe.Grid
             //     infectedSpriteRenderer.sortingLayerID = layer;
             // }
         }
-        
-        public void SetSortingOrder(int order)
+
+        private void OnSetSortingOrder(int order)
         {
             meshRenderer.sortingOrder = order;
             // if (infectedSpriteRenderer)
@@ -302,7 +297,7 @@ namespace FitMe.Grid
             // }
         }
 
-        public void OnBlockTypeChanged(BlockTypes type)
+        private void OnBlockTypeChanged(BlockTypes type)
         {
             _blockType = type;
             // if (!skinDictionary.TryGetValue(type, out var skin))
@@ -314,35 +309,36 @@ namespace FitMe.Grid
             // skeletonAnimation.Skeleton.SetSkin(skin);
             // skeletonAnimation.Skeleton.SetSlotsToSetupPose();
         }
-        
-        private void SetColor(Color color)
-        {
-            //skeletonAnimation.Skeleton.SetColor(color);
-        }
 
         /// <summary>
         /// Return the block to its original position, rotation and scale
         /// </summary>
-        public void ReturnToOriginal()
+        private void ReturnToOriginal()
         {
             if (_transformTween.isAlive)
             {
                 _transformTween.Stop();
             }
             transform.SetParent(_originalParent);
-            SetSortingLayer(_originalSortingLayer);
+            OnSetSortingLayer(_originalSortingLayer);
             _transformTween = Tween.Position(transform, _originalPosition, 0.2f);
             Tween.Rotation(transform, _originalRotation, 0.2f);
             Tween.Scale(transform, _originalScale, 0.2f);
             Place();
         }
-        #endregion
 
         public UniTask ScaleIn(Vector3 scale)
         {
             _originalScale = scale;
             var sequence = Tween.Scale(transform, new TweenSettings<Vector3>(scale, scaleTweenSettings));
             return sequence.ToUniTask();
+        }
+        
+        public UniTask Rotate(Quaternion rotation)
+        {
+            _originalRotation = rotation.eulerAngles;
+            var tween = Tween.Rotation(transform, rotation, 0.5f);
+            return tween.ToUniTask();
         }
 
         public void Destroy()
@@ -352,20 +348,22 @@ namespace FitMe.Grid
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            Debug.Log("OnBeginDrag called in BlockView");
             _blockController.BeingDragCommand.Execute(eventData);
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            Debug.Log("OnDrag called in BlockView");
             _blockController.DragCommand.Execute(eventData);
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            Debug.Log("OnEndDrag called in BlockView");
             _blockController.EndDragCommand.Execute(eventData);
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            _blockController.ClickCommand.Execute(eventData);
         }
     }
 }

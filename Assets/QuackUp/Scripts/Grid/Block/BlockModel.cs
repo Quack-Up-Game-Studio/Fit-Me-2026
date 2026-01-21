@@ -24,9 +24,9 @@ namespace FitMe.Grid
 
     public enum BlockInteractionState
     {
-        None,
+        PlacedOnSpawn,
         PickUp,
-        Placed
+        PlacedOnGrid
     }
     
     public enum BlockTypes
@@ -67,12 +67,14 @@ namespace FitMe.Grid
         public List<AtomModel> Atoms { get; private set; } = new(); 
         public BlockPreset BlockPreset { get; private set; }
         public BlockState BlockState { get; set; } = BlockState.Normal;
-        public ReactiveProperty<BlockInteractionState> BlockInteractionState { get; private set; } = new(Grid.BlockInteractionState.None);
+        public ReactiveProperty<BlockInteractionState> BlockInteractionState { get; private set; } = new(Grid.BlockInteractionState.PlacedOnSpawn);
         public List<CellModel> BlockCells { get; set; }
         public int SpawnIndex { get; set; }
         public int RotationalIndex { get; set; }
         public IBlockView BlockView { get; private set; }
-        public TransformData TransformData { get; set; } = new();
+        
+        public ReactiveCommand<int> SetSortingLayerCommand { get; private set; } = new();
+        public ReactiveCommand<int> SetSortingOrderCommand { get; private set; } = new();
         
         public Subject<Unit> UpdateGridRequested { get; } = new();
         
@@ -117,7 +119,7 @@ namespace FitMe.Grid
                         OutlineLeft = !hasLeft,
                         OutlineRight = !hasRight
                     };
-                    atom.SetOutlineCommand.Execute(settings);
+                    atom.AtomView.SetOutline(settings);
                     Atoms.Add(atom);
                 }
             }

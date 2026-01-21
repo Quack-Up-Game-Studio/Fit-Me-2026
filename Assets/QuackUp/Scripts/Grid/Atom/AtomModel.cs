@@ -5,17 +5,16 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public class AtomModel : IDisposable
+    public class AtomModel
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public ReactiveProperty<BlockModel> ParentBlockModel { get; set; } = new();
-        public TransformData TransformData { get; set; } = new();
-        public ReactiveCommand<SpriteOutlineSettings> SetOutlineCommand { get; } = new();
-        public IAtomView AtomView { get; set; }
-
-        public void Dispose()
+        public IAtomView AtomView { get; private set; }
+        
+        [Inject]
+        public AtomModel(IAtomView atomView)
         {
-            TransformData?.Dispose();
+            AtomView = atomView;
         }
     }
 }

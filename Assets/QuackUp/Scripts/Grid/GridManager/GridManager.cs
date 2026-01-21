@@ -73,6 +73,17 @@ namespace FitMe.Grid
             Subscription = subscription;
         }
     }
+
+    public struct FitTypeEvent
+    {
+        public FitType FitType;
+        public BlockModel Block;
+        public FitTypeEvent(FitType fitType, BlockModel block)
+        {
+            FitType = fitType;
+            Block = block;
+        }
+    }
     
     [ShowOdinSerializedPropertiesInInspector]
     public class GridManager : IDisposable
@@ -115,15 +126,15 @@ namespace FitMe.Grid
         private List<CellModel> _previousValidationCells = new();
         private readonly ObservableList<GridBlockData> _blockOnGrid = new();
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
-        public static event Action<BlockModel> OnBlockStateChanged;
-        public static event Action<BlockModel> OnBlockPlaced;
-        public static event Action<BlockModel> OnBlockDestroyed;
+        public event Action<BlockModel> OnBlockStateChanged;
+        public event Action<BlockModel> OnBlockPlaced;
+        public event Action<BlockModel> OnBlockDestroyed;
         public delegate void ScoreAdded(ScoreTypes scoreTypes, int contactCount = 0, Vector3 worldPosition = default);
-        public static event ScoreAdded OnScoreAdded;
-        public static event Action<FitType> OnFitCheck;
-        public static event Action OnNextGameDifficulty;
+        public event ScoreAdded OnScoreAdded;
+        public Subject<FitTypeEvent> OnFitCheck = new();
+        public event Action OnNextGameDifficulty;
         private int _currentPresetIndex;
-        private SceneType _currentSceneType;
+        public SceneType CurrentSceneType { get; private set; }
         #endregion
         
         [Inject]
@@ -164,7 +175,7 @@ namespace FitMe.Grid
         private void OnFinishedLoading(SceneType sceneType)
         {
             Debug.Log("GridManager: OnFinishedLoading " + sceneType);
-            _currentSceneType = sceneType;
+            CurrentSceneType = sceneType;
             switch (sceneType)
             {
                 case SceneType.MainMenu:
@@ -321,7 +332,7 @@ namespace FitMe.Grid
             ResetPreviousValidationCells();
             foreach (var cell in _cellArray)
             {
-                cell?.DestroyRequested.OnNext(Unit.Default);
+                cell?.CellView.Destroy();
             }
             _cellArray = new CellModel[0, 0];
             _vacantSchema = new int[0, 0];
@@ -364,7 +375,7 @@ namespace FitMe.Grid
                                   new Vector2(y + CurrentOffset.x, CurrentOffset.y - x) * cellSize);
                         //+ _grid.transform.position;
                     var cell = _cellFactory.Create(spawnPosition, Quaternion.identity, out var cellGameObject);
-                    cell.TransformData.LocalScale.Value = Vector3.one * cellSize;
+                    cell.CellView.Transform.localScale = Vector3.one * cellSize;
                     cellGameObject.name = $"Cell {x}_{y}";
                     cell.ArrayIndex.Value = new Vector2Int(x, y);
                     cell.GridIndex.Value = GridUtils.ArrayToGridIndex(new Vector2Int(x, y), CurrentOffset);
@@ -385,7 +396,7 @@ namespace FitMe.Grid
             List<CellModel> cells = new List<CellModel>();
             foreach (var atom in blockModel.Atoms)
             {
-                Vector3 atomPosition = atom.TransformData.Position.Value;
+                Vector3 atomPosition = atom.AtomView.Transform.position;
                 Vector3 cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
                 CellModel cellModel = GetCellByPosition(cellPosition);
                 if (cellModel == null || cellModel.CurrentAtom.Value != null)
@@ -416,17 +427,14 @@ namespace FitMe.Grid
         public bool TryPlaceBlock(BlockModel blockModel)
         {
             ResetPreviousValidationCells();
-            var blockTransformData = blockModel.TransformData;
+            var blockViewTransform = blockModel.BlockView.Transform;
             var cellSize = _grid.cellSize.x;
-            blockTransformData.LocalScale.Value = Vector3.one * cellSize;
-            var firstAtomTransformData = blockModel.Atoms[0].TransformData;
-            var atomPositionBeforePlacement = firstAtomTransformData.Position.Value;
+            blockViewTransform.localScale = Vector3.one * cellSize;
             var cells = new List<CellModel>();
             foreach (var atom in blockModel.Atoms)
             {
-                var atomPosition = atom.TransformData.Position.Value;
-                var cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
-                var cellModel = GetCellByPosition(cellPosition);
+                var atomPosition = atom.AtomView.Transform.position.WithZ(0);
+                var cellModel = GetCellByPosition(atomPosition);
                 if (cellModel == null || cellModel.CurrentAtom.Value != null)
                 {
                     return false;
@@ -438,39 +446,21 @@ namespace FitMe.Grid
                 var atom = blockModel.Atoms[i];
                 cells[i].CurrentAtom.Value = atom;
             }
-            var atomPositionAfterPlacement = firstAtomTransformData.Position.Value;
-            var blockPositionRelativeToAtom = atomPositionAfterPlacement - atomPositionBeforePlacement;
-            blockTransformData.Position.Value += blockPositionRelativeToAtom;
+            var firstCellPosition = cells[0].CellView.Transform.position;
+            var firstAtomPosition = blockModel.Atoms[0].AtomView.Transform.position;
+            var blockPositionRelativeToAtom = firstCellPosition - firstAtomPosition;
+            blockViewTransform.position += blockPositionRelativeToAtom;
             blockModel.BlockCells = cells;
             var subscription = blockModel.UpdateGridRequested
                 .Subscribe(_ => UpdateBlockOnGrid(blockModel));
             _blockOnGrid.Add(new(blockModel, subscription));
-            OnScoreAdded?.Invoke(ScoreTypes.Placement, worldPosition: blockTransformData.Position.Value);
+            OnScoreAdded?.Invoke(ScoreTypes.Placement, worldPosition: blockViewTransform.position);
             //blockModel.BlockInteractionState.Value = BlockInteractionState.Placed;
             blockModel.BlockView.SetParent(_grid.transform);
             //blockView.ResetSortingLayer();
             ReorderRenderingOrder();
             var fit = UpdateBlockOnGrid(blockModel);
-            OnFitCheck?.Invoke(fit);
-            if (_currentSceneType == SceneType.Gameplay)
-            {
-                if (fit is FitType.FitMe)
-                {
-                    // BlockManager.Instance.FreeSpawnPoint(blockModel.SpawnIndex);
-                    // BlockManager.Instance.ResetSpawnPoint();
-                    // BlockManager.Instance.SpawnRandomBlock();
-                }
-                else
-                {
-                    // BlockManager.Instance.FreeSpawnPoint(blockModel.SpawnIndex);
-                    // BlockManager.Instance.ResetSpawnPoint();
-                    // BlockManager.Instance.SpawnRandomBlock();
-                }
-                if (fit is FitType.None)
-                {
-                    // BlockManager.Instance.GameOverCheck().Forget();
-                }
-            }
+            OnFitCheck?.OnNext(new FitTypeEvent(fit, blockModel));
             OnBlockPlaced?.Invoke(blockModel);
             return true;
         }
@@ -499,7 +489,7 @@ namespace FitMe.Grid
 
         private async UniTask FitMe()
         {
-            if (_currentSceneType is not SceneType.Gameplay) return;
+            if (CurrentSceneType is not SceneType.Gameplay) return;
             List<(BlockState beforeExplodeState, BlockTypes blockType)> blocksToSave = 
                 _blockOnGrid.Select(x => (x.Block.BlockState, x.Block.BlockType.CurrentValue)).ToList();
             await ClearGrid();
@@ -511,17 +501,28 @@ namespace FitMe.Grid
 
         private async UniTask Combo(List<BlockModel> contacts)
         {
-            var middleOfBlocks = contacts.Select(block => block.TransformData.Position.Value)
+            var middleOfBlocks = contacts.Select(block => block.BlockView.Transform.position)
                 .Aggregate(Vector3.zero, (current, position) => current + position) / contacts.Count;
             List<(BlockState beforeExplodeState, BlockTypes blockType)> blocksToSave = 
                 _blockOnGrid.Select(x => (x.Block.BlockState, x.Block.BlockType.CurrentValue)).ToList();
             //AudioManager.Instance.PlayAudioOneShot(stackExplodeSfx, transform.position);
             var gridBlockData = _blockOnGrid.Where(x => contacts.Contains(x.Block)).ToList();
-            await UniTask.WhenAll(gridBlockData.Select(block => RemoveBlock(block, FitType.Combo, true)));
+            //await UniTask.WhenAll(gridBlockData.Select(block => RemoveBlock(block, FitType.Combo, true)));
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.Combo, blocksToSave);
             OnScoreAdded?.Invoke(ScoreTypes.Combo, contacts.Count, middleOfBlocks);
             OnScoreAdded?.Invoke(ScoreTypes.Bomb, contacts.Count, middleOfBlocks);
             //BlockManager.Instance.GameOverCheck().Forget();
+        }
+
+        public async UniTask RemoveBlock(BlockModel blockModel, FitType fitType, bool destroy = false)
+        {
+            var gridBlockData = _blockOnGrid.FirstOrDefault(x => x.Block == blockModel);
+            if (gridBlockData == null)
+            {
+                Debug.LogWarning("Block not found on grid");
+                return;
+            }
+            await RemoveBlock(gridBlockData, fitType, destroy);
         }
         
         /// <summary>
@@ -534,14 +535,14 @@ namespace FitMe.Grid
             _blockOnGrid.Remove(gridBlockData);
             OnBlockDestroyed?.Invoke(gridBlockData.Block);
             var atoms = new List<AtomModel>(gridBlockData.Block.Atoms);
-            if (_currentSceneType is SceneType.Gameplay)
+            if (CurrentSceneType is SceneType.Gameplay)
             {
                 gridBlockData.Block.BlockState = BlockState.Exploding;
                 await gridBlockData.Block.BlockView.Explode(fitType, destroy);
             }
             foreach (var atom in atoms)
             {
-                var cellModel = GetCellByPosition(atom.TransformData.Position.Value);
+                var cellModel = GetCellByPosition(atom.AtomView.Transform.position);
                 if (cellModel == null || cellModel.CurrentAtom.Value != atom)
                 {
                     continue;
@@ -585,7 +586,7 @@ namespace FitMe.Grid
             for (var i = 0; i < _blockOnGrid.Count; i++)
             {
                 var gridBlockData = _blockOnGrid[i];
-                gridBlockData.Block.BlockView.SetSortingOrder(i);
+                gridBlockData.Block.SetSortingOrderCommand.Execute(i);
             }
         }
         #endregion
@@ -618,7 +619,7 @@ namespace FitMe.Grid
                     CheckForContact(adjacentBlock, contactedBlocks);
                 }
             }
-            return contactedBlocks.Count >= _config.DestroyThreshold;
+            return contactedBlocks.Count >= _config.ComboThreshold;
         }
 
         /// <summary>
@@ -663,11 +664,19 @@ namespace FitMe.Grid
             availableBlocks = new List<BlockModel>();
             foreach (var block in blockToCheck)
             {
-                //if (!_viewLocator.TryGetView<BlockView>(block.Id, out var blockView)) continue;
-                if (CompareSchema(block, block.TransformData.Rotation.Value.eulerAngles.z))
+                // if we cannot rotate block, only check for current rotation
+                /*if (CompareSchema(block, block.BlockView.Transform.rotation.eulerAngles.z))
                 {
                     availableBlocks.Add(block);
                     continue;
+                }*/
+                
+                // check for all rotations
+                for (var i = 0; i < 4; i++)
+                {
+                    if (!CompareSchema(block, i)) continue;
+                    availableBlocks.Add(block);
+                    break;
                 }
                 //Debug.Log("Block " + blockView.name + " cannot be placed");
             }

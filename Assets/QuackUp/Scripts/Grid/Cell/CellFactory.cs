@@ -38,10 +38,7 @@ namespace FitMe.Grid
                 parent = _cellParent
             };
             var view = Object.Instantiate(_cellViewPrefab, position, rotation, instantiateParameters.Value);
-            var model = new CellModel
-            {
-                TransformData = new TransformData(view.transform)
-            };
+            var model = new CellModel(view);
             var viewModel = new CellViewModel(model);
             view.Construct(viewModel);
             Current = model;

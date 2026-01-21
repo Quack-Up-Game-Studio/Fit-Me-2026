@@ -34,4 +34,5 @@ MonoBehaviour:
   <GridVerticalOffsetType>k__BackingField: 1
   <CustomOffsetY>k__BackingField: 6
   <DestroyThreshold>k__BackingField: 3
-  gridPresets: []
+  gridPresets:
+  - {fileID: 11400000, guid: 2aad68baf83cb5ff29e7395cd725463e, type: 2}

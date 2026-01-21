@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace FitMe.Grid
 {
-    [CreateAssetMenu(fileName = "BlockManagerConfig", menuName = "FitMe/Grid/BlockManager/BlockManagerConfig")]
+    [CreateAssetMenu(fileName = "BlockManagerConfig", menuName = "FitMe/Block/BlockManagerConfig")]
     public class BlockManagerConfig : SerializedScriptableObject
     {
         [Title("Random Settings")]

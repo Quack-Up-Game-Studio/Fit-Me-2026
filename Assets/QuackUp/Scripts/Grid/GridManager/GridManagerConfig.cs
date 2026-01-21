@@ -18,8 +18,6 @@ namespace FitMe.Grid
         [field: SerializeField]
         public PresetRandomType PresetRandomType { get; private set; } = PresetRandomType.Random;
         [field: SerializeField]
-        public bool UseDifficultyPreset { get; private set; } = true;
-        [field: SerializeField]
         public Vector2Int RandomGridXRange { get; private set; } = new(1, 10);
         [field: SerializeField]
         public Vector2Int RandomGridYRange { get; private set; } = new(1, 10);
@@ -34,7 +32,7 @@ namespace FitMe.Grid
         [field: SerializeField]
         public int CustomOffsetY { get; private set; } = 0;
         [field: SerializeField]
-        public int DestroyThreshold { get; private set; } = 3;
+        public int ComboThreshold { get; private set; } = 3;
         
         [field: SerializeField] private List<GridPreset> gridPresets = new();
         public IReadOnlyList<GridPreset> GridPresets => gridPresets;

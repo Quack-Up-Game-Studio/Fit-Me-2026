@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using FitMe.Shared;
 using QuackUp.Audio;
 using QuackUp.Input;
@@ -14,6 +15,7 @@ namespace FitMe.Grid
         public ReactiveCommand<PointerEventData> BeingDragCommand { get; } = new();
         public ReactiveCommand<PointerEventData> DragCommand { get; } = new();
         public ReactiveCommand<PointerEventData> EndDragCommand { get; } = new();
+        public ReactiveCommand<PointerEventData> ClickCommand { get; } = new();
         
         private readonly BlockConfig _config;
         private readonly GridManager _gridManager;
@@ -22,6 +24,7 @@ namespace FitMe.Grid
         private readonly IPointerHandler _pointerHandler;
         
         private IDisposable _bindings;
+        private bool _isRotating;
         private bool _isDragging;
         private Vector2 _mousePositionDifference;
 
@@ -56,6 +59,10 @@ namespace FitMe.Grid
                 .Where(x => x.button is PointerEventData.InputButton.Left)
                 .Subscribe(OnEndDrag)
                 .AddTo(ref disposableBuilder);
+            ClickCommand
+                .Where(x => x.button is PointerEventData.InputButton.Left)
+                .SubscribeAwait((x, _) => OnClickToRotate(x), AwaitOperation.Drop)
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
@@ -73,15 +80,16 @@ namespace FitMe.Grid
                 return;
             }
             if (GameStatic.CurrentGameState is not GameState.PlaceBlock) return;
-            if (_model.BlockInteractionState.Value is BlockInteractionState.Placed 
+            if (_isRotating) return;
+            if (_model.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid 
                 && !_config.AllowPickUpAfterPlacement) return;
-            var position = _model.TransformData.Position.Value;
+            var position = _model.BlockView.Transform.position;
             var mousePosition = _pointerHandler.MouseWorldPosition;
             _mousePositionDifference = new Vector2(mousePosition.x - position.x,
                 mousePosition.y - position.y);
             //ChangeSortingOrder(1);
             //AudioManager.Instance.PlayAudioOneShot(BlockPreset.PickupSfx, transform.position);
-            _model.BlockView.SetSortingLayer(_config.PickUpSortingLayer);
+            _model.SetSortingLayerCommand.Execute(_config.PickUpSortingLayer);
         }
 
         private void OnDrag(PointerEventData eventData)
@@ -92,15 +100,17 @@ namespace FitMe.Grid
                 return;
             }
             if (GameStatic.CurrentGameState is not GameState.PlaceBlock) return;
-            if (_model.BlockInteractionState.Value is BlockInteractionState.Placed 
+            if (_isRotating) return;
+            if (_model.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid 
                 && !_config.AllowPickUpAfterPlacement) return;
             _gridManager.ValidatePlacement(_model);
             var mousePosition = _pointerHandler.MouseWorldPosition;
             var position = mousePosition - _mousePositionDifference;
-            _model.TransformData.Position.Value = position;
+            _model.BlockView.Transform.position = position;
             if (_isDragging) return; //Prevent unnecessary calculations
+            if (_model.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid)
+                _gridManager.RemoveBlock(_model, FitType.None, false).Forget();
             _model.BlockInteractionState.Value = BlockInteractionState.PickUp;
-            //GridManager.Instance.RemoveBlock(this);
             _isDragging = true;
         }
 
@@ -108,19 +118,34 @@ namespace FitMe.Grid
         {
             if (GameStatic.CurrentGameState is GameState.CountOff or GameState.Pause) return;
             if (!_isDragging) return;
+            if (_isRotating) return;
             var placed = _gridManager.TryPlaceBlock(_model);
             if (placed)
             {
-                _model.BlockInteractionState.Value = BlockInteractionState.Placed;
+                _model.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
+                _model.SetSortingLayerCommand.Execute(_config.OriginalSortingLayer);
                 _audioManager.PlayAudioOneShot(_config.PlaceSucceedSfx, Vector3.zero);
                 _mousePositionDifference = Vector3.zero;
             }
             else
             {
                 _audioManager.PlayAudioOneShot(_config.PlaceFailSfx, Vector3.zero);
-                _model.BlockInteractionState.Value = BlockInteractionState.None;
+                _model.BlockInteractionState.Value = BlockInteractionState.PlacedOnSpawn;
             }
             _isDragging = false;
+        }
+        
+        private async UniTask OnClickToRotate(PointerEventData eventData)
+        {
+            if (GameStatic.CurrentGameState is GameState.CountOff or GameState.Pause or GameState.GameOver) return;
+            if (_isDragging) return;
+            if (_model.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid) return;
+            var rotateClockwise = _config.RotateClockwise ? -1f : 1f;
+            var rotation = Quaternion.Euler(0f, 0f,
+                _model.BlockView.Transform.rotation.eulerAngles.z + rotateClockwise * 90f);
+            _isRotating = true;
+            await _model.BlockView.Rotate(rotation);
+            _isRotating = false;
         }
         #endregion
     }

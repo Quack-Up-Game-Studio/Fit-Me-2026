@@ -38,11 +38,7 @@ namespace FitMe.Grid
             };
             var view = Object.Instantiate(_atomViewPrefab, position, rotation,
                 instantiateParameters.Value);
-            var model = new AtomModel
-            {
-                AtomView = view,
-                TransformData = new TransformData(view.transform)
-            };
+            var model = new AtomModel(view);
             var viewModel = new AtomViewModel(model);
             view.Construct(_blockConfig, viewModel);
             Current = model;

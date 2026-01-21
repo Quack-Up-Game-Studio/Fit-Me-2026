@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using FitMe.Shared;
 using MessagePipe;
 using PrimeTween;
+using QuackUp.SceneManagement;
 using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
@@ -92,7 +94,10 @@ namespace FitMe.Grid
         {
             var disposableBuilder = Disposable.CreateBuilder();
             _startSpawnSubscription
-                .Subscribe(SpawnAtStart)
+                .Subscribe(OnSpawnAtStart)
+                .AddTo(ref disposableBuilder);
+            _gridManager.OnFitCheck
+                .Subscribe(OnFitCheck)
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -106,16 +111,26 @@ namespace FitMe.Grid
 
         public void Start()
         {
-            SpawnAtStart(new StartSpawnEvent());
+            OnSpawnAtStart(new StartSpawnEvent());
         }
 
-        private void SpawnAtStart(StartSpawnEvent eventData)
+        private void OnSpawnAtStart(StartSpawnEvent eventData)
         {
             _spawnPoints.ForEach(FreeSpawnPoint);
             if (!eventData.blockPreset)
                 SpawnRandomBlock();
             else
                 SpawnBlock(eventData.blockPreset);
+        }
+
+        private void OnFitCheck(FitTypeEvent eventData)
+        {
+            if (_gridManager.CurrentSceneType != SceneType.Gameplay) return;
+            FreeSpawnPoint(eventData.Block.SpawnIndex);
+            ResetSpawnPoint();
+            SpawnRandomBlock();
+            if (eventData.FitType is FitType.None) 
+                GameOverCheck().Forget();
         }
         #endregion
         
@@ -165,7 +180,11 @@ namespace FitMe.Grid
                 var blockType = blockTypes.GetRandomElement();
                 var blockFace = randomBlock.blockFace;
                 var index = randomBlock.blockSchema.Index;
-                BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, Quaternion.identity, out var blockGameObject, new InstantiateParameters
+                int randomRotation = index * 90;
+                Debug.Log("Random Rotation: " + randomRotation);
+                Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
+                //block.BlockView.Transform.rotation = randomRotationQuaternion;
+                BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, randomRotationQuaternion, out var blockGameObject, new InstantiateParameters
                 {
                     parent = spawnTransform,
                     worldSpace = true,
@@ -173,11 +192,8 @@ namespace FitMe.Grid
                 blockGameObject.name = $"Block_{blockFace}";
                 block.ChangeType(blockType, false);
                 block.SpawnIndex = i;
-                block.TransformData.LocalScale.Value = Vector3.zero;
+                block.BlockView.Transform.localScale = Vector3.zero;
                 Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
-                int randomRotation = index * 90;
-                Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
-                block.TransformData.Rotation.Value = randomRotationQuaternion;
                 block.BlockView.ScaleIn(scale);
                 _spawnPoints[i].IsFree = false;
                 _spawnPoints[i].CurrentBlock = block;
@@ -202,7 +218,7 @@ namespace FitMe.Grid
             blockGameObject.name = $"Block_{blockFace}";
             block.ChangeType(blockType, false);
             block.SpawnIndex = 0;
-            block.TransformData.LocalScale.Value = Vector3.zero;
+            block.BlockView.Transform.localScale = Vector3.zero;
             Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
             block.BlockView.ScaleIn(scale);
             _spawnPoints[0].IsFree = false;
@@ -333,6 +349,7 @@ namespace FitMe.Grid
             if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
                 OnGameOver?.Invoke();
+                GameStatic.CurrentGameState = GameState.GameOver;
             }
         }
         #endregion
