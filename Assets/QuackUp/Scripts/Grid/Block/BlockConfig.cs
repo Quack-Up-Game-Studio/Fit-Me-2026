@@ -17,8 +17,8 @@ namespace FitMe.Grid
         [field: SerializeField, SortingLayer] public int OriginalSortingLayer { get; private set; }
         [field: SerializeField, SortingLayer] public int PickUpSortingLayer { get; private set; }
         [field: SerializeField] public Color OriginalAtomColor { get; private set; } = Color.white;
-        [field: OdinSerialize] private Dictionary<BlockTypes, Color> _atomColorDict = new();
-        public IReadOnlyDictionary<BlockTypes, Color> AtomColorDict => _atomColorDict;
+        [field: OdinSerialize] private Dictionary<BlockColor, Color> _atomColorDict = new();
+        public IReadOnlyDictionary<BlockColor, Color> AtomColorDict => _atomColorDict;
         [field: SerializeField] public bool AllowPickUpAfterPlacement { get; private set; }
         [field: SerializeField] public bool RotateClockwise { get; private set; } = true;
         
@@ -27,7 +27,7 @@ namespace FitMe.Grid
         [field: SerializeField] public EventReference PlaceFailSfx { get; private set; }
         
         [Title("VFX")]
-        [field: OdinSerialize] private Dictionary<BlockTypes, ParticleSystem> _explodeVfx = new();
-        public IReadOnlyDictionary<BlockTypes, ParticleSystem> ExplodeVfx => _explodeVfx;
+        [field: OdinSerialize] private Dictionary<BlockColor, ParticleSystem> _explodeVfx = new();
+        public IReadOnlyDictionary<BlockColor, ParticleSystem> ExplodeVfx => _explodeVfx;
     }
 }

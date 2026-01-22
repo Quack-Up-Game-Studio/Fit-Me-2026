@@ -17,7 +17,7 @@ namespace FitMe.Grid
         [SerializeField] private BlockConfig blockConfig;
         [SerializeField] private BlockManager.SpawnPointData[] spawnPoints;
         [SerializeField] private AtomView atomViewPrefab;
-        [OdinSerialize] private Dictionary<string, BlockView> blockViewDictionary;
+        [OdinSerialize] private Dictionary<BlockShape, BlockView> blockViewDictionary;
         
         public void Install(IContainerBuilder builder)
         {

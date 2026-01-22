@@ -490,7 +490,7 @@ namespace FitMe.Grid
         private async UniTask FitMe()
         {
             if (CurrentSceneType is not SceneType.Gameplay) return;
-            List<(BlockState beforeExplodeState, BlockTypes blockType)> blocksToSave = 
+            List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
                 _blockOnGrid.Select(x => (x.Block.BlockState, x.Block.BlockType.CurrentValue)).ToList();
             await ClearGrid();
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
@@ -503,7 +503,7 @@ namespace FitMe.Grid
         {
             var middleOfBlocks = contacts.Select(block => block.BlockView.Transform.position)
                 .Aggregate(Vector3.zero, (current, position) => current + position) / contacts.Count;
-            List<(BlockState beforeExplodeState, BlockTypes blockType)> blocksToSave = 
+            List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
                 _blockOnGrid.Select(x => (x.Block.BlockState, x.Block.BlockType.CurrentValue)).ToList();
             //AudioManager.Instance.PlayAudioOneShot(stackExplodeSfx, transform.position);
             var gridBlockData = _blockOnGrid.Where(x => contacts.Contains(x.Block)).ToList();
@@ -600,7 +600,7 @@ namespace FitMe.Grid
         /// <returns>true if the contacted blocks count is greater than or equal to the destroy threshold, false otherwise</returns>
         private bool CheckForContact(BlockModel blockModel, List<BlockModel> contactedBlocks)
         {
-            BlockTypes currentType = blockModel.BlockType.CurrentValue;
+            BlockColor currentColor = blockModel.BlockType.CurrentValue;
             contactedBlocks.Add(blockModel);
             foreach (var cell in blockModel.BlockCells)
             {
@@ -614,7 +614,7 @@ namespace FitMe.Grid
                     if (adjacentCell?.CurrentAtom.Value == null) continue;
                     var adjacentBlock = adjacentCell.CurrentAtom.Value.ParentBlockModel.Value;
                     if (adjacentBlock.BlockState is BlockState.Infected or BlockState.Exploding) continue;
-                    if (adjacentBlock.BlockType.CurrentValue != currentType) continue;
+                    if (adjacentBlock.BlockType.CurrentValue != currentColor) continue;
                     if (contactedBlocks.Contains(adjacentBlock)) continue;
                     CheckForContact(adjacentBlock, contactedBlocks);
                 }

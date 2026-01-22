@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa23d138c9fa14154a39f1c9b2b4ccb9, type: 3}
-  m_Name: LMirror
+  m_Name: 1x1
   m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.BlockPreset
   serializationData:
     SerializedFormat: 2
@@ -29,28 +29,13 @@ MonoBehaviour:
       Data: 1|System.Int32[,], mscorlib
     - Name: 
       Entry: 12
-      Data: 6
+      Data: 1
     - Name: ranks
       Entry: 1
-      Data: 3|2
+      Data: 1|1
     - Name: 
       Entry: 3
       Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 0
     - Name: 
       Entry: 13
       Data: 
@@ -84,25 +69,10 @@ MonoBehaviour:
       Data: 5|System.Int32[,], mscorlib
     - Name: 
       Entry: 12
-      Data: 6
+      Data: 1
     - Name: ranks
       Entry: 1
-      Data: 2|3
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
+      Data: 1|1
     - Name: 
       Entry: 3
       Data: 1
@@ -123,25 +93,10 @@ MonoBehaviour:
       Data: 7|System.Int32[,], mscorlib
     - Name: 
       Entry: 12
-      Data: 6
+      Data: 1
     - Name: ranks
       Entry: 1
-      Data: 3|2
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
+      Data: 1|1
     - Name: 
       Entry: 3
       Data: 1
@@ -162,25 +117,10 @@ MonoBehaviour:
       Data: 9|System.Int32[,], mscorlib
     - Name: 
       Entry: 12
-      Data: 6
+      Data: 1
     - Name: ranks
       Entry: 1
-      Data: 2|3
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 0
+      Data: 1|1
     - Name: 
       Entry: 3
       Data: 1
@@ -200,7 +140,7 @@ MonoBehaviour:
       Entry: 8
       Data: 
   <BlockSprite>k__BackingField: {fileID: 0}
-  <BlockSize>k__BackingField: {x: 2, y: 3}
+  <BlockSize>k__BackingField: {x: 1, y: 1}
   <PickupSfx>k__BackingField:
     Guid:
       Data1: 0

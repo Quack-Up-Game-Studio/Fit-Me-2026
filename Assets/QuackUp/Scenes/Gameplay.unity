@@ -303,12 +303,18 @@ MonoBehaviour:
       Data: 12
     - Name: blockViewDictionary
       Entry: 7
-      Data: 8|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Grid.BlockView,
+      Data: 8|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockShape, FitMe.Grid],[FitMe.Grid.BlockView,
         FitMe.Grid]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 9|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
-        mscorlib]], mscorlib
+      Data: 9|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Grid.BlockShape,
+        FitMe.Grid]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -319,8 +325,8 @@ MonoBehaviour:
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: I1
+      Entry: 3
+      Data: 0
     - Name: $v
       Entry: 10
       Data: 13
@@ -331,8 +337,8 @@ MonoBehaviour:
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: I2
+      Entry: 3
+      Data: 1
     - Name: $v
       Entry: 10
       Data: 13
@@ -343,8 +349,8 @@ MonoBehaviour:
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: I3
+      Entry: 3
+      Data: 2
     - Name: $v
       Entry: 10
       Data: 13
@@ -355,8 +361,8 @@ MonoBehaviour:
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: T
+      Entry: 3
+      Data: 3
     - Name: $v
       Entry: 10
       Data: 13
@@ -367,8 +373,8 @@ MonoBehaviour:
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: 2x2
+      Entry: 3
+      Data: 4
     - Name: $v
       Entry: 10
       Data: 13
@@ -379,8 +385,8 @@ MonoBehaviour:
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: S
+      Entry: 3
+      Data: 5
     - Name: $v
       Entry: 10
       Data: 13
@@ -391,8 +397,8 @@ MonoBehaviour:
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: SMirror
+      Entry: 3
+      Data: 6
     - Name: $v
       Entry: 10
       Data: 13
@@ -403,8 +409,8 @@ MonoBehaviour:
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: L
+      Entry: 3
+      Data: 7
     - Name: $v
       Entry: 10
       Data: 13
@@ -415,8 +421,8 @@ MonoBehaviour:
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: LMirror
+      Entry: 3
+      Data: 8
     - Name: $v
       Entry: 10
       Data: 13

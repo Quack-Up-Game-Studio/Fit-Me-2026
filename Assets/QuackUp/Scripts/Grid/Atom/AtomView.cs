@@ -72,13 +72,13 @@ namespace FitMe.Grid
             spriteRenderer.sortingOrder = order;
         }
 
-        private void OnBlockTypeChanged(BlockTypes type)
+        private void OnBlockTypeChanged(BlockColor color)
         {
-            if (!_config.AtomColorDict.TryGetValue(type, out var color))
+            if (!_config.AtomColorDict.TryGetValue(color, out var spriteColor))
             {
-                Debug.LogError($"BlockType.CurrentValue {type} is not defined");
+                Debug.LogError($"BlockType.CurrentValue {color} is not defined");
             }
-            spriteRenderer.color = color;
+            spriteRenderer.color = spriteColor;
         }
 
         public void SetOutline(SpriteOutlineSettings settings)

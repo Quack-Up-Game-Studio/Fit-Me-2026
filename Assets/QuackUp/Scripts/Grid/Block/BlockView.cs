@@ -104,7 +104,7 @@ namespace FitMe.Grid
         private int _originalSortingLayer;
         private Vector3 _mousePositionDifference;
         private Tween _transformTween;
-        private BlockTypes _blockType;
+        private BlockColor _blockColor;
         private Vector3 _originalScale;
         private Tween _pickUpTween;
         private IDisposable _switchIdleTimer;
@@ -260,21 +260,21 @@ namespace FitMe.Grid
         
         public async UniTask Explode(FitType fitType, bool destroy = true)
         {
-            Debug.Log($"Block {_blockType} exploded at position {transform.position}");
+            Debug.Log($"Block {_blockColor} exploded at position {transform.position}");
             CancelIdleTimer();
             // var speedMultiplier = fitType == FitType.FitMe ? 2f : 6.67f;
             // var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, explodeAnimation, false);
             // explodeAnim.TimeScale *= speedMultiplier;
             // await explodeAnim.ToUniTask();
             //await UniTask.WaitUntil(() => skeletonAnimation.AnimationState.GetCurrent(0).IsComplete);
-            if (_config.ExplodeVfx.TryGetValue(_blockType, out var vfx))
+            if (_config.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
             {
                 var vfxInstance = Instantiate(vfx, transform.position, Quaternion.identity);
                 vfxInstance.Play(true);
             }
             else
             {
-                Debug.LogWarning($"No explosion VFX found for block type: {_blockType}");
+                Debug.LogWarning($"No explosion VFX found for block type: {_blockColor}");
             }
             if (destroy) Destroy(gameObject);
         }
@@ -297,9 +297,9 @@ namespace FitMe.Grid
             // }
         }
 
-        private void OnBlockTypeChanged(BlockTypes type)
+        private void OnBlockTypeChanged(BlockColor color)
         {
-            _blockType = type;
+            _blockColor = color;
             // if (!skinDictionary.TryGetValue(type, out var skin))
             // {
             //     Debug.LogWarning($"No skin found for block type: {type}");

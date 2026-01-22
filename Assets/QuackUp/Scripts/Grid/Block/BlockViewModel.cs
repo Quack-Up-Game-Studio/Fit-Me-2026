@@ -9,7 +9,7 @@ namespace FitMe.Grid
     public class BlockViewModel : IDisposable
     {
         public ReadOnlyReactiveProperty<BlockInteractionState> BlockInteractionState => _model.BlockInteractionState;
-        public ReadOnlyReactiveProperty<BlockTypes> BlockType => _model.BlockType;
+        public ReadOnlyReactiveProperty<BlockColor> BlockType => _model.BlockType;
         public ReactiveCommand<int> SetSortingLayerCommand => _model.SetSortingLayerCommand;
         public ReactiveCommand<int> SetSortingOrderCommand => _model.SetSortingOrderCommand;
         //public IReadOnlyList<AtomModel> Atoms => _model.Atoms;

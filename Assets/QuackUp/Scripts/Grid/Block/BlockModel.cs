@@ -28,8 +28,21 @@ namespace FitMe.Grid
         PickUp,
         PlacedOnGrid
     }
+
+    public enum BlockShape
+    {
+        OneByOne,
+        OneByTwo,
+        OneByThree,
+        TwoByTwo,
+        Z,
+        S,
+        J,
+        L,
+        T
+    }
     
-    public enum BlockTypes
+    public enum BlockColor
     {
         Red,
         Yellow,
@@ -62,8 +75,8 @@ namespace FitMe.Grid
         /// <remarks>
         /// Use <see cref="ChangeType"/> to change the block type.
         /// </remarks>
-        public ReadOnlyReactiveProperty<BlockTypes> BlockType => _blockType.ToReadOnlyReactiveProperty();
-        public string BlockFace { get; private set; }
+        public ReadOnlyReactiveProperty<BlockColor> BlockType => _blockType.ToReadOnlyReactiveProperty();
+        public BlockShape BlockShape { get; private set; }
         public List<AtomModel> Atoms { get; private set; } = new(); 
         public BlockPreset BlockPreset { get; private set; }
         public BlockState BlockState { get; set; } = BlockState.Normal;
@@ -78,16 +91,16 @@ namespace FitMe.Grid
         
         public Subject<Unit> UpdateGridRequested { get; } = new();
         
-        private ReactiveProperty<BlockTypes> _blockType = new();
+        private ReactiveProperty<BlockColor> _blockType = new();
         private int _originalSortingOrder;
         #endregion
 
         #region Schema
-        public void GenerateAtom(string blockFace, BlockPreset preset)
+        public void GenerateAtom(BlockShape blockShape, BlockPreset preset)
         {
             var row = preset.BlockSize.y;
             var column = preset.BlockSize.x;
-            BlockFace = blockFace;
+            BlockShape = blockShape;
             BlockPreset = preset;
             for (var x = 0; x < row; x++)
             {
@@ -147,9 +160,9 @@ namespace FitMe.Grid
         #endregion
         
         #region Utils
-        public void ChangeType(BlockTypes type, bool updateGrid = true)
+        public void ChangeType(BlockColor color, bool updateGrid = true)
         {
-            _blockType.Value = type;
+            _blockType.Value = color;
             if (!updateGrid) return;
             UpdateGridRequested.OnNext(Unit.Default);
         }

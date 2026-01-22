@@ -36,14 +36,14 @@ namespace FitMe.Grid
             [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public BlockModel CurrentBlock { get; set; }
         }
         
-        private struct FaceAndSchemaData
+        private struct ShapeAndSchemaData
         {
-            public readonly string blockFace;
+            public readonly BlockShape blockShape;
             public readonly BlockSchema blockSchema;
             
-            public FaceAndSchemaData(string blockFace, BlockSchema blockSchema)
+            public ShapeAndSchemaData(BlockShape blockShape, BlockSchema blockSchema)
             {
-                this.blockFace = blockFace;
+                this.blockShape = blockShape;
                 this.blockSchema = blockSchema;
             }
         }
@@ -51,9 +51,9 @@ namespace FitMe.Grid
         private struct BestFitResult
         {
             public readonly int vacantCount;
-            public readonly List<FaceAndSchemaData> schemaList;
+            public readonly List<ShapeAndSchemaData> schemaList;
 
-            public BestFitResult(int vacantCount, List<FaceAndSchemaData> schemaList)
+            public BestFitResult(int vacantCount, List<ShapeAndSchemaData> schemaList)
             {
                 this.vacantCount = vacantCount;
                 this.schemaList = schemaList;
@@ -141,12 +141,12 @@ namespace FitMe.Grid
         public void SpawnRandomBlock()
         {
             //if (spawnPoints.Any(x => !x.IsFree)) return;
-            var blockTypes = Enum.GetValues(typeof(BlockTypes)).Cast<BlockTypes>().ToList();
+            var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();
             var allSchemas = _config.BlockPresetDictionary
                 .SelectMany(x => x.Value.BlockSchemas
-                    .Select(schema => new FaceAndSchemaData(x.Key, schema))).ToList();
+                    .Select(schema => new ShapeAndSchemaData(x.Key, schema))).ToList();
             var shuffledSchemas = allSchemas.Shuffled().ToList();
-            List<FaceAndSchemaData> randomSchemas;
+            List<ShapeAndSchemaData> randomSchemas;
             _gridManager.CreateVacantSchema(out var vacantSchema, out var vacantCount);
             if (_config.UseSmartRandom && vacantCount <= _config.SmartRandomThreshold)
             {
@@ -168,6 +168,8 @@ namespace FitMe.Grid
                     .Take(_config.MaxRandomAmount)
                     .ToList();
             }
+            
+            
             var spawnedBlocks = new List<BlockModel>();
             for (int i = 0; i < randomSchemas.Count; i++)
             {
@@ -177,20 +179,20 @@ namespace FitMe.Grid
                 }
                 Transform spawnTransform = _spawnPoints[i].Transform;
                 var randomBlock = randomSchemas[i];
-                var blockType = blockTypes.GetRandomElement();
-                var blockFace = randomBlock.blockFace;
+                var color = blockTypes.GetRandomElement();
+                var face = randomBlock.blockShape;
                 var index = randomBlock.blockSchema.Index;
                 int randomRotation = index * 90;
                 Debug.Log("Random Rotation: " + randomRotation);
                 Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
                 //block.BlockView.Transform.rotation = randomRotationQuaternion;
-                BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, randomRotationQuaternion, out var blockGameObject, new InstantiateParameters
+                BlockModel block = _blockFactory.Create(face, spawnTransform.position, randomRotationQuaternion, out var blockGameObject, new InstantiateParameters
                 {
                     parent = spawnTransform,
                     worldSpace = true,
                 });
-                blockGameObject.name = $"Block_{blockFace}";
-                block.ChangeType(blockType, false);
+                blockGameObject.name = $"Block_{face}";
+                block.ChangeType(color, false);
                 block.SpawnIndex = i;
                 block.BlockView.Transform.localScale = Vector3.zero;
                 Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
@@ -208,7 +210,7 @@ namespace FitMe.Grid
             var spawnedBlocks = new List<BlockModel>();
             if (!_spawnPoints[0].IsFree) return;
             Transform spawnTransform = _spawnPoints[0].Transform;
-            var blockTypes = Enum.GetValues(typeof(BlockTypes)).Cast<BlockTypes>().ToList();
+            var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();
             var blockType = blockTypes.GetRandomElement();
             var blockFace = _config.BlockPresetDictionary.FirstOrDefault(x => x.Value == preset).Key;
             BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, Quaternion.identity, out var blockGameObject, new InstantiateParameters
@@ -235,7 +237,7 @@ namespace FitMe.Grid
         /// <param name="schemasToCheck"></param>
         /// <returns></returns>
         private List<BestFitResult> FindBestFitSorted(int[,] vacantSchema,
-                List<FaceAndSchemaData> schemasToCheck)
+                List<ShapeAndSchemaData> schemasToCheck)
         {
             var sortedSchemas = schemasToCheck
                     .OrderByDescending(x => x.blockSchema.schema.CountMember(y => y == 1))
@@ -259,8 +261,8 @@ namespace FitMe.Grid
         /// <param name="blockCountToBeat"></param>
         /// <returns></returns>
         private List<BestFitResult> FindBestFit(
-            int[,] vacantSchema, List<FaceAndSchemaData> schemasToCheck,
-            List<FaceAndSchemaData> previouslyTraversed = null, 
+            int[,] vacantSchema, List<ShapeAndSchemaData> schemasToCheck,
+            List<ShapeAndSchemaData> previouslyTraversed = null, 
             int currentDepth = 0,
             int vacantToBeat = int.MaxValue, 
             int blockCountToBeat = int.MaxValue)
@@ -286,7 +288,7 @@ namespace FitMe.Grid
 
             foreach (var schema in schemasToCheck)
             {
-                var traversed = new List<FaceAndSchemaData>();
+                var traversed = new List<ShapeAndSchemaData>();
                 if (previouslyTraversed != null)
                 {
                     traversed.AddRange(previouslyTraversed);

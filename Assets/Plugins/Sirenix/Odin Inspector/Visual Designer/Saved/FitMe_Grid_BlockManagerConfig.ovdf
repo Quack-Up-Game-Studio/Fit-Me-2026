@@ -1,0 +1,44 @@
+OVDF v1.1
+FitMe.Grid.BlockManagerConfig, FitMe.Grid
+MetaGuid:127afa20aae140f3b0535eb07164f42c
+
+# $FMUtCLk4MMKHZkTY2mpyJt
+Position: $root:4
++ [Sirenix.OdinInspector.BoxGroupAttribute]
+	GroupName = "Player Assist"
+	ShowLabel = True
+	CenterLabel = False
+
+# <BlockPresetDictionary>k__BackingField
++ [Sirenix.OdinInspector.DictionaryDrawerSettings]
+	KeyLabel = "Shape"
+	ValueLabel = "Preset"
+	DisplayMode = OneLine
+
+# <UseSmartRandom>k__BackingField
+Position: $FMUtCLk4MMKHZkTY2mpyJt:0
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Player assist feature that guarantee a fittable block."
+
+# <SmartRandomThreshold>k__BackingField
+Position: $FMUtCLk4MMKHZkTY2mpyJt:1
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseSmartRandom"
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "When a vacant space reached this threshold, smart random will kick in."
+
+# <SmartRandomDepth>k__BackingField
+Position: $FMUtCLk4MMKHZkTY2mpyJt:2
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseSmartRandom"
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "How deep should the searching algorithm goes, the higher, the more resource it consumes."
+
+# <ObjectScale>k__BackingField
+Position: $root:3
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "The scale of the block when it is first spawned on the spawn location."
+
+# <MaxRandomAmount>k__BackingField
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "The maximum random amount for the block to appear."

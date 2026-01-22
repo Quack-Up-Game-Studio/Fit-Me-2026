@@ -12,7 +12,7 @@ namespace FitMe.Grid
 {
     public class BlockFactory
     {
-        private readonly Dictionary<string, BlockView> _blockViewDictionary;
+        private readonly Dictionary<BlockShape, BlockView> _blockViewDictionary;
         private readonly BlockManagerConfig _blockManagerConfig;
         private readonly BlockConfig _blockConfig;
         private readonly GridManagerConfig _gridConfig;
@@ -23,7 +23,7 @@ namespace FitMe.Grid
 
         [Inject]
         public BlockFactory(
-            Dictionary<string, BlockView> blockViewDictionary,
+            Dictionary<BlockShape, BlockView> blockViewDictionary,
             BlockManagerConfig blockManagerConfig,
             BlockConfig blockConfig,
             GridManagerConfig gridConfig,
@@ -46,16 +46,16 @@ namespace FitMe.Grid
 
         public GameObject CurrentGameObject { get; private set; }
 
-        public BlockModel Create(string blockFace, Vector3 position, Quaternion rotation, out GameObject gameObject,
+        public BlockModel Create(BlockShape blockShape, Vector3 position, Quaternion rotation, out GameObject gameObject,
             InstantiateParameters? instantiateParameters = null)
         {
-            if (!_blockViewDictionary.TryGetValue(blockFace, out var blockViewPrefab))
+            if (!_blockViewDictionary.TryGetValue(blockShape, out var blockViewPrefab))
             {
-                throw new ArgumentException($"Block face '{blockFace}' not found in BlockViewDictionary.");
+                throw new ArgumentException($"Block face '{blockShape}' not found in BlockViewDictionary.");
             }
-            if (!_blockManagerConfig.BlockPresetDictionary.TryGetValue(blockFace, out var blockPreset))
+            if (!_blockManagerConfig.BlockPresetDictionary.TryGetValue(blockShape, out var blockPreset))
             {
-                throw new ArgumentException($"Block face '{blockFace}' not found in BlockPresetDictionary.");
+                throw new ArgumentException($"Block face '{blockShape}' not found in BlockPresetDictionary.");
             }
             instantiateParameters ??= new InstantiateParameters
             {
@@ -64,7 +64,7 @@ namespace FitMe.Grid
             var view = Object.Instantiate(blockViewPrefab, position, rotation,
                 instantiateParameters.Value);
             var model = new BlockModel(_blockConfig, _atomFactory, view);
-            model.GenerateAtom(blockFace, blockPreset);
+            model.GenerateAtom(blockShape, blockPreset);
             var viewModel = new BlockViewModel(model);
             var controller = new BlockController(
                 _blockConfig,
