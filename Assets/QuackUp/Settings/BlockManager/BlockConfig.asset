@@ -203,6 +203,7 @@ MonoBehaviour:
   <PickUpSortingLayer>k__BackingField: -1842356849
   <OriginalAtomColor>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
   <AllowPickUpAfterPlacement>k__BackingField: 0
+  <RotateClockwise>k__BackingField: 1
   <PlaceSucceedSfx>k__BackingField:
     Guid:
       Data1: 0
