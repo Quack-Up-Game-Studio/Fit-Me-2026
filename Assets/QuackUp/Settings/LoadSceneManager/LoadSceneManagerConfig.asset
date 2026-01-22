@@ -1,0 +1,125 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 948e6c9ca92e41b3bf70b3dfe85370f4, type: 3}
+  m_Name: LoadSceneManagerConfig
+  m_EditorClassIdentifier: QuackUp.SceneManagement::QuackUp.SceneManagement.LoadSceneManagerConfig
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: <SceneReferences>k__BackingField
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[QuackUp.SceneManagement.SceneType,
+        QuackUp.SceneManagement],[Redcode.Extensions.SceneReference, Extensions]],
+        mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.EnumEqualityComparer`1[[QuackUp.SceneManagement.SceneType,
+        QuackUp.SceneManagement]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 7
+      Data: 2|Redcode.Extensions.SceneReference, Extensions
+    - Name: _sceneObject
+      Entry: 10
+      Data: 0
+    - Name: _path
+      Entry: 1
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 7
+      Data: 3|Redcode.Extensions.SceneReference, Extensions
+    - Name: _sceneObject
+      Entry: 10
+      Data: 1
+    - Name: _path
+      Entry: 1
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 7
+      Data: 4|Redcode.Extensions.SceneReference, Extensions
+    - Name: _sceneObject
+      Entry: 10
+      Data: 2
+    - Name: _path
+      Entry: 1
+      Data: Assets/QuackUp/Scenes/SampleScene.unity
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  <MinimumLoadingScreenDuration>k__BackingField: 1
+  <LoadingScreenDuration>k__BackingField: 1
+  <TransitionSfx>k__BackingField:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 

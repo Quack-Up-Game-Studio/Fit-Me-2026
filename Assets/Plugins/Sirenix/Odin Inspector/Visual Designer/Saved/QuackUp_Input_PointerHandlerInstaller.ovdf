@@ -1,0 +1,15 @@
+OVDF v1.1
+QuackUp.Input.PointerHandlerInstaller, QuackUp.Input
+
+# infoBox
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Pointer Handler"
++ [Sirenix.OdinInspector.InfoBoxAttribute]
+	InfoMessageType = Warning
+	Message = "Make sure to register Pointer Handler Scene Reference in the scene to make this class works!"
+
+# _title
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Pointer Handler"

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MessagePipe;
+using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -9,7 +10,7 @@ using VContainer.Unity;
 namespace QuackUp.Core
 {
     [ShowOdinSerializedPropertiesInInspector]
-    public class ProjectLifetimeScope : LifetimeScope, ISerializationCallbackReceiver, ISupportsPrefabSerialization
+    public class ProjectLifetimeScope : SerializedLifetimeScope
     {
         [Title("Installers")]   
         [HideReferenceObjectPicker]
@@ -26,26 +27,5 @@ namespace QuackUp.Core
             installers.ForEach(installer => installer.Install(builder));
             builder.RegisterBuildCallback(x => GlobalMessagePipe.SetProvider(x.AsServiceProvider()));
         }
-
-        #region Serialization
-        [SerializeField, HideInInspector]
-        private SerializationData serializationData;
-
-        SerializationData ISupportsPrefabSerialization.SerializationData 
-        { 
-            get => serializationData;
-            set => serializationData = value;
-        }
-
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
-        {
-            UnitySerializationUtility.DeserializeUnityObject(this, ref serializationData);
-        }
-
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
-        {
-            UnitySerializationUtility.SerializeUnityObject(this, ref serializationData);
-        }
-        #endregion
     }
 }

@@ -1,0 +1,24 @@
+OVDF v1.1
+FitMe.Grid.BlockManagerInstaller, FitMe.Grid
+
+# _title
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Block Manager"
++ [Sirenix.OdinInspector.InfoBoxAttribute]
+	Message = "Dependencies: GridManager"
+
+# blockManagerConfig
++ [Sirenix.OdinInspector.RequiredAttribute]
+
+# spawnPoints
++ [Sirenix.OdinInspector.RequiredAttribute]
+
+# blockConfig
++ [Sirenix.OdinInspector.RequiredAttribute]
+
+# atomFactory
++ [Sirenix.OdinInspector.RequiredAttribute]
+
+# blockFactory
++ [Sirenix.OdinInspector.RequiredAttribute]

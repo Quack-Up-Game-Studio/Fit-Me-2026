@@ -1,0 +1,27 @@
+OVDF v1.1
+FitMe.Grid.GridManagerInstaller, FitMe.Grid
+
+# $TRdLYhYQtYtstJnxxM5THS
+Position: $root:1
++ [Sirenix.OdinInspector.TitleGroupAttribute]
+	GroupName = "Cell Factory"
+
+# $WvJH7T1n76LPMgqQJMXPvS
+Position: $root:0
++ [Sirenix.OdinInspector.TitleGroupAttribute]
+	GroupName = "Grid Manager"
+
+# cellViewPrefab
+Position: $TRdLYhYQtYtstJnxxM5THS:0
+
+# cellParent
+Position: $TRdLYhYQtYtstJnxxM5THS:1
+
+# grid
+Position: $WvJH7T1n76LPMgqQJMXPvS:0
+
+# gridManagerConfig
+Position: $WvJH7T1n76LPMgqQJMXPvS:1
+
+# gridPreview
+Position: $WvJH7T1n76LPMgqQJMXPvS:2
