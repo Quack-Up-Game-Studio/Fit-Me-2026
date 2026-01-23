@@ -9,9 +9,11 @@ using QuackUp.SceneManagement;
 using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
+using Random = UnityEngine.Random;
 
 namespace FitMe.Grid
 {
@@ -36,24 +38,26 @@ namespace FitMe.Grid
             [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public BlockModel CurrentBlock { get; set; }
         }
         
-        private struct ShapeAndSchemaData
+        private struct SpawnBlockData
         {
             public readonly BlockShape blockShape;
             public readonly BlockSchema blockSchema;
+            public readonly BlockColor blockColor;
             
-            public ShapeAndSchemaData(BlockShape blockShape, BlockSchema blockSchema)
+            public SpawnBlockData(BlockShape blockShape, BlockSchema blockSchema, BlockColor blockColor)
             {
                 this.blockShape = blockShape;
                 this.blockSchema = blockSchema;
+                this.blockColor = blockColor;
             }
         }
         
         private struct BestFitResult
         {
             public readonly int vacantCount;
-            public readonly List<ShapeAndSchemaData> schemaList;
+            public readonly List<SpawnBlockData> schemaList;
 
-            public BestFitResult(int vacantCount, List<ShapeAndSchemaData> schemaList)
+            public BestFitResult(int vacantCount, List<SpawnBlockData> schemaList)
             {
                 this.vacantCount = vacantCount;
                 this.schemaList = schemaList;
@@ -62,11 +66,17 @@ namespace FitMe.Grid
         #endregion
         
         #region Fields
+        public const string PreviewTransformKey = "PreviewTransform";
         public static event Action OnGameOver;
         public static event Action<List<BlockModel>> OnBlockSpawned;
-
+        
+        private readonly Queue<SpawnBlockData> _spawnBag = new Queue<SpawnBlockData>();
+        private List<SpawnBlockData> _blockPool = new List<SpawnBlockData>();
+        private BlockModel _currentPreviewBlock;
+        
         private readonly GridManager _gridManager;
         private readonly SpawnPointData[] _spawnPoints;
+        private readonly Transform _previewTransform;
         private readonly BlockManagerConfig _config;
         private readonly BlockFactory _blockFactory;
         private readonly ISubscriber<StartSpawnEvent> _startSpawnSubscription;
@@ -78,6 +88,7 @@ namespace FitMe.Grid
         public BlockManager(
             GridManager gridManager,
             BlockManagerConfig config,
+            [Key(PreviewTransformKey)] Transform previewTransform,
             SpawnPointData[] spawnPoints,
             BlockFactory blockFactory,
             ISubscriber<StartSpawnEvent> startSpawnSubscription)
@@ -85,6 +96,7 @@ namespace FitMe.Grid
             _gridManager = gridManager;
             _config = config;
             _spawnPoints = spawnPoints;
+            _previewTransform = previewTransform;
             _blockFactory = blockFactory;
             _startSpawnSubscription = startSpawnSubscription;
             Subscribe();
@@ -116,6 +128,7 @@ namespace FitMe.Grid
 
         private void OnSpawnAtStart(StartSpawnEvent eventData)
         {
+            CreatePool();
             _spawnPoints.ForEach(FreeSpawnPoint);
             if (!eventData.blockPreset)
                 SpawnRandomBlock();
@@ -127,7 +140,7 @@ namespace FitMe.Grid
         {
             if (_gridManager.CurrentSceneType != SceneType.Gameplay) return;
             FreeSpawnPoint(eventData.Block.SpawnIndex);
-            ResetSpawnPoint();
+            //ResetSpawnPoint();
             SpawnRandomBlock();
             if (eventData.FitType is FitType.None) 
                 GameOverCheck().Forget();
@@ -135,74 +148,111 @@ namespace FitMe.Grid
         #endregion
         
         #region Spawning
+        private void CreatePool()
+        {
+            var blockShapeCount = Enum.GetValues(typeof(BlockShape)).Length; 
+            var blockColorCount = Enum.GetValues(typeof(BlockColor)).Length;
+            for (int i = 0; i < blockShapeCount; i++)
+            {
+                for (int j = 0; j < blockColorCount; j++)
+                {
+                    _blockPool.Add(new SpawnBlockData((BlockShape)i, null, (BlockColor)j));
+                }
+            }
+        }
+        
+        private void RefillBag()
+        {
+            if (_blockPool == null || _blockPool.Count == 0)  CreatePool();
+            
+            var tempBag = new List<SpawnBlockData>();
+
+            foreach (var pair in _config.BagSetting)
+            {
+                var shape = pair.Key;
+                var count = pair.Value;
+
+                if (!_config.BlockPresetDictionary.TryGetValue(shape, out var preset)) continue;
+                var shuffledTemplates = _blockPool
+                    .Where(x => x.blockShape == shape)
+                    .Shuffled()
+                    .ToList();
+        
+                if (shuffledTemplates.Count == 0)
+                {
+                    Debug.LogWarning($"Yuirin: Can't find Template for Shape {shape} in Pool!");
+                    continue;
+                }
+
+                var possibleSchemas = preset.BlockSchemas;
+                for (int i = 0; i < count; i++)
+                {
+                    var template = shuffledTemplates[UnityEngine.Random.Range(0, shuffledTemplates.Count)];
+                    var randomSchema = possibleSchemas[UnityEngine.Random.Range(0, possibleSchemas.Count)];
+
+                    tempBag.Add(new SpawnBlockData(shape, randomSchema, template.blockColor));
+                }
+            }
+
+            foreach (var data in tempBag.Shuffled())
+            {
+                _spawnBag.Enqueue(data);
+            }
+            Debug.Log($"Yuirin: Bag Refilled from Pool! Total {_spawnBag.Count} items.");
+        }
+        
         /// <summary>
         /// Spawns random blocks at spawn points.
         /// </summary>
         public void SpawnRandomBlock()
         {
-            //if (spawnPoints.Any(x => !x.IsFree)) return;
             var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();
-            var allSchemas = _config.BlockPresetDictionary
-                .SelectMany(x => x.Value.BlockSchemas
-                    .Select(schema => new ShapeAndSchemaData(x.Key, schema))).ToList();
-            var shuffledSchemas = allSchemas.Shuffled().ToList();
-            List<ShapeAndSchemaData> randomSchemas;
-            _gridManager.CreateVacantSchema(out var vacantSchema, out var vacantCount);
-            if (_config.UseSmartRandom && vacantCount <= _config.SmartRandomThreshold)
+            if (_spawnBag.Count <= _config.MaxRandomAmount) 
             {
-                var bestFits = FindBestFitSorted(vacantSchema, shuffledSchemas);
-                var bestFitSchemas = bestFits
-                    .SelectMany(x => x.schemaList)
-                    .Take(_config.MaxRandomAmount)
-                    .ToList();
-                var remainingAmount = _config.MaxRandomAmount - bestFitSchemas.Count;
-                if (remainingAmount > 0)
-                {
-                    bestFitSchemas.AddRange(shuffledSchemas.Take(remainingAmount));
-                }
-                randomSchemas = bestFitSchemas.ToList();
+                RefillBag();
             }
-            else
-            {
-                randomSchemas = shuffledSchemas
-                    .Take(_config.MaxRandomAmount)
-                    .ToList();
-            }
-            
             
             var spawnedBlocks = new List<BlockModel>();
-            for (int i = 0; i < randomSchemas.Count; i++)
+            var randomAmount = _config.MaxRandomAmount;
+            for (int i = 0; i < randomAmount; i++)
             {
                 if (!_spawnPoints[i].IsFree)
                 {
                     continue;
                 }
                 Transform spawnTransform = _spawnPoints[i].Transform;
-                var randomBlock = randomSchemas[i];
-                var color = blockTypes.GetRandomElement();
-                var face = randomBlock.blockShape;
-                var index = randomBlock.blockSchema.Index;
+                var randomSchema = _spawnBag.Dequeue();
+                var index = Random.Range(0, 4);
                 int randomRotation = index * 90;
                 Debug.Log("Random Rotation: " + randomRotation);
                 Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
-                //block.BlockView.Transform.rotation = randomRotationQuaternion;
-                BlockModel block = _blockFactory.Create(face, spawnTransform.position, randomRotationQuaternion, out var blockGameObject, new InstantiateParameters
-                {
-                    parent = spawnTransform,
-                    worldSpace = true,
-                });
-                blockGameObject.name = $"Block_{face}";
-                block.ChangeType(color, false);
+                var block = InstantiateBlock(spawnTransform, randomRotationQuaternion, randomSchema, randomSchema.blockColor, _config.ObjectScale);
                 block.SpawnIndex = i;
-                block.BlockView.Transform.localScale = Vector3.zero;
-                Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
-                block.BlockView.ScaleIn(scale);
                 _spawnPoints[i].IsFree = false;
                 _spawnPoints[i].CurrentBlock = block;
                 spawnedBlocks.Add(block);
             }
             if (spawnedBlocks.Count > 0)
                 OnBlockSpawned?.Invoke(spawnedBlocks);
+            PreviewNextQueue();
+            Debug.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
+        }
+
+        private BlockModel InstantiateBlock(Transform spawnTransform, Quaternion rotation, SpawnBlockData randomSchema, BlockColor color, float objectScale)
+        {
+            var face = randomSchema.blockShape;
+            //block.BlockView.Transform.rotation = randomRotationQuaternion;
+            BlockModel block = _blockFactory.Create(face, spawnTransform.position, rotation, out var blockGameObject, new InstantiateParameters
+            {
+                parent = spawnTransform,
+                worldSpace = true,
+            });
+            blockGameObject.name = $"Block_{face}";
+            block.ChangeType(color, false);
+            block.BlockView.Transform.localScale = Vector3.zero;
+            Vector3 scale = new Vector3(objectScale, objectScale, 1f);
+            block.BlockView.ScaleIn(scale);
+            return block;
         }
 
         private void SpawnBlock(BlockPreset preset)
@@ -237,7 +287,7 @@ namespace FitMe.Grid
         /// <param name="schemasToCheck"></param>
         /// <returns></returns>
         private List<BestFitResult> FindBestFitSorted(int[,] vacantSchema,
-                List<ShapeAndSchemaData> schemasToCheck)
+                List<SpawnBlockData> schemasToCheck)
         {
             var sortedSchemas = schemasToCheck
                     .OrderByDescending(x => x.blockSchema.schema.CountMember(y => y == 1))
@@ -250,6 +300,15 @@ namespace FitMe.Grid
             return bestFits;
         }
 
+        private void PreviewNextQueue()
+        {
+            _currentPreviewBlock?.BlockView.Destroy();
+
+            var nextBlock = _spawnBag.Peek(); 
+            _currentPreviewBlock = InstantiateBlock(_previewTransform, Quaternion.identity, nextBlock, nextBlock.blockColor, _config.PreviewScale);
+            _currentPreviewBlock.BlockController.SetActive(false);
+        }
+        
         /// <summary>
         /// Returns the best fit for the vacant schema from the list of schemas to check. UNSORTED.
         /// </summary>
@@ -261,8 +320,8 @@ namespace FitMe.Grid
         /// <param name="blockCountToBeat"></param>
         /// <returns></returns>
         private List<BestFitResult> FindBestFit(
-            int[,] vacantSchema, List<ShapeAndSchemaData> schemasToCheck,
-            List<ShapeAndSchemaData> previouslyTraversed = null, 
+            int[,] vacantSchema, List<SpawnBlockData> schemasToCheck,
+            List<SpawnBlockData> previouslyTraversed = null, 
             int currentDepth = 0,
             int vacantToBeat = int.MaxValue, 
             int blockCountToBeat = int.MaxValue)
@@ -288,7 +347,7 @@ namespace FitMe.Grid
 
             foreach (var schema in schemasToCheck)
             {
-                var traversed = new List<ShapeAndSchemaData>();
+                var traversed = new List<SpawnBlockData>();
                 if (previouslyTraversed != null)
                 {
                     traversed.AddRange(previouslyTraversed);
@@ -351,7 +410,7 @@ namespace FitMe.Grid
             if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
                 OnGameOver?.Invoke();
-                GameStatic.CurrentGameState = GameState.GameOver;
+                await _gridManager.RemoveAllBlocks(true);
             }
         }
         #endregion

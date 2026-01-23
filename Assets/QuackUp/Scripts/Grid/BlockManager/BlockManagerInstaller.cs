@@ -16,6 +16,7 @@ namespace FitMe.Grid
         [SerializeField] private BlockManagerConfig blockManagerConfig;
         [SerializeField] private BlockConfig blockConfig;
         [SerializeField] private BlockManager.SpawnPointData[] spawnPoints;
+        [SerializeField] private Transform previewSpawnPoint;
         [SerializeField] private AtomView atomViewPrefab;
         [OdinSerialize] private Dictionary<BlockShape, BlockView> blockViewDictionary;
         
@@ -34,6 +35,7 @@ namespace FitMe.Grid
             builder.Register<BlockFactory>(Lifetime.Scoped);
             
             //BlockManager
+            builder.RegisterInstance(previewSpawnPoint).Keyed(BlockManager.PreviewTransformKey);
             builder.RegisterInstance(spawnPoints);
             builder.RegisterEntryPoint<BlockManager>(Lifetime.Singleton).As<BlockManager>();
             

@@ -85,6 +85,7 @@ namespace FitMe.Grid
         public int SpawnIndex { get; set; }
         public int RotationalIndex { get; set; }
         public IBlockView BlockView { get; private set; }
+        public IBlockController BlockController { get; internal set; }
         
         public ReactiveCommand<int> SetSortingLayerCommand { get; private set; } = new();
         public ReactiveCommand<int> SetSortingOrderCommand { get; private set; } = new();

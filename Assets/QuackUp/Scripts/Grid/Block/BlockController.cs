@@ -10,7 +10,12 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public class BlockController : IDisposable
+    public interface IBlockController
+    {
+        void SetActive(bool isActive);
+    }
+    
+    public class BlockController : IDisposable, IBlockController
     {
         public ReactiveCommand<PointerEventData> BeingDragCommand { get; } = new();
         public ReactiveCommand<PointerEventData> DragCommand { get; } = new();
@@ -24,6 +29,7 @@ namespace FitMe.Grid
         private readonly IPointerHandler _pointerHandler;
         
         private IDisposable _bindings;
+        private bool _isActive = true;
         private bool _isRotating;
         private bool _isDragging;
         private Vector2 _mousePositionDifference;
@@ -39,6 +45,7 @@ namespace FitMe.Grid
             _config = config;
             _gridManager = gridManager;
             _model = model;
+            model.BlockController = this;
             _audioManager = audioManager;
             _pointerHandler = pointerHandler;
             Bind();
@@ -48,19 +55,19 @@ namespace FitMe.Grid
         {
             var disposableBuilder = Disposable.CreateBuilder();
             BeingDragCommand
-                .Where(x => x.button is PointerEventData.InputButton.Left)
+                .Where(x => _isActive && x.button is PointerEventData.InputButton.Left)
                 .Subscribe(OnBeginDrag)
                 .AddTo(ref disposableBuilder);
             DragCommand
-                .Where(x => x.button is PointerEventData.InputButton.Left)
+                .Where(x => _isActive && x.button is PointerEventData.InputButton.Left)
                 .Subscribe(OnDrag)
                 .AddTo(ref disposableBuilder);
             EndDragCommand
-                .Where(x => x.button is PointerEventData.InputButton.Left)
+                .Where(x => _isActive && x.button is PointerEventData.InputButton.Left)
                 .Subscribe(OnEndDrag)
                 .AddTo(ref disposableBuilder);
             ClickCommand
-                .Where(x => x.button is PointerEventData.InputButton.Left)
+                .Where(x => _isActive && x.button is PointerEventData.InputButton.Left)
                 .SubscribeAwait((x, _) => OnClickToRotate(x), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
@@ -148,5 +155,10 @@ namespace FitMe.Grid
             _isRotating = false;
         }
         #endregion
+
+        public void SetActive(bool isActive)
+        {
+            _isActive = isActive;
+        }
     }
 }

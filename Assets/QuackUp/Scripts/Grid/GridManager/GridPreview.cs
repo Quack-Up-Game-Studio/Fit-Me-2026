@@ -1,6 +1,8 @@
 using Redcode.Extensions;
+#if UNITY_EDITOR
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
+#endif
 using UnityEngine;
 using VContainer;
 
