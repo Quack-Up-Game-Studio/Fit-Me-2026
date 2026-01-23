@@ -1,9 +1,13 @@
 {
-    "name": "FitMe.Shared",
-    "rootNamespace": "FitMe.Shared",
+    "name": "FitMe.Entity",
+    "rootNamespace": "FitMe.Entity",
     "references": [
         "GUID:11c1da7ad5eea0631bd966b09402e5f3",
-        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc"
+        "GUID:21f0281f62bd911a897883bf9e31bad2",
+        "GUID:77221876cc6b8244180b96e320b1bcd4",
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
+        "GUID:b52c6daf0f9f3974fb04e400a06c9369",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -6,6 +6,7 @@ using FitMe.Shared;
 using MessagePipe;
 using PrimeTween;
 using QuackUp.SceneManagement;
+using QuackUp.Utils;
 using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
@@ -15,16 +16,7 @@ using VContainer.Unity;
 
 namespace FitMe.Grid
 {
-    public struct StartSpawnEvent
-    {
-        public readonly BlockPreset blockPreset;
-        
-        public StartSpawnEvent(BlockPreset blockPreset = null)
-        {
-            this.blockPreset = blockPreset;
-        }
-    }
-    public class BlockManager : IDisposable, IStartable
+    public class BlockManager : IDisposable
     {
         #region Data Structures
         [Serializable]
@@ -62,14 +54,11 @@ namespace FitMe.Grid
         #endregion
         
         #region Fields
-        public static event Action OnGameOver;
-        public static event Action<List<BlockModel>> OnBlockSpawned;
-
         private readonly GridManager _gridManager;
         private readonly SpawnPointData[] _spawnPoints;
         private readonly BlockManagerConfig _config;
         private readonly BlockFactory _blockFactory;
-        private readonly ISubscriber<StartSpawnEvent> _startSpawnSubscription;
+        private readonly IMessageHub _messageHub;
         
         private IDisposable _subscriptions;
         #endregion
@@ -80,21 +69,21 @@ namespace FitMe.Grid
             BlockManagerConfig config,
             SpawnPointData[] spawnPoints,
             BlockFactory blockFactory,
-            ISubscriber<StartSpawnEvent> startSpawnSubscription)
+            [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub)
         {
             _gridManager = gridManager;
             _config = config;
             _spawnPoints = spawnPoints;
             _blockFactory = blockFactory;
-            _startSpawnSubscription = startSpawnSubscription;
+            _messageHub = messageHub;
             Subscribe();
         }
 
         private void Subscribe()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _startSpawnSubscription
-                .Subscribe(OnSpawnAtStart)
+            _messageHub
+                .Subscribe<StartSpawnEvent>(OnSpawnAtStart)
                 .AddTo(ref disposableBuilder);
             _gridManager.OnFitCheck
                 .Subscribe(OnFitCheck)
@@ -109,18 +98,13 @@ namespace FitMe.Grid
 
         #region Events
 
-        public void Start()
-        {
-            OnSpawnAtStart(new StartSpawnEvent());
-        }
-
         private void OnSpawnAtStart(StartSpawnEvent eventData)
         {
             _spawnPoints.ForEach(FreeSpawnPoint);
-            if (!eventData.blockPreset)
+            if (!eventData.BlockPreset)
                 SpawnRandomBlock();
             else
-                SpawnBlock(eventData.blockPreset);
+                SpawnBlock(eventData.BlockPreset);
         }
 
         private void OnFitCheck(FitTypeEvent eventData)
@@ -202,7 +186,7 @@ namespace FitMe.Grid
                 spawnedBlocks.Add(block);
             }
             if (spawnedBlocks.Count > 0)
-                OnBlockSpawned?.Invoke(spawnedBlocks);
+                _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
         }
 
         private void SpawnBlock(BlockPreset preset)
@@ -227,7 +211,7 @@ namespace FitMe.Grid
             _spawnPoints[0].CurrentBlock = block;
             spawnedBlocks.Add(block);
             if (spawnedBlocks.Count > 0)
-                OnBlockSpawned?.Invoke(spawnedBlocks);
+                _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
         }
         
         /// <summary>
@@ -350,8 +334,8 @@ namespace FitMe.Grid
             List<BlockModel> blockToCheck = _spawnPoints.Where(x => !x.IsFree).Select(spawnPoint => spawnPoint.CurrentBlock).ToList();
             if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
-                OnGameOver?.Invoke();
-                GameStatic.CurrentGameState = GameState.GameOver;
+                _gridManager.CreateVacantSchema(out _, out var vacantCount);
+                _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));
             }
         }
         #endregion

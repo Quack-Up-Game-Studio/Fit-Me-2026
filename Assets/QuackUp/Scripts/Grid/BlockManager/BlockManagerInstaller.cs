@@ -36,6 +36,8 @@ namespace FitMe.Grid
             //BlockManager
             builder.RegisterInstance(spawnPoints);
             builder.RegisterEntryPoint<BlockManager>(Lifetime.Singleton).As<BlockManager>();
+            builder.Register<IMessageHub, BlockManagerMessageHub>(Lifetime.Singleton)
+                .Keyed(BlockManagerMessageHub.MessageHubKey);
             
             builder.RegisterBuildCallback(x =>
             {

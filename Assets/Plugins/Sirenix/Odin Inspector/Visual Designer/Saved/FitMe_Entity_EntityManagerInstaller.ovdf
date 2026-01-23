@@ -1,0 +1,10 @@
+OVDF v1.1
+FitMe.Entity.EntityManagerInstaller, FitMe.Entity
+
+# _title
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Entity Manager"
+
+# entityManagerConfig
++ [Sirenix.OdinInspector.RequiredAttribute]
