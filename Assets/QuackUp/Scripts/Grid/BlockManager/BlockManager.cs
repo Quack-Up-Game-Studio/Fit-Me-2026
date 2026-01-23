@@ -37,8 +37,9 @@ namespace FitMe.Grid
             [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public BlockModel CurrentBlock { get; set; }
         }
         
-        private struct ShapeAndSchemaData
+        private struct ShapeAndSchemaData //Rename to SpawnBlockData
         {
+            //TODO: Add ColorType here
             public readonly BlockShape blockShape;
             public readonly BlockSchema blockSchema;
             
@@ -63,6 +64,7 @@ namespace FitMe.Grid
         #endregion
         
         #region Fields
+        //public const string PreviewTransformKey = "PreviewTransform";
         public static event Action OnGameOver;
         public static event Action<List<BlockModel>> OnBlockSpawned;
         
@@ -81,6 +83,7 @@ namespace FitMe.Grid
         public BlockManager(
             GridManager gridManager,
             BlockManagerConfig config,
+            //[Key("PreviewTransform")] Transform previewTransform,
             SpawnPointData[] spawnPoints,
             BlockFactory blockFactory,
             ISubscriber<StartSpawnEvent> startSpawnSubscription)
@@ -184,27 +187,15 @@ namespace FitMe.Grid
                 {
                     continue;
                 }
-                var randomSchema = _spawnBag.Dequeue();
                 Transform spawnTransform = _spawnPoints[i].Transform;
-                var randomBlock = randomSchema;
-                var color = blockTypes.GetRandomElement();
-                var face = randomBlock.blockShape;
-                var index = randomBlock.blockSchema.Index;
+                var randomSchema = _spawnBag.Dequeue();
+                var index = randomSchema.blockSchema.Index;
                 int randomRotation = index * 90;
                 Debug.Log("Random Rotation: " + randomRotation);
                 Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
-                //block.BlockView.Transform.rotation = randomRotationQuaternion;
-                BlockModel block = _blockFactory.Create(face, spawnTransform.position, randomRotationQuaternion, out var blockGameObject, new InstantiateParameters
-                {
-                    parent = spawnTransform,
-                    worldSpace = true,
-                });
-                blockGameObject.name = $"Block_{face}";
-                block.ChangeType(color, false);
+                var randomColor = blockTypes.GetRandomElement(); //TODO: Remove after fixing bag
+                var block = InstantiateBlock(spawnTransform, randomRotationQuaternion, randomSchema, randomColor);
                 block.SpawnIndex = i;
-                block.BlockView.Transform.localScale = Vector3.zero;
-                Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
-                block.BlockView.ScaleIn(scale);
                 _spawnPoints[i].IsFree = false;
                 _spawnPoints[i].CurrentBlock = block;
                 spawnedBlocks.Add(block);
@@ -212,6 +203,23 @@ namespace FitMe.Grid
             if (spawnedBlocks.Count > 0)
                 OnBlockSpawned?.Invoke(spawnedBlocks);
             Debug.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
+        }
+
+        private BlockModel InstantiateBlock(Transform spawnTransform, Quaternion rotation, ShapeAndSchemaData randomSchema, BlockColor color)
+        {
+            var face = randomSchema.blockShape;
+            //block.BlockView.Transform.rotation = randomRotationQuaternion;
+            BlockModel block = _blockFactory.Create(face, spawnTransform.position, rotation, out var blockGameObject, new InstantiateParameters
+            {
+                parent = spawnTransform,
+                worldSpace = true,
+            });
+            blockGameObject.name = $"Block_{face}";
+            block.ChangeType(color, false);
+            block.BlockView.Transform.localScale = Vector3.zero;
+            Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
+            block.BlockView.ScaleIn(scale);
+            return block;
         }
 
         private void SpawnBlock(BlockPreset preset)
