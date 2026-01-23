@@ -10,11 +10,13 @@ namespace FitMe.Grid
     {
         [Title("Random Settings")]
         [field: SerializeField] public int MaxRandomAmount { get; private set; } = 3;
+        [field: SerializeField] public int MinRandomAmount { get; private set; } = 1;
         [field: SerializeField] public bool UseSmartRandom { get; private set; } = true;
         [field: SerializeField] public int SmartRandomThreshold { get; private set; } = 6;
         [field: SerializeField] public int SmartRandomDepth { get; private set; } = 1;
         [field: SerializeField] public float ObjectScale { get; private set; } = 0.5f;
         [field: OdinSerialize]
         public Dictionary<BlockShape, BlockPreset> BlockPresetDictionary { get; private set; } = new();
+        [field: OdinSerialize] public Dictionary<BlockShape, int> BagSetting { get; private set; } = new();
     }
 }

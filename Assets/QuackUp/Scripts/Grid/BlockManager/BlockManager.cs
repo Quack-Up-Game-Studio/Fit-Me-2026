@@ -9,6 +9,7 @@ using QuackUp.SceneManagement;
 using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -64,6 +65,8 @@ namespace FitMe.Grid
         #region Fields
         public static event Action OnGameOver;
         public static event Action<List<BlockModel>> OnBlockSpawned;
+        
+        private Queue<ShapeAndSchemaData> _spawnBag = new Queue<ShapeAndSchemaData>();
 
         private readonly GridManager _gridManager;
         private readonly SpawnPointData[] _spawnPoints;
@@ -127,7 +130,7 @@ namespace FitMe.Grid
         {
             if (_gridManager.CurrentSceneType != SceneType.Gameplay) return;
             FreeSpawnPoint(eventData.Block.SpawnIndex);
-            ResetSpawnPoint();
+            //ResetSpawnPoint();
             SpawnRandomBlock();
             if (eventData.FitType is FitType.None) 
                 GameOverCheck().Forget();
@@ -135,50 +138,55 @@ namespace FitMe.Grid
         #endregion
         
         #region Spawning
+        private void RefillBag()
+        {
+            var nextBatch = _config.BagSetting
+                .Where(pair => _config.BlockPresetDictionary.ContainsKey(pair.Key)) 
+                .SelectMany(pair =>
+                {
+                    var shape = pair.Key;
+                    var count = pair.Value;
+                    var preset = _config.BlockPresetDictionary[shape];
+                    var possibleSchemas = preset.BlockSchemas;
+
+                    return Enumerable.Range(0, count).Select(_ =>
+                    {
+                        var randomSchema = possibleSchemas[UnityEngine.Random.Range(0, possibleSchemas.Count)];
+                        return new ShapeAndSchemaData(shape, randomSchema);
+                    });
+                })
+                .Shuffled()
+                .ToList();
+
+            foreach (var data in nextBatch)
+            {
+                _spawnBag.Enqueue(data);
+            }
+            Debug.Log("Yuirin: Bag Refilled!");
+        }
+        
         /// <summary>
         /// Spawns random blocks at spawn points.
         /// </summary>
         public void SpawnRandomBlock()
         {
-            //if (spawnPoints.Any(x => !x.IsFree)) return;
             var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();
-            var allSchemas = _config.BlockPresetDictionary
-                .SelectMany(x => x.Value.BlockSchemas
-                    .Select(schema => new ShapeAndSchemaData(x.Key, schema))).ToList();
-            var shuffledSchemas = allSchemas.Shuffled().ToList();
-            List<ShapeAndSchemaData> randomSchemas;
-            _gridManager.CreateVacantSchema(out var vacantSchema, out var vacantCount);
-            if (_config.UseSmartRandom && vacantCount <= _config.SmartRandomThreshold)
+            if (_spawnBag.Count <= _config.MaxRandomAmount) 
             {
-                var bestFits = FindBestFitSorted(vacantSchema, shuffledSchemas);
-                var bestFitSchemas = bestFits
-                    .SelectMany(x => x.schemaList)
-                    .Take(_config.MaxRandomAmount)
-                    .ToList();
-                var remainingAmount = _config.MaxRandomAmount - bestFitSchemas.Count;
-                if (remainingAmount > 0)
-                {
-                    bestFitSchemas.AddRange(shuffledSchemas.Take(remainingAmount));
-                }
-                randomSchemas = bestFitSchemas.ToList();
+                RefillBag();
             }
-            else
-            {
-                randomSchemas = shuffledSchemas
-                    .Take(_config.MaxRandomAmount)
-                    .ToList();
-            }
-            
             
             var spawnedBlocks = new List<BlockModel>();
-            for (int i = 0; i < randomSchemas.Count; i++)
+            var randomAmount = _config.MaxRandomAmount;
+            for (int i = 0; i < randomAmount; i++)
             {
                 if (!_spawnPoints[i].IsFree)
                 {
                     continue;
                 }
+                var randomSchema = _spawnBag.Dequeue();
                 Transform spawnTransform = _spawnPoints[i].Transform;
-                var randomBlock = randomSchemas[i];
+                var randomBlock = randomSchema;
                 var color = blockTypes.GetRandomElement();
                 var face = randomBlock.blockShape;
                 var index = randomBlock.blockSchema.Index;
@@ -203,6 +211,7 @@ namespace FitMe.Grid
             }
             if (spawnedBlocks.Count > 0)
                 OnBlockSpawned?.Invoke(spawnedBlocks);
+            Debug.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
         }
 
         private void SpawnBlock(BlockPreset preset)
