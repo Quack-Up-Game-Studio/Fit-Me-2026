@@ -20,9 +20,6 @@ namespace FitMe.Grid
         [SerializeField] private AtomView atomViewPrefab;
         [OdinSerialize] private Dictionary<BlockShape, BlockView> blockViewDictionary;
         
-        
-        //TODO: Register preview transforms
-        
         public void Install(IContainerBuilder builder)
         {
             //Shared
@@ -38,7 +35,7 @@ namespace FitMe.Grid
             builder.Register<BlockFactory>(Lifetime.Scoped);
             
             //BlockManager
-            builder.RegisterComponent(previewSpawnPoint);
+            builder.RegisterInstance(previewSpawnPoint).Keyed(BlockManager.PreviewTransformKey);
             builder.RegisterInstance(spawnPoints);
             builder.RegisterEntryPoint<BlockManager>(Lifetime.Singleton).As<BlockManager>();
             

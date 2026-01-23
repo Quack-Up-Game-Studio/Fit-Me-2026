@@ -66,7 +66,7 @@ namespace FitMe.Grid
         #endregion
         
         #region Fields
-        //public const string PreviewTransformKey = "PreviewTransform";
+        public const string PreviewTransformKey = "PreviewTransform";
         public static event Action OnGameOver;
         public static event Action<List<BlockModel>> OnBlockSpawned;
         
@@ -88,7 +88,7 @@ namespace FitMe.Grid
         public BlockManager(
             GridManager gridManager,
             BlockManagerConfig config,
-            Transform previewTransform,
+            [Key(PreviewTransformKey)] Transform previewTransform,
             SpawnPointData[] spawnPoints,
             BlockFactory blockFactory,
             ISubscriber<StartSpawnEvent> startSpawnSubscription)
@@ -410,7 +410,7 @@ namespace FitMe.Grid
             if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
                 OnGameOver?.Invoke();
-                GameStatic.CurrentGameState = GameState.GameOver;
+                await _gridManager.RemoveAllBlocks(true);
             }
         }
         #endregion

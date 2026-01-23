@@ -1,7 +1,7 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Sirenix.OdinInspector;
-using Unity.Plastic.Newtonsoft.Json;
-using Unity.Plastic.Newtonsoft.Json.Linq;
 
 namespace QuackUp.Save
 {

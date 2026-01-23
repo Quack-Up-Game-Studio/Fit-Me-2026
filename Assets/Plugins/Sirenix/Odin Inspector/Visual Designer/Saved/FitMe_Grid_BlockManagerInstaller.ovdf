@@ -22,3 +22,6 @@ FitMe.Grid.BlockManagerInstaller, FitMe.Grid
 
 # blockFactory
 + [Sirenix.OdinInspector.RequiredAttribute]
+
+# atomViewPrefab
+Position: $root:4
