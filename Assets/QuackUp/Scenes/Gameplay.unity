@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &39704462
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 39704463}
+  m_Layer: 0
+  m_Name: SpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &39704463
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 39704462}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1081198250}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &63600346
 GameObject:
   m_ObjectHideFlags: 0
@@ -185,6 +216,7 @@ MonoBehaviour:
     - {fileID: 1775199596}
     - {fileID: 1440182162}
     - {fileID: 886192881}
+    - {fileID: 39704463}
     - {fileID: 3250103234959496707, guid: 3af28059722596ef59c7c7148103f476, type: 3}
     - {fileID: 7436585757268251111, guid: 2ecba2ad996a9b9678ae48b0bd59b3c5, type: 3}
     SerializedBytesString: 
@@ -298,9 +330,12 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: atomViewPrefab
+    - Name: previewSpawnPoint
       Entry: 10
       Data: 12
+    - Name: atomViewPrefab
+      Entry: 10
+      Data: 13
     - Name: blockViewDictionary
       Entry: 7
       Data: 8|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockShape, FitMe.Grid],[FitMe.Grid.BlockView,
@@ -329,7 +364,7 @@ MonoBehaviour:
       Data: 0
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -341,7 +376,7 @@ MonoBehaviour:
       Data: 1
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -353,7 +388,7 @@ MonoBehaviour:
       Data: 2
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -365,7 +400,7 @@ MonoBehaviour:
       Data: 3
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -377,7 +412,7 @@ MonoBehaviour:
       Data: 4
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -389,7 +424,7 @@ MonoBehaviour:
       Data: 5
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -401,7 +436,7 @@ MonoBehaviour:
       Data: 6
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -413,7 +448,7 @@ MonoBehaviour:
       Data: 7
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -425,7 +460,7 @@ MonoBehaviour:
       Data: 8
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -826,6 +861,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1949753171}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1081198249
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1081198250}
+  m_Layer: 0
+  m_Name: Preview
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1081198250
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1081198249}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.41, y: 4.14, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 39704463}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1440182161
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,3 +1100,4 @@ SceneRoots:
   - {fileID: 1972785289}
   - {fileID: 103073015}
   - {fileID: 1949753171}
+  - {fileID: 1081198250}

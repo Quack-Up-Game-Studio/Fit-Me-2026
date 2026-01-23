@@ -184,7 +184,7 @@ MonoBehaviour:
       Entry: 8
       Data: 
   <PresetGridType>k__BackingField: 1
-  <GridSize>k__BackingField: {x: 9, y: 9}
+  <GridSize>k__BackingField: {x: 7, y: 7}
   <AllowInfection>k__BackingField: 1
   <InfectionSettings>k__BackingField:
     <InfectionCountRange>k__BackingField: {x: 0, y: 0}

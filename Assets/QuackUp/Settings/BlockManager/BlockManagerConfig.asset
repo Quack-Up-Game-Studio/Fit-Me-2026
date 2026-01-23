@@ -300,7 +300,8 @@ MonoBehaviour:
       Data: 
   <MaxRandomAmount>k__BackingField: 3
   <MinRandomAmount>k__BackingField: 1
-  <UseSmartRandom>k__BackingField: 1
+  <UseSmartRandom>k__BackingField: 0
   <SmartRandomThreshold>k__BackingField: 6
   <SmartRandomDepth>k__BackingField: 1
+  <PreviewScale>k__BackingField: 0.25
   <ObjectScale>k__BackingField: 0.5

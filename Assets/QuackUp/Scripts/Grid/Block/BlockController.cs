@@ -29,7 +29,7 @@ namespace FitMe.Grid
         private readonly IPointerHandler _pointerHandler;
         
         private IDisposable _bindings;
-        private bool _isActive;
+        private bool _isActive = true;
         private bool _isRotating;
         private bool _isDragging;
         private Vector2 _mousePositionDifference;
