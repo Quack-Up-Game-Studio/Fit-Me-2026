@@ -3,11 +3,31 @@ FitMe.Grid.BlockManagerConfig, FitMe.Grid
 MetaGuid:127afa20aae140f3b0535eb07164f42c
 
 # $FMUtCLk4MMKHZkTY2mpyJt
-Position: $root:4
+Position: $EZTbQq4nNfhry5RcXRpaX4:3
 + [Sirenix.OdinInspector.BoxGroupAttribute]
 	GroupName = "Player Assist"
 	ShowLabel = True
 	CenterLabel = False
+
+# $EZTbQq4nNfhry5RcXRpaX4
+Position: $root:3
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Manager Settings"
+
+# $C2eSGcMnkTRi6CtF6kBfwx
+Position: $root:2
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "References"
+
+# $DGvRVyDJQGz3EWecgErbzP
+Position: $root:59
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Audio"
+
+# $7h7pX9KLWqGdjJMMjxYgWD
+Position: $root:4
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "View Settings"
 
 # <BlockPresetDictionary>k__BackingField
 + [Sirenix.OdinInspector.DictionaryDrawerSettings]
@@ -35,10 +55,50 @@ Position: $FMUtCLk4MMKHZkTY2mpyJt:2
 	Tooltip = "How deep should the searching algorithm goes, the higher, the more resource it consumes."
 
 # <ObjectScale>k__BackingField
-Position: $root:3
+Position: $7h7pX9KLWqGdjJMMjxYgWD:3
 + [Sirenix.OdinInspector.PropertyTooltipAttribute]
 	Tooltip = "The scale of the block when it is first spawned on the spawn location."
 
 # <MaxRandomAmount>k__BackingField
+Position: $EZTbQq4nNfhry5RcXRpaX4:0
 + [Sirenix.OdinInspector.PropertyTooltipAttribute]
 	Tooltip = "The maximum random amount for the block to appear."
+
+# <MinRandomAmount>k__BackingField
+Position: $EZTbQq4nNfhry5RcXRpaX4:1
+
+# <PreviewScale>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:4
+
+# _blockPresetDictionary
+Position: $C2eSGcMnkTRi6CtF6kBfwx:0
+
+# _blockConfigDictionary
+Position: $C2eSGcMnkTRi6CtF6kBfwx:1
+
+# _bagSettings
+Position: $EZTbQq4nNfhry5RcXRpaX4:2
+
+# _atomColorDict
+Position: $C2eSGcMnkTRi6CtF6kBfwx:2
+
+# <AllowPickUpAfterPlacement>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:5
+
+# <RotateClockwise>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:6
+
+# <SpawnSortingLayer>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:0
+
+# <PickUpSortingLayer>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:2
+
+# <PlaceSucceedSfx>k__BackingField
+Position: $DGvRVyDJQGz3EWecgErbzP:0
+
+# <PlaceFailSfx>k__BackingField
+Position: $DGvRVyDJQGz3EWecgErbzP:1
+
+# <GridSortingLayer>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:1

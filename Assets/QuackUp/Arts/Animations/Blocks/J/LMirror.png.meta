@@ -1,0 +1,1885 @@
+fileFormatVersion: 2
+guid: 72c24d8aa9f98b84985b679decb106a6
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5662803665586856863
+    second: LMirror_0
+  - first:
+      213: 2758401898512855857
+    second: LMirror_1
+  - first:
+      213: -1496291924677497639
+    second: LMirror_2
+  - first:
+      213: 7770151945693669964
+    second: LMirror_3
+  - first:
+      213: -7711796857973490701
+    second: LMirror_4
+  - first:
+      213: 143500939108478220
+    second: LMirror_5
+  - first:
+      213: 6782870325002858470
+    second: LMirror_6
+  - first:
+      213: -4146693904819326748
+    second: LMirror_7
+  - first:
+      213: -7514058407206181805
+    second: LMirror_8
+  - first:
+      213: -2097158007678527514
+    second: LMirror_9
+  - first:
+      213: 5604234857298140568
+    second: LMirror_10
+  - first:
+      213: 5537969284264755273
+    second: LMirror_11
+  - first:
+      213: -1780683994701420821
+    second: LMirror_12
+  - first:
+      213: 3020069349434763227
+    second: LMirror_13
+  - first:
+      213: 364006992984864281
+    second: LMirror_14
+  - first:
+      213: 529414285741573963
+    second: LMirror_15
+  - first:
+      213: -2147618223846505898
+    second: LMirror_16
+  - first:
+      213: -1773598798978636665
+    second: LMirror_17
+  - first:
+      213: 3889705053497510697
+    second: LMirror_18
+  - first:
+      213: 5104083699244451699
+    second: LMirror_19
+  - first:
+      213: 7574992012069855098
+    second: LMirror_20
+  - first:
+      213: 8928722257591858994
+    second: LMirror_21
+  - first:
+      213: -6992191720746061187
+    second: LMirror_22
+  - first:
+      213: 4735555071672775998
+    second: LMirror_23
+  - first:
+      213: 8753311500535908323
+    second: LMirror_24
+  - first:
+      213: -8340206514986928365
+    second: LMirror_25
+  - first:
+      213: -5617817009981761440
+    second: LMirror_26
+  - first:
+      213: -6683270746500516617
+    second: LMirror_27
+  - first:
+      213: -6842719882666209733
+    second: LMirror_28
+  - first:
+      213: -7440790885840173282
+    second: LMirror_29
+  - first:
+      213: 4683881047050523308
+    second: LMirror_30
+  - first:
+      213: 8791578048385429078
+    second: LMirror_31
+  - first:
+      213: 228410118185642410
+    second: LMirror_32
+  - first:
+      213: 4420715599172974039
+    second: LMirror_33
+  - first:
+      213: -2831198048148257098
+    second: LMirror_34
+  - first:
+      213: 7719560500203788458
+    second: LMirror_35
+  - first:
+      213: -6510871614389609182
+    second: LMirror_36
+  - first:
+      213: 3884850897416985150
+    second: LMirror_37
+  - first:
+      213: 4316515261854183595
+    second: LMirror_38
+  - first:
+      213: 1116654084155575195
+    second: LMirror_39
+  - first:
+      213: -5277945177665901037
+    second: LMirror_40
+  - first:
+      213: -3472387089403064869
+    second: LMirror_41
+  - first:
+      213: -1804170408990826409
+    second: LMirror_42
+  - first:
+      213: -173338124504177607
+    second: LMirror_43
+  - first:
+      213: 2376727560326988994
+    second: LMirror_44
+  - first:
+      213: -2246172732762621604
+    second: LMirror_45
+  - first:
+      213: 4097012115794890366
+    second: LMirror_46
+  - first:
+      213: 8241029316485938274
+    second: LMirror_47
+  - first:
+      213: 6204707151461294432
+    second: LMirror_48
+  - first:
+      213: -4894005300421047858
+    second: LMirror_49
+  - first:
+      213: -8526942643755000954
+    second: LMirror_50
+  - first:
+      213: -7529685950615018352
+    second: LMirror_51
+  - first:
+      213: 2999565845163419685
+    second: LMirror_52
+  - first:
+      213: -735151526601733719
+    second: LMirror_53
+  - first:
+      213: -5781845267344139221
+    second: LMirror_54
+  - first:
+      213: -551483753347006641
+    second: LMirror_55
+  - first:
+      213: -4979532650478418792
+    second: LMirror_56
+  - first:
+      213: 3168009023165557340
+    second: LMirror_57
+  - first:
+      213: -2598621528123390886
+    second: LMirror_58
+  - first:
+      213: -2149259046244092283
+    second: LMirror_59
+  - first:
+      213: 5754322321054232
+    second: LMirror_60
+  - first:
+      213: -1497697337413227928
+    second: LMirror_61
+  - first:
+      213: 2687030887066502102
+    second: LMirror_62
+  - first:
+      213: -3537136232569620790
+    second: LMirror_63
+  - first:
+      213: 2180959778575385954
+    second: LMirror_64
+  - first:
+      213: -3368474190099712070
+    second: LMirror_65
+  - first:
+      213: -6789850748107394855
+    second: LMirror_66
+  - first:
+      213: 2070456069928011320
+    second: LMirror_67
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: LMirror_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 514
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16c5ae7a11ea961b0800000000000000
+      internalID: -5662803665586856863
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_1
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 404
+        width: 67
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1333f9c79efc74620800000000000000
+      internalID: 2758401898512855857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_2
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 514
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9dcef451c6a1c3be0800000000000000
+      internalID: -1496291924677497639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_3
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 514
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4aa1edc60025db60800000000000000
+      internalID: 7770151945693669964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_4
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 514
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fb3484dd913af490800000000000000
+      internalID: -7711796857973490701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_5
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 514
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0dee740851ddf100800000000000000
+      internalID: 143500939108478220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_6
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 404
+        width: 67
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ef65579f98912e50800000000000000
+      internalID: 6782870325002858470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_7
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 404
+        width: 67
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e077fa1ddbf376c0800000000000000
+      internalID: -4146693904819326748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_8
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 404
+        width: 67
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35420f890b3b8b790800000000000000
+      internalID: -7514058407206181805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_9
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 512
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e7947a37e565e2e0800000000000000
+      internalID: -2097158007678527514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_10
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 512
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89d1e1309ed36cd40800000000000000
+      internalID: 5604234857298140568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_11
+      rect:
+        serializedVersion: 2
+        x: 287
+        y: 512
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94000adf8b1dadc40800000000000000
+      internalID: 5537969284264755273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_12
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 512
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be6299e575db947e0800000000000000
+      internalID: -1780683994701420821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_13
+      rect:
+        serializedVersion: 2
+        x: 305
+        y: 512
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd7aa12821179e920800000000000000
+      internalID: 3020069349434763227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_14
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 500
+        width: 54
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 916fe987e663d0500800000000000000
+      internalID: 364006992984864281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_15
+      rect:
+        serializedVersion: 2
+        x: 389
+        y: 500
+        width: 54
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b47c4a8ec7bd85700800000000000000
+      internalID: 529414285741573963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_16
+      rect:
+        serializedVersion: 2
+        x: 443
+        y: 499
+        width: 54
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 652497e9a902232e0800000000000000
+      internalID: -2147618223846505898
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_17
+      rect:
+        serializedVersion: 2
+        x: 497
+        y: 499
+        width: 54
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 784a1dc0a49e267e0800000000000000
+      internalID: -1773598798978636665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_18
+      rect:
+        serializedVersion: 2
+        x: 551
+        y: 498
+        width: 54
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92bc2ca33220bf530800000000000000
+      internalID: 3889705053497510697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_19
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 498
+        width: 47
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 377c355f41955d640800000000000000
+      internalID: 5104083699244451699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_20
+      rect:
+        serializedVersion: 2
+        x: 652
+        y: 498
+        width: 47
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7f58d7d917cf1960800000000000000
+      internalID: 7574992012069855098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_21
+      rect:
+        serializedVersion: 2
+        x: 814
+        y: 395
+        width: 80
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 237f2ed369139eb70800000000000000
+      internalID: 8928722257591858994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_22
+      rect:
+        serializedVersion: 2
+        x: 894
+        y: 395
+        width: 79
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d72f08b1daeb6fe90800000000000000
+      internalID: -6992191720746061187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_23
+      rect:
+        serializedVersion: 2
+        x: 973
+        y: 395
+        width: 79
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e35fa556f3218b140800000000000000
+      internalID: 4735555071672775998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_24
+      rect:
+        serializedVersion: 2
+        x: 1052
+        y: 389
+        width: 79
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e7c8c5ce620a7970800000000000000
+      internalID: 8753311500535908323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_25
+      rect:
+        serializedVersion: 2
+        x: 1131
+        y: 389
+        width: 80
+        height: 125
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3173ec8ec52a14c80800000000000000
+      internalID: -8340206514986928365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_26
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 402
+        width: 66
+        height: 110
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 068d3e2a1318902b0800000000000000
+      internalID: -5617817009981761440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_27
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 402
+        width: 72
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f4b3116aa04043a0800000000000000
+      internalID: -6683270746500516617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_28
+      rect:
+        serializedVersion: 2
+        x: 407
+        y: 402
+        width: 72
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3e8d206586c901a0800000000000000
+      internalID: -6842719882666209733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_29
+      rect:
+        serializedVersion: 2
+        x: 479
+        y: 402
+        width: 71
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e174881cc100db890800000000000000
+      internalID: -7440790885840173282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_30
+      rect:
+        serializedVersion: 2
+        x: 550
+        y: 401
+        width: 71
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca291abfefc700140800000000000000
+      internalID: 4683881047050523308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_31
+      rect:
+        serializedVersion: 2
+        x: 621
+        y: 401
+        width: 71
+        height: 97
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65ea22db7a5f10a70800000000000000
+      internalID: 8791578048385429078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_32
+      rect:
+        serializedVersion: 2
+        x: 692
+        y: 401
+        width: 122
+        height: 85
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa96f85dac97b2300800000000000000
+      internalID: 228410118185642410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_33
+      rect:
+        serializedVersion: 2
+        x: 699
+        y: 486
+        width: 47
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d5bbbd5a69895d30800000000000000
+      internalID: 4420715599172974039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_34
+      rect:
+        serializedVersion: 2
+        x: 746
+        y: 486
+        width: 47
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b60853206095b8d0800000000000000
+      internalID: -2831198048148257098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_35
+      rect:
+        serializedVersion: 2
+        x: 1211
+        y: 389
+        width: 85
+        height: 122
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa898ccff53612b60800000000000000
+      internalID: 7719560500203788458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_36
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 445
+        width: 56
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22d122643ccb4a5a0800000000000000
+      internalID: -6510871614389609182
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_37
+      rect:
+        serializedVersion: 2
+        x: 1352
+        y: 445
+        width: 48
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3a95e1fe43c9e530800000000000000
+      internalID: 3884850897416985150
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_38
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 387
+        width: 57
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba0fe52c2c757eb30800000000000000
+      internalID: 4316515261854183595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_39
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 427
+        width: 50
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9b051729f62f7f00800000000000000
+      internalID: 1116654084155575195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_40
+      rect:
+        serializedVersion: 2
+        x: 1450
+        y: 431
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31eec3d13d8f0c6b0800000000000000
+      internalID: -5277945177665901037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_41
+      rect:
+        serializedVersion: 2
+        x: 1450
+        y: 381
+        width: 51
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdd4a75f65a9fcfc0800000000000000
+      internalID: -3472387089403064869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_42
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 259
+        height: 403
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 750a4d9629c46f6e0800000000000000
+      internalID: -1804170408990826409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_43
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 1
+        width: 258
+        height: 401
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 93465e6e4ed289df0800000000000000
+      internalID: -173338124504177607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_44
+      rect:
+        serializedVersion: 2
+        x: 518
+        y: 1
+        width: 258
+        height: 400
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c4cb29af15dbf020800000000000000
+      internalID: 2376727560326988994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_45
+      rect:
+        serializedVersion: 2
+        x: 776
+        y: 1
+        width: 258
+        height: 394
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c59f38fdccdf3d0e0800000000000000
+      internalID: -2246172732762621604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_46
+      rect:
+        serializedVersion: 2
+        x: 1034
+        y: 1
+        width: 259
+        height: 388
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7e0d6affc28bd830800000000000000
+      internalID: 4097012115794890366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_47
+      rect:
+        serializedVersion: 2
+        x: 1293
+        y: 329
+        width: 57
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26c79b020840e5270800000000000000
+      internalID: 8241029316485938274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_48
+      rect:
+        serializedVersion: 2
+        x: 1350
+        y: 323
+        width: 53
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0612d22c74c8b1650800000000000000
+      internalID: 6204707151461294432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_49
+      rect:
+        serializedVersion: 2
+        x: 1353
+        y: 376
+        width: 50
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec9468bdb10051cb0800000000000000
+      internalID: -4894005300421047858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_50
+      rect:
+        serializedVersion: 2
+        x: 1403
+        y: 376
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68b5adad7d63aa980800000000000000
+      internalID: -8526942643755000954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_51
+      rect:
+        serializedVersion: 2
+        x: 1403
+        y: 331
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 094a75b958e218790800000000000000
+      internalID: -7529685950615018352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_52
+      rect:
+        serializedVersion: 2
+        x: 1450
+        y: 331
+        width: 51
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5282c596e3990a920800000000000000
+      internalID: 2999565845163419685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_53
+      rect:
+        serializedVersion: 2
+        x: 1293
+        y: 271
+        width: 57
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a941d0e4973cc5f0800000000000000
+      internalID: -735151526601733719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_54
+      rect:
+        serializedVersion: 2
+        x: 1350
+        y: 271
+        width: 50
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2cdda5ec52c2cfa0800000000000000
+      internalID: -5781845267344139221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_55
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 278
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4f3a5eb27cb858f0800000000000000
+      internalID: -551483753347006641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_56
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 225
+        width: 53
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89446c4ef6525eab0800000000000000
+      internalID: -4979532650478418792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_57
+      rect:
+        serializedVersion: 2
+        x: 1447
+        y: 278
+        width: 53
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5ae307fb6707fb20800000000000000
+      internalID: 3168009023165557340
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_58
+      rect:
+        serializedVersion: 2
+        x: 1453
+        y: 225
+        width: 53
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a54c58efc77dfebd0800000000000000
+      internalID: -2598621528123390886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_59
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 220
+        width: 59
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5867352e84c4c22e0800000000000000
+      internalID: -2149259046244092283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_60
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 169
+        width: 60
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81a9ed19681741000800000000000000
+      internalID: 5754322321054232
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_61
+      rect:
+        serializedVersion: 2
+        x: 1356
+        y: 169
+        width: 59
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86aaf6ee43c173be0800000000000000
+      internalID: -1497697337413227928
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_62
+      rect:
+        serializedVersion: 2
+        x: 1415
+        y: 174
+        width: 59
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d30a14fa504a4520800000000000000
+      internalID: 2687030887066502102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_63
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 85
+        width: 122
+        height: 84
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac63687465199eec0800000000000000
+      internalID: -3537136232569620790
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_64
+      rect:
+        serializedVersion: 2
+        x: 1418
+        y: 123
+        width: 60
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26586670d53544e10800000000000000
+      internalID: 2180959778575385954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_65
+      rect:
+        serializedVersion: 2
+        x: 1418
+        y: 1
+        width: 84
+        height: 122
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab7f8003296c041d0800000000000000
+      internalID: -3368474190099712070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_66
+      rect:
+        serializedVersion: 2
+        x: 1478
+        y: 123
+        width: 19
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d0732108ba95c1a0800000000000000
+      internalID: -6789850748107394855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LMirror_67
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 1
+        width: 122
+        height: 84
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8364c1b63dcbbbc10800000000000000
+      internalID: 2070456069928011320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      LMirror_0: -5662803665586856863
+      LMirror_1: 2758401898512855857
+      LMirror_10: 5604234857298140568
+      LMirror_11: 5537969284264755273
+      LMirror_12: -1780683994701420821
+      LMirror_13: 3020069349434763227
+      LMirror_14: 364006992984864281
+      LMirror_15: 529414285741573963
+      LMirror_16: -2147618223846505898
+      LMirror_17: -1773598798978636665
+      LMirror_18: 3889705053497510697
+      LMirror_19: 5104083699244451699
+      LMirror_2: -1496291924677497639
+      LMirror_20: 7574992012069855098
+      LMirror_21: 8928722257591858994
+      LMirror_22: -6992191720746061187
+      LMirror_23: 4735555071672775998
+      LMirror_24: 8753311500535908323
+      LMirror_25: -8340206514986928365
+      LMirror_26: -5617817009981761440
+      LMirror_27: -6683270746500516617
+      LMirror_28: -6842719882666209733
+      LMirror_29: -7440790885840173282
+      LMirror_3: 7770151945693669964
+      LMirror_30: 4683881047050523308
+      LMirror_31: 8791578048385429078
+      LMirror_32: 228410118185642410
+      LMirror_33: 4420715599172974039
+      LMirror_34: -2831198048148257098
+      LMirror_35: 7719560500203788458
+      LMirror_36: -6510871614389609182
+      LMirror_37: 3884850897416985150
+      LMirror_38: 4316515261854183595
+      LMirror_39: 1116654084155575195
+      LMirror_4: -7711796857973490701
+      LMirror_40: -5277945177665901037
+      LMirror_41: -3472387089403064869
+      LMirror_42: -1804170408990826409
+      LMirror_43: -173338124504177607
+      LMirror_44: 2376727560326988994
+      LMirror_45: -2246172732762621604
+      LMirror_46: 4097012115794890366
+      LMirror_47: 8241029316485938274
+      LMirror_48: 6204707151461294432
+      LMirror_49: -4894005300421047858
+      LMirror_5: 143500939108478220
+      LMirror_50: -8526942643755000954
+      LMirror_51: -7529685950615018352
+      LMirror_52: 2999565845163419685
+      LMirror_53: -735151526601733719
+      LMirror_54: -5781845267344139221
+      LMirror_55: -551483753347006641
+      LMirror_56: -4979532650478418792
+      LMirror_57: 3168009023165557340
+      LMirror_58: -2598621528123390886
+      LMirror_59: -2149259046244092283
+      LMirror_6: 6782870325002858470
+      LMirror_60: 5754322321054232
+      LMirror_61: -1497697337413227928
+      LMirror_62: 2687030887066502102
+      LMirror_63: -3537136232569620790
+      LMirror_64: 2180959778575385954
+      LMirror_65: -3368474190099712070
+      LMirror_66: -6789850748107394855
+      LMirror_67: 2070456069928011320
+      LMirror_7: -4146693904819326748
+      LMirror_8: -7514058407206181805
+      LMirror_9: -2097158007678527514
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

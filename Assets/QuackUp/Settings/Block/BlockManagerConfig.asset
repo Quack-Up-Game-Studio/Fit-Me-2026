@@ -25,12 +25,21 @@ MonoBehaviour:
     - {fileID: 11400000, guid: f0dbc01624a6fd6df86e358361605615, type: 2}
     - {fileID: 11400000, guid: b5f0668630651a723a91fa0f69354292, type: 2}
     - {fileID: 11400000, guid: 32df15948dfc3162683ab971b3c26bcf, type: 2}
+    - {fileID: 11400000, guid: 7b03f086f57bd8ab58f33086006b3fce, type: 2}
+    - {fileID: 11400000, guid: 44892d1d147421f5bb5208ed454bf750, type: 2}
+    - {fileID: 11400000, guid: 82d20a6233a5ec93cbebc37725a637a9, type: 2}
+    - {fileID: 11400000, guid: d540385939d56bdaeb04e23bc900218e, type: 2}
+    - {fileID: 11400000, guid: 9f16f90c6dd75e6cea6193ba2485aefd, type: 2}
+    - {fileID: 11400000, guid: 81e1dacf8402614f9a413e130092affd, type: 2}
+    - {fileID: 11400000, guid: ccaaa6acc14d6b9e3b25ea91bf697ee8, type: 2}
+    - {fileID: 11400000, guid: b6823d29a4c2bcbc6b21e16f551f03de, type: 2}
+    - {fileID: 11400000, guid: 503c8b0c42a675c41b2248df518e6849, type: 2}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes:
-    - Name: <BlockPresetDictionary>k__BackingField
+    - Name: _blockPresetDictionary
       Entry: 7
       Data: 0|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockShape, FitMe.Grid],[FitMe.Grid.BlockPreset,
         FitMe.Grid]], mscorlib
@@ -164,10 +173,10 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: <BagSetting>k__BackingField
+    - Name: _blockConfigDictionary
       Entry: 7
-      Data: 2|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockShape, FitMe.Grid],[System.Int32,
-        mscorlib]], mscorlib
+      Data: 2|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockShape, FitMe.Grid],[FitMe.Grid.BlockConfig,
+        FitMe.Grid]], mscorlib
     - Name: comparer
       Entry: 7
       Data: 3|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Grid.BlockShape,
@@ -181,6 +190,130 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: 
+      Entry: 12
+      Data: 9
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 10
+      Data: 9
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 10
+      Data: 10
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 10
+      Data: 11
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 10
+      Data: 12
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 5
+    - Name: $v
+      Entry: 10
+      Data: 13
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 4
+    - Name: $v
+      Entry: 10
+      Data: 14
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 6
+    - Name: $v
+      Entry: 10
+      Data: 15
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 7
+    - Name: $v
+      Entry: 10
+      Data: 16
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 8
+    - Name: $v
+      Entry: 10
+      Data: 17
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: _bagSettings
+      Entry: 7
+      Data: 4|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockShape, FitMe.Grid],[System.Int32,
+        mscorlib]], mscorlib
+    - Name: comparer
+      Entry: 9
+      Data: 1
     - Name: 
       Entry: 12
       Data: 9
@@ -298,6 +431,167 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: _atomColorDict
+      Entry: 7
+      Data: 5|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockColor, FitMe.Grid],[UnityEngine.Color,
+        UnityEngine.CoreModule]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 6|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Grid.BlockColor,
+        FitMe.Grid]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 5
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 0.997017741
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.475393772
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 4
+    - Name: $v
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
   <MaxRandomAmount>k__BackingField: 3
   <MinRandomAmount>k__BackingField: 1
   <UseSmartRandom>k__BackingField: 0
@@ -305,3 +599,22 @@ MonoBehaviour:
   <SmartRandomDepth>k__BackingField: 1
   <PreviewScale>k__BackingField: 0.3
   <ObjectScale>k__BackingField: 0.5
+  <SpawnSortingLayer>k__BackingField: -382830213
+  <PickUpSortingLayer>k__BackingField: -1842356849
+  <GridSortingLayer>k__BackingField: 133995437
+  <AllowPickUpAfterPlacement>k__BackingField: 0
+  <RotateClockwise>k__BackingField: 1
+  <PlaceSucceedSfx>k__BackingField:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  <PlaceFailSfx>k__BackingField:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 

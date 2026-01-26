@@ -16,7 +16,7 @@ namespace FitMe.Grid
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private SpriteOutlineController spriteOutlineController;
         
-        private BlockConfig _config;
+        private BlockManagerConfig _blockManagerConfig;
         private AtomViewModel _viewModel;
         private IDisposable _bindings;
         private IDisposable _parentBlockSubscriptions;
@@ -25,10 +25,10 @@ namespace FitMe.Grid
         
         [Inject]
         public void Construct(
-            BlockConfig config,
+            BlockManagerConfig blockManagerConfig,
             AtomViewModel viewModel)
         {
-            _config = config;
+            _blockManagerConfig = blockManagerConfig;
             _viewModel = viewModel;
             spriteRenderer.enabled = false;
             Bind();
@@ -47,8 +47,9 @@ namespace FitMe.Grid
         private void OnParentBlockModelChanged(BlockModel model)
         {
             _parentBlockSubscriptions?.Dispose();
-            if (!_config.UseAtomSprite) return;
-            spriteRenderer.enabled = _config.UseAtomSprite;
+            var blockConfig = _viewModel.ParentBlockModel.CurrentValue.Config;
+            if (!blockConfig.UseAtomSprite) return;
+            spriteRenderer.enabled = blockConfig.UseAtomSprite;
             var disposableBuilder = Disposable.CreateBuilder();
             model.BlockType
                 .Subscribe(OnBlockTypeChanged)
@@ -74,7 +75,7 @@ namespace FitMe.Grid
 
         private void OnBlockTypeChanged(BlockColor color)
         {
-            if (!_config.AtomColorDict.TryGetValue(color, out var spriteColor))
+            if (!_blockManagerConfig.AtomColorDict.TryGetValue(color, out var spriteColor))
             {
                 DebugUtils.LogError($"BlockType.CurrentValue {color} is not defined");
             }

@@ -904,33 +904,7 @@ MonoBehaviour:
     - Name: atomViewPrefab
       Entry: 10
       Data: 13
-    - Name: blockViewDictionary
-      Entry: 7
-      Data: 8|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockShape, FitMe.Grid],[FitMe.Grid.BlockView,
-        FitMe.Grid]], mscorlib
-    - Name: comparer
-      Entry: 7
-      Data: 9|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Grid.BlockShape,
-        FitMe.Grid]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 12
-      Data: 9
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 0
-    - Name: $v
+    - Name: blockViewPrefab
       Entry: 10
       Data: 14
     - Name: 
@@ -938,118 +912,13 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 1
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 2
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 3
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 4
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 5
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 6
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 7
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 8
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 10|FitMe.Entity.EntityManagerInstaller, FitMe.Entity
+      Data: 8|FitMe.Entity.EntityManagerInstaller, FitMe.Entity
     - Name: entityManagerConfig
       Entry: 10
       Data: 15
     - Name: sceneEntity
       Entry: 7
-      Data: 11|System.Collections.Generic.List`1[[FitMe.Entity.IEntityLifetimeScope,
+      Data: 9|System.Collections.Generic.List`1[[FitMe.Entity.IEntityLifetimeScope,
         FitMe.Entity]], mscorlib
     - Name: 
       Entry: 12
@@ -1068,7 +937,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 12|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
+      Data: 10|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
     - Name: levelManagerConfig
       Entry: 10
       Data: 17
@@ -1083,7 +952,7 @@ MonoBehaviour:
       Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 13|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 11|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12

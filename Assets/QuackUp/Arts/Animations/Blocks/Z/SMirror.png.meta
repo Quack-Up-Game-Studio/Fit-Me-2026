@@ -1,0 +1,1625 @@
+fileFormatVersion: 2
+guid: 2df0e975429cf0a4ebefcfc99ebdb2f2
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6118201103783938257
+    second: SMirror_0
+  - first:
+      213: -4278656340065070035
+    second: SMirror_1
+  - first:
+      213: -6337043424936475590
+    second: SMirror_2
+  - first:
+      213: -58776671582917926
+    second: SMirror_3
+  - first:
+      213: 5794188728340902710
+    second: SMirror_4
+  - first:
+      213: 2428328757009783563
+    second: SMirror_5
+  - first:
+      213: -419253932032505906
+    second: SMirror_6
+  - first:
+      213: -8162439846483436267
+    second: SMirror_7
+  - first:
+      213: 7307403625330697438
+    second: SMirror_8
+  - first:
+      213: -4724248335142777834
+    second: SMirror_9
+  - first:
+      213: 3425133391542553290
+    second: SMirror_10
+  - first:
+      213: 4519129818443441490
+    second: SMirror_11
+  - first:
+      213: -1508667672646712017
+    second: SMirror_12
+  - first:
+      213: -3080622203918648273
+    second: SMirror_13
+  - first:
+      213: 7112972520968710481
+    second: SMirror_14
+  - first:
+      213: 1137619849754481832
+    second: SMirror_15
+  - first:
+      213: -3056085369754090029
+    second: SMirror_16
+  - first:
+      213: -6702980274662969971
+    second: SMirror_17
+  - first:
+      213: -5124865946422495438
+    second: SMirror_18
+  - first:
+      213: -6157347083847377742
+    second: SMirror_19
+  - first:
+      213: -3767811054072761228
+    second: SMirror_20
+  - first:
+      213: -5192332538993817610
+    second: SMirror_21
+  - first:
+      213: 4880593938482621654
+    second: SMirror_22
+  - first:
+      213: 1164122402343014955
+    second: SMirror_23
+  - first:
+      213: 6502762369770602326
+    second: SMirror_24
+  - first:
+      213: 2823896242463793694
+    second: SMirror_25
+  - first:
+      213: 3847437494358067565
+    second: SMirror_26
+  - first:
+      213: 6899644551096223805
+    second: SMirror_27
+  - first:
+      213: 8083532186950923936
+    second: SMirror_28
+  - first:
+      213: 1357294321198444525
+    second: SMirror_29
+  - first:
+      213: -7593439940110040459
+    second: SMirror_30
+  - first:
+      213: -8112775189475883847
+    second: SMirror_31
+  - first:
+      213: -1335813924460470922
+    second: SMirror_32
+  - first:
+      213: -4457753926170592743
+    second: SMirror_33
+  - first:
+      213: -7879250433379839770
+    second: SMirror_34
+  - first:
+      213: -3445241325433598625
+    second: SMirror_35
+  - first:
+      213: 6989985554792247699
+    second: SMirror_36
+  - first:
+      213: 5721333378501258336
+    second: SMirror_37
+  - first:
+      213: -944753000661480741
+    second: SMirror_38
+  - first:
+      213: 4932937977033042136
+    second: SMirror_39
+  - first:
+      213: -3760806545329168325
+    second: SMirror_40
+  - first:
+      213: -8481004899558378693
+    second: SMirror_41
+  - first:
+      213: -6653721607563218999
+    second: SMirror_42
+  - first:
+      213: -1884963271669787537
+    second: SMirror_43
+  - first:
+      213: -8024747379056152616
+    second: SMirror_44
+  - first:
+      213: -4964583542800273316
+    second: SMirror_45
+  - first:
+      213: 3703295781294747342
+    second: SMirror_46
+  - first:
+      213: -5778822550211548198
+    second: SMirror_47
+  - first:
+      213: -570218585406397261
+    second: SMirror_48
+  - first:
+      213: 6073344604562334294
+    second: SMirror_49
+  - first:
+      213: 6653195546949677614
+    second: SMirror_50
+  - first:
+      213: 6280470525422811008
+    second: SMirror_51
+  - first:
+      213: -4865934643859101926
+    second: SMirror_52
+  - first:
+      213: 744563874417747178
+    second: SMirror_53
+  - first:
+      213: -2278065712605847405
+    second: SMirror_54
+  - first:
+      213: 542639879723443755
+    second: SMirror_55
+  - first:
+      213: 3828198188010105164
+    second: SMirror_56
+  - first:
+      213: 3699737251945249285
+    second: SMirror_57
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SMirror_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 259
+        height: 387
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d8c17ffc7738e450800000000000000
+      internalID: 6118201103783938257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_1
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 1
+        width: 259
+        height: 387
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d24d27e5ab82f94c0800000000000000
+      internalID: -4278656340065070035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_2
+      rect:
+        serializedVersion: 2
+        x: 519
+        y: 1
+        width: 258
+        height: 387
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a34cf62849c4e08a0800000000000000
+      internalID: -6337043424936475590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_3
+      rect:
+        serializedVersion: 2
+        x: 777
+        y: 387
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ada6839bdee2f2ff0800000000000000
+      internalID: -58776671582917926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_4
+      rect:
+        serializedVersion: 2
+        x: 777
+        y: 1
+        width: 258
+        height: 386
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 633f45213f7196050800000000000000
+      internalID: 5794188728340902710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_5
+      rect:
+        serializedVersion: 2
+        x: 786
+        y: 387
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0b1f6f732823b120800000000000000
+      internalID: 2428328757009783563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_6
+      rect:
+        serializedVersion: 2
+        x: 795
+        y: 387
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec7448625c28e2af0800000000000000
+      internalID: -419253932032505906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_7
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 387
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51d5cd1c43039be80800000000000000
+      internalID: -8162439846483436267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_8
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 387
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed4ec3681ec196560800000000000000
+      internalID: 7307403625330697438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_9
+      rect:
+        serializedVersion: 2
+        x: 1035
+        y: 1
+        width: 258
+        height: 386
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61c85195b29107eb0800000000000000
+      internalID: -4724248335142777834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_10
+      rect:
+        serializedVersion: 2
+        x: 1293
+        y: 359
+        width: 70
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aca09372ca4888f20800000000000000
+      internalID: 3425133391542553290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_11
+      rect:
+        serializedVersion: 2
+        x: 1363
+        y: 359
+        width: 70
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 255623260ac27be30800000000000000
+      internalID: 4519129818443441490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_12
+      rect:
+        serializedVersion: 2
+        x: 1433
+        y: 359
+        width: 69
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2507c7beb2201be0800000000000000
+      internalID: -1508667672646712017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_13
+      rect:
+        serializedVersion: 2
+        x: 1293
+        y: 240
+        width: 101
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2c7f386d6e6f35d0800000000000000
+      internalID: -3080622203918648273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_14
+      rect:
+        serializedVersion: 2
+        x: 1394
+        y: 309
+        width: 52
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 159647952da56b260800000000000000
+      internalID: 7112972520968710481
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_15
+      rect:
+        serializedVersion: 2
+        x: 1446
+        y: 308
+        width: 50
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a49c0ad933a9cf00800000000000000
+      internalID: 1137619849754481832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_16
+      rect:
+        serializedVersion: 2
+        x: 1502
+        y: 335
+        width: 47
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d50a8c4c8a9695d0800000000000000
+      internalID: -3056085369754090029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_17
+      rect:
+        serializedVersion: 2
+        x: 1549
+        y: 338
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8d634044fa3af2a0800000000000000
+      internalID: -6702980274662969971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_18
+      rect:
+        serializedVersion: 2
+        x: 1549
+        y: 291
+        width: 45
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 237bdfd0391d0e8b0800000000000000
+      internalID: -5124865946422495438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_19
+      rect:
+        serializedVersion: 2
+        x: 1596
+        y: 327
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2bc5d744375bc8aa0800000000000000
+      internalID: -6157347083847377742
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_20
+      rect:
+        serializedVersion: 2
+        x: 1394
+        y: 239
+        width: 36
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 474f33d1fcb06bbc0800000000000000
+      internalID: -3767811054072761228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_21
+      rect:
+        serializedVersion: 2
+        x: 1430
+        y: 239
+        width: 36
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f74291e01121f7b0800000000000000
+      internalID: -5192332538993817610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_22
+      rect:
+        serializedVersion: 2
+        x: 1466
+        y: 239
+        width: 36
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6dc6e2c145a5bb340800000000000000
+      internalID: 4880593938482621654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_23
+      rect:
+        serializedVersion: 2
+        x: 1502
+        y: 291
+        width: 47
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b22daba382bc72010800000000000000
+      internalID: 1164122402343014955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_24
+      rect:
+        serializedVersion: 2
+        x: 1502
+        y: 239
+        width: 50
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65f34f41ce37e3a50800000000000000
+      internalID: 6502762369770602326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_25
+      rect:
+        serializedVersion: 2
+        x: 1552
+        y: 282
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e126d9ebbae703720800000000000000
+      internalID: 2823896242463793694
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_26
+      rect:
+        serializedVersion: 2
+        x: 1560
+        y: 282
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d694bba3408d46530800000000000000
+      internalID: 3847437494358067565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_27
+      rect:
+        serializedVersion: 2
+        x: 1568
+        y: 282
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d38cc80d92670cf50800000000000000
+      internalID: 6899644551096223805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_28
+      rect:
+        serializedVersion: 2
+        x: 1576
+        y: 282
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a675a512b97e2070800000000000000
+      internalID: 8083532186950923936
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_29
+      rect:
+        serializedVersion: 2
+        x: 1584
+        y: 282
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: def20be6ef316d210800000000000000
+      internalID: 1357294321198444525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_30
+      rect:
+        serializedVersion: 2
+        x: 1594
+        y: 282
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5724a723b9eae9690800000000000000
+      internalID: -7593439940110040459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_31
+      rect:
+        serializedVersion: 2
+        x: 1641
+        y: 283
+        width: 47
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b400b0d2f1a96f80800000000000000
+      internalID: -8112775189475883847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_32
+      rect:
+        serializedVersion: 2
+        x: 1293
+        y: 121
+        width: 101
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67d538a205c367de0800000000000000
+      internalID: -1335813924460470922
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_33
+      rect:
+        serializedVersion: 2
+        x: 1394
+        y: 120
+        width: 101
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91abf7e1c60e222c0800000000000000
+      internalID: -4457753926170592743
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_34
+      rect:
+        serializedVersion: 2
+        x: 1495
+        y: 192
+        width: 47
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e05d061a7747a290800000000000000
+      internalID: -7879250433379839770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_35
+      rect:
+        serializedVersion: 2
+        x: 1552
+        y: 237
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5dc808a44b0030d0800000000000000
+      internalID: -3445241325433598625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_36
+      rect:
+        serializedVersion: 2
+        x: 1599
+        y: 238
+        width: 47
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 391f08ad3da610160800000000000000
+      internalID: 6989985554792247699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_37
+      rect:
+        serializedVersion: 2
+        x: 1640
+        y: 193
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06c27231562466f40800000000000000
+      internalID: 5721333378501258336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_38
+      rect:
+        serializedVersion: 2
+        x: 1646
+        y: 238
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bda8613c62093e2f0800000000000000
+      internalID: -944753000661480741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_39
+      rect:
+        serializedVersion: 2
+        x: 1545
+        y: 171
+        width: 48
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d8a61c44f0557440800000000000000
+      internalID: 4932937977033042136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_40
+      rect:
+        serializedVersion: 2
+        x: 1593
+        y: 193
+        width: 47
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b30e0b46f5eeecbc0800000000000000
+      internalID: -3760806545329168325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_41
+      rect:
+        serializedVersion: 2
+        x: 1595
+        y: 148
+        width: 48
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b33b9776afa6d4a80800000000000000
+      internalID: -8481004899558378693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_42
+      rect:
+        serializedVersion: 2
+        x: 1643
+        y: 148
+        width: 47
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9cf6ada637b39a3a0800000000000000
+      internalID: -6653721607563218999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_43
+      rect:
+        serializedVersion: 2
+        x: 1495
+        y: 140
+        width: 50
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f64d67134e347d5e0800000000000000
+      internalID: -1884963271669787537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_44
+      rect:
+        serializedVersion: 2
+        x: 1495
+        y: 71
+        width: 36
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8df6c1396ce52a090800000000000000
+      internalID: -8024747379056152616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_45
+      rect:
+        serializedVersion: 2
+        x: 1545
+        y: 120
+        width: 50
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c50b3a142914a1bb0800000000000000
+      internalID: -4964583542800273316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_46
+      rect:
+        serializedVersion: 2
+        x: 1595
+        y: 101
+        width: 47
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecea64664efb46330800000000000000
+      internalID: 3703295781294747342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_47
+      rect:
+        serializedVersion: 2
+        x: 1642
+        y: 101
+        width: 47
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adbaf92128f7dcfa0800000000000000
+      internalID: -5778822550211548198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_48
+      rect:
+        serializedVersion: 2
+        x: 1293
+        y: 1
+        width: 101
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b4a68cb73d2618f0800000000000000
+      internalID: -570218585406397261
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_49
+      rect:
+        serializedVersion: 2
+        x: 1394
+        y: 1
+        width: 101
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65229796dbad84450800000000000000
+      internalID: 6073344604562334294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_50
+      rect:
+        serializedVersion: 2
+        x: 1495
+        y: 1
+        width: 36
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e22752d8916e45c50800000000000000
+      internalID: 6653195546949677614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_51
+      rect:
+        serializedVersion: 2
+        x: 1531
+        y: 70
+        width: 52
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0873322eaa6b82750800000000000000
+      internalID: 6280470525422811008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_52
+      rect:
+        serializedVersion: 2
+        x: 1531
+        y: 1
+        width: 36
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a17e284e83ab87cb0800000000000000
+      internalID: -4865934643859101926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_53
+      rect:
+        serializedVersion: 2
+        x: 1567
+        y: 1
+        width: 36
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae4224f16e8355a00800000000000000
+      internalID: 744563874417747178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_54
+      rect:
+        serializedVersion: 2
+        x: 1603
+        y: 51
+        width: 52
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 390a129dd4fa260e0800000000000000
+      internalID: -2278065712605847405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_55
+      rect:
+        serializedVersion: 2
+        x: 1655
+        y: 51
+        width: 52
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2660e77818d78700800000000000000
+      internalID: 542639879723443755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_56
+      rect:
+        serializedVersion: 2
+        x: 1603
+        y: 1
+        width: 52
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c49e22628fd702530800000000000000
+      internalID: 3828198188010105164
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SMirror_57
+      rect:
+        serializedVersion: 2
+        x: 1655
+        y: 1
+        width: 52
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50af978bd6b185330800000000000000
+      internalID: 3699737251945249285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      SMirror_0: 6118201103783938257
+      SMirror_1: -4278656340065070035
+      SMirror_10: 3425133391542553290
+      SMirror_11: 4519129818443441490
+      SMirror_12: -1508667672646712017
+      SMirror_13: -3080622203918648273
+      SMirror_14: 7112972520968710481
+      SMirror_15: 1137619849754481832
+      SMirror_16: -3056085369754090029
+      SMirror_17: -6702980274662969971
+      SMirror_18: -5124865946422495438
+      SMirror_19: -6157347083847377742
+      SMirror_2: -6337043424936475590
+      SMirror_20: -3767811054072761228
+      SMirror_21: -5192332538993817610
+      SMirror_22: 4880593938482621654
+      SMirror_23: 1164122402343014955
+      SMirror_24: 6502762369770602326
+      SMirror_25: 2823896242463793694
+      SMirror_26: 3847437494358067565
+      SMirror_27: 6899644551096223805
+      SMirror_28: 8083532186950923936
+      SMirror_29: 1357294321198444525
+      SMirror_3: -58776671582917926
+      SMirror_30: -7593439940110040459
+      SMirror_31: -8112775189475883847
+      SMirror_32: -1335813924460470922
+      SMirror_33: -4457753926170592743
+      SMirror_34: -7879250433379839770
+      SMirror_35: -3445241325433598625
+      SMirror_36: 6989985554792247699
+      SMirror_37: 5721333378501258336
+      SMirror_38: -944753000661480741
+      SMirror_39: 4932937977033042136
+      SMirror_4: 5794188728340902710
+      SMirror_40: -3760806545329168325
+      SMirror_41: -8481004899558378693
+      SMirror_42: -6653721607563218999
+      SMirror_43: -1884963271669787537
+      SMirror_44: -8024747379056152616
+      SMirror_45: -4964583542800273316
+      SMirror_46: 3703295781294747342
+      SMirror_47: -5778822550211548198
+      SMirror_48: -570218585406397261
+      SMirror_49: 6073344604562334294
+      SMirror_5: 2428328757009783563
+      SMirror_50: 6653195546949677614
+      SMirror_51: 6280470525422811008
+      SMirror_52: -4865934643859101926
+      SMirror_53: 744563874417747178
+      SMirror_54: -2278065712605847405
+      SMirror_55: 542639879723443755
+      SMirror_56: 3828198188010105164
+      SMirror_57: 3699737251945249285
+      SMirror_6: -419253932032505906
+      SMirror_7: -8162439846483436267
+      SMirror_8: 7307403625330697438
+      SMirror_9: -4724248335142777834
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

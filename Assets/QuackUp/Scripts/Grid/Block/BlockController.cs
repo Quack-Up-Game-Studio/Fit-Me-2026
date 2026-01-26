@@ -22,7 +22,7 @@ namespace FitMe.Grid
         public ReactiveCommand<PointerEventData> EndDragCommand { get; } = new();
         public ReactiveCommand<PointerEventData> ClickCommand { get; } = new();
         
-        private readonly BlockConfig _config;
+        private readonly BlockManagerConfig _config;
         private readonly GridManager _gridManager;
         private readonly BlockModel _model;
         private readonly IAudioManager _audioManager;
@@ -36,7 +36,7 @@ namespace FitMe.Grid
 
         [Inject]
         public BlockController(
-            BlockConfig config,
+            BlockManagerConfig config,
             GridManager gridManager,
             BlockModel model,
             IAudioManager audioManager,
@@ -45,7 +45,6 @@ namespace FitMe.Grid
             _config = config;
             _gridManager = gridManager;
             _model = model;
-            model.BlockController = this;
             _audioManager = audioManager;
             _pointerHandler = pointerHandler;
             Bind();
@@ -130,7 +129,7 @@ namespace FitMe.Grid
             if (placed)
             {
                 _model.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
-                _model.SetSortingLayerCommand.Execute(_config.OriginalSortingLayer);
+                _model.SetSortingLayerCommand.Execute(_config.GridSortingLayer);
                 _audioManager.PlayAudioOneShot(_config.PlaceSucceedSfx, Vector3.zero);
                 _mousePositionDifference = Vector3.zero;
             }

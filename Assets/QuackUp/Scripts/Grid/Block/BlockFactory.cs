@@ -12,9 +12,8 @@ namespace FitMe.Grid
 {
     public class BlockFactory
     {
-        private readonly Dictionary<BlockShape, BlockView> _blockViewDictionary;
+        private readonly BlockView _blockViewPrefab;
         private readonly BlockManagerConfig _blockManagerConfig;
-        private readonly BlockConfig _blockConfig;
         private readonly GridManagerConfig _gridConfig;
         private readonly GridManager _gridManager;
         private readonly AtomFactory _atomFactory;
@@ -23,18 +22,16 @@ namespace FitMe.Grid
 
         [Inject]
         public BlockFactory(
-            Dictionary<BlockShape, BlockView> blockViewDictionary,
+            BlockView blockViewPrefab,
             BlockManagerConfig blockManagerConfig,
-            BlockConfig blockConfig,
             GridManagerConfig gridConfig,
             GridManager gridManager,
             AtomFactory atomFactory,
             IAudioManager audioManager,
             IPointerHandler pointerHandler)
         {
-            _blockViewDictionary = blockViewDictionary;
+            _blockViewPrefab = blockViewPrefab;
             _blockManagerConfig = blockManagerConfig;
-            _blockConfig = blockConfig;
             _gridConfig = gridConfig;
             _gridManager = gridManager;
             _atomFactory = atomFactory;
@@ -49,9 +46,9 @@ namespace FitMe.Grid
         public BlockModel Create(BlockShape blockShape, Vector3 position, Quaternion rotation, out GameObject gameObject,
             InstantiateParameters? instantiateParameters = null)
         {
-            if (!_blockViewDictionary.TryGetValue(blockShape, out var blockViewPrefab))
+            if (!_blockManagerConfig.BlockConfigDictionary.TryGetValue(blockShape, out var blockConfig))
             {
-                throw new ArgumentException($"Block face '{blockShape}' not found in BlockViewDictionary.");
+                throw new ArgumentException($"Block config '{blockShape}' not found in BlockConfigDictionary.");
             }
             if (!_blockManagerConfig.BlockPresetDictionary.TryGetValue(blockShape, out var blockPreset))
             {
@@ -61,18 +58,23 @@ namespace FitMe.Grid
             {
                 //parent = blocksParent
             };
-            var view = Object.Instantiate(blockViewPrefab, position, rotation,
+            var view = Object.Instantiate(_blockViewPrefab, position, rotation,
                 instantiateParameters.Value);
-            var model = new BlockModel(_blockConfig, _atomFactory, view);
+            var model = new BlockModel(blockConfig, _atomFactory, view);
             model.GenerateAtom(blockShape, blockPreset);
             var viewModel = new BlockViewModel(model);
             var controller = new BlockController(
-                _blockConfig,
+                _blockManagerConfig,
                 _gridManager,
                 model,
                 _audioManager,
                 _pointerHandler);
-            view.Construct(_blockConfig, _gridConfig, controller, viewModel);
+            model.BlockController = controller;
+            view.Construct(blockConfig, 
+                _blockManagerConfig, 
+                _gridConfig, 
+                controller, 
+                viewModel);
             Current = model;
             CurrentGameObject = view.gameObject;
             gameObject = CurrentGameObject;

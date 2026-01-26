@@ -9,15 +9,15 @@ namespace FitMe.Grid
     public class AtomFactory : IGameObjectFactory<AtomModel>
     {
         private readonly AtomView _atomViewPrefab;
-        private readonly BlockConfig _blockConfig;
+        private readonly BlockManagerConfig _config;
         
         [Inject]
         public AtomFactory(
-            AtomView atomViewPrefab,
-            BlockConfig blockConfig)
+            BlockManagerConfig blockManagerConfig,
+            AtomView atomViewPrefab)
         {
             _atomViewPrefab = atomViewPrefab;
-            _blockConfig = blockConfig;
+            _config = blockManagerConfig;
         }
         
         public AtomModel Current { get; private set; }
@@ -40,7 +40,7 @@ namespace FitMe.Grid
                 instantiateParameters.Value);
             var model = new AtomModel(view);
             var viewModel = new AtomViewModel(model);
-            view.Construct(_blockConfig, viewModel);
+            view.Construct(_config, viewModel);
             Current = model;
             CurrentGameObject = view.gameObject;
             gameObject = CurrentGameObject;

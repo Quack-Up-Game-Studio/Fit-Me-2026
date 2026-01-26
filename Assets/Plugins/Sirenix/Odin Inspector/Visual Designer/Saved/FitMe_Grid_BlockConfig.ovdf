@@ -1,0 +1,48 @@
+OVDF v1.1
+FitMe.Grid.BlockConfig, FitMe.Grid
+MetaGuid:144dfe2ba43a43b69b4c383ee60126b9
+
+# $FLiF72HBxqkYjNfydWufKb
+Position: $root:2
++ [Sirenix.OdinInspector.TitleGroupAttribute]
+	GroupName = "References"
+
+# $32VQXGxQwWKf1RruhZkBGt
+Position: $root:3
++ [Sirenix.OdinInspector.TitleGroupAttribute]
+	GroupName = "Settings"
+
+# $Ct72acdeRfQsPwDFBn1z1u
+Position: $root:4
++ [Sirenix.OdinInspector.TitleGroupAttribute]
+	GroupName = "Animations"
+
+# $Y14fLxa13Bdbb4f3tdESZ3
+Position: $root:5
++ [Sirenix.OdinInspector.TitleGroupAttribute]
+	GroupName = "VFX"
+
+# _skinDictionaryInfo
+Position: "Skins":0
+
+# skeletonDataAsset
+Position: $FLiF72HBxqkYjNfydWufKb:0
+* [Sirenix.OdinInspector.RequiredAttribute]
+	ErrorMessage = ""
+
+# <UseAtomSprite>k__BackingField
+Position: $32VQXGxQwWKf1RruhZkBGt:0
+
+# idleAnimations
+Position: $Ct72acdeRfQsPwDFBn1z1u:0
+- [Sirenix.OdinInspector.TitleAttribute]
+
+# <PickUpAnimation>k__BackingField
+Position: $Ct72acdeRfQsPwDFBn1z1u:1
+
+# <ExplodeAnimation>k__BackingField
+Position: $Ct72acdeRfQsPwDFBn1z1u:2
+
+# _explodeVfx
+Position: $Y14fLxa13Bdbb4f3tdESZ3:0
+- [Sirenix.OdinInspector.TitleAttribute]

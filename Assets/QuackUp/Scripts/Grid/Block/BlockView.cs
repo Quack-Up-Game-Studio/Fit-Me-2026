@@ -5,6 +5,7 @@ using PrimeTween;
 using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
+using Spine.Unity;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VContainer;
@@ -23,75 +24,17 @@ namespace FitMe.Grid
     public class BlockView : SerializedMonoBehaviour, IDisposable, IBlockView, 
         IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
-        // [Serializable]
-        // private record SkinWrapper
-        // {
-        //     [ShowInInspector, Sirenix.OdinInspector.ReadOnly] private SkeletonRenderer _skeletonRenderer;
-        //     [ShowInInspector, Sirenix.OdinInspector.ReadOnly]
-        //     public BlockTypes blockType;
-        //     [SpineSkin(dataField: nameof(_skeletonRenderer))] public string skinName;
-        //     
-        //     public SkinWrapper(SkeletonRenderer skeletonRenderer, BlockTypes blockType, string skinName)
-        //     {
-        //         _skeletonRenderer = skeletonRenderer;
-        //         this.blockType = blockType;
-        //         this.skinName = skinName;
-        //     }
-        // }
         #region Inspectors
-
         [Title("Tween")] 
         [SerializeField] private TweenSettings scaleTweenSettings;
         [SerializeField] private MeshRenderer meshRenderer;
-        //[SerializeField] private SkeletonAnimation skeletonAnimation;
+        [SerializeField] private SkeletonAnimation skeletonAnimation;
         //[SerializeField] private SpriteRenderer infectedSpriteRenderer;
         
         [Title("Settings")]
         [SerializeField] private Color originalColor = Color.white;
         [SerializeField] private float pickUpScaleMultiplier = 1.2f;
         [SerializeField] private Vector2 switchIdleTimeRange = new(30f, 60f);
-        
-        // [Title("Animations")]
-        // [SerializeField, SpineAnimation] string[] idleAnimations;
-        // [SerializeField, SpineAnimation] string pickUpAnimation;
-        // [SerializeField, SpineAnimation] string explodeAnimation;
-        // [SerializeField, SpineAnimation] string preInfectedAnimation;
-        
-        // [TitleGroup("Skins")]
-        // [ShowInInspector, HideLabel]
-        // [DetailedInfoBox("Read Me",
-        //     "Due to a certain limitation of Spine handling of the attributes, the skin selector cannot be drawn under dictionary, " +
-        //     "and has to be deconstructed into a list of SkinWrapper objects.\n" +
-        //     "You can deconstruct the dictionary into a list by clicking the 'Deconstruct' button, " +
-        //     "and then save the changes back to the dictionary by clicking the 'Save Changes' button.",
-        //     InfoMessageType.Warning)]
-        // private InspectorPlaceholder _skinDictionaryInfo;
-        // [TitleGroup("Skins")]
-        // [field: OdinSerialize]
-        // private Dictionary<BlockTypes, string> skinDictionary = new();
-        // [TitleGroup("Skins")]
-        // [SerializeField, HideIf("@deconstructed.Count == 0")] private List<SkinWrapper> deconstructed = new();
-        // [TitleGroup("Skins")]
-        // [Button("Deconstruct")]
-        // private void Deconstruct()
-        // {
-        //     deconstructed = new List<SkinWrapper>();
-        //     foreach (var kvp in skinDictionary)
-        //     {
-        //         deconstructed.Add(new SkinWrapper(skeletonAnimation, kvp.Key, kvp.Value));
-        //     }
-        // }
-        // [TitleGroup("Skins")]
-        // [Button("Save Changes")]
-        // private void SaveChanges()
-        // {
-        //     skinDictionary = new Dictionary<BlockTypes, string>();
-        //     foreach (var wrapper in deconstructed)
-        //     {
-        //         skinDictionary.Add(wrapper.blockType, wrapper.skinName);
-        //     }
-        //     deconstructed.Clear();
-        // }
         #endregion
 
         #region Fields and Properties
@@ -110,7 +53,8 @@ namespace FitMe.Grid
         private IDisposable _switchIdleTimer;
         private CancellationTokenSource _switchIdleCts;
         
-        private BlockConfig _config;
+        private BlockConfig _blockConfig;
+        private BlockManagerConfig _blockManagerConfig;
         private GridManagerConfig _gridConfig;
         private BlockController _blockController;
         private BlockViewModel _viewModel;
@@ -119,12 +63,14 @@ namespace FitMe.Grid
 
         [Inject]
         public void Construct(
-            BlockConfig config,
+            BlockConfig blockConfig,
+            BlockManagerConfig blockManagerConfig,
             GridManagerConfig gridConfig,
             BlockController blockController,
             BlockViewModel viewModel)
         {
-            _config = config;
+            _blockConfig = blockConfig;
+            _blockManagerConfig = blockManagerConfig;
             _gridConfig = gridConfig;
             _blockController = blockController;
             _viewModel = viewModel;
@@ -133,6 +79,7 @@ namespace FitMe.Grid
             _originalRotation = transform.eulerAngles;
             _originalSortingLayer = meshRenderer.sortingLayerID;
             Bind();
+            Initialize();
         }
 
         private void Bind()
@@ -185,45 +132,28 @@ namespace FitMe.Grid
         }
 
         #region Initalization
-        private void Awake()
+        private void Initialize()
         {
-            // if (!skeletonAnimation)
-            // {
-            //     DebugUtils.LogError("SkeletonAnimation is not assigned in BlockView.");
-            //     return;
-            // }
-            // if (!skeletonAnimation.TryGetComponent(out _meshRenderer))
-            // {
-            //     DebugUtils.LogError("MeshRenderer is not found on SkeletonAnimation.");
-            //     return;
-            // }
-            // if (!infectedSpriteRenderer)
-            // {
-            //     DebugUtils.LogWarning("InfectedSpriteRenderer is not assigned in BlockView. Infected state will not be visible.");
-            // }
-            // else
-            // {
-            //     infectedSpriteRenderer.enabled = false;
-            // }
-            //_originalScale = transform.localScale;
-            //skeletonAnimation.AnimationState.SetAnimation(0, idleAnimations[0], true);
-            //StartIdleTimer();
+            skeletonAnimation.skeletonDataAsset = _blockConfig.SkeletonDataAsset;
+            skeletonAnimation.Initialize(true);
+            skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
+            StartIdleTimer();
         }
         #endregion
         
-        // private void StartIdleTimer()
-        // {
-        //     var randomSwitchTime = UnityEngine.Random.Range(switchIdleTimeRange.x, switchIdleTimeRange.y);
-        //     _switchIdleCts = new CancellationTokenSource();
-        //     _switchIdleTimer = Observable.Timer(TimeSpan.FromSeconds(randomSwitchTime), _switchIdleCts.Token)
-        //         .Subscribe(_ =>
-        //         {
-        //             skeletonAnimation.AnimationState.SetAnimation(0, idleAnimations[1], true);
-        //             skeletonAnimation.AnimationState.AddAnimation(0, idleAnimations[0], true, 0f);
-        //             CancelIdleTimer();
-        //             StartIdleTimer();
-        //         });
-        // }
+        private void StartIdleTimer()
+        {
+            var randomSwitchTime = UnityEngine.Random.Range(switchIdleTimeRange.x, switchIdleTimeRange.y);
+            _switchIdleCts = new CancellationTokenSource();
+            _switchIdleTimer = Observable.Timer(TimeSpan.FromSeconds(randomSwitchTime), _switchIdleCts.Token)
+                .Subscribe(_ =>
+                {
+                    skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[1], true);
+                    skeletonAnimation.AnimationState.AddAnimation(0, _blockConfig.IdleAnimations[0], true, 0f);
+                    CancelIdleTimer();
+                    StartIdleTimer();
+                });
+        }
         
         private void CancelIdleTimer()
         {
@@ -242,32 +172,30 @@ namespace FitMe.Grid
                 _transformTween.Stop();
             }
             transform.SetParent(null);
-            //var gridSize = GridManager.Instance.Grid.cellSize;
             var gridSize = _gridConfig.CellSize;
             _pickUpTween = Tween.Scale(transform, gridSize, 0.2f);
             CancelIdleTimer();
             //_pickUpTween = Tween.Scale(transform, _originalScale * pickUpScaleMultiplier, 0.2f);
-            //skeletonAnimation.AnimationState.SetAnimation(0, pickUpAnimation, true);
+            skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.PickUpAnimation, true);
         }
         
         private void Place()
         {
             _pickUpTween.Stop();
             _pickUpTween = Tween.Scale(transform, _originalScale, 0.2f);
-            //skeletonAnimation.AnimationState.SetAnimation(0, idleAnimations[0], true);
-            //StartIdleTimer();
+            skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
+            StartIdleTimer();
         }
         
         public async UniTask Explode(FitType fitType, bool destroy = true)
         {
             DebugUtils.Log($"Block {_blockColor} exploded at position {transform.position}");
             CancelIdleTimer();
-            // var speedMultiplier = fitType == FitType.FitMe ? 2f : 6.67f;
-            // var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, explodeAnimation, false);
-            // explodeAnim.TimeScale *= speedMultiplier;
-            // await explodeAnim.ToUniTask();
-            //await UniTask.WaitUntil(() => skeletonAnimation.AnimationState.GetCurrent(0).IsComplete);
-            if (_config.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
+            var speedMultiplier = fitType == FitType.FitMe ? 2f : 6.67f;
+            var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.ExplodeAnimation, false);
+            explodeAnim.TimeScale *= speedMultiplier;
+            await explodeAnim.WaitUntilComplete(); 
+            if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
             {
                 var vfxInstance = Instantiate(vfx, transform.position, Quaternion.identity);
                 vfxInstance.Play(true);
@@ -282,32 +210,24 @@ namespace FitMe.Grid
         private void OnSetSortingLayer(int layer)
         {
             meshRenderer.sortingLayerID = layer;
-            // if (infectedSpriteRenderer)
-            // {
-            //     infectedSpriteRenderer.sortingLayerID = layer;
-            // }
         }
 
         private void OnSetSortingOrder(int order)
         {
             meshRenderer.sortingOrder = order;
-            // if (infectedSpriteRenderer)
-            // {
-            //     infectedSpriteRenderer.sortingOrder = order;
-            // }
         }
 
         private void OnBlockTypeChanged(BlockColor color)
         {
             _blockColor = color;
-            // if (!skinDictionary.TryGetValue(type, out var skin))
-            // {
-            //     DebugUtils.LogWarning($"No skin found for block type: {type}");
-            //      return;
-            // }
-            //
-            // skeletonAnimation.Skeleton.SetSkin(skin);
-            // skeletonAnimation.Skeleton.SetSlotsToSetupPose();
+            if (!_blockConfig.SkinDictionary.TryGetValue(color, out var skin))
+            {
+                DebugUtils.LogWarning($"No skin found for block type: {color}");
+                return;
+            }
+            
+            skeletonAnimation.Skeleton.SetSkin(skin);
+            skeletonAnimation.Skeleton.SetSlotsToSetupPose();
         }
 
         /// <summary>

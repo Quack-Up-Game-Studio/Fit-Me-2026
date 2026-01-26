@@ -154,7 +154,7 @@ namespace FitMe.Grid
             
             var tempBag = new List<SpawnBlockData>();
 
-            foreach (var pair in _config.BagSetting)
+            foreach (var pair in _config.BagSettings)
             {
                 var shape = pair.Key;
                 var count = pair.Value;
@@ -174,8 +174,8 @@ namespace FitMe.Grid
                 var possibleSchemas = preset.BlockSchemas;
                 for (int i = 0; i < count; i++)
                 {
-                    var template = shuffledTemplates[UnityEngine.Random.Range(0, shuffledTemplates.Count)];
-                    var randomSchema = possibleSchemas[UnityEngine.Random.Range(0, possibleSchemas.Count)];
+                    var template = shuffledTemplates[Random.Range(0, shuffledTemplates.Count)];
+                    var randomSchema = possibleSchemas[Random.Range(0, possibleSchemas.Count)];
 
                     tempBag.Add(new SpawnBlockData(shape, randomSchema, template.blockColor));
                 }

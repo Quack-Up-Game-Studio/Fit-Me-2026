@@ -76,6 +76,7 @@ namespace FitMe.Grid
         /// Use <see cref="ChangeType"/> to change the block type.
         /// </remarks>
         public ReadOnlyReactiveProperty<BlockColor> BlockType => _blockType.ToReadOnlyReactiveProperty();
+        public BlockConfig Config => _config;
         public BlockShape BlockShape { get; private set; }
         public List<AtomModel> Atoms { get; private set; } = new(); 
         public BlockPreset BlockPreset { get; private set; }
