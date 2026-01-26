@@ -183,301 +183,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &63600348
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 63600346}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18824562f40a4bd1a6fe042c6b102047, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.GridLifetimeScope
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  serializationData:
-    SerializedFormat: 2
-    SerializedBytes: 
-    ReferencedUnityObjects:
-    - {fileID: 519420031}
-    - {fileID: 1972785288}
-    - {fileID: 63600349}
-    - {fileID: 11400000, guid: 2901fce5d49fc09e2a88bd486db8a887, type: 2}
-    - {fileID: -542450385761551189, guid: c42996438b84a822ea388d4ea6645519, type: 3}
-    - {fileID: 63600347}
-    - {fileID: 63600350}
-    - {fileID: 11400000, guid: 911c5c0be2fc1510ca0e1b75da98a018, type: 2}
-    - {fileID: 11400000, guid: 7b03f086f57bd8ab58f33086006b3fce, type: 2}
-    - {fileID: 1775199596}
-    - {fileID: 1440182162}
-    - {fileID: 886192881}
-    - {fileID: 39704463}
-    - {fileID: 3250103234959496707, guid: 3af28059722596ef59c7c7148103f476, type: 3}
-    - {fileID: 7436585757268251111, guid: 2ecba2ad996a9b9678ae48b0bd59b3c5, type: 3}
-    SerializedBytesString: 
-    Prefab: {fileID: 0}
-    PrefabModificationsReferencedUnityObjects: []
-    PrefabModifications: []
-    SerializationNodes:
-    - Name: installers
-      Entry: 7
-      Data: 0|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 3
-    - Name: 
-      Entry: 7
-      Data: 1|QuackUp.Input.PointerHandlerInstaller, QuackUp.Input
-    - Name: camera
-      Entry: 10
-      Data: 0
-    - Name: canvas
-      Entry: 10
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 2|FitMe.Grid.GridManagerInstaller, FitMe.Grid
-    - Name: grid
-      Entry: 10
-      Data: 2
-    - Name: gridManagerConfig
-      Entry: 10
-      Data: 3
-    - Name: cellViewPrefab
-      Entry: 10
-      Data: 4
-    - Name: cellParent
-      Entry: 10
-      Data: 5
-    - Name: gridPreview
-      Entry: 10
-      Data: 6
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 3|FitMe.Grid.BlockManagerInstaller, FitMe.Grid
-    - Name: blockManagerConfig
-      Entry: 10
-      Data: 7
-    - Name: blockConfig
-      Entry: 10
-      Data: 8
-    - Name: spawnPoints
-      Entry: 7
-      Data: 4|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
-    - Name: 
-      Entry: 12
-      Data: 3
-    - Name: 
-      Entry: 7
-      Data: 5|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
-    - Name: <Transform>k__BackingField
-      Entry: 10
-      Data: 9
-    - Name: <IsFree>k__BackingField
-      Entry: 5
-      Data: true
-    - Name: <CurrentBlock>k__BackingField
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 6|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
-    - Name: <Transform>k__BackingField
-      Entry: 10
-      Data: 10
-    - Name: <IsFree>k__BackingField
-      Entry: 5
-      Data: true
-    - Name: <CurrentBlock>k__BackingField
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 7|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
-    - Name: <Transform>k__BackingField
-      Entry: 10
-      Data: 11
-    - Name: <IsFree>k__BackingField
-      Entry: 5
-      Data: true
-    - Name: <CurrentBlock>k__BackingField
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: previewSpawnPoint
-      Entry: 10
-      Data: 12
-    - Name: atomViewPrefab
-      Entry: 10
-      Data: 13
-    - Name: blockViewDictionary
-      Entry: 7
-      Data: 8|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockShape, FitMe.Grid],[FitMe.Grid.BlockView,
-        FitMe.Grid]], mscorlib
-    - Name: comparer
-      Entry: 7
-      Data: 9|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Grid.BlockShape,
-        FitMe.Grid]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 12
-      Data: 9
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 0
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 1
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 2
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 3
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 4
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 5
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 6
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 7
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 8
-    - Name: $v
-      Entry: 10
-      Data: 14
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
 --- !u!156049354 &63600349
 Grid:
   m_ObjectHideFlags: 0
@@ -774,7 +479,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1049733792}
+  - {fileID: 6352930521165609301}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &619394800
@@ -1076,10 +781,11 @@ MonoBehaviour:
     - {fileID: 1775199596}
     - {fileID: 1440182162}
     - {fileID: 886192881}
+    - {fileID: 39704463}
     - {fileID: 3250103234959496707, guid: 3af28059722596ef59c7c7148103f476, type: 3}
     - {fileID: 7436585757268251111, guid: 2ecba2ad996a9b9678ae48b0bd59b3c5, type: 3}
     - {fileID: 11400000, guid: 435618e78deacc0efb1c066bcac25454, type: 2}
-    - {fileID: 1049733793}
+    - {fileID: 6352930521165609302}
     - {fileID: 11400000, guid: ed3e169d3c6dfe879aaab6b115a799d4, type: 2}
     SerializedBytesString: 
     Prefab: {fileID: 0}
@@ -1192,9 +898,12 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: atomViewPrefab
+    - Name: previewSpawnPoint
       Entry: 10
       Data: 12
+    - Name: atomViewPrefab
+      Entry: 10
+      Data: 13
     - Name: blockViewDictionary
       Entry: 7
       Data: 8|System.Collections.Generic.Dictionary`2[[FitMe.Grid.BlockShape, FitMe.Grid],[FitMe.Grid.BlockView,
@@ -1223,7 +932,7 @@ MonoBehaviour:
       Data: 0
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -1235,7 +944,7 @@ MonoBehaviour:
       Data: 1
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -1247,7 +956,7 @@ MonoBehaviour:
       Data: 2
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -1259,7 +968,7 @@ MonoBehaviour:
       Data: 3
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -1271,7 +980,7 @@ MonoBehaviour:
       Data: 4
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -1283,7 +992,7 @@ MonoBehaviour:
       Data: 5
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -1295,7 +1004,7 @@ MonoBehaviour:
       Data: 6
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -1307,7 +1016,7 @@ MonoBehaviour:
       Data: 7
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -1319,7 +1028,7 @@ MonoBehaviour:
       Data: 8
     - Name: $v
       Entry: 10
-      Data: 13
+      Data: 14
     - Name: 
       Entry: 8
       Data: 
@@ -1337,7 +1046,7 @@ MonoBehaviour:
       Data: 10|FitMe.Entity.EntityManagerInstaller, FitMe.Entity
     - Name: entityManagerConfig
       Entry: 10
-      Data: 14
+      Data: 15
     - Name: sceneEntity
       Entry: 7
       Data: 11|System.Collections.Generic.List`1[[FitMe.Entity.IEntityLifetimeScope,
@@ -1347,7 +1056,7 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 10
-      Data: 15
+      Data: 16
     - Name: 
       Entry: 13
       Data: 
@@ -1362,7 +1071,7 @@ MonoBehaviour:
       Data: 12|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
     - Name: levelManagerConfig
       Entry: 10
-      Data: 16
+      Data: 17
     - Name: 
       Entry: 8
       Data: 
@@ -1734,6 +1443,22 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d062271bd18399ea985f07baf37eccb3, type: 3}
+--- !u!4 &6352930521165609301 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8429253470807467021, guid: d062271bd18399ea985f07baf37eccb3, type: 3}
+  m_PrefabInstance: {fileID: 6352930521165609300}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6352930521165609302 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4763718340282848043, guid: d062271bd18399ea985f07baf37eccb3, type: 3}
+  m_PrefabInstance: {fileID: 6352930521165609300}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3715c75b57fc4a73a2fda696c6981bba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FitMe.Entity::FitMe.Entity.PlayerLifetimeScope
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1746,3 +1471,4 @@ SceneRoots:
   - {fileID: 103073015}
   - {fileID: 1949753171}
   - {fileID: 1081198250}
+  - {fileID: 593285031}
