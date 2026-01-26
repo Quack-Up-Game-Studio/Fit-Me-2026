@@ -76,8 +76,8 @@ namespace FitMe.Grid
 
     public struct FitTypeEvent
     {
-        public FitType FitType;
-        public BlockModel Block;
+        public readonly FitType FitType;
+        public readonly BlockModel Block;
         public FitTypeEvent(FitType fitType, BlockModel block)
         {
             FitType = fitType;

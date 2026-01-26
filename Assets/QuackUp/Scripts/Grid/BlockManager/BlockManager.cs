@@ -6,6 +6,7 @@ using FitMe.Shared;
 using MessagePipe;
 using PrimeTween;
 using QuackUp.SceneManagement;
+using QuackUp.Utils;
 using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
@@ -17,16 +18,7 @@ using Random = UnityEngine.Random;
 
 namespace FitMe.Grid
 {
-    public struct StartSpawnEvent
-    {
-        public readonly BlockPreset blockPreset;
-        
-        public StartSpawnEvent(BlockPreset blockPreset = null)
-        {
-            this.blockPreset = blockPreset;
-        }
-    }
-    public class BlockManager : IDisposable, IStartable
+    public class BlockManager : IDisposable
     {
         #region Data Structures
         [Serializable]
@@ -79,7 +71,7 @@ namespace FitMe.Grid
         private readonly Transform _previewTransform;
         private readonly BlockManagerConfig _config;
         private readonly BlockFactory _blockFactory;
-        private readonly ISubscriber<StartSpawnEvent> _startSpawnSubscription;
+        private readonly IMessageHub _messageHub;
         
         private IDisposable _subscriptions;
         #endregion
@@ -91,22 +83,22 @@ namespace FitMe.Grid
             [Key(PreviewTransformKey)] Transform previewTransform,
             SpawnPointData[] spawnPoints,
             BlockFactory blockFactory,
-            ISubscriber<StartSpawnEvent> startSpawnSubscription)
+            [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub)
         {
             _gridManager = gridManager;
             _config = config;
             _spawnPoints = spawnPoints;
             _previewTransform = previewTransform;
             _blockFactory = blockFactory;
-            _startSpawnSubscription = startSpawnSubscription;
+            _messageHub = messageHub;
             Subscribe();
         }
 
         private void Subscribe()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _startSpawnSubscription
-                .Subscribe(OnSpawnAtStart)
+            _messageHub
+                .Subscribe<StartSpawnEvent>(OnSpawnAtStart)
                 .AddTo(ref disposableBuilder);
             _gridManager.OnFitCheck
                 .Subscribe(OnFitCheck)
@@ -121,19 +113,14 @@ namespace FitMe.Grid
 
         #region Events
 
-        public void Start()
-        {
-            OnSpawnAtStart(new StartSpawnEvent());
-        }
-
         private void OnSpawnAtStart(StartSpawnEvent eventData)
         {
             CreatePool();
             _spawnPoints.ForEach(FreeSpawnPoint);
-            if (!eventData.blockPreset)
+            if (!eventData.BlockPreset)
                 SpawnRandomBlock();
             else
-                SpawnBlock(eventData.blockPreset);
+                SpawnBlock(eventData.BlockPreset);
         }
 
         private void OnFitCheck(FitTypeEvent eventData)
@@ -233,7 +220,7 @@ namespace FitMe.Grid
                 spawnedBlocks.Add(block);
             }
             if (spawnedBlocks.Count > 0)
-                OnBlockSpawned?.Invoke(spawnedBlocks);
+                _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
             PreviewNextQueue();
             Debug.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
         }
@@ -277,7 +264,7 @@ namespace FitMe.Grid
             _spawnPoints[0].CurrentBlock = block;
             spawnedBlocks.Add(block);
             if (spawnedBlocks.Count > 0)
-                OnBlockSpawned?.Invoke(spawnedBlocks);
+                _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
         }
         
         /// <summary>
@@ -409,7 +396,8 @@ namespace FitMe.Grid
             List<BlockModel> blockToCheck = _spawnPoints.Where(x => !x.IsFree).Select(spawnPoint => spawnPoint.CurrentBlock).ToList();
             if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
-                OnGameOver?.Invoke();
+                _gridManager.CreateVacantSchema(out _, out var vacantCount);
+                _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));
                 await _gridManager.RemoveAllBlocks(true);
             }
         }

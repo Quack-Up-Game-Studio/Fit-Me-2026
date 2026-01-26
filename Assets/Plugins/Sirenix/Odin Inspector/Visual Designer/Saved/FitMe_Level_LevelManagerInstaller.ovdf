@@ -1,0 +1,10 @@
+OVDF v1.1
+FitMe.Level.LevelManagerInstaller, FitMe.Level
+
+# _title
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Level Manager"
+
+# levelManagerConfig
++ [Sirenix.OdinInspector.RequiredAttribute]
