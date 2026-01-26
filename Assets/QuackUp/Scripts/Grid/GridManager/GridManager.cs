@@ -84,6 +84,20 @@ namespace FitMe.Grid
             Block = block;
         }
     }
+
+    public struct ScoreEvent
+    {
+        public readonly ScoreTypes ScoreType;
+        public readonly int ContactCount;
+        public readonly Vector3 WorldPosition;
+        
+        public ScoreEvent(ScoreTypes scoreType, int contactCount = 0, Vector3 worldPosition = default)
+        {
+            ScoreType = scoreType;
+            ContactCount = contactCount;
+            WorldPosition = worldPosition;
+        }
+    }
     
     [ShowOdinSerializedPropertiesInInspector]
     public class GridManager : IDisposable
@@ -116,8 +130,10 @@ namespace FitMe.Grid
         [Button("Test Fit-me")]
         private void TestFitMe()
         {
-            OnScoreAdded?.Invoke(ScoreTypes.FitMe, worldPosition: _grid.GetGridCenter(CurrentGridSize, CurrentOffset));
-            OnNextGameDifficulty?.Invoke();
+            OnScoreAdded.OnNext(new
+            (ScoreTypes.FitMe, 
+                0, 
+                _grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
         }
         #endregion
 
@@ -126,13 +142,11 @@ namespace FitMe.Grid
         private List<CellModel> _previousValidationCells = new();
         private readonly ObservableList<GridBlockData> _blockOnGrid = new();
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
-        public event Action<BlockModel> OnBlockStateChanged;
-        public event Action<BlockModel> OnBlockPlaced;
-        public event Action<BlockModel> OnBlockDestroyed;
-        public delegate void ScoreAdded(ScoreTypes scoreTypes, int contactCount = 0, Vector3 worldPosition = default);
-        public event ScoreAdded OnScoreAdded;
+        // public event Action<BlockModel> OnBlockStateChanged;
+        // public event Action<BlockModel> OnBlockPlaced;
+        // public event Action<BlockModel> OnBlockDestroyed;
+        public Subject<ScoreEvent> OnScoreAdded = new();
         public Subject<FitTypeEvent> OnFitCheck = new();
-        public event Action OnNextGameDifficulty;
         private int _currentPresetIndex;
         public SceneType CurrentSceneType { get; private set; }
         #endregion
@@ -166,6 +180,8 @@ namespace FitMe.Grid
 
         public void Dispose()
         {
+            OnScoreAdded.Dispose();
+            OnFitCheck.Dispose();
             _subscriptions.Dispose();
             _blockOnGrid.ForEach(x => x.Subscription?.Dispose());
         }
@@ -174,7 +190,7 @@ namespace FitMe.Grid
 
         private void OnFinishedLoading(SceneType sceneType)
         {
-            Debug.Log("GridManager: OnFinishedLoading " + sceneType);
+            DebugUtils.Log("GridManager: OnFinishedLoading " + sceneType);
             CurrentSceneType = sceneType;
             switch (sceneType)
             {
@@ -308,7 +324,7 @@ namespace FitMe.Grid
             var bridgeIndices = new int[columnCount];
             if (validRanges.Count == 0)
             {
-                Debug.LogWarning("No valid ranges found, creating a full bridge.");
+                DebugUtils.LogWarning("No valid ranges found, creating a full bridge.");
                 for (var i = 0; i < columnCount; i++)
                 {
                     bridgeIndices[i] = 1;
@@ -317,7 +333,7 @@ namespace FitMe.Grid
             }
             foreach (var range in validRanges)
             {
-                Debug.Log($"Adding bridge from {range.start} to {range.end}");
+                DebugUtils.Log($"Adding bridge from {range.start} to {range.end}");
                 for (var i = range.start; i <= range.end; i++)
                 {
                     bridgeIndices[i] = 1;
@@ -328,7 +344,7 @@ namespace FitMe.Grid
         
         public void RegenerateGrid()
         {
-            Debug.Log("Regenerating grid...");
+            DebugUtils.Log("Regenerating grid...");
             ResetPreviousValidationCells();
             foreach (var cell in _cellArray)
             {
@@ -454,14 +470,14 @@ namespace FitMe.Grid
             var subscription = blockModel.UpdateGridRequested
                 .Subscribe(_ => UpdateBlockOnGrid(blockModel));
             _blockOnGrid.Add(new(blockModel, subscription));
-            OnScoreAdded?.Invoke(ScoreTypes.Placement, worldPosition: blockViewTransform.position);
+            OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockViewTransform.position));
             //blockModel.BlockInteractionState.Value = BlockInteractionState.Placed;
             blockModel.BlockView.SetParent(_grid.transform);
             //blockView.ResetSortingLayer();
             ReorderRenderingOrder();
             var fit = UpdateBlockOnGrid(blockModel);
             OnFitCheck?.OnNext(new FitTypeEvent(fit, blockModel));
-            OnBlockPlaced?.Invoke(blockModel);
+            //OnBlockPlaced?.Invoke(blockModel);
             return true;
         }
         
@@ -494,8 +510,7 @@ namespace FitMe.Grid
                 _blockOnGrid.Select(x => (x.Block.BlockState, x.Block.BlockType.CurrentValue)).ToList();
             await ClearGrid();
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
-            OnScoreAdded?.Invoke(ScoreTypes.FitMe, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset));
-            OnNextGameDifficulty?.Invoke();
+            OnScoreAdded.OnNext(new(ScoreTypes.FitMe, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
             RegenerateGrid();
         }
 
@@ -509,8 +524,8 @@ namespace FitMe.Grid
             var gridBlockData = _blockOnGrid.Where(x => contacts.Contains(x.Block)).ToList();
             //await UniTask.WhenAll(gridBlockData.Select(block => RemoveBlock(block, FitType.Combo, true)));
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.Combo, blocksToSave);
-            OnScoreAdded?.Invoke(ScoreTypes.Combo, contacts.Count, middleOfBlocks);
-            OnScoreAdded?.Invoke(ScoreTypes.Bomb, contacts.Count, middleOfBlocks);
+            OnScoreAdded.OnNext(new(ScoreTypes.Combo, contacts.Count, middleOfBlocks));
+            OnScoreAdded.OnNext(new(ScoreTypes.Bomb, contacts.Count, middleOfBlocks));
             //BlockManager.Instance.GameOverCheck().Forget();
         }
 
@@ -519,7 +534,7 @@ namespace FitMe.Grid
             var gridBlockData = _blockOnGrid.FirstOrDefault(x => x.Block == blockModel);
             if (gridBlockData == null)
             {
-                Debug.LogWarning("Block not found on grid");
+                DebugUtils.LogWarning("Block not found on grid");
                 return;
             }
             await RemoveBlock(gridBlockData, fitType, destroy);
@@ -533,7 +548,7 @@ namespace FitMe.Grid
         public async UniTask RemoveBlock(GridBlockData gridBlockData, FitType fitType, bool destroy = false)
         {
             _blockOnGrid.Remove(gridBlockData);
-            OnBlockDestroyed?.Invoke(gridBlockData.Block);
+            //OnBlockDestroyed?.Invoke(gridBlockData.Block);
             var atoms = new List<AtomModel>(gridBlockData.Block.Atoms);
             if (CurrentSceneType is SceneType.Gameplay)
             {
@@ -678,10 +693,10 @@ namespace FitMe.Grid
                     availableBlocks.Add(block);
                     break;
                 }
-                //Debug.Log("Block " + blockView.name + " cannot be placed");
+                //DebugUtils.Log("Block " + blockView.name + " cannot be placed");
             }
             if (availableBlocks.Count != 0) return true;
-            Debug.Log("No blocks can be placed");
+            DebugUtils.Log("No blocks can be placed");
             return false;
         }
         
@@ -697,7 +712,7 @@ namespace FitMe.Grid
             if (schemaIndex >= 0 && schemaIndex < blockModel.BlockPreset.BlockSchemas.Count)
                 return ArrayHelper.CanBFitInA(_vacantSchema, blockModel.BlockPreset.BlockSchemas[schemaIndex].schema,
                     out _);
-            Debug.LogError("Invalid schema index: " + schemaIndex);
+            DebugUtils.LogError("Invalid schema index: " + schemaIndex);
             return false;
         }
         #endregion

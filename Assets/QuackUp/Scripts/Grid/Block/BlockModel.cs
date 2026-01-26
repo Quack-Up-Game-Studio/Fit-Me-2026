@@ -114,7 +114,7 @@ namespace FitMe.Grid
                     var spawnPosX = -column / 2f + 0.5f + y; //0
                     var spawnPosY = row / 2f - 0.5f - x;
                     var spawnPosition = new Vector3(spawnPosX, spawnPosY, 0);
-                    //Debug.Log("Spawning atom at: " + spawnPosition);
+                    //DebugUtils.Log("Spawning atom at: " + spawnPosition);
                     var atom = _atomFactory.Create(spawnPosition, Quaternion.identity, out _, new InstantiateParameters
                     {
                         worldSpace = false,

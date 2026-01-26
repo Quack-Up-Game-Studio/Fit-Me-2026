@@ -31,7 +31,7 @@ namespace FitMe.Scene
             _entityManager.TryCreateEntity<PlayerEntity>(EntityType.Player, out _, out _);
             _entityManager.TryGetEntityOfType<PlayerEntity>(out var player);
             player.TryGetComponent<HealthComponent>(out var healthComponent);
-            Debug.Log($"Player current health: {healthComponent.CurrentHealth.Value}");
+            DebugUtils.Log($"Player current health: {healthComponent.CurrentHealth.Value}");
         }
     }
 }

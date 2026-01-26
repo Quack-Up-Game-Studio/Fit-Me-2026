@@ -62,8 +62,8 @@ namespace FitMe.Grid
         public static event Action OnGameOver;
         public static event Action<List<BlockModel>> OnBlockSpawned;
         
-        private readonly Queue<SpawnBlockData> _spawnBag = new Queue<SpawnBlockData>();
-        private List<SpawnBlockData> _blockPool = new List<SpawnBlockData>();
+        private readonly Queue<SpawnBlockData> _spawnBag = new();
+        private readonly List<SpawnBlockData> _blockPool = new();
         private BlockModel _currentPreviewBlock;
         
         private readonly GridManager _gridManager;
@@ -167,7 +167,7 @@ namespace FitMe.Grid
         
                 if (shuffledTemplates.Count == 0)
                 {
-                    Debug.LogWarning($"Yuirin: Can't find Template for Shape {shape} in Pool!");
+                    DebugUtils.LogWarning($"Yuirin: Can't find Template for Shape {shape} in Pool!");
                     continue;
                 }
 
@@ -185,7 +185,7 @@ namespace FitMe.Grid
             {
                 _spawnBag.Enqueue(data);
             }
-            Debug.Log($"Yuirin: Bag Refilled from Pool! Total {_spawnBag.Count} items.");
+            DebugUtils.Log($"Yuirin: Bag Refilled from Pool! Total {_spawnBag.Count} items.");
         }
         
         /// <summary>
@@ -211,7 +211,7 @@ namespace FitMe.Grid
                 var randomSchema = _spawnBag.Dequeue();
                 var index = Random.Range(0, 4);
                 int randomRotation = index * 90;
-                Debug.Log("Random Rotation: " + randomRotation);
+                DebugUtils.Log("Random Rotation: " + randomRotation);
                 Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
                 var block = InstantiateBlock(spawnTransform, randomRotationQuaternion, randomSchema, randomSchema.blockColor, _config.ObjectScale);
                 block.SpawnIndex = i;
@@ -222,7 +222,7 @@ namespace FitMe.Grid
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
             PreviewNextQueue();
-            Debug.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
+            DebugUtils.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
         }
 
         private BlockModel InstantiateBlock(Transform spawnTransform, Quaternion rotation, SpawnBlockData randomSchema, BlockColor color, float objectScale)

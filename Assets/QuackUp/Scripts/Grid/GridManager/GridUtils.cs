@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using QuackUp.Utils;
 using Redcode.Extensions;
 using UnityEngine;
 
@@ -69,7 +70,7 @@ namespace FitMe.Grid
                 : new List<int> { Mathf.FloorToInt(row / 2f) };
             List<Vector2Int> centerCells = (from x in centerRows from y in centerColumn 
                 select ArrayToGridIndex(new Vector2Int(y, x), currentOffset)).ToList();
-            Debug.Log("Center Cells: " + string.Join(", ", centerCells.Select(c => c.ToString())));
+            DebugUtils.Log("Center Cells: " + string.Join(", ", centerCells.Select(c => c.ToString())));
             List<Bounds> centerCellBounds = centerCells.Select(grid.GetCellBounds).ToList();
             var center = centerCellBounds.Aggregate(Vector3.zero, (current, bounds) => current + bounds.center) 
                          / centerCellBounds.Count;

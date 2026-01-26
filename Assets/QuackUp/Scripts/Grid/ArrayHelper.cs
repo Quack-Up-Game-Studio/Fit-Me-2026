@@ -1,4 +1,5 @@
 using System;
+using QuackUp.Utils;
 using UnityEngine;
 
 namespace FitMe.Grid
@@ -16,7 +17,7 @@ namespace FitMe.Grid
                 }
                 schemaString += "\n";
             }
-            Debug.Log(schemaString);
+            DebugUtils.Log(schemaString);
         }
     
         public static int[,] Rotate90(int[,] array)

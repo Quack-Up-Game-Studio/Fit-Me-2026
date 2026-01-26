@@ -76,7 +76,7 @@ namespace FitMe.Grid
         {
             if (!_config.AtomColorDict.TryGetValue(color, out var spriteColor))
             {
-                Debug.LogError($"BlockType.CurrentValue {color} is not defined");
+                DebugUtils.LogError($"BlockType.CurrentValue {color} is not defined");
             }
             spriteRenderer.color = spriteColor;
         }

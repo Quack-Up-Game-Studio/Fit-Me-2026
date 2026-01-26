@@ -189,17 +189,17 @@ namespace FitMe.Grid
         {
             // if (!skeletonAnimation)
             // {
-            //     Debug.LogError("SkeletonAnimation is not assigned in BlockView.");
+            //     DebugUtils.LogError("SkeletonAnimation is not assigned in BlockView.");
             //     return;
             // }
             // if (!skeletonAnimation.TryGetComponent(out _meshRenderer))
             // {
-            //     Debug.LogError("MeshRenderer is not found on SkeletonAnimation.");
+            //     DebugUtils.LogError("MeshRenderer is not found on SkeletonAnimation.");
             //     return;
             // }
             // if (!infectedSpriteRenderer)
             // {
-            //     Debug.LogWarning("InfectedSpriteRenderer is not assigned in BlockView. Infected state will not be visible.");
+            //     DebugUtils.LogWarning("InfectedSpriteRenderer is not assigned in BlockView. Infected state will not be visible.");
             // }
             // else
             // {
@@ -236,7 +236,7 @@ namespace FitMe.Grid
 
         private void PickUp()
         {
-            Debug.Log("Block picked up");
+            DebugUtils.Log("Block picked up");
             if (_transformTween.isAlive)
             {
                 _transformTween.Stop();
@@ -260,7 +260,7 @@ namespace FitMe.Grid
         
         public async UniTask Explode(FitType fitType, bool destroy = true)
         {
-            Debug.Log($"Block {_blockColor} exploded at position {transform.position}");
+            DebugUtils.Log($"Block {_blockColor} exploded at position {transform.position}");
             CancelIdleTimer();
             // var speedMultiplier = fitType == FitType.FitMe ? 2f : 6.67f;
             // var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, explodeAnimation, false);
@@ -274,7 +274,7 @@ namespace FitMe.Grid
             }
             else
             {
-                Debug.LogWarning($"No explosion VFX found for block type: {_blockColor}");
+                DebugUtils.LogWarning($"No explosion VFX found for block type: {_blockColor}");
             }
             if (destroy) Destroy(gameObject);
         }
@@ -302,7 +302,7 @@ namespace FitMe.Grid
             _blockColor = color;
             // if (!skinDictionary.TryGetValue(type, out var skin))
             // {
-            //     Debug.LogWarning($"No skin found for block type: {type}");
+            //     DebugUtils.LogWarning($"No skin found for block type: {type}");
             //      return;
             // }
             //
