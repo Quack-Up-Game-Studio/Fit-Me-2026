@@ -5,11 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="41d03079-9c3e-4543-9387-fb394932fb26" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Demos/Custom Attribute Processors.unitypackage.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Demos/Custom Drawers.unitypackage.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Demos/Editor Windows.unitypackage.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Demos/Sample - RPG Editor.unitypackage.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/FitMe.Scene.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/FitMe.Scene.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerConfig.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerInstaller.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,30 +24,30 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 7
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="38dh4dY93yGW6FFJ0OKXjDi3Xjq" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "BagSystem",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Dev&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.3.3f1\Editor\Unity.exe" />
@@ -108,6 +113,8 @@
       <option name="presentableId" value="Default" />
       <updated>1769135173155</updated>
       <workItem from="1769135194121" duration="14911000" />
+      <workItem from="1769401722155" duration="10481000" />
+      <workItem from="1769483068772" duration="1236000" />
     </task>
     <servers />
   </component>

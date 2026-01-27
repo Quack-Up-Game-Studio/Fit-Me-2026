@@ -1,4 +1,5 @@
 using System;
+using FitMe.Scene.UI.Score;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace FitMe.Scene
     {
         [ShowInInspector] private InspectorPlaceholder _title;
         [SerializeField] private LevelManagerConfig levelManagerConfig;
-        
+            
         public void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(levelManagerConfig);

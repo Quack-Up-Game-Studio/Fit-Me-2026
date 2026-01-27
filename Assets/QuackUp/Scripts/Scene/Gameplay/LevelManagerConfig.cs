@@ -7,6 +7,15 @@ namespace FitMe.Scene
     [ShowOdinSerializedPropertiesInInspector]
     public class LevelManagerConfig : SerializedScriptableObject
     {
-        
+        [TabGroup("Settings", "Score")]
+        [SerializeField] public int scorePerPlacement = 100;
+        [TabGroup("Settings", "Score")]
+        [SerializeField] public int scorePerPreInfect = 50;
+        [TabGroup("Settings", "Score")]
+        [SerializeField] public int scorePerCombo = 100;
+        [TabGroup("Settings", "Score")]
+        [SerializeField] public int scorePerBomb = 200;
+        [TabGroup("Settings", "Score")]
+        [SerializeField] public int scorePerFitMe = 10000;
     }
 }
