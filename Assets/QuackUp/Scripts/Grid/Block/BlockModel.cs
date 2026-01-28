@@ -61,12 +61,10 @@ namespace FitMe.Grid
         [Inject]
         public BlockModel(
             BlockConfig config,
-            AtomFactory atomFactory,
-            IBlockView blockView)
+            AtomFactory atomFactory)
         {
             _config = config;
             _atomFactory = atomFactory;
-            BlockView = blockView;
         }
         
         #region Inspectors
@@ -85,7 +83,7 @@ namespace FitMe.Grid
         public List<CellModel> BlockCells { get; set; }
         public int SpawnIndex { get; set; }
         public int RotationalIndex { get; set; }
-        public IBlockView BlockView { get; private set; }
+        public IBlockView BlockView { get; internal set; }
         public IBlockController BlockController { get; internal set; }
         
         public ReactiveCommand<int> SetSortingLayerCommand { get; private set; } = new();

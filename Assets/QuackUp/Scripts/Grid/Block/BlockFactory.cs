@@ -60,7 +60,8 @@ namespace FitMe.Grid
             };
             var view = Object.Instantiate(_blockViewPrefab, position, rotation,
                 instantiateParameters.Value);
-            var model = new BlockModel(blockConfig, _atomFactory, view);
+            var model = new BlockModel(blockConfig, _atomFactory);
+            model.BlockView = view;
             model.GenerateAtom(blockShape, blockPreset);
             var viewModel = new BlockViewModel(model);
             var controller = new BlockController(
@@ -75,6 +76,7 @@ namespace FitMe.Grid
                 _gridConfig, 
                 controller, 
                 viewModel);
+            model.SetSortingLayerCommand.Execute(_blockManagerConfig.SpawnSortingLayer);
             Current = model;
             CurrentGameObject = view.gameObject;
             gameObject = CurrentGameObject;

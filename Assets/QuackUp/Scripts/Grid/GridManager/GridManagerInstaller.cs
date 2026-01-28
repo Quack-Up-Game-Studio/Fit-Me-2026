@@ -11,6 +11,7 @@ namespace FitMe.Grid
         [SerializeField] private UnityEngine.Grid grid;
         [SerializeField] private GridManagerConfig gridManagerConfig;
         
+        [SerializeField] private CellConfig cellConfig;
         [SerializeField] private CellView cellViewPrefab;
         [SerializeField] private Transform cellParent;
         [SerializeField] private GridPreview gridPreview;
@@ -22,6 +23,7 @@ namespace FitMe.Grid
             builder.RegisterInstance(gridManagerConfig);
             
             //Cell
+            builder.RegisterInstance(cellConfig);
             builder.RegisterInstance(cellViewPrefab);
             builder.RegisterInstance(cellParent).Keyed(CellFactory.CellParentKey);
             builder.Register<CellFactory>(Lifetime.Scoped);

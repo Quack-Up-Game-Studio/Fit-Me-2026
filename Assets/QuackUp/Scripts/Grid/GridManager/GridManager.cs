@@ -471,7 +471,7 @@ namespace FitMe.Grid
                 .Subscribe(_ => UpdateBlockOnGrid(blockModel));
             _blockOnGrid.Add(new(blockModel, subscription));
             OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockViewTransform.position));
-            //blockModel.BlockInteractionState.Value = BlockInteractionState.Placed;
+            blockModel.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
             blockModel.BlockView.SetParent(_grid.transform);
             //blockView.ResetSortingLayer();
             ReorderRenderingOrder();

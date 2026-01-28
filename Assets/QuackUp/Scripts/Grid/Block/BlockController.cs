@@ -128,7 +128,7 @@ namespace FitMe.Grid
             var placed = _gridManager.TryPlaceBlock(_model);
             if (placed)
             {
-                _model.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
+                //_model.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
                 _model.SetSortingLayerCommand.Execute(_config.GridSortingLayer);
                 _audioManager.PlayAudioOneShot(_config.PlaceSucceedSfx, Vector3.zero);
                 _mousePositionDifference = Vector3.zero;
@@ -136,6 +136,7 @@ namespace FitMe.Grid
             else
             {
                 _audioManager.PlayAudioOneShot(_config.PlaceFailSfx, Vector3.zero);
+                _model.SetSortingLayerCommand.Execute(_config.SpawnSortingLayer);
                 _model.BlockInteractionState.Value = BlockInteractionState.PlacedOnSpawn;
             }
             _isDragging = false;

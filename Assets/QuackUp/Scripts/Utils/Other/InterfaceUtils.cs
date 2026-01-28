@@ -43,17 +43,30 @@ namespace QuackUp.Utils
             where T1 : class
             where T2 : class
         {
-            if (child is not MonoBehaviour childMonoBehaviour)
+            Transform childTransform = null;
+            Transform parentTransform = null;
+            if (child is Transform childAsTransform)
             {
-                DebugUtils.LogError($"Child of type {typeof(T1)} is not a MonoBehaviour. Cannot set parent.");
+                childTransform = childAsTransform;
+            }
+            if (parent is Transform parentAsTransform)
+            {
+                parentTransform = parentAsTransform;
+            }
+            if (child is MonoBehaviour childMonoBehaviour)
+            {
+                childTransform = childMonoBehaviour.transform;
+            }
+            if (parent is MonoBehaviour parentMonoBehaviour)
+            {
+                parentTransform = parentMonoBehaviour.transform;
+            }
+            if (childTransform is null)
+            {
+                DebugUtils.LogError($"Child of type {typeof(T1)} is not a MonoBehaviour or Transform. Cannot set parent.");
                 return;
             }
-            if (parent is not MonoBehaviour parentMonoBehaviour)
-            {
-                DebugUtils.LogError($"Parent of type {typeof(T2)} is not a MonoBehaviour. Cannot set parent.");
-                return;
-            }
-            childMonoBehaviour.transform.SetParent(parentMonoBehaviour.transform);
+            childTransform.SetParent(parentTransform);
         }
     }
 }

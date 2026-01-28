@@ -129,7 +129,7 @@ namespace FitMe.Grid
             FreeSpawnPoint(eventData.Block.SpawnIndex);
             //ResetSpawnPoint();
             SpawnRandomBlock();
-            if (eventData.FitType is FitType.None) 
+            if (eventData.FitType is FitType.None or FitType.Combo) 
                 GameOverCheck().Forget();
         }
         #endregion
@@ -397,7 +397,7 @@ namespace FitMe.Grid
             if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
                 _gridManager.CreateVacantSchema(out _, out var vacantCount);
-                _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));
+                _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));    
                 await _gridManager.RemoveAllBlocks(true);
             }
         }

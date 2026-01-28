@@ -33,6 +33,8 @@ namespace FitMe.Grid
         public IReadOnlyDictionary<BlockColor, Color> AtomColorDict => _atomColorDict;
         [field: SerializeField] public bool AllowPickUpAfterPlacement { get; private set; }
         [field: SerializeField] public bool RotateClockwise { get; private set; } = true;
+        [field: SerializeField] public float PickUpScaleMultiplier { get; private set; } = 1.2f;
+        [field: SerializeField] public Vector2 SwitchIdleTimeRange { get; private set; } = new(30f, 60f);
         
         [Title("Audios")] 
         [field: SerializeField] public EventReference PlaceSucceedSfx { get; private set; }

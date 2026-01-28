@@ -25,16 +25,13 @@ namespace FitMe.Grid
         IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
         #region Inspectors
-        [Title("Tween")] 
-        [SerializeField] private TweenSettings scaleTweenSettings;
+        [Title("References")]
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private SkeletonAnimation skeletonAnimation;
         //[SerializeField] private SpriteRenderer infectedSpriteRenderer;
         
-        [Title("Settings")]
-        [SerializeField] private Color originalColor = Color.white;
-        [SerializeField] private float pickUpScaleMultiplier = 1.2f;
-        [SerializeField] private Vector2 switchIdleTimeRange = new(30f, 60f);
+        [Title("Tween")] 
+        [SerializeField] private TweenSettings scaleTweenSettings;
         #endregion
 
         #region Fields and Properties
@@ -90,8 +87,8 @@ namespace FitMe.Grid
                 .DistinctUntilChanged()
                 .Subscribe(OnInteractionStateChanged)
                 .AddTo(ref disposableBuilder);
-            _viewModel.BlockType
-                .Subscribe(OnBlockTypeChanged)
+            _viewModel.BlockColor
+                .Subscribe(OnBlockColorChanged)
                 .AddTo(ref disposableBuilder);
             _viewModel.SetSortingLayerCommand
                 .Subscribe(OnSetSortingLayer)
@@ -143,7 +140,7 @@ namespace FitMe.Grid
         
         private void StartIdleTimer()
         {
-            var randomSwitchTime = UnityEngine.Random.Range(switchIdleTimeRange.x, switchIdleTimeRange.y);
+            var randomSwitchTime = _blockManagerConfig.SwitchIdleTimeRange.RandomBetweenRange();
             _switchIdleCts = new CancellationTokenSource();
             _switchIdleTimer = Observable.Timer(TimeSpan.FromSeconds(randomSwitchTime), _switchIdleCts.Token)
                 .Subscribe(_ =>
@@ -217,7 +214,7 @@ namespace FitMe.Grid
             meshRenderer.sortingOrder = order;
         }
 
-        private void OnBlockTypeChanged(BlockColor color)
+        private void OnBlockColorChanged(BlockColor color)
         {
             _blockColor = color;
             if (!_blockConfig.SkinDictionary.TryGetValue(color, out var skin))
@@ -225,7 +222,7 @@ namespace FitMe.Grid
                 DebugUtils.LogWarning($"No skin found for block type: {color}");
                 return;
             }
-            
+            DebugUtils.Log($"Block {_blockColor} set to {skin}");
             skeletonAnimation.Skeleton.SetSkin(skin);
             skeletonAnimation.Skeleton.SetSlotsToSetupPose();
         }

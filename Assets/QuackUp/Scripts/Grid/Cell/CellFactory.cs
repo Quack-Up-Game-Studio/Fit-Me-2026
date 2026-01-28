@@ -8,6 +8,7 @@ namespace FitMe.Grid
 {
     public class CellFactory : IGameObjectFactory<CellModel>
     {
+        private readonly CellConfig _config;
         private readonly CellView _cellViewPrefab;
         private readonly Transform _cellParent;
         
@@ -15,9 +16,11 @@ namespace FitMe.Grid
         
         [Inject]
         public CellFactory(
+            CellConfig config,
             CellView cellViewPrefab,
             [Key(CellParentKey)] Transform cellParent)
         {
+            _config = config;
             _cellViewPrefab = cellViewPrefab;
             _cellParent = cellParent;
         }
@@ -40,7 +43,7 @@ namespace FitMe.Grid
             var view = Object.Instantiate(_cellViewPrefab, position, rotation, instantiateParameters.Value);
             var model = new CellModel(view);
             var viewModel = new CellViewModel(model);
-            view.Construct(viewModel);
+            view.Construct(_config, viewModel);
             Current = model;
             CurrentGameObject = view.gameObject;
             gameObject = CurrentGameObject;

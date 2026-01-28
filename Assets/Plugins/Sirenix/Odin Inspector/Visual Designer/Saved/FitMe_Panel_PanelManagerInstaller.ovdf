@@ -1,0 +1,13 @@
+OVDF v1.1
+FitMe.Panel.PanelManagerInstaller, FitMe.Panel
+
+# _title
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Panel Manager"
+
+# panelLifetimeScopes
++ [Sirenix.OdinInspector.InfoBoxAttribute]
+	InfoMessageType = Warning
+	Message = "Make sure the each lifetime scope has Auto Run turned off!"
+	GUIAlwaysEnabled = False
