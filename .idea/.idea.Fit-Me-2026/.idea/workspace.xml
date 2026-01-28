@@ -6,15 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="41d03079-9c3e-4543-9387-fb394932fb26" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Demos/Custom Attribute Processors.unitypackage.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Demos/Custom Drawers.unitypackage.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Demos/Editor Windows.unitypackage.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Demos/Sample - RPG Editor.unitypackage.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/FitMe.Scene.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/FitMe.Scene.asmdef" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerConfig.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerInstaller.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/UI/Score/ScoreUiInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/UI/Score/ScoreUiInstaller.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/UI/Score/ScoreView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/UI/Score/ScoreView.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +19,12 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/34decb3c52e041bfa30d0f679041cf8e212600/c1/77530010/InstantiateParameters.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/UI/Score/ScoreUiInstaller.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/UI/Score/ScoreViewModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/jp.hadashikick.vcontainer@0cb993cc4615/Runtime/Container.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -39,7 +41,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Dev&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Score&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -115,6 +117,8 @@
       <workItem from="1769135194121" duration="14911000" />
       <workItem from="1769401722155" duration="10481000" />
       <workItem from="1769483068772" duration="1236000" />
+      <workItem from="1769486384419" duration="13652000" />
+      <workItem from="1769503668600" duration="106000" />
     </task>
     <servers />
   </component>

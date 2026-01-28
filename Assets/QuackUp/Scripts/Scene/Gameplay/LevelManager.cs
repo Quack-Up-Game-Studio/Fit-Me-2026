@@ -1,6 +1,7 @@
 using System;
 using FitMe.Entity;
 using FitMe.Grid;
+using FitMe.Scene.UI.Score;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace FitMe.Scene
         private readonly EntityManager _entityManager;
         private readonly IMessageHub _messageHub;
         private readonly GridManager _gridManager;
+        private readonly PopUpScoreFactory _popUpScoreFactory;
         
         private IDisposable _subscriptions;
         
@@ -26,12 +28,14 @@ namespace FitMe.Scene
             LevelManagerConfig config, 
             EntityManager entityManager,
             [Key(LevelManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
-            GridManager gridManager)
+            GridManager gridManager,
+            PopUpScoreFactory popUpScoreFactory)
         {
             _config = config;
             _entityManager = entityManager;
             _messageHub = messageHub;
             _gridManager = gridManager;
+            _popUpScoreFactory = popUpScoreFactory;
             Subscribe();
         }
 
@@ -83,10 +87,15 @@ namespace FitMe.Scene
                     break;
                 case ScoreTypes.FitMe:
                     ChangeFitMe(1);
+                    Vector3 screenPosition1 = Camera.main.WorldToScreenPoint(scoreEvent.WorldPosition);
+                    _popUpScoreFactory.Create(1, screenPosition1, "Fitme");
                     finalScore = _config.scorePerFitMe; 
                     break;
             }
             ChangeScore(finalScore);
+            //บรรทัดล่าง กรณีที่ Render mode = Screen Space - Overlay ห้ามลบเด็ดขาด!!!
+            Vector3 screenPosition = Camera.main.WorldToScreenPoint(scoreEvent.WorldPosition);
+            _popUpScoreFactory.Create(finalScore, screenPosition, "Score");
         }
         
         private void ChangeScore(int value)

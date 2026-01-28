@@ -13,6 +13,9 @@ namespace FitMe.Scene.UI.Score
 
         private ScoreViewModel _viewModel;
         private IDisposable _bindings;
+        
+        public const string ScoreTransformKey = "ScoreTransform";
+        public const string FitmeTransformKey = "FitmeTransform";
 
         [Inject]
         public void Construct(ScoreViewModel viewModel)
