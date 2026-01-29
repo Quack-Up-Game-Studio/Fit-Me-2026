@@ -50,5 +50,8 @@ TagManager:
   - name: Overhead
     uniqueID: 2452610447
     locked: 0
+  - name: UI
+    uniqueID: 1195608579
+    locked: 0
   m_RenderingLayers:
   - Default

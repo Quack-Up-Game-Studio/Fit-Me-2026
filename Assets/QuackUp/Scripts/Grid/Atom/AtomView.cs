@@ -6,12 +6,7 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public interface IAtomView : ITransformProvider
-    {
-        void SetOutline(SpriteOutlineSettings settings);
-    }
-    
-    public class AtomView : MonoBehaviour, IAtomView, IDisposable
+    public class AtomView : MonoBehaviour, IDisposable
     {
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private SpriteOutlineController spriteOutlineController;
@@ -37,27 +32,30 @@ namespace FitMe.Grid
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _viewModel.ParentBlockModel
+            _viewModel.ParentBlock
                 .Where(x => x != null)
                 .Subscribe(OnParentBlockModelChanged)
+                .AddTo(ref disposableBuilder);
+            _viewModel.SetOutlineCommand
+                .Subscribe(SetOutline)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 
-        private void OnParentBlockModelChanged(BlockModel model)
+        private void OnParentBlockModelChanged(BlockInstance instance)
         {
             _parentBlockSubscriptions?.Dispose();
-            var blockConfig = _viewModel.ParentBlockModel.CurrentValue.Config;
-            if (!blockConfig.UseAtomSprite) return;
+            var blockConfig = _viewModel.ParentBlock.CurrentValue.Model.Config;
             spriteRenderer.enabled = blockConfig.UseAtomSprite;
+            if (!blockConfig.UseAtomSprite) return;
             var disposableBuilder = Disposable.CreateBuilder();
-            model.BlockType
+            instance.Model.BlockType
                 .Subscribe(OnBlockTypeChanged)
                 .AddTo(ref disposableBuilder);
-            model.SetSortingLayerCommand
+            instance.ViewModel.SetSortingLayerCommand
                 .Subscribe(OnSetSortingLayer)
                 .AddTo(ref disposableBuilder);
-            model.SetSortingOrderCommand
+            instance.ViewModel.SetSortingOrderCommand
                 .Subscribe(OnSetSortingOrder)
                 .AddTo(ref disposableBuilder);
             _parentBlockSubscriptions = disposableBuilder.Build();
@@ -82,7 +80,7 @@ namespace FitMe.Grid
             spriteRenderer.color = spriteColor;
         }
 
-        public void SetOutline(SpriteOutlineSettings settings)
+        private void SetOutline(SpriteOutlineSettings settings)
         {
             spriteOutlineController.UpdateOutline(settings);
         }

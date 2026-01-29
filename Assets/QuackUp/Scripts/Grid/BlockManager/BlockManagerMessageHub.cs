@@ -40,9 +40,9 @@ namespace FitMe.Grid
     
     public struct BlockSpawnedEvent
     {
-        public readonly List<BlockModel> BlockModels;
+        public readonly List<BlockInstance> BlockModels;
         
-        public BlockSpawnedEvent(List<BlockModel> blockModels)
+        public BlockSpawnedEvent(List<BlockInstance> blockModels)
         {
             BlockModels = blockModels;
         }

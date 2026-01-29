@@ -6,7 +6,20 @@ using Object = UnityEngine.Object;
 
 namespace FitMe.Grid
 {
-    public class CellFactory : IGameObjectFactory<CellModel>
+    public class CellInstance
+    {
+        public CellModel Model { get; }
+        public CellViewModel ViewModel { get; }
+        public GameObject GameObject { get; }
+
+        public CellInstance(CellModel model, CellViewModel viewModel, GameObject gameObject)
+        {
+            Model = model;
+            ViewModel = viewModel;
+            GameObject = gameObject;
+        }
+    }
+    public class CellFactory : IFactory<CellInstance>
     {
         private readonly CellConfig _config;
         private readonly CellView _cellViewPrefab;
@@ -25,28 +38,25 @@ namespace FitMe.Grid
             _cellParent = cellParent;
         }
         
-        public CellModel Current { get; private set; }
+        public CellInstance Current { get; private set; }
         
-        public CellModel Create()
+        public CellInstance Create()
         {
-            return Create(Vector3.zero, Quaternion.identity, out _);
+            return Create(Vector3.zero, Quaternion.identity);
         }
-
-        public GameObject CurrentGameObject { get; private set; }
         
-        public CellModel Create(Vector3 position, Quaternion rotation, out GameObject gameObject, InstantiateParameters? instantiateParameters = null)
+        public CellInstance Create(Vector3 position, Quaternion rotation, InstantiateParameters? instantiateParameters = null)
         {
             instantiateParameters ??= new InstantiateParameters
             {
                 parent = _cellParent
             };
             var view = Object.Instantiate(_cellViewPrefab, position, rotation, instantiateParameters.Value);
-            var model = new CellModel(view);
+            var model = new CellModel();
             var viewModel = new CellViewModel(model);
             view.Construct(_config, viewModel);
-            Current = model;
-            CurrentGameObject = view.gameObject;
-            gameObject = CurrentGameObject;
+            var cellInstance = new CellInstance(model, viewModel, view.gameObject);
+            Current = cellInstance;
             return Current;
         }
     }

@@ -12,17 +12,8 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public interface IBlockView : ITransformProvider
-    {
-        void Destroy();
-        UniTask ScaleIn(Vector3 scale);
-        UniTask Rotate(Quaternion rotation);
-        UniTask Explode(FitType fitType, bool destroy = true);
-    }
-    
     [ShowOdinSerializedPropertiesInInspector]
-    public class BlockView : SerializedMonoBehaviour, IDisposable, IBlockView, 
-        IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+    public class BlockView : SerializedMonoBehaviour, IDisposable, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
         #region Inspectors
         [Title("References")]
@@ -40,7 +31,7 @@ namespace FitMe.Grid
         
         private Transform _originalParent;
         private Vector3 _originalPosition;
-        private Vector3 _originalRotation;
+        private Vector3 _originalEulerAngles;
         private int _originalSortingLayer;
         private Vector3 _mousePositionDifference;
         private Tween _transformTween;
@@ -73,7 +64,7 @@ namespace FitMe.Grid
             _viewModel = viewModel;
             _originalParent = transform.parent;
             _originalPosition = transform.position;
-            _originalRotation = transform.eulerAngles;
+            _originalEulerAngles = transform.eulerAngles;
             _originalSortingLayer = meshRenderer.sortingLayerID;
             Bind();
             Initialize();
@@ -95,6 +86,18 @@ namespace FitMe.Grid
                 .AddTo(ref disposableBuilder);
             _viewModel.SetSortingOrderCommand
                 .Subscribe(OnSetSortingOrder)
+                .AddTo(ref disposableBuilder);
+            _viewModel.ScaleInCommand
+                .SubscribeAwait( (param, _) =>  ScaleIn(param), AwaitOperation.Drop)
+                .AddTo(ref disposableBuilder);
+            _viewModel.RotateCommand
+                .SubscribeAwait((param, _) => Rotate(param), AwaitOperation.Drop)
+                .AddTo(ref disposableBuilder);
+            _viewModel.ExplodeCommand
+                .SubscribeAwait( (param, _) => Explode(param), AwaitOperation.Drop)
+                .AddTo(ref disposableBuilder);
+            _viewModel.DestroyCommand
+                .Subscribe(_ => Destroy())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -184,11 +187,11 @@ namespace FitMe.Grid
             StartIdleTimer();
         }
         
-        public async UniTask Explode(FitType fitType, bool destroy = true)
+        private async UniTask Explode(ExplodeCommandData data)
         {
             DebugUtils.Log($"Block {_blockColor} exploded at position {transform.position}");
             CancelIdleTimer();
-            var speedMultiplier = fitType == FitType.FitMe ? 2f : 6.67f;
+            var speedMultiplier = data.FitType == FitType.FitMe ? 2f : 6.67f;
             var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.ExplodeAnimation, false);
             explodeAnim.TimeScale *= speedMultiplier;
             await explodeAnim.WaitUntilComplete(); 
@@ -201,7 +204,8 @@ namespace FitMe.Grid
             {
                 DebugUtils.LogWarning($"No explosion VFX found for block type: {_blockColor}");
             }
-            if (destroy) Destroy(gameObject);
+            if (data.Destroy) Destroy(gameObject);
+            data.Promise.TrySetResult(Unit.Default);
         }
 
         private void OnSetSortingLayer(int layer)
@@ -239,26 +243,28 @@ namespace FitMe.Grid
             transform.SetParent(_originalParent);
             OnSetSortingLayer(_originalSortingLayer);
             _transformTween = Tween.Position(transform, _originalPosition, 0.2f);
-            Tween.Rotation(transform, _originalRotation, 0.2f);
+            Tween.Rotation(transform, _originalEulerAngles, 0.2f);
             Tween.Scale(transform, _originalScale, 0.2f);
             Place();
         }
 
-        public UniTask ScaleIn(Vector3 scale)
+        private async UniTask ScaleIn(ScaleInCommandData data)
         {
-            _originalScale = scale;
-            var sequence = Tween.Scale(transform, new TweenSettings<Vector3>(scale, scaleTweenSettings));
-            return sequence.ToUniTask();
+            _originalScale = data.Scale;
+            var sequence = Tween.Scale(transform, new TweenSettings<Vector3>(data.Scale, scaleTweenSettings));
+            await sequence.ToUniTask();
+            data.Promise.TrySetResult(Unit.Default);
         }
         
-        public UniTask Rotate(Quaternion rotation)
+        private async UniTask Rotate(RotateCommandData data)
         {
-            _originalRotation = rotation.eulerAngles;
-            var tween = Tween.Rotation(transform, rotation, 0.5f);
-            return tween.ToUniTask();
+            _originalEulerAngles = data.Rotation.eulerAngles;
+            var tween = Tween.Rotation(transform, data.Rotation, 0.5f);
+            await tween.ToUniTask();
+            data.Promise.TrySetResult(Unit.Default);
         }
 
-        public void Destroy()
+        private void Destroy()
         {
             Destroy(gameObject);
         }

@@ -7,11 +7,7 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public interface ICellView : ITransformProvider
-    {
-        void Destroy();
-    }
-    public class CellView : MonoBehaviour, IDisposable, ICellView
+    public class CellView : MonoBehaviour, IDisposable
     {
         #region Inspectors
         [Title("References")]
@@ -54,6 +50,9 @@ namespace FitMe.Grid
                 .AddTo(ref disposableBuilder);
             _viewModel.State
                 .Subscribe(OnCellStateChanged)
+                .AddTo(ref disposableBuilder);
+            _viewModel.DestroyCommand
+                .Subscribe(_ => Destroy())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -117,7 +116,7 @@ namespace FitMe.Grid
             }
         }
 
-        public void Destroy()
+        private void Destroy()
         {
             Destroy(gameObject);
         }

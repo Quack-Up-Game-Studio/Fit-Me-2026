@@ -8,13 +8,11 @@ namespace FitMe.Grid
     public class AtomModel
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public ReactiveProperty<BlockModel> ParentBlockModel { get; set; } = new();
-        public IAtomView AtomView { get; private set; }
+        public ReactiveProperty<BlockInstance> ParentBlock { get; set; } = new();
         
         [Inject]
-        public AtomModel(IAtomView atomView)
+        public AtomModel()
         {
-            AtomView = atomView;
         }
     }
 }

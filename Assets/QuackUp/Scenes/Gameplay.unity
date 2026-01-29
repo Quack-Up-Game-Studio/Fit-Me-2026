@@ -211,6 +211,67 @@ MonoBehaviour:
   preset: {fileID: 11400000, guid: 2aad68baf83cb5ff29e7395cd725463e, type: 2}
   drawAllCustomGridCells: 0
   config: {fileID: 11400000, guid: 2901fce5d49fc09e2a88bd486db8a887, type: 2}
+--- !u!1 &79860171
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 79860172}
+  - component: {fileID: 79860173}
+  m_Layer: 5
+  m_Name: Back
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &79860172
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79860171}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1590922671}
+  - {fileID: 2070222500}
+  m_Father: {fileID: 463976293}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!223 &79860173
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79860171}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
 --- !u!1 &103073012
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,6 +503,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 447709204}
+  - {fileID: 79860172}
   m_Father: {fileID: 1972785289}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -558,103 +620,7 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 7|FitMe.Panel.TransitionData, FitMe.Panel
-    - Name: transition
-      Entry: 7
-      Data: 8|FitMe.Panel.AlphaTransition, FitMe.Panel
-    - Name: objectKey
-      Entry: 1
-      Data: PanelCanvasGroup
-    - Name: relative
-      Entry: 5
-      Data: false
-    - Name: transitionSettings
-      Entry: 7
-      Data: PrimeTween.TweenSettings`1[[System.Single, mscorlib]], PrimeTween.Runtime
-    - Name: startFromCurrent
-      Entry: 5
-      Data: false
-    - Name: startValue
-      Entry: 4
       Data: 0
-    - Name: endValue
-      Entry: 4
-      Data: 1
-    - Name: settings
-      Entry: 7
-      Data: PrimeTween.TweenSettings, PrimeTween.Runtime
-    - Name: duration
-      Entry: 4
-      Data: 1
-    - Name: ease
-      Entry: 3
-      Data: 0
-    - Name: customEase
-      Entry: 7
-      Data: 9|UnityEngine.AnimationCurve, UnityEngine.CoreModule
-    - Name: 
-      Entry: 7
-      Data: 10|UnityEngine.Keyframe[], UnityEngine.CoreModule
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 3
-      Data: 8
-    - Name: 
-      Entry: 3
-      Data: 8
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: cycles
-      Entry: 3
-      Data: 1
-    - Name: cycleMode
-      Entry: 3
-      Data: 0
-    - Name: startDelay
-      Entry: 4
-      Data: 0
-    - Name: endDelay
-      Entry: 4
-      Data: 0
-    - Name: useUnscaledTime
-      Entry: 5
-      Data: false
-    - Name: _useFixedUpdate
-      Entry: 5
-      Data: false
-    - Name: _updateType
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: transitionGroupType
-      Entry: 3
-      Data: 0
-    - Name: delay
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
     - Name: 
       Entry: 13
       Data: 
@@ -666,7 +632,7 @@ MonoBehaviour:
       Data: 
     - Name: transitionGroupOut
       Entry: 7
-      Data: 11|FitMe.Panel.BasicTransitionGroup, FitMe.Panel
+      Data: 7|FitMe.Panel.BasicTransitionGroup, FitMe.Panel
     - Name: overrideDefaultCycles
       Entry: 5
       Data: false
@@ -681,17 +647,17 @@ MonoBehaviour:
       Data: 0
     - Name: transition
       Entry: 7
-      Data: 12|System.Collections.Generic.List`1[[FitMe.Panel.TransitionData, FitMe.Panel]],
+      Data: 8|System.Collections.Generic.List`1[[FitMe.Panel.TransitionData, FitMe.Panel]],
         mscorlib
     - Name: 
       Entry: 12
       Data: 1
     - Name: 
       Entry: 7
-      Data: 13|FitMe.Panel.TransitionData, FitMe.Panel
+      Data: 9|FitMe.Panel.TransitionData, FitMe.Panel
     - Name: transition
       Entry: 7
-      Data: 14|FitMe.Panel.AlphaTransition, FitMe.Panel
+      Data: 10|FitMe.Panel.AlphaTransition, FitMe.Panel
     - Name: objectKey
       Entry: 1
       Data: PanelCanvasGroup
@@ -721,10 +687,19 @@ MonoBehaviour:
       Data: 0
     - Name: customEase
       Entry: 7
-      Data: 15|UnityEngine.AnimationCurve, UnityEngine.CoreModule
+      Data: 11|UnityEngine.AnimationCurve, UnityEngine.CoreModule
     - Name: 
-      Entry: 9
-      Data: 10
+      Entry: 7
+      Data: 12|UnityEngine.Keyframe[], UnityEngine.CoreModule
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 3
       Data: 8
@@ -840,7 +815,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 463976292}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -1073,7 +1048,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 000000007b792ee9ad9bfc078fdd2f92
+  m_ApplyToSortingLayers: 000000007b792ee9ad9bfc078fdd2f92038a4347
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -1623,7 +1598,7 @@ Transform:
   m_GameObject: {fileID: 1081198249}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.41, y: 4.17, z: 0}
+  m_LocalPosition: {x: -0.07, y: -4.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1661,7 +1636,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1949753171}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1534313679
+--- !u!1 &1590922670
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1669,9 +1644,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1534313680}
-  - component: {fileID: 1534313682}
-  - component: {fileID: 1534313681}
+  - component: {fileID: 1590922671}
+  - component: {fileID: 1590922673}
+  - component: {fileID: 1590922672}
   m_Layer: 5
   m_Name: BG
   m_TagString: Untagged
@@ -1679,32 +1654,32 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &1534313680
+--- !u!224 &1590922671
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1534313679}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_GameObject: {fileID: 1590922670}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1972785289}
+  m_Father: {fileID: 79860172}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1534313681
+--- !u!114 &1590922672
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1534313679}
+  m_GameObject: {fileID: 1590922670}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -1728,13 +1703,13 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!222 &1534313682
+--- !u!222 &1590922673
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1534313679}
+  m_GameObject: {fileID: 1590922670}
   m_CullTransparentMesh: 1
 --- !u!1 &1775199595
 GameObject:
@@ -1814,7 +1789,7 @@ GameObject:
   - component: {fileID: 1972785287}
   - component: {fileID: 1972785286}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: OverlayCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1880,7 +1855,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
+  m_SortingLayerID: 1195608579
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!224 &1972785289
@@ -1895,8 +1870,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1534313680}
-  - {fileID: 1996737152}
   - {fileID: 630128013}
   - {fileID: 463976293}
   m_Father: {fileID: 0}
@@ -1906,7 +1879,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &1996737151
+--- !u!1 &2070222499
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1914,9 +1887,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1996737152}
-  - component: {fileID: 1996737154}
-  - component: {fileID: 1996737153}
+  - component: {fileID: 2070222500}
+  - component: {fileID: 2070222502}
+  - component: {fileID: 2070222501}
   m_Layer: 5
   m_Name: Hands
   m_TagString: Untagged
@@ -1924,32 +1897,32 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &1996737152
+--- !u!224 &2070222500
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1996737151}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_GameObject: {fileID: 2070222499}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1972785289}
+  m_Father: {fileID: 79860172}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 299}
+  m_AnchoredPosition: {x: 0, y: 311}
   m_SizeDelta: {x: 1107, y: 359}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &1996737153
+--- !u!114 &2070222501
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1996737151}
+  m_GameObject: {fileID: 2070222499}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -1973,13 +1946,13 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!222 &1996737154
+--- !u!222 &2070222502
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1996737151}
+  m_GameObject: {fileID: 2070222499}
   m_CullTransparentMesh: 1
 --- !u!1001 &6352930521165609300
 PrefabInstance:

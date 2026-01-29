@@ -6,7 +6,20 @@ using Object = UnityEngine.Object;
 
 namespace FitMe.Grid
 {
-    public class AtomFactory : IGameObjectFactory<AtomModel>
+    public class AtomInstance
+    {
+        public AtomModel Model { get; }
+        public AtomViewModel ViewModel { get; }
+        public GameObject GameObject { get; }
+
+        public AtomInstance(AtomModel model, AtomViewModel viewModel, GameObject gameObject)
+        {
+            Model = model;
+            ViewModel = viewModel;
+            GameObject = gameObject;
+        }
+    }
+    public class AtomFactory : IFactory<AtomInstance>
     {
         private readonly AtomView _atomViewPrefab;
         private readonly BlockManagerConfig _config;
@@ -20,16 +33,13 @@ namespace FitMe.Grid
             _config = blockManagerConfig;
         }
         
-        public AtomModel Current { get; private set; }
-        public AtomModel Create()
+        public AtomInstance Current { get; private set; }
+        public AtomInstance Create()
         {
-            return Create(Vector3.zero, Quaternion.identity, out _);
+            return Create(Vector3.zero, Quaternion.identity);
         }
 
-        public GameObject CurrentGameObject { get; private set; }
-
-        public AtomModel Create(Vector3 position, Quaternion rotation, out GameObject gameObject,
-            InstantiateParameters? instantiateParameters = null)
+        public AtomInstance Create(Vector3 position, Quaternion rotation, InstantiateParameters? instantiateParameters = null)
         {
             instantiateParameters ??= new InstantiateParameters
             {
@@ -38,12 +48,10 @@ namespace FitMe.Grid
             };
             var view = Object.Instantiate(_atomViewPrefab, position, rotation,
                 instantiateParameters.Value);
-            var model = new AtomModel(view);
+            var model = new AtomModel();
             var viewModel = new AtomViewModel(model);
             view.Construct(_config, viewModel);
-            Current = model;
-            CurrentGameObject = view.gameObject;
-            gameObject = CurrentGameObject;
+            Current = new AtomInstance(model, viewModel, view.gameObject);
             return Current;
         }
     }

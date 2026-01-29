@@ -76,27 +76,21 @@ namespace FitMe.Grid
         public ReadOnlyReactiveProperty<BlockColor> BlockType => _blockType.ToReadOnlyReactiveProperty();
         public BlockConfig Config => _config;
         public BlockShape BlockShape { get; private set; }
-        public List<AtomModel> Atoms { get; private set; } = new(); 
+        public List<AtomInstance> Atoms { get; private set; } = new(); 
         public BlockPreset BlockPreset { get; private set; }
         public BlockState BlockState { get; set; } = BlockState.Normal;
-        public ReactiveProperty<BlockInteractionState> BlockInteractionState { get; private set; } = new(Grid.BlockInteractionState.PlacedOnSpawn);
-        public List<CellModel> BlockCells { get; set; }
+        public List<CellInstance> BlockCells { get; set; }
         public int SpawnIndex { get; set; }
         public int RotationalIndex { get; set; }
-        public IBlockView BlockView { get; internal set; }
-        public IBlockController BlockController { get; internal set; }
         
-        public ReactiveCommand<int> SetSortingLayerCommand { get; private set; } = new();
-        public ReactiveCommand<int> SetSortingOrderCommand { get; private set; } = new();
-        
-        public Subject<Unit> UpdateGridRequested { get; } = new();
+        public ReactiveCommand UpdateGridCommand { get; } = new();
         
         private ReactiveProperty<BlockColor> _blockType = new();
         private int _originalSortingOrder;
         #endregion
 
         #region Schema
-        public void GenerateAtom(BlockShape blockShape, BlockPreset preset)
+        public void GenerateAtom(BlockShape blockShape, BlockPreset preset, BlockInstance instance)
         {
             var row = preset.BlockSize.y;
             var column = preset.BlockSize.x;
@@ -114,13 +108,13 @@ namespace FitMe.Grid
                     var spawnPosY = row / 2f - 0.5f - x;
                     var spawnPosition = new Vector3(spawnPosX, spawnPosY, 0);
                     //DebugUtils.Log("Spawning atom at: " + spawnPosition);
-                    var atom = _atomFactory.Create(spawnPosition, Quaternion.identity, out _, new InstantiateParameters
+                    var atom = _atomFactory.Create(spawnPosition, Quaternion.identity, new InstantiateParameters
                     {
                         worldSpace = false,
-                        parent = BlockView.GetGameObject().transform
+                        parent = instance.GameObject.transform
                     });
                     //atom.AtomView?.SetParent(BlockView);
-                    atom.ParentBlockModel.Value = this;
+                    atom.Model.ParentBlock.Value = instance;
                     var hasTop = HasElement(x - 1, y);
                     var hasBottom = HasElement(x + 1, y);
                     var hasLeft = HasElement(x, y - 1);
@@ -132,7 +126,7 @@ namespace FitMe.Grid
                         OutlineLeft = !hasLeft,
                         OutlineRight = !hasRight
                     };
-                    atom.AtomView.SetOutline(settings);
+                    atom.ViewModel.SetOutlineCommand.Execute(settings);
                     Atoms.Add(atom);
                 }
             }
@@ -164,7 +158,7 @@ namespace FitMe.Grid
         {
             _blockType.Value = color;
             if (!updateGrid) return;
-            UpdateGridRequested.OnNext(Unit.Default);
+            UpdateGridCommand.Execute(Unit.Default);
         }
         #endregion
     }
