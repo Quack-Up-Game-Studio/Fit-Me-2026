@@ -27,6 +27,7 @@ namespace FitMe.Panel
     public struct CrossfadeSettings
     {
         public CrossfadeType crossFadeType;
+        [ShowIf(nameof(crossFadeType), CrossfadeType.InOnly)] public bool hidePreviousPanel;
         public float customOffset;
     }
     

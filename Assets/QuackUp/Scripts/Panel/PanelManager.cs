@@ -32,10 +32,9 @@ namespace FitMe.Panel
         {
             _lifetimeScopes = lifetimeScopes;
             _startupPanelId = startupPanelId;
-            Initialize();
         }
         
-        private void Initialize()
+        public void Initialize()
         {
             foreach (var kvp in _lifetimeScopes)
             {
@@ -43,7 +42,7 @@ namespace FitMe.Panel
                 panel.PanelId = kvp.Key;
                 _panels.Add(kvp.Key, panel);
             }
-            Crossfade(null, _startupPanelId, new CrossfadeSettings
+            Crossfade(_startupPanelId, _startupPanelId, new CrossfadeSettings
             {
                 crossFadeType = CrossfadeType.InOnly,
                 customOffset = 0f
@@ -69,66 +68,76 @@ namespace FitMe.Panel
             switch (crossfadeSettings.crossFadeType)
             {
                 case CrossfadeType.Parallel:
-                    TransitionOut(fromPanel, cancellationToken: cancellationToken).Forget();
+                    TransitionOut(fromPanel, toPanelId, cancellationToken: cancellationToken).Forget();
                     await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
-                    await TransitionIn(toPanel, cancellationToken: cancellationToken);
+                    await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
                     break;
                 case CrossfadeType.InThenOut:
-                    await TransitionIn(toPanel, cancellationToken: cancellationToken);
+                    await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
                     await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
-                    await TransitionOut(fromPanel, cancellationToken: cancellationToken);
+                    await TransitionOut(fromPanel, toPanelId, cancellationToken: cancellationToken);
                     break;
                 case CrossfadeType.OutThenIn:
-                    await TransitionOut(fromPanel, cancellationToken: cancellationToken);
+                    await TransitionOut(fromPanel, toPanelId, cancellationToken: cancellationToken);
                     await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
-                    await TransitionIn(toPanel, cancellationToken: cancellationToken);
+                    await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
                     break;
                 case CrossfadeType.InOnly:
-                    await TransitionOut(fromPanel, false, cancellationToken: cancellationToken);
+                    if (crossfadeSettings.hidePreviousPanel)
+                    {
+                        await TransitionOut(fromPanel, toPanelId, false, cancellationToken: cancellationToken);
+                    }
+                    else
+                    {
+                        if (fromPanel != null) 
+                            fromPanel.InputState.Value = InputState.Inactive;
+                    }
                     await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
-                    await TransitionIn(toPanel, cancellationToken: cancellationToken);
+                    await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
                     break;
                 case CrossfadeType.OutOnly:
-                    await TransitionOut(fromPanel, cancellationToken: cancellationToken);
+                    await TransitionOut(fromPanel, toPanelId, cancellationToken: cancellationToken);
                     await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
-                    await TransitionIn(toPanel, false, cancellationToken: cancellationToken);
+                    await TransitionIn(toPanel, fromPanelId, false, cancellationToken: cancellationToken);
                     break;
                 case CrossfadeType.None:
-                    await TransitionOut(fromPanel, false, cancellationToken: cancellationToken);
+                    await TransitionOut(fromPanel, toPanelId, false, cancellationToken: cancellationToken);
                     await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
-                    await TransitionIn(toPanel, false, cancellationToken: cancellationToken);
+                    await TransitionIn(toPanel, fromPanelId,false, cancellationToken: cancellationToken);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
         
-        private async UniTask TransitionIn(IPanelViewModel panel, bool playTransition = true, CancellationToken cancellationToken = default)
+        private async UniTask TransitionIn(IPanelViewModel toPanel, string fromPanelId, bool playTransition = true, 
+            CancellationToken cancellationToken = default)
         {
-            if (panel == null) return;
+            if (toPanel == null) return;
+            toPanel.VisibilityState.Value = VisibilityState.Visible;
             if (playTransition)
             {
                 var transitionPromise = new Promise<Unit>();
                 cancellationToken.Register(() => transitionPromise.Cancel());
-                panel.TransitionInCommand.Execute(new TransitionCommandData(transitionPromise, panel.PanelId));
+                toPanel.TransitionInCommand.Execute(new TransitionCommandData(transitionPromise, fromPanelId));
                 await transitionPromise.Task;
             }
-            panel.InputState.Value = InputState.Active;
-            panel.VisibilityState.Value = VisibilityState.Visible;
+            toPanel.InputState.Value = InputState.Active;
         }
         
-        private async UniTask TransitionOut(IPanelViewModel panel, bool playTransition = true, CancellationToken cancellationToken = default)
+        private async UniTask TransitionOut(IPanelViewModel fromPanel, string toPanelId, bool playTransition = true, 
+            CancellationToken cancellationToken = default)
         {
-            if (panel == null) return;
-            panel.InputState.Value = InputState.Inactive;
-            panel.VisibilityState.Value = VisibilityState.Hidden;
+            if (fromPanel == null) return;
+            fromPanel.InputState.Value = InputState.Inactive;
             if (playTransition)
             {
                 var transitionPromise = new Promise<Unit>();
                 cancellationToken.Register(() => transitionPromise.Cancel());
-                panel.TransitionOutCommand.Execute(new TransitionCommandData(transitionPromise, panel.PanelId));
+                fromPanel.TransitionOutCommand.Execute(new TransitionCommandData(transitionPromise, toPanelId));
                 await transitionPromise.Task;
             }
+            fromPanel.VisibilityState.Value = VisibilityState.Hidden;
         }
     }
 }

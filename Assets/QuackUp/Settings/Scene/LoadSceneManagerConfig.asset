@@ -16,8 +16,7 @@ MonoBehaviour:
     SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects:
-    - {fileID: 0}
-    - {fileID: 0}
+    - {fileID: 102900000, guid: d60b3911ea8620a198f693c9e8675d7d, type: 3}
     - {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
@@ -59,7 +58,7 @@ MonoBehaviour:
       Data: 0
     - Name: _path
       Entry: 1
-      Data: 
+      Data: Assets/QuackUp/Scenes/SanityCheck.unity
     - Name: 
       Entry: 8
       Data: 
@@ -77,10 +76,10 @@ MonoBehaviour:
       Data: 3|Redcode.Extensions.SceneReference, Extensions
     - Name: _sceneObject
       Entry: 10
-      Data: 1
+      Data: 0
     - Name: _path
       Entry: 1
-      Data: 
+      Data: Assets/QuackUp/Scenes/SanityCheck.unity
     - Name: 
       Entry: 8
       Data: 
@@ -98,10 +97,10 @@ MonoBehaviour:
       Data: 4|Redcode.Extensions.SceneReference, Extensions
     - Name: _sceneObject
       Entry: 10
-      Data: 2
+      Data: 1
     - Name: _path
       Entry: 1
-      Data: Assets/QuackUp/Scenes/SampleScene.unity
+      Data: Assets/QuackUp/Scenes/Gameplay.unity
     - Name: 
       Entry: 8
       Data: 

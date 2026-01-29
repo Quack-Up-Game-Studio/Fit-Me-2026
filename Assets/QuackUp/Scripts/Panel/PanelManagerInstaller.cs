@@ -22,14 +22,16 @@ namespace FitMe.Panel
         {
             builder.RegisterInstance(panelLifetimeScopes).As<IReadOnlyDictionary<string, PanelLifetimeScope>>();
             builder.RegisterInstance(startupPanelId);
-            builder.Register<PanelManager>(Lifetime.Scoped);
-            builder.RegisterBuildCallback(_ =>
+            builder.Register<PanelManager>(Lifetime.Singleton);
+            builder.RegisterBuildCallback(c =>
             {
                 panelLifetimeScopes.Values.ForEach(x =>
                 {
+                    x.gameObject.SetActive(true);
                     x.parentReference.Object = parentLifetimeScope;
                     x.Build();
                 });
+                c.Resolve<PanelManager>().Initialize();
             });
         }
     }

@@ -64,9 +64,15 @@ namespace FitMe.Panel
     {
         public string targetPanelKey;
         public CrossfadeSettings crossfadeSettings;
+        
+        public CrossfadeCommandData(string targetPanelKey, CrossfadeSettings crossfadeSettings)
+        {
+            this.targetPanelKey = targetPanelKey;
+            this.crossfadeSettings = crossfadeSettings;
+        }
     }
     
-    public abstract class PanelViewModelBase : IPanelViewModel, IDisposable
+    public abstract class PanelViewModel : IPanelViewModel, IDisposable
     {
         public string PanelId { get; set; }
         public ReactiveProperty<VisibilityState> VisibilityState { get; } = new(Panel.VisibilityState.Hidden);
@@ -80,7 +86,7 @@ namespace FitMe.Panel
         private IDisposable _bindings;
 
         [Inject]
-        public PanelViewModelBase(PanelManager panelManager)
+        public PanelViewModel(PanelManager panelManager)
         {
             _panelManager = panelManager;
             BindBase();
@@ -95,7 +101,7 @@ namespace FitMe.Panel
             _bindings = disposableBuilder.Build();
         }
         
-        public void Dispose()
+        public virtual void Dispose()
         {
             _bindings?.Dispose();
         }

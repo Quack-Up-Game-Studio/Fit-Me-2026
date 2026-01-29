@@ -182,7 +182,7 @@ namespace QuackUp.SceneManagement
             LoadScene(sceneType, loadSceneMode, useLoadingScene).Forget();
         }
         
-        public async UniTaskVoid LoadScene(SceneType sceneType, LoadSceneMode loadSceneMode, bool useLoadingScene)
+        public async UniTask LoadScene(SceneType sceneType, LoadSceneMode loadSceneMode, bool useLoadingScene)
         {
             if (_asyncOperation is { isDone: false } || _fadeTween.isAlive) return;
             string sceneName;

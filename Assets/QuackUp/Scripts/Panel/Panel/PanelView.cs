@@ -48,22 +48,21 @@ namespace FitMe.Panel
     }
 
     [ShowOdinSerializedPropertiesInInspector]
-    public abstract class PanelViewBase : SerializedMonoBehaviour, IPanelView, ITransitionObjectProvider, IDisposable
+    public abstract class PanelView : SerializedMonoBehaviour, IPanelView, ITransitionObjectProvider, IDisposable
     {
         [SerializeField, Required] protected CanvasGroup canvasGroup;
         [OdinSerialize] protected Dictionary<string, Component> transitionObjects = new();
         [OdinSerialize] protected Dictionary<string, CrossfadeRule> crossfadeRules = new();
-        [SerializeField] protected string defaultCrossfadeRuleKey = "default";
         public CanvasGroup CanvasGroup => canvasGroup;
         public RectTransform RectTransform => (RectTransform)transform;
         
-        protected IPanelViewModel ViewModel;
+        protected IPanelViewModel BaseViewModel;
         protected IDisposable BaseBinding;
         
         [Inject]
         public virtual void Construct(IPanelViewModel viewModel)
         {
-            ViewModel = viewModel;
+            BaseViewModel = viewModel;
             BindBase();
             Initialize();
         }
@@ -86,22 +85,22 @@ namespace FitMe.Panel
         private void BindBase()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            ViewModel.InputState
+            BaseViewModel.InputState
                 .Subscribe(OnInputStateChanged)
                 .AddTo(ref disposableBuilder);
-            ViewModel.VisibilityState
+            BaseViewModel.VisibilityState
                 .Subscribe(OnVisibilityStateChanged)
                 .AddTo(ref disposableBuilder);
-            ViewModel.TransitionInCommand
+            BaseViewModel.TransitionInCommand
                 .Subscribe(OnTransitionIn)
                 .AddTo(ref disposableBuilder);
-            ViewModel.TransitionOutCommand
+            BaseViewModel.TransitionOutCommand
                 .Subscribe(OnTransitionOut)
                 .AddTo(ref disposableBuilder);
             BaseBinding = disposableBuilder.Build();
         }
         
-        public void Dispose()
+        public virtual void Dispose()
         {
             BaseBinding?.Dispose();
         }
@@ -124,34 +123,30 @@ namespace FitMe.Panel
 
         protected virtual void OnTransitionIn(TransitionCommandData transitionCommandData)
         {
-            ViewModel.TransitionState.Value = TransitionState.In;
+            BaseViewModel.TransitionState.Value = TransitionState.In;
             Transition(transitionCommandData.TransitionKey, true, transitionCommandData.Promise.CancellationToken).ContinueWith(() =>
             {
-                ViewModel.TransitionState.Value = TransitionState.None;
+                BaseViewModel.TransitionState.Value = TransitionState.None;
                 transitionCommandData.Promise.TrySetResult(Unit.Default);
             });
         }
         
         protected virtual void OnTransitionOut(TransitionCommandData transitionCommandData)
         {
-            ViewModel.TransitionState.Value = TransitionState.Out;
+            BaseViewModel.TransitionState.Value = TransitionState.Out;
             Transition(transitionCommandData.TransitionKey, false, transitionCommandData.Promise.CancellationToken).ContinueWith(() =>
             {
-                ViewModel.TransitionState.Value = TransitionState.None;
+                BaseViewModel.TransitionState.Value = TransitionState.None;
                 transitionCommandData.Promise.TrySetResult(Unit.Default);
             });
         }
 
         protected virtual async UniTask Transition(string transitionKey, bool direction, CancellationToken cancellationToken = default)
         {   
-            if (!crossfadeRules.TryGetValue(transitionKey, out var rule))
+            if (!TryGetCrossfadeRule(transitionKey, out var rule))
             {
-                if (!crossfadeRules.TryGetValue(defaultCrossfadeRuleKey, out rule))
-                {
-                    DebugUtils.LogWarning($"PanelViewBase: Transition key '{transitionKey}' not found and default rule also missing.");
-                    await UniTask.CompletedTask;
-                }
-                DebugUtils.LogWarning($"PanelViewBase: Transition key '{transitionKey}' not found. Using default rule.");
+                await UniTask.CompletedTask;
+                return;
             }
             if (rule == null)
             {
@@ -176,6 +171,18 @@ namespace FitMe.Panel
                 return true;
             }
             component = null;
+            return false;
+        }
+        
+        protected bool TryGetCrossfadeRule(string key, out CrossfadeRule rule)
+        {
+            if (crossfadeRules.TryGetValue(key, out var foundRule))
+            {
+                rule = foundRule;
+                return true;
+            }
+            rule = null;
+            DebugUtils.LogWarning($"Transition key '{key}' not found.");
             return false;
         }
     }
