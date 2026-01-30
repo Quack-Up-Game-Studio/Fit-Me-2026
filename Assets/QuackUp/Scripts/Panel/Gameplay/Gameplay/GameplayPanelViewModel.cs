@@ -1,4 +1,5 @@
 using System;
+using FitMe.Shared;
 using QuackUp.Utils;
 using R3;
 using VContainer;
@@ -9,12 +10,15 @@ namespace FitMe.Panel
     {
         public ReactiveCommand PauseCommand { get; } = new();
         
+        private readonly IGameStateManager _gameStateManager;
         private IDisposable _bindings;
         
         [Inject]
         public GameplayPanelViewModel(
-            PanelManager panelManager) : base(panelManager)
+            PanelManager panelManager,
+            IGameStateManager gameStateManager) : base(panelManager)
         {
+            _gameStateManager = gameStateManager;
             Bind();
         }
 
@@ -35,7 +39,7 @@ namespace FitMe.Panel
 
         private void OnPause()
         {
-            DebugUtils.Log("Game Paused");
+            _gameStateManager.Pause();
         }
     }
 }

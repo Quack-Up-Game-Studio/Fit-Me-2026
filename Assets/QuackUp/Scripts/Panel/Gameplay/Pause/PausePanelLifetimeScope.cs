@@ -16,9 +16,7 @@ namespace FitMe.Panel
 
         public override IPanelViewModel CreatPanel()
         {
-            var viewModel = Container.Resolve<PausePanelViewModel>();
-            panelView.Construct(viewModel);
-            return viewModel;
+            return Container.Resolve<PausePanelViewModel>();
         }
     }
 }

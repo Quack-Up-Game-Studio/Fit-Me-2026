@@ -21,3 +21,10 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
+  <ScorePerPlacement>k__BackingField: 100
+  <ScorePerPreInfect>k__BackingField: 50
+  <ScorePerCombo>k__BackingField: 100
+  <ScorePerBomb>k__BackingField: 200
+  <ScorePerFitMe>k__BackingField: 10000
+  <HasCountOff>k__BackingField: 0
+  <CountOffDuration>k__BackingField: 3

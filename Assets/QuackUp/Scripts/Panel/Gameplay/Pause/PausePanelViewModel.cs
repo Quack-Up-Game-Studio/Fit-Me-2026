@@ -15,14 +15,17 @@ namespace FitMe.Panel
         public ReactiveCommand ResumeCommand { get; } = new();
 
         private readonly LoadSceneManager _loadSceneManager;
+        private readonly IGameStateManager _gameStateManager;
         private IDisposable _bindings;
         
         [Inject]
         public PausePanelViewModel(
             PanelManager panelManager,
-            LoadSceneManager loadSceneManager) : base(panelManager)
+            LoadSceneManager loadSceneManager,
+            IGameStateManager gameStateManager) : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
+            _gameStateManager = gameStateManager;
             Bind();
         }
 
@@ -51,7 +54,7 @@ namespace FitMe.Panel
         
         private void Resume()
         {
-            DebugUtils.Log("Game Resumed from Pause Panel");
+            _gameStateManager.Unpause();
         }
     }
 }

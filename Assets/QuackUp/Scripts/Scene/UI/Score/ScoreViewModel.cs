@@ -14,7 +14,7 @@ namespace FitMe.Scene.UI.Score
             ScoreText = levelManager.Score
                 .Select(score => score.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
-            FitText = levelManager.FitmeScore
+            FitText = levelManager.FitMeScore
                 .Select(fit => fit.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
         }

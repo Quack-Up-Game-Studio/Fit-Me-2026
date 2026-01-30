@@ -1,5 +1,6 @@
 using System;
 using FitMe.Scene.UI.Score;
+using FitMe.Shared;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace FitMe.Scene
         public void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(levelManagerConfig);
-            builder.RegisterEntryPoint<LevelManager>(Lifetime.Singleton).As<LevelManager>();
+            builder.RegisterEntryPoint<LevelManager>().AsSelf().As<IGameStateManager>();
             builder.Register<IMessageHub, LevelManagerMessageHub>(Lifetime.Singleton)
                 .Keyed(LevelManagerMessageHub.MessageHubKey);
         }

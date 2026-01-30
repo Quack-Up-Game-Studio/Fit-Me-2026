@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FitMe.Shared;
 using QuackUp.Audio;
 using QuackUp.Input;
 using QuackUp.Utils;
@@ -32,6 +33,7 @@ namespace FitMe.Grid
         private readonly GridManagerConfig _gridConfig;
         private readonly GridManager _gridManager;
         private readonly AtomFactory _atomFactory;
+        private readonly IGameStateManager _gameStateManager;
         private readonly IAudioManager _audioManager;
         private readonly IPointerHandler _pointerHandler;
 
@@ -42,6 +44,7 @@ namespace FitMe.Grid
             GridManagerConfig gridConfig,
             GridManager gridManager,
             AtomFactory atomFactory,
+            IGameStateManager gameStateManager,
             IAudioManager audioManager,
             IPointerHandler pointerHandler)
         {
@@ -50,6 +53,7 @@ namespace FitMe.Grid
             _gridConfig = gridConfig;
             _gridManager = gridManager;
             _atomFactory = atomFactory;
+            _gameStateManager = gameStateManager;
             _audioManager = audioManager;
             _pointerHandler = pointerHandler;
         }
@@ -75,6 +79,7 @@ namespace FitMe.Grid
             var controller = new BlockController(
                 _blockManagerConfig,
                 _gridManager,
+                _gameStateManager,
                 _audioManager,
                 _pointerHandler);
             var viewModel = new BlockViewModel(model);

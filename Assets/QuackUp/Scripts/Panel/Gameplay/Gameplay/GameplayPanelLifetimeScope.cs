@@ -7,8 +7,6 @@ namespace FitMe.Panel
     public class GameplayPanelLifetimeScope : PanelLifetimeScope
     {
         [SerializeField] private GameplayPanelView panelView;
-        
-        private IPanelViewModel _panelViewModel;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -23,9 +21,7 @@ namespace FitMe.Panel
 
         public override IPanelViewModel CreatPanel()
         {
-            _panelViewModel = Container.Resolve<GameplayPanelViewModel>();
-            panelView.Construct(_panelViewModel);
-            return _panelViewModel;
+            return Container.Resolve<GameplayPanelViewModel>();
         }
     }
 }
