@@ -87,15 +87,12 @@ namespace FitMe.Scene
                     break;
                 case ScoreTypes.FitMe:
                     ChangeFitMe(1);
-                    Vector3 screenPosition1 = Camera.main.WorldToScreenPoint(scoreEvent.WorldPosition);
-                    _popUpScoreFactory.Create(1, screenPosition1, "Fitme");
+                    _popUpScoreFactory.Create(1, scoreEvent.WorldPosition, "Fitme");
                     finalScore = _config.scorePerFitMe; 
                     break;
             }
             ChangeScore(finalScore);
-            //บรรทัดล่าง กรณีที่ Render mode = Screen Space - Overlay ห้ามลบเด็ดขาด!!!
-            Vector3 screenPosition = Camera.main.WorldToScreenPoint(scoreEvent.WorldPosition);
-            _popUpScoreFactory.Create(finalScore, screenPosition, "Score");
+            _popUpScoreFactory.Create(finalScore, scoreEvent.WorldPosition, "Score");
         }
         
         private void ChangeScore(int value)

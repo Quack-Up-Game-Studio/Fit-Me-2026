@@ -12,6 +12,9 @@ namespace FitMe.Scene.UI.Score
         private readonly Transform _scoreTransform;
         private readonly Transform _fitmeTransform;
         
+        private Canvas _canvas;
+        private Camera _uiCamera;
+        
         public const string PopUpScoreParent = "ScoreParent";
         
         [Inject]
@@ -25,6 +28,12 @@ namespace FitMe.Scene.UI.Score
             _parent = parent;
             _scoreTransform = scoreTransform;
             _fitmeTransform = fitmeTransform;
+            
+            _canvas = _parent.GetComponentInParent<Canvas>();
+            if (_canvas != null)
+            {
+                _uiCamera = _canvas.worldCamera; // กล้องที่ใช้ Render UI
+            }
         }
 
         public PopUpScoreView Current { get; private set; }
@@ -56,16 +65,36 @@ namespace FitMe.Scene.UI.Score
             return CreateInternal(0, position, _scoreTransform.position, rotation, out gameObject, instantiateParameters);
         }
 
-        private PopUpScoreView CreateInternal(int score, Vector3 position, Vector3 targetPosition, Quaternion rotation, out GameObject gameObject, InstantiateParameters? instantiateParameters)
+        private PopUpScoreView CreateInternal(int score, Vector3 worldPosition, Vector3 targetPosition, Quaternion rotation, out GameObject gameObject, InstantiateParameters? instantiateParameters)
         {
             instantiateParameters ??= new InstantiateParameters
             {
                 parent = _parent,
             };
 
-            var view = Object.Instantiate(_popUpPrefab, position, rotation, instantiateParameters.Value.parent);
+            var view = Object.Instantiate(_popUpPrefab, _parent);
+
+            if (_canvas != null && Camera.main != null)
+            {
+                Vector3 screenPoint = Camera.main.WorldToScreenPoint(worldPosition);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _parent as RectTransform, screenPoint, _uiCamera, out Vector2 localPoint
+                );
+                
+                var rectTransform = view.transform as RectTransform;
+                if (rectTransform != null)
+                {
+                    rectTransform.anchoredPosition = localPoint;
+                    rectTransform.localPosition = new Vector3(rectTransform.localPosition.x, rectTransform.localPosition.y, 0f);
+                }
+            }
+            else
+            {
+                view.transform.position = worldPosition;
+            }
             var viewModel = new PopUpScoreViewModel(score);
             view.Construct(viewModel, targetPosition);
+            
             Current = view;
             CurrentGameObject = view.gameObject;
             gameObject = CurrentGameObject;
