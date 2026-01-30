@@ -4,9 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using PrimeTween;
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
 using Sirenix.Serialization;
-using Sirenix.Utilities.Editor;
 using UnityEngine;
 
 namespace FitMe.Panel
