@@ -1,0 +1,426 @@
+
+SMirror.png
+size: 1708,396
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Blue/Body
+  rotate: false
+  xy: 520, 9
+  size: 256, 385
+  orig: 256, 385
+  offset: 0, 0
+  index: -1
+Blue/L_Arm
+  rotate: true
+  xy: 1434, 2
+  size: 34, 67
+  orig: 34, 68
+  offset: 0, 1
+  index: -1
+Blue/L_Eye
+  rotate: false
+  xy: 1496, 158
+  size: 45, 45
+  orig: 45, 45
+  offset: 0, 0
+  index: -1
+Blue/L_Eye_Outline
+  rotate: false
+  xy: 1395, 38
+  size: 50, 48
+  orig: 50, 48
+  offset: 0, 0
+  index: -1
+Blue/L_Eyeball
+  rotate: false
+  xy: 1553, 106
+  size: 6, 7
+  orig: 6, 7
+  offset: 0, 0
+  index: -1
+Blue/L_Eyelid
+  rotate: false
+  xy: 1594, 160
+  size: 45, 42
+  orig: 45, 42
+  offset: 0, 0
+  index: -1
+Blue/Mouth
+  rotate: false
+  xy: 1294, 157
+  size: 99, 117
+  orig: 99, 117
+  offset: 0, 0
+  index: -1
+Blue/R_Arm
+  rotate: true
+  xy: 1294, 2
+  size: 34, 68
+  orig: 34, 68
+  offset: 0, 0
+  index: -1
+Blue/R_Eye
+  rotate: false
+  xy: 1644, 204
+  size: 45, 43
+  orig: 45, 43
+  offset: 0, 0
+  index: -1
+Blue/R_Eye_Outline
+  rotate: false
+  xy: 1532, 277
+  size: 50, 48
+  orig: 50, 48
+  offset: 0, 0
+  index: -1
+Blue/R_Eyeball
+  rotate: false
+  xy: 1561, 106
+  size: 6, 7
+  orig: 6, 7
+  offset: 0, 0
+  index: -1
+Blue/R_Eyelid
+  rotate: false
+  xy: 1641, 159
+  size: 45, 43
+  orig: 45, 43
+  offset: 0, 0
+  index: -1
+Green/Body
+  rotate: false
+  xy: 2, 9
+  size: 257, 385
+  orig: 257, 385
+  offset: 0, 0
+  index: -1
+Green/L_Arm
+  rotate: false
+  xy: 1532, 327
+  size: 34, 67
+  orig: 34, 68
+  offset: 0, 1
+  index: -1
+Green/L_Eye
+  rotate: false
+  xy: 1596, 249
+  size: 45, 45
+  orig: 45, 45
+  offset: 0, 0
+  index: -1
+Green/L_Eye_Outline
+  rotate: false
+  xy: 1604, 346
+  size: 50, 48
+  orig: 50, 48
+  offset: 0, 0
+  index: -1
+Green/L_Eyeball
+  rotate: false
+  xy: 1569, 106
+  size: 6, 7
+  orig: 6, 7
+  offset: 0, 0
+  index: -1
+Green/L_Eyelid
+  rotate: false
+  xy: 1503, 62
+  size: 45, 42
+  orig: 45, 42
+  offset: 0, 0
+  index: -1
+Green/Mouth
+  rotate: false
+  xy: 1395, 277
+  size: 99, 117
+  orig: 99, 117
+  offset: 0, 0
+  index: -1
+Green/R_Arm
+  rotate: true
+  xy: 1364, 2
+  size: 34, 68
+  orig: 34, 68
+  offset: 0, 0
+  index: -1
+Green/R_Eye
+  rotate: true
+  xy: 1550, 59
+  size: 45, 43
+  orig: 45, 43
+  offset: 0, 0
+  index: -1
+Green/R_Eye_Outline
+  rotate: false
+  xy: 1656, 346
+  size: 50, 48
+  orig: 50, 48
+  offset: 0, 0
+  index: -1
+Green/R_Eyeball
+  rotate: false
+  xy: 1577, 106
+  size: 6, 7
+  orig: 6, 7
+  offset: 0, 0
+  index: -1
+Green/R_Eyelid
+  rotate: false
+  xy: 1550, 14
+  size: 45, 43
+  orig: 45, 43
+  offset: 0, 0
+  index: -1
+Purple/Body
+  rotate: false
+  xy: 261, 9
+  size: 257, 385
+  orig: 257, 385
+  offset: 0, 0
+  index: -1
+Purple/L_Arm
+  rotate: false
+  xy: 1431, 89
+  size: 34, 67
+  orig: 34, 68
+  offset: 0, 1
+  index: -1
+Purple/L_Eye
+  rotate: false
+  xy: 1643, 249
+  size: 45, 45
+  orig: 45, 45
+  offset: 0, 0
+  index: -1
+Red/L_Eye
+  rotate: false
+  xy: 1643, 249
+  size: 45, 45
+  orig: 47, 47
+  offset: 1, 1
+  index: -1
+Purple/L_Eye_Outline
+  rotate: true
+  xy: 1496, 205
+  size: 50, 48
+  orig: 50, 48
+  offset: 0, 0
+  index: -1
+Purple/L_Eyeball
+  rotate: false
+  xy: 1585, 106
+  size: 6, 7
+  orig: 6, 7
+  offset: 0, 0
+  index: -1
+Purple/L_Eyelid
+  rotate: false
+  xy: 1600, 115
+  size: 45, 42
+  orig: 45, 42
+  offset: 0, 0
+  index: -1
+Purple/Mouth
+  rotate: false
+  xy: 1294, 38
+  size: 99, 117
+  orig: 99, 117
+  offset: 0, 0
+  index: -1
+Purple/R_Arm
+  rotate: false
+  xy: 1496, 326
+  size: 34, 68
+  orig: 34, 68
+  offset: 0, 0
+  index: -1
+Purple/R_Eye
+  rotate: false
+  xy: 1553, 115
+  size: 45, 43
+  orig: 45, 43
+  offset: 0, 0
+  index: -1
+Red/R_Eye
+  rotate: false
+  xy: 1553, 115
+  size: 45, 43
+  orig: 47, 45
+  offset: 1, 1
+  index: -1
+Purple/R_Eye_Outline
+  rotate: true
+  xy: 1503, 106
+  size: 50, 48
+  orig: 50, 48
+  offset: 0, 0
+  index: -1
+Purple/R_Eyeball
+  rotate: true
+  xy: 778, 2
+  size: 6, 7
+  orig: 6, 7
+  offset: 0, 0
+  index: -1
+Purple/R_Eyelid
+  rotate: false
+  xy: 1647, 114
+  size: 45, 43
+  orig: 45, 43
+  offset: 0, 0
+  index: -1
+Red/Body
+  rotate: false
+  xy: 778, 10
+  size: 256, 384
+  orig: 258, 386
+  offset: 1, 1
+  index: -1
+Red/L_Arm
+  rotate: false
+  xy: 1467, 89
+  size: 34, 67
+  orig: 36, 70
+  offset: 1, 2
+  index: -1
+Red/L_Eye_Outline
+  rotate: false
+  xy: 1604, 296
+  size: 50, 48
+  orig: 52, 50
+  offset: 1, 1
+  index: -1
+Red/L_Eyeball
+  rotate: true
+  xy: 787, 2
+  size: 6, 7
+  orig: 8, 9
+  offset: 1, 1
+  index: -1
+Red/L_Eyelid
+  rotate: false
+  xy: 1642, 70
+  size: 45, 42
+  orig: 47, 44
+  offset: 1, 1
+  index: -1
+Red/Mouth
+  rotate: false
+  xy: 1395, 158
+  size: 99, 117
+  orig: 101, 119
+  offset: 1, 1
+  index: -1
+Red/R_Arm
+  rotate: false
+  xy: 1395, 88
+  size: 34, 68
+  orig: 36, 70
+  offset: 1, 1
+  index: -1
+Red/R_Eye_Outline
+  rotate: false
+  xy: 1656, 296
+  size: 50, 48
+  orig: 52, 50
+  offset: 1, 1
+  index: -1
+Red/R_Eyeball
+  rotate: true
+  xy: 796, 2
+  size: 6, 7
+  orig: 8, 9
+  offset: 1, 1
+  index: -1
+Red/R_Eyelid
+  rotate: false
+  xy: 1595, 70
+  size: 45, 43
+  orig: 47, 45
+  offset: 1, 1
+  index: -1
+Yellow/Body
+  rotate: false
+  xy: 1036, 10
+  size: 256, 384
+  orig: 256, 384
+  offset: 0, 0
+  index: -1
+Yellow/L_Arm
+  rotate: false
+  xy: 1568, 327
+  size: 34, 67
+  orig: 34, 67
+  offset: 0, 0
+  index: -1
+Yellow/L_Eye
+  rotate: false
+  xy: 1503, 16
+  size: 45, 44
+  orig: 45, 44
+  offset: 0, 0
+  index: -1
+Yellow/L_Eye_Outline
+  rotate: true
+  xy: 1447, 38
+  size: 49, 48
+  orig: 49, 48
+  offset: 0, 0
+  index: -1
+Yellow/L_Eyeball
+  rotate: false
+  xy: 805, 2
+  size: 6, 6
+  orig: 6, 6
+  offset: 0, 0
+  index: -1
+Yellow/L_Eyelid
+  rotate: false
+  xy: 1546, 181
+  size: 46, 43
+  orig: 46, 43
+  offset: 0, 0
+  index: -1
+Yellow/Mouth
+  rotate: false
+  xy: 1294, 276
+  size: 99, 118
+  orig: 99, 118
+  offset: 0, 0
+  index: -1
+Yellow/R_Arm
+  rotate: false
+  xy: 1496, 257
+  size: 34, 67
+  orig: 34, 67
+  offset: 0, 0
+  index: -1
+Yellow/R_Eye
+  rotate: false
+  xy: 1597, 25
+  size: 45, 43
+  orig: 45, 43
+  offset: 0, 0
+  index: -1
+Yellow/R_Eye_Outline
+  rotate: true
+  xy: 1546, 226
+  size: 49, 48
+  orig: 49, 48
+  offset: 0, 0
+  index: -1
+Yellow/R_Eyeball
+  rotate: false
+  xy: 813, 2
+  size: 6, 6
+  orig: 6, 6
+  offset: 0, 0
+  index: -1
+Yellow/R_Eyelid
+  rotate: false
+  xy: 1596, 204
+  size: 46, 43
+  orig: 46, 43
+  offset: 0, 0
+  index: -1

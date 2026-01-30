@@ -17,16 +17,14 @@ namespace FitMe.Grid
     public class CellModel : IDisposable
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public ReactiveProperty<AtomModel> CurrentAtom { get; set; } = new();
+        public ReactiveProperty<AtomInstance> CurrentAtom { get; set; } = new();
         public ReactiveProperty<Vector2Int> ArrayIndex { get; set; } = new();
         public ReactiveProperty<Vector2Int> GridIndex { get; set; } = new();
         public ReactiveProperty<CellState> State { get; set; } = new(CellState.None);
-        public ICellView CellView { get; private set; }
 
         [Inject]
-        public CellModel(ICellView cellView)
+        public CellModel()
         {
-            CellView = cellView;
         }
 
         public void Dispose()

@@ -78,11 +78,11 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 133995437
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 0eca6b9dff73b81948ddfcbebb175778, type: 3}
+  m_Sprite: {fileID: 8725702500742632526, guid: 47f99f7529c8b11498001e232985bfc2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -104,14 +104,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3bbff0b2ffa09368b2b941c3dcdd9ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.CellView
-  useDedicatedSprite: 0
+  useDedicatedSprite: 1
   spriteRenderer: {fileID: 4210760980716306993}
   whitePatterns:
-  - {fileID: 7482667652216324306, guid: 0eca6b9dff73b81948ddfcbebb175778, type: 3}
-  - {fileID: 7482667652216324306, guid: 0eca6b9dff73b81948ddfcbebb175778, type: 3}
+  - {fileID: 8725702500742632526, guid: 47f99f7529c8b11498001e232985bfc2, type: 3}
+  - {fileID: 1475666350, guid: 47f99f7529c8b11498001e232985bfc2, type: 3}
   blackPatterns:
-  - {fileID: 7482667652216324306, guid: 0eca6b9dff73b81948ddfcbebb175778, type: 3}
-  - {fileID: 7482667652216324306, guid: 0eca6b9dff73b81948ddfcbebb175778, type: 3}
+  - {fileID: 1588289180, guid: 47f99f7529c8b11498001e232985bfc2, type: 3}
+  - {fileID: 2126957313, guid: 47f99f7529c8b11498001e232985bfc2, type: 3}
   whiteColor: {r: 1, g: 1, b: 1, a: 1}
   blackColor: {r: 0, g: 0, b: 0, a: 1}
   canBePlacedColor: {r: 0, g: 1, b: 0, a: 1}

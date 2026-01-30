@@ -9,6 +9,7 @@ namespace FitMe.Grid
     {
         public ReadOnlyReactiveProperty<Vector2Int> ArrayIndex { get; private set; }
         public ReadOnlyReactiveProperty<CellState> State { get; private set; }
+        public ReactiveCommand DestroyCommand { get; } = new();
 
         private readonly CellModel _model;
         private IDisposable _bindings;

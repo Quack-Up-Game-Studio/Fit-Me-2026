@@ -27,7 +27,7 @@ namespace FitMe.Grid
             [field: SerializeField] public Transform Transform { get; private set; }
 
             [field: SerializeField, DisplayAsString] public bool IsFree { get; set; } = true;
-            [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public BlockModel CurrentBlock { get; set; }
+            [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public BlockInstance CurrentBlock { get; set; }
         }
         
         private struct SpawnBlockData
@@ -60,11 +60,11 @@ namespace FitMe.Grid
         #region Fields
         public const string PreviewTransformKey = "PreviewTransform";
         public static event Action OnGameOver;
-        public static event Action<List<BlockModel>> OnBlockSpawned;
+        public static event Action<List<BlockInstance>> OnBlockSpawned;
         
         private readonly Queue<SpawnBlockData> _spawnBag = new();
         private readonly List<SpawnBlockData> _blockPool = new();
-        private BlockModel _currentPreviewBlock;
+        private BlockInstance _currentPreviewBlock;
         
         private readonly GridManager _gridManager;
         private readonly SpawnPointData[] _spawnPoints;
@@ -126,10 +126,10 @@ namespace FitMe.Grid
         private void OnFitCheck(FitTypeEvent eventData)
         {
             if (_gridManager.CurrentSceneType != SceneType.Gameplay) return;
-            FreeSpawnPoint(eventData.Block.SpawnIndex);
+            FreeSpawnPoint(eventData.Block.Model.SpawnIndex);
             //ResetSpawnPoint();
             SpawnRandomBlock();
-            if (eventData.FitType is FitType.None) 
+            if (eventData.FitType is FitType.None or FitType.Combo) 
                 GameOverCheck().Forget();
         }
         #endregion
@@ -154,7 +154,7 @@ namespace FitMe.Grid
             
             var tempBag = new List<SpawnBlockData>();
 
-            foreach (var pair in _config.BagSetting)
+            foreach (var pair in _config.BagSettings)
             {
                 var shape = pair.Key;
                 var count = pair.Value;
@@ -174,8 +174,8 @@ namespace FitMe.Grid
                 var possibleSchemas = preset.BlockSchemas;
                 for (int i = 0; i < count; i++)
                 {
-                    var template = shuffledTemplates[UnityEngine.Random.Range(0, shuffledTemplates.Count)];
-                    var randomSchema = possibleSchemas[UnityEngine.Random.Range(0, possibleSchemas.Count)];
+                    var template = shuffledTemplates[Random.Range(0, shuffledTemplates.Count)];
+                    var randomSchema = possibleSchemas[Random.Range(0, possibleSchemas.Count)];
 
                     tempBag.Add(new SpawnBlockData(shape, randomSchema, template.blockColor));
                 }
@@ -199,7 +199,7 @@ namespace FitMe.Grid
                 RefillBag();
             }
             
-            var spawnedBlocks = new List<BlockModel>();
+            var spawnedBlocks = new List<BlockInstance>();
             var randomAmount = _config.MaxRandomAmount;
             for (int i = 0; i < randomAmount; i++)
             {
@@ -213,8 +213,8 @@ namespace FitMe.Grid
                 int randomRotation = index * 90;
                 DebugUtils.Log("Random Rotation: " + randomRotation);
                 Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
-                var block = InstantiateBlock(spawnTransform, randomRotationQuaternion, randomSchema, randomSchema.blockColor, _config.ObjectScale);
-                block.SpawnIndex = i;
+                var block = InstantiateBlock(spawnTransform, randomRotationQuaternion, randomSchema.blockShape, randomSchema.blockColor, _config.ObjectScale);
+                block.Model.SpawnIndex = i;
                 _spawnPoints[i].IsFree = false;
                 _spawnPoints[i].CurrentBlock = block;
                 spawnedBlocks.Add(block);
@@ -225,41 +225,32 @@ namespace FitMe.Grid
             DebugUtils.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
         }
 
-        private BlockModel InstantiateBlock(Transform spawnTransform, Quaternion rotation, SpawnBlockData randomSchema, BlockColor color, float objectScale)
+        private BlockInstance InstantiateBlock(Transform spawnTransform, Quaternion rotation, BlockShape shape, BlockColor color, float objectScale)
         {
-            var face = randomSchema.blockShape;
             //block.BlockView.Transform.rotation = randomRotationQuaternion;
-            BlockModel block = _blockFactory.Create(face, spawnTransform.position, rotation, out var blockGameObject, new InstantiateParameters
+            BlockInstance block = _blockFactory.Create(shape, spawnTransform.position, rotation, new InstantiateParameters
             {
                 parent = spawnTransform,
                 worldSpace = true,
             });
-            blockGameObject.name = $"Block_{face}";
-            block.ChangeType(color, false);
-            block.BlockView.Transform.localScale = Vector3.zero;
+            block.GameObject.name = $"Block_{shape}";
+            block.Model.ChangeType(color, false);
+            block.GameObject.transform.localScale = Vector3.zero;
             Vector3 scale = new Vector3(objectScale, objectScale, 1f);
-            block.BlockView.ScaleIn(scale);
+            var promise = new Promise<Unit>();
+            block.ViewModel.ScaleInCommand.Execute(new ScaleInCommandData(promise, scale));
             return block;
         }
 
         private void SpawnBlock(BlockPreset preset)
         {
-            var spawnedBlocks = new List<BlockModel>();
+            var spawnedBlocks = new List<BlockInstance>();
             if (!_spawnPoints[0].IsFree) return;
-            Transform spawnTransform = _spawnPoints[0].Transform;
+            var spawnTransform = _spawnPoints[0].Transform;
             var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();
-            var blockType = blockTypes.GetRandomElement();
-            var blockFace = _config.BlockPresetDictionary.FirstOrDefault(x => x.Value == preset).Key;
-            BlockModel block = _blockFactory.Create(blockFace, spawnTransform.position, Quaternion.identity, out var blockGameObject, new InstantiateParameters
-            {
-                parent = spawnTransform
-            });
-            blockGameObject.name = $"Block_{blockFace}";
-            block.ChangeType(blockType, false);
-            block.SpawnIndex = 0;
-            block.BlockView.Transform.localScale = Vector3.zero;
-            Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
-            block.BlockView.ScaleIn(scale);
+            var color = blockTypes.GetRandomElement();
+            var face = _config.BlockPresetDictionary.FirstOrDefault(x => x.Value == preset).Key;
+            var block = InstantiateBlock(spawnTransform, Quaternion.identity, face, color, _config.ObjectScale);
             _spawnPoints[0].IsFree = false;
             _spawnPoints[0].CurrentBlock = block;
             spawnedBlocks.Add(block);
@@ -289,11 +280,11 @@ namespace FitMe.Grid
 
         private void PreviewNextQueue()
         {
-            _currentPreviewBlock?.BlockView.Destroy();
+            _currentPreviewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
 
             var nextBlock = _spawnBag.Peek(); 
-            _currentPreviewBlock = InstantiateBlock(_previewTransform, Quaternion.identity, nextBlock, nextBlock.blockColor, _config.PreviewScale);
-            _currentPreviewBlock.BlockController.SetActive(false);
+            _currentPreviewBlock = InstantiateBlock(_previewTransform, Quaternion.identity, nextBlock.blockShape, nextBlock.blockColor, _config.PreviewScale);
+            _currentPreviewBlock.Controller.SetActive(false);
         }
         
         /// <summary>
@@ -382,7 +373,7 @@ namespace FitMe.Grid
             foreach (var spawnPoint in _spawnPoints)
             {
                 spawnPoint.IsFree = true;
-                spawnPoint.CurrentBlock?.BlockView.Destroy();
+                spawnPoint.CurrentBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
                 spawnPoint.CurrentBlock = null;
             }
         }
@@ -393,11 +384,11 @@ namespace FitMe.Grid
             // {
             //     await _scaleTween.ToUniTask();
             // }
-            List<BlockModel> blockToCheck = _spawnPoints.Where(x => !x.IsFree).Select(spawnPoint => spawnPoint.CurrentBlock).ToList();
+            List<BlockModel> blockToCheck = _spawnPoints.Where(x => !x.IsFree).Select(spawnPoint => spawnPoint.CurrentBlock.Model).ToList();
             if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
                 _gridManager.CreateVacantSchema(out _, out var vacantCount);
-                _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));
+                _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));    
                 await _gridManager.RemoveAllBlocks(true);
             }
         }

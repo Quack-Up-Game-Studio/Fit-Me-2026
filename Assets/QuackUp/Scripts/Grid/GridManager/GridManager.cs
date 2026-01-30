@@ -10,6 +10,7 @@ using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
+using Unity.Android.Gradle;
 using UnityEditor;
 using UnityEngine;
 using VContainer;
@@ -64,12 +65,12 @@ namespace FitMe.Grid
 
     public record GridBlockData
     {
-        public readonly BlockModel Block;
+        public readonly BlockInstance BlockInstance;
         public readonly IDisposable Subscription;
         
-        public GridBlockData(BlockModel block, IDisposable subscription)
+        public GridBlockData(BlockInstance blockInstance, IDisposable subscription)
         {
-            Block = block;
+            BlockInstance = blockInstance;
             Subscription = subscription;
         }
     }
@@ -77,8 +78,8 @@ namespace FitMe.Grid
     public struct FitTypeEvent
     {
         public readonly FitType FitType;
-        public readonly BlockModel Block;
-        public FitTypeEvent(FitType fitType, BlockModel block)
+        public readonly BlockInstance Block;
+        public FitTypeEvent(FitType fitType, BlockInstance block)
         {
             FitType = fitType;
             Block = block;
@@ -105,7 +106,7 @@ namespace FitMe.Grid
         private readonly UnityEngine.Grid _grid;
         private readonly GridManagerConfig _config;
         private readonly CellFactory _cellFactory;
-        private readonly ISubscriber<LoadSceneStageEvent> _sceneStageSubscriber;
+        private readonly IMessageHub _messageHub;
         
         private IDisposable _subscriptions;
         
@@ -120,7 +121,7 @@ namespace FitMe.Grid
         [TableMatrix(SquareCells = true, HorizontalTitle = "Cell Array", IsReadOnly = true,
             DrawElementMethod = nameof(DrawCellArrayMatrix), Transpose = true)]
         #endif
-        [SerializeField] private CellModel[,] _cellArray = {};
+        [SerializeField] private CellInstance[,] _cellArray = {};
         #if UNITY_EDITOR
         [TableMatrix(SquareCells = true, HorizontalTitle = "Vacant Schema", IsReadOnly = true,
             DrawElementMethod = nameof(DrawVacantSchemaMatrix), Transpose = true)]
@@ -139,11 +140,11 @@ namespace FitMe.Grid
 
         #region Fields and Properties
         
-        private List<CellModel> _previousValidationCells = new();
+        private List<CellInstance> _previousValidationCells = new();
         private readonly ObservableList<GridBlockData> _blockOnGrid = new();
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
         // public event Action<BlockModel> OnBlockStateChanged;
-        // public event Action<BlockModel> OnBlockPlaced;
+        public Subject<BlockInstance> OnBlockPlaced = new();
         // public event Action<BlockModel> OnBlockDestroyed;
         public Subject<ScoreEvent> OnScoreAdded = new();
         public Subject<FitTypeEvent> OnFitCheck = new();
@@ -156,12 +157,12 @@ namespace FitMe.Grid
             UnityEngine.Grid grid,
             GridManagerConfig config,
             CellFactory cellFactory,
-            ISubscriber<LoadSceneStageEvent> sceneStageSubscriber)
+            [Key(GridManagerMessageHub.GridManagerMessageHubKey)] IMessageHub messageHub)
         {
             _grid = grid;
             _config = config;
             _cellFactory = cellFactory;
-            _sceneStageSubscriber = sceneStageSubscriber;
+            _messageHub = messageHub;
             _grid.cellSize = config.CellSize;
             Subscribe();
         }
@@ -169,11 +170,13 @@ namespace FitMe.Grid
         private void Subscribe()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _sceneStageSubscriber
-                .AsObservable().ToObservable()
+            _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage == LoadSceneStage.FinishLoading)
                 .Select(x => x.NextSceneType)
                 .Subscribe(OnFinishedLoading)
+                .AddTo(ref disposableBuilder);
+            _messageHub
+                .Subscribe<StartSpawnEvent>(x => OnSpawnGridWithPreset(x.BlockPreset))
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -192,16 +195,8 @@ namespace FitMe.Grid
         {
             DebugUtils.Log("GridManager: OnFinishedLoading " + sceneType);
             CurrentSceneType = sceneType;
-            switch (sceneType)
-            {
-                case SceneType.MainMenu:
-                    OnMainMenuSceneActivated();
-                    break;
-                case SceneType.Gameplay:
-                default:
-                    OnGameplaySceneActivated();
-                    break;
-            }
+            if (CurrentSceneType is SceneType.Gameplay) 
+                OnGameplaySceneActivated();
         }
         
         private void OnGameplaySceneActivated()
@@ -210,15 +205,11 @@ namespace FitMe.Grid
             CreateCells();
         }
 
-        private void OnMainMenuSceneActivated()
+        private void OnSpawnGridWithPreset(BlockPreset preset)
         {
-            // if (_blockPresetRequestHandler == null) return;
-            // var blockPresets = _blockPresetRequestHandler.Invoke(new BlockPresetRequest());
-            // if (blockPresets.Count == 0) return;
-            // var randomPreset = blockPresets.GetRandomElement();
-            // SetUpMainMenuGridPreset(randomPreset);
-            // CreateCells();
-            // _startSpawnPublisher.Publish(new StartSpawnEvent(randomPreset));
+            if (CurrentSceneType is SceneType.Gameplay) return;
+            SetUpMainMenuGridPreset(preset);
+            CreateCells();
         }
         #endregion
         
@@ -348,9 +339,9 @@ namespace FitMe.Grid
             ResetPreviousValidationCells();
             foreach (var cell in _cellArray)
             {
-                cell?.CellView.Destroy();
+                cell?.ViewModel.DestroyCommand.Execute(Unit.Default);
             }
-            _cellArray = new CellModel[0, 0];
+            _cellArray = new CellInstance[0, 0];
             _vacantSchema = new int[0, 0];
             SetUpGameplayGridPreset();
             CreateCells();
@@ -379,7 +370,7 @@ namespace FitMe.Grid
             var row = CurrentGridSize.y;
             var column = CurrentGridSize.x;
             var cellSize = _grid.cellSize.x;
-            _cellArray = new CellModel[row, column];
+            _cellArray = new CellInstance[row, column];
             for (int x = 0; x < row; x++)
             {
                 for (int y = 0; y < column; y++)
@@ -390,11 +381,11 @@ namespace FitMe.Grid
                         (Vector3)(new Vector2(halfSize, halfSize) +
                                   new Vector2(y + CurrentOffset.x, CurrentOffset.y - x) * cellSize);
                         //+ _grid.transform.position;
-                    var cell = _cellFactory.Create(spawnPosition, Quaternion.identity, out var cellGameObject);
-                    cell.CellView.Transform.localScale = Vector3.one * cellSize;
-                    cellGameObject.name = $"Cell {x}_{y}";
-                    cell.ArrayIndex.Value = new Vector2Int(x, y);
-                    cell.GridIndex.Value = GridUtils.ArrayToGridIndex(new Vector2Int(x, y), CurrentOffset);
+                    var cell = _cellFactory.Create(spawnPosition, Quaternion.identity);
+                    cell.GameObject.transform.localScale = Vector3.one * cellSize;
+                    cell.GameObject.name = $"Cell {x}_{y}";
+                    cell.Model.ArrayIndex.Value = new Vector2Int(x, y);
+                    cell.Model.GridIndex.Value = GridUtils.ArrayToGridIndex(new Vector2Int(x, y), CurrentOffset);
                     _cellArray[x, y] = cell;
                 }
             }
@@ -409,17 +400,17 @@ namespace FitMe.Grid
         /// <returns>true if the placement is valid, false otherwise</returns>
         public bool ValidatePlacement(BlockModel blockModel)
         {
-            List<CellModel> cells = new List<CellModel>();
+            var cells = new List<CellInstance>();
             foreach (var atom in blockModel.Atoms)
             {
-                Vector3 atomPosition = atom.AtomView.Transform.position;
+                Vector3 atomPosition = atom.GameObject.transform.position;
                 Vector3 cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
-                CellModel cellModel = GetCellByPosition(cellPosition);
-                if (cellModel == null || cellModel.CurrentAtom.Value != null)
+                var cell = GetCellByPosition(cellPosition);
+                if (cell == null || cell.Model.CurrentAtom.Value != null)
                 {
                     continue;
                 }
-                cells.Add(cellModel);
+                cells.Add(cell);
             }
             if (_previousValidationCells.Count > 0)
             {
@@ -428,56 +419,56 @@ namespace FitMe.Grid
             _previousValidationCells = cells;
             if (cells.Count < blockModel.Atoms.Count)
             {
-                cells.ForEach(cell => cell.State.Value = CellState.CannotBePlaced);
+                cells.ForEach(cell => cell.Model.State.Value = CellState.CannotBePlaced);
                 return false;
             }
-            cells.ForEach(cell => cell.State.Value = CellState.CanBePlaced);
+            cells.ForEach(cell => cell.Model.State.Value = CellState.CanBePlaced);
             return true;
         }
         
         /// <summary>
         /// Place the block in the grid
         /// </summary>
-        /// <param name="blockModel">Block to place</param>
+        /// <param name="blockInstance">Block to place</param>
         /// <returns>true if the placement is valid, false otherwise</returns>
-        public bool TryPlaceBlock(BlockModel blockModel)
+        public bool TryPlaceBlock(BlockInstance blockInstance)
         {
             ResetPreviousValidationCells();
-            var blockViewTransform = blockModel.BlockView.Transform;
+            var blockViewTransform = blockInstance.GameObject.transform;
             var cellSize = _grid.cellSize.x;
             blockViewTransform.localScale = Vector3.one * cellSize;
-            var cells = new List<CellModel>();
-            foreach (var atom in blockModel.Atoms)
+            var cells = new List<CellInstance>();
+            foreach (var atom in blockInstance.Model.Atoms)
             {
-                var atomPosition = atom.AtomView.Transform.position.WithZ(0);
-                var cellModel = GetCellByPosition(atomPosition);
-                if (cellModel == null || cellModel.CurrentAtom.Value != null)
+                var atomPosition = atom.GameObject.transform.position.WithZ(0);
+                var cell = GetCellByPosition(atomPosition);
+                if (cell == null || cell.Model.CurrentAtom.Value != null)
                 {
                     return false;
                 }
-                cells.Add(cellModel);
+                cells.Add(cell);
             }
-            for (var i = 0; i < blockModel.Atoms.Count; i++) 
+            for (var i = 0; i < blockInstance.Model.Atoms.Count; i++) 
             {
-                var atom = blockModel.Atoms[i];
-                cells[i].CurrentAtom.Value = atom;
+                var atom = blockInstance.Model.Atoms[i];
+                cells[i].Model.CurrentAtom.Value = atom;
             }
-            var firstCellPosition = cells[0].CellView.Transform.position;
-            var firstAtomPosition = blockModel.Atoms[0].AtomView.Transform.position;
+            var firstCellPosition = cells[0].GameObject.transform.position;
+            var firstAtomPosition = blockInstance.Model.Atoms[0].GameObject.transform.position;
             var blockPositionRelativeToAtom = firstCellPosition - firstAtomPosition;
             blockViewTransform.position += blockPositionRelativeToAtom;
-            blockModel.BlockCells = cells;
-            var subscription = blockModel.UpdateGridRequested
-                .Subscribe(_ => UpdateBlockOnGrid(blockModel));
-            _blockOnGrid.Add(new(blockModel, subscription));
+            blockInstance.Model.BlockCells = cells;
+            var subscription = blockInstance.Model.UpdateGridCommand
+                .Subscribe(_ => UpdateBlockOnGrid(blockInstance));
+            _blockOnGrid.Add(new(blockInstance, subscription));
             OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockViewTransform.position));
-            //blockModel.BlockInteractionState.Value = BlockInteractionState.Placed;
-            blockModel.BlockView.SetParent(_grid.transform);
+            blockInstance.ViewModel.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
+            blockInstance.GameObject.transform.SetParent(_grid.transform);
             //blockView.ResetSortingLayer();
             ReorderRenderingOrder();
-            var fit = UpdateBlockOnGrid(blockModel);
-            OnFitCheck?.OnNext(new FitTypeEvent(fit, blockModel));
-            //OnBlockPlaced?.Invoke(blockModel);
+            var fit = UpdateBlockOnGrid(blockInstance);
+            OnFitCheck?.OnNext(new FitTypeEvent(fit, blockInstance));
+            OnBlockPlaced?.OnNext(blockInstance);
             return true;
         }
         
@@ -486,7 +477,7 @@ namespace FitMe.Grid
         /// </summary>
         /// <param name="blockModel"></param>
         /// <returns>FitType indicating the result of the update</returns>
-        public FitType UpdateBlockOnGrid(BlockModel blockModel)
+        public FitType UpdateBlockOnGrid(BlockInstance blockModel)
         {
             if (!CreateVacantSchema(out var vacantSchema, out _)) //Fit Me!
             {
@@ -494,7 +485,7 @@ namespace FitMe.Grid
                 FitMe().Forget();
                 return FitType.FitMe;
             }
-            var contacts = new List<BlockModel>();
+            var contacts = new List<BlockInstance>();
             if (!CheckForContact(blockModel, contacts))
             {
                 return FitType.None;
@@ -507,21 +498,21 @@ namespace FitMe.Grid
         {
             if (CurrentSceneType is not SceneType.Gameplay) return;
             List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
-                _blockOnGrid.Select(x => (x.Block.BlockState, x.Block.BlockType.CurrentValue)).ToList();
+                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
             await ClearGrid();
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
             OnScoreAdded.OnNext(new(ScoreTypes.FitMe, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
             RegenerateGrid();
         }
 
-        private async UniTask Combo(List<BlockModel> contacts)
+        private async UniTask Combo(List<BlockInstance> contacts)
         {
-            var middleOfBlocks = contacts.Select(block => block.BlockView.Transform.position)
+            var middleOfBlocks = contacts.Select(block => block.GameObject.transform.position)
                 .Aggregate(Vector3.zero, (current, position) => current + position) / contacts.Count;
             List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
-                _blockOnGrid.Select(x => (x.Block.BlockState, x.Block.BlockType.CurrentValue)).ToList();
+                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
             //AudioManager.Instance.PlayAudioOneShot(stackExplodeSfx, transform.position);
-            var gridBlockData = _blockOnGrid.Where(x => contacts.Contains(x.Block)).ToList();
+            var gridBlockData = _blockOnGrid.Where(x => contacts.Contains(x.BlockInstance)).ToList();
             //await UniTask.WhenAll(gridBlockData.Select(block => RemoveBlock(block, FitType.Combo, true)));
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.Combo, blocksToSave);
             OnScoreAdded.OnNext(new(ScoreTypes.Combo, contacts.Count, middleOfBlocks));
@@ -529,9 +520,9 @@ namespace FitMe.Grid
             //BlockManager.Instance.GameOverCheck().Forget();
         }
 
-        public async UniTask RemoveBlock(BlockModel blockModel, FitType fitType, bool destroy = false)
+        public async UniTask RemoveBlock(BlockInstance blockInstance, FitType fitType, bool destroy = false)
         {
-            var gridBlockData = _blockOnGrid.FirstOrDefault(x => x.Block == blockModel);
+            var gridBlockData = _blockOnGrid.FirstOrDefault(x => x.BlockInstance == blockInstance);
             if (gridBlockData == null)
             {
                 DebugUtils.LogWarning("Block not found on grid");
@@ -549,20 +540,23 @@ namespace FitMe.Grid
         {
             _blockOnGrid.Remove(gridBlockData);
             //OnBlockDestroyed?.Invoke(gridBlockData.Block);
-            var atoms = new List<AtomModel>(gridBlockData.Block.Atoms);
+            var atoms = new List<AtomInstance>(gridBlockData.BlockInstance.Model.Atoms);
             if (CurrentSceneType is SceneType.Gameplay)
             {
-                gridBlockData.Block.BlockState = BlockState.Exploding;
-                await gridBlockData.Block.BlockView.Explode(fitType, destroy);
+                gridBlockData.BlockInstance.Model.BlockState = BlockState.Exploding;
+                var promise = new Promise<Unit>();
+                gridBlockData.BlockInstance.ViewModel.ExplodeCommand.Execute(
+                    new ExplodeCommandData(promise, fitType, destroy));
+                await promise.Task;
             }
             foreach (var atom in atoms)
             {
-                var cellModel = GetCellByPosition(atom.AtomView.Transform.position);
-                if (cellModel == null || cellModel.CurrentAtom.Value != atom)
+                var cell = GetCellByPosition(atom.GameObject.transform.position);
+                if (cell == null || cell.Model.CurrentAtom.Value != atom)
                 {
                     continue;
                 }
-                cellModel.CurrentAtom.Value = null;
+                cell.Model.CurrentAtom.Value = null;
             }
             gridBlockData.Subscription.Dispose();
         }
@@ -589,7 +583,7 @@ namespace FitMe.Grid
         public void ResetPreviousValidationCells()
         {
             if (_previousValidationCells.Count == 0) return;
-            _previousValidationCells.ForEach(cell => cell.State.Value = CellState.None);
+            _previousValidationCells.ForEach(cell => cell.Model.State.Value = CellState.None);
             _previousValidationCells.Clear();
         }
         
@@ -601,7 +595,7 @@ namespace FitMe.Grid
             for (var i = 0; i < _blockOnGrid.Count; i++)
             {
                 var gridBlockData = _blockOnGrid[i];
-                gridBlockData.Block.SetSortingOrderCommand.Execute(i);
+                gridBlockData.BlockInstance.ViewModel.SetSortingOrderCommand.Execute(i);
             }
         }
         #endregion
@@ -610,26 +604,26 @@ namespace FitMe.Grid
         /// <summary>
         /// Check for contact with other blocks
         /// </summary>
-        /// <param name="blockModel">Current block</param>
+        /// <param name="blockInstance">Current block</param>
         /// <param name="contactedBlocks">List of contacted blocks</param>
         /// <returns>true if the contacted blocks count is greater than or equal to the destroy threshold, false otherwise</returns>
-        private bool CheckForContact(BlockModel blockModel, List<BlockModel> contactedBlocks)
+        private bool CheckForContact(BlockInstance blockInstance, List<BlockInstance> contactedBlocks)
         {
-            BlockColor currentColor = blockModel.BlockType.CurrentValue;
-            contactedBlocks.Add(blockModel);
-            foreach (var cell in blockModel.BlockCells)
+            BlockColor currentColor = blockInstance.Model.BlockColor.CurrentValue;
+            contactedBlocks.Add(blockInstance);
+            foreach (var cell in blockInstance.Model.BlockCells)
             {
-                var upCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0] - 1, cell.ArrayIndex.Value[1]);
-                var downCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0] + 1, cell.ArrayIndex.Value[1]);
-                var leftCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0], cell.ArrayIndex.Value[1] - 1);
-                var rightCell = GetCellByArrayIndex(cell.ArrayIndex.Value[0], cell.ArrayIndex.Value[1] + 1);
-                var adjacentCells = new List<CellModel> {upCell, downCell, leftCell, rightCell};
+                var upCell = GetCellByArrayIndex(cell.Model.ArrayIndex.Value[0] - 1, cell.Model.ArrayIndex.Value[1]);
+                var downCell = GetCellByArrayIndex(cell.Model.ArrayIndex.Value[0] + 1, cell.Model.ArrayIndex.Value[1]);
+                var leftCell = GetCellByArrayIndex(cell.Model.ArrayIndex.Value[0], cell.Model.ArrayIndex.Value[1] - 1);
+                var rightCell = GetCellByArrayIndex(cell.Model.ArrayIndex.Value[0], cell.Model.ArrayIndex.Value[1] + 1);
+                var adjacentCells = new List<CellInstance> {upCell, downCell, leftCell, rightCell};
                 foreach (var adjacentCell in adjacentCells)
                 {
-                    if (adjacentCell?.CurrentAtom.Value == null) continue;
-                    var adjacentBlock = adjacentCell.CurrentAtom.Value.ParentBlockModel.Value;
-                    if (adjacentBlock.BlockState is BlockState.Infected or BlockState.Exploding) continue;
-                    if (adjacentBlock.BlockType.CurrentValue != currentColor) continue;
+                    if (adjacentCell?.Model.CurrentAtom.Value == null) continue;
+                    var adjacentBlock = adjacentCell.Model.CurrentAtom.Value.Model.ParentBlock.Value;
+                    if (adjacentBlock.Model.BlockState is BlockState.Infected or BlockState.Exploding) continue;
+                    if (adjacentBlock.Model.BlockColor.CurrentValue != currentColor) continue;
                     if (contactedBlocks.Contains(adjacentBlock)) continue;
                     CheckForContact(adjacentBlock, contactedBlocks);
                 }
@@ -654,8 +648,8 @@ namespace FitMe.Grid
                 {
                     var cell = _cellArray[x, y];
                     if (cell == null) continue;
-                    if (cell.CurrentAtom.Value is not null &&
-                        cell.CurrentAtom.Value.ParentBlockModel.Value.BlockState is not BlockState.Exploding) 
+                    if (cell.Model.CurrentAtom.Value is not null &&
+                        cell.Model.CurrentAtom.Value.Model.ParentBlock.Value.Model.BlockState is not BlockState.Exploding) 
                         continue;
                     vacantSchema[x, y] = 1;
                     vacantCount++;
@@ -723,7 +717,7 @@ namespace FitMe.Grid
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns>A Cell if it exists, null otherwise</returns>
-        public CellModel GetCellByArrayIndex(int x, int y)
+        public CellInstance GetCellByArrayIndex(int x, int y)
         {
             if (x < 0 || x >= CurrentGridSize.y || y < 0 || y >= CurrentGridSize.x)
             {
@@ -732,17 +726,17 @@ namespace FitMe.Grid
             return _cellArray[x, y];
         }
         
-        public CellModel GetCellByArrayIndex(Vector2Int index)
+        public CellInstance GetCellByArrayIndex(Vector2Int index)
         {
             return GetCellByArrayIndex(index.x, index.y);
         }
         
-        public CellModel GetCellByGridIndex(int x, int y)
+        public CellInstance GetCellByGridIndex(int x, int y)
         {
             return GetCellByGridIndex(new Vector2Int(x, y));
         }
         
-        public CellModel GetCellByGridIndex(Vector2Int gridIndex)
+        public CellInstance GetCellByGridIndex(Vector2Int gridIndex)
         {
             return GetCellByArrayIndex(GridUtils.GridToArrayIndex(gridIndex, CurrentOffset));
         }
@@ -752,7 +746,7 @@ namespace FitMe.Grid
         /// </summary>
         /// <param name="position">Position to try to get a cell</param>
         /// <returns>A Cell if it exists, null otherwise</returns>
-        public CellModel GetCellByPosition(Vector3 position)
+        public CellInstance GetCellByPosition(Vector3 position)
         {
             var worldToCell = _grid.WorldToCell(position);
             int x = worldToCell.x;

@@ -7,24 +7,14 @@ using VContainer;
 
 namespace FitMe.Grid
 {
-    public interface ICellView : ITransformProvider
-    {
-        void Destroy();
-    }
-    public class CellView : MonoBehaviour, IDisposable, ICellView
+    public class CellView : MonoBehaviour, IDisposable
     {
         #region Inspectors
         [Title("References")]
-        [SerializeField] private bool useDedicatedSprite = true;
         [SerializeField] private SpriteRenderer spriteRenderer;
-        [SerializeField] private Sprite[] whitePatterns;
-        [SerializeField] private Sprite[] blackPatterns;
-        [SerializeField] private Color whiteColor;
-        [SerializeField] private Color blackColor;
-        [SerializeField] private Color canBePlacedColor;
-        [SerializeField] private Color cannotBePlacedColor;
         
         private CellViewModel _viewModel;
+        private CellConfig _config;
         private Color _originalColor;
         private IDisposable _bindings;
         #endregion
@@ -32,9 +22,12 @@ namespace FitMe.Grid
         public Transform Transform => transform;
         
         [Inject]
-        public void Construct(CellViewModel viewModel)
+        public void Construct(
+            CellConfig config,
+            CellViewModel viewModel)
         {
             _originalColor = spriteRenderer.color;
+            _config = config;
             _viewModel = viewModel;
             Bind();
         }
@@ -58,6 +51,9 @@ namespace FitMe.Grid
             _viewModel.State
                 .Subscribe(OnCellStateChanged)
                 .AddTo(ref disposableBuilder);
+            _viewModel.DestroyCommand
+                .Subscribe(_ => Destroy())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
@@ -65,21 +61,21 @@ namespace FitMe.Grid
         {
             var row = arrayIndex.x;
             var column = arrayIndex.y;
-            if (useDedicatedSprite)
+            if (_config.UseDedicatedSprite)
             {
                 //white first
                 if (row % 2 == 0)
                 {
                     spriteRenderer.sprite = column % 2 == 0
-                        ? whitePatterns[0]
-                        : blackPatterns[0];
+                        ? _config.WhitePatterns[0]
+                        : _config.BlackPatterns[0];
                 }
                 //black first
                 else
                 {
                     spriteRenderer.sprite = column % 2 == 0
-                        ? blackPatterns[1]
-                        : whitePatterns[1];
+                        ? _config.BlackPatterns[1]
+                        : _config.WhitePatterns[1];
                 }
             }
             else
@@ -88,15 +84,15 @@ namespace FitMe.Grid
                 if (row % 2 == 0)
                 {
                     spriteRenderer.color = column % 2 == 0
-                        ? whiteColor
-                        : blackColor;
+                        ? _config.WhiteColor
+                        : _config.BlackColor;
                 }
                 //black first
                 else
                 {
                     spriteRenderer.color = column % 2 == 0
-                        ? blackColor
-                        : whiteColor;
+                        ? _config.BlackColor
+                        : _config.WhiteColor;
                 }
                 _originalColor = spriteRenderer.color;
             }
@@ -110,17 +106,17 @@ namespace FitMe.Grid
                     spriteRenderer.color = _originalColor;
                     break;
                 case CellState.CanBePlaced:
-                    spriteRenderer.color = canBePlacedColor;
+                    spriteRenderer.color = _config.CanBePlacedColor;
                     break;
                 case CellState.CannotBePlaced:
-                    spriteRenderer.color = cannotBePlacedColor;
+                    spriteRenderer.color = _config.CannotBePlacedColor;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
             }
         }
 
-        public void Destroy()
+        private void Destroy()
         {
             Destroy(gameObject);
         }

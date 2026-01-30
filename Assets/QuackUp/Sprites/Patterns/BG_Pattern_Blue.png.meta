@@ -1,0 +1,507 @@
+fileFormatVersion: 2
+guid: db39bf109799c4447b1a27e068d39afc
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7511066189639568736
+    second: BG_Pattern_Blue_0
+  - first:
+      213: 3586599051409363353
+    second: BG_Pattern_Blue_1
+  - first:
+      213: -4583539738323729378
+    second: BG_Pattern_Blue_2
+  - first:
+      213: 5457379731351805633
+    second: BG_Pattern_Blue_3
+  - first:
+      213: -2625674514277682389
+    second: BG_Pattern_Blue_4
+  - first:
+      213: 5975394986731479981
+    second: BG_Pattern_Blue_5
+  - first:
+      213: -806730535950590181
+    second: BG_Pattern_Blue_6
+  - first:
+      213: -8769982575951925521
+    second: BG_Pattern_Blue_7
+  - first:
+      213: 1401561723157979634
+    second: BG_Pattern_Blue_8
+  - first:
+      213: -5449865449447497648
+    second: BG_Pattern_Blue_9
+  - first:
+      213: 940008703710119430
+    second: BG_Pattern_Blue_10
+  - first:
+      213: 1659123321777402592
+    second: BG_Pattern_Blue_11
+  - first:
+      213: 1677855301248922816
+    second: BG_Pattern_Blue_12
+  - first:
+      213: -584691201800501605
+    second: BG_Pattern_Blue_13
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 826
+        width: 258
+        height: 299
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a2361a881553c790800000000000000
+      internalID: -7511066189639568736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_1
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 772
+        width: 410
+        height: 330
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 991120ba5d826c130800000000000000
+      internalID: 3586599051409363353
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_2
+      rect:
+        serializedVersion: 2
+        x: 627
+        y: 990
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e14c35384eef360c0800000000000000
+      internalID: -4583539738323729378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_3
+      rect:
+        serializedVersion: 2
+        x: 631
+        y: 993
+        width: 334
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ce14a383f18cbb40800000000000000
+      internalID: 5457379731351805633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_4
+      rect:
+        serializedVersion: 2
+        x: 989
+        y: 868
+        width: 136
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b23bea0d0fabf8bd0800000000000000
+      internalID: -2625674514277682389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_5
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 366
+        width: 166
+        height: 398
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da3a7c8d41edce250800000000000000
+      internalID: 5975394986731479981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_6
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 188
+        width: 279
+        height: 405
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1f543f0adaedc4f0800000000000000
+      internalID: -806730535950590181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_7
+      rect:
+        serializedVersion: 2
+        x: 517
+        y: 578
+        width: 331
+        height: 319
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fee25020053ca4680800000000000000
+      internalID: -8769982575951925521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_8
+      rect:
+        serializedVersion: 2
+        x: 797
+        y: 192
+        width: 277
+        height: 473
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f1ad9f16f8537310800000000000000
+      internalID: 1401561723157979634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 16
+        width: 104
+        height: 275
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 050e1049f303e54b0800000000000000
+      internalID: -5449865449447497648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_10
+      rect:
+        serializedVersion: 2
+        x: 178
+        y: 145
+        width: 193
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 606ca668fe49b0d00800000000000000
+      internalID: 940008703710119430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_11
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 0
+        width: 304
+        height: 256
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e2bb19eed3660710800000000000000
+      internalID: 1659123321777402592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_12
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 23
+        width: 83
+        height: 269
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c4b27fb180f84710800000000000000
+      internalID: 1677855301248922816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Blue_13
+      rect:
+        serializedVersion: 2
+        x: 109
+        y: 0
+        width: 161
+        height: 90
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9682652372c2e7f0800000000000000
+      internalID: -584691201800501605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      BG_Pattern_Blue_0: -7511066189639568736
+      BG_Pattern_Blue_1: 3586599051409363353
+      BG_Pattern_Blue_10: 940008703710119430
+      BG_Pattern_Blue_11: 1659123321777402592
+      BG_Pattern_Blue_12: 1677855301248922816
+      BG_Pattern_Blue_13: -584691201800501605
+      BG_Pattern_Blue_2: -4583539738323729378
+      BG_Pattern_Blue_3: 5457379731351805633
+      BG_Pattern_Blue_4: -2625674514277682389
+      BG_Pattern_Blue_5: 5975394986731479981
+      BG_Pattern_Blue_6: -806730535950590181
+      BG_Pattern_Blue_7: -8769982575951925521
+      BG_Pattern_Blue_8: 1401561723157979634
+      BG_Pattern_Blue_9: -5449865449447497648
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
