@@ -73,7 +73,7 @@ namespace FitMe.Grid
         /// <remarks>
         /// Use <see cref="ChangeType"/> to change the block type.
         /// </remarks>
-        public ReadOnlyReactiveProperty<BlockColor> BlockType => _blockType.ToReadOnlyReactiveProperty();
+        public ReadOnlyReactiveProperty<BlockColor> BlockColor => _blockColor.ToReadOnlyReactiveProperty();
         public BlockConfig Config => _config;
         public BlockShape BlockShape { get; private set; }
         public List<AtomInstance> Atoms { get; private set; } = new(); 
@@ -85,7 +85,7 @@ namespace FitMe.Grid
         
         public ReactiveCommand UpdateGridCommand { get; } = new();
         
-        private ReactiveProperty<BlockColor> _blockType = new();
+        private ReactiveProperty<BlockColor> _blockColor = new(Grid.BlockColor.Red);
         private int _originalSortingOrder;
         #endregion
 
@@ -156,7 +156,7 @@ namespace FitMe.Grid
         #region Utils
         public void ChangeType(BlockColor color, bool updateGrid = true)
         {
-            _blockType.Value = color;
+            _blockColor.OnNext(color); //Force push the new value
             if (!updateGrid) return;
             UpdateGridCommand.Execute(Unit.Default);
         }

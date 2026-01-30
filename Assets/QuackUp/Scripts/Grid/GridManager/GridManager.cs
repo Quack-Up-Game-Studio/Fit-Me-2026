@@ -144,7 +144,7 @@ namespace FitMe.Grid
         private readonly ObservableList<GridBlockData> _blockOnGrid = new();
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
         // public event Action<BlockModel> OnBlockStateChanged;
-        // public event Action<BlockModel> OnBlockPlaced;
+        public Subject<BlockInstance> OnBlockPlaced = new();
         // public event Action<BlockModel> OnBlockDestroyed;
         public Subject<ScoreEvent> OnScoreAdded = new();
         public Subject<FitTypeEvent> OnFitCheck = new();
@@ -468,7 +468,7 @@ namespace FitMe.Grid
             ReorderRenderingOrder();
             var fit = UpdateBlockOnGrid(blockInstance);
             OnFitCheck?.OnNext(new FitTypeEvent(fit, blockInstance));
-            //OnBlockPlaced?.Invoke(blockModel);
+            OnBlockPlaced?.OnNext(blockInstance);
             return true;
         }
         
@@ -498,7 +498,7 @@ namespace FitMe.Grid
         {
             if (CurrentSceneType is not SceneType.Gameplay) return;
             List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
-                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState, x.BlockInstance.Model.BlockType.CurrentValue)).ToList();
+                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
             await ClearGrid();
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
             OnScoreAdded.OnNext(new(ScoreTypes.FitMe, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
@@ -510,7 +510,7 @@ namespace FitMe.Grid
             var middleOfBlocks = contacts.Select(block => block.GameObject.transform.position)
                 .Aggregate(Vector3.zero, (current, position) => current + position) / contacts.Count;
             List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
-                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState, x.BlockInstance.Model.BlockType.CurrentValue)).ToList();
+                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
             //AudioManager.Instance.PlayAudioOneShot(stackExplodeSfx, transform.position);
             var gridBlockData = _blockOnGrid.Where(x => contacts.Contains(x.BlockInstance)).ToList();
             //await UniTask.WhenAll(gridBlockData.Select(block => RemoveBlock(block, FitType.Combo, true)));
@@ -609,7 +609,7 @@ namespace FitMe.Grid
         /// <returns>true if the contacted blocks count is greater than or equal to the destroy threshold, false otherwise</returns>
         private bool CheckForContact(BlockInstance blockInstance, List<BlockInstance> contactedBlocks)
         {
-            BlockColor currentColor = blockInstance.Model.BlockType.CurrentValue;
+            BlockColor currentColor = blockInstance.Model.BlockColor.CurrentValue;
             contactedBlocks.Add(blockInstance);
             foreach (var cell in blockInstance.Model.BlockCells)
             {
@@ -623,7 +623,7 @@ namespace FitMe.Grid
                     if (adjacentCell?.Model.CurrentAtom.Value == null) continue;
                     var adjacentBlock = adjacentCell.Model.CurrentAtom.Value.Model.ParentBlock.Value;
                     if (adjacentBlock.Model.BlockState is BlockState.Infected or BlockState.Exploding) continue;
-                    if (adjacentBlock.Model.BlockType.CurrentValue != currentColor) continue;
+                    if (adjacentBlock.Model.BlockColor.CurrentValue != currentColor) continue;
                     if (contactedBlocks.Contains(adjacentBlock)) continue;
                     CheckForContact(adjacentBlock, contactedBlocks);
                 }

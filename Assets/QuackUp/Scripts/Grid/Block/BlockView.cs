@@ -79,6 +79,7 @@ namespace FitMe.Grid
                 .Subscribe(OnInteractionStateChanged)
                 .AddTo(ref disposableBuilder);
             _viewModel.BlockColor
+                .IgnoreFirstValueWhenSubscribe()
                 .Subscribe(OnBlockColorChanged)
                 .AddTo(ref disposableBuilder);
             _viewModel.SetSortingLayerCommand

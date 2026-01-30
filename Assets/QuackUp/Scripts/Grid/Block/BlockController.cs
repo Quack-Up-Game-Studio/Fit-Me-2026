@@ -27,6 +27,7 @@ namespace FitMe.Grid
         private BlockInstance _blockInstance;
         private IDisposable _bindings;
         private bool _isActive = true;
+        private bool _dragWhileRotating;
         private bool _isRotating;
         private bool _isDragging;
         private Vector2 _mousePositionDifference;
@@ -82,13 +83,18 @@ namespace FitMe.Grid
         #region Interactions
         private void OnBeginDrag(PointerEventData eventData)
         {
+            if (_dragWhileRotating) return;
             if (_gameStateManager.GameState.CurrentValue is GameState.GameOver or GameState.GameClear)
             {
                 OnEndDrag(eventData);
                 return;
             }
             if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
-            if (_isRotating) return;
+            if (_isRotating)
+            {
+                _dragWhileRotating = true;
+                return;
+            }
             if (_blockInstance.ViewModel.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid 
                 && !_config.AllowPickUpAfterPlacement) return;
             var position = _blockInstance.GameObject.transform.position;
@@ -102,13 +108,18 @@ namespace FitMe.Grid
 
         private void OnDrag(PointerEventData eventData)
         {
+            if (_dragWhileRotating) return;
             if (_gameStateManager.GameState.CurrentValue is GameState.GameOver or GameState.GameClear)
             {
                 OnEndDrag(eventData);
                 return;
             }
             if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
-            if (_isRotating) return;
+            if (_isRotating)
+            {
+                _dragWhileRotating = true;
+                return;
+            }
             if (_blockInstance.ViewModel.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid 
                 && !_config.AllowPickUpAfterPlacement) return;
             _gridManager.ValidatePlacement(_blockInstance.Model);
@@ -124,9 +135,18 @@ namespace FitMe.Grid
 
         private void OnEndDrag(PointerEventData eventData)
         {
+            if (_dragWhileRotating)
+            {
+                _dragWhileRotating = false;
+                return;
+            }
             if (_gameStateManager.GameState.CurrentValue is GameState.CountOff or GameState.Pause) return;
             if (!_isDragging) return;
-            if (_isRotating) return;
+            if (_isRotating)
+            {
+                _dragWhileRotating = true;
+                return;
+            }
             var placed = _gridManager.TryPlaceBlock(_blockInstance);
             if (placed)
             {

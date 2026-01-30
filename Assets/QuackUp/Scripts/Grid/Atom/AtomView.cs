@@ -49,7 +49,7 @@ namespace FitMe.Grid
             spriteRenderer.enabled = blockConfig.UseAtomSprite;
             if (!blockConfig.UseAtomSprite) return;
             var disposableBuilder = Disposable.CreateBuilder();
-            instance.Model.BlockType
+            instance.Model.BlockColor
                 .Subscribe(OnBlockTypeChanged)
                 .AddTo(ref disposableBuilder);
             instance.ViewModel.SetSortingLayerCommand

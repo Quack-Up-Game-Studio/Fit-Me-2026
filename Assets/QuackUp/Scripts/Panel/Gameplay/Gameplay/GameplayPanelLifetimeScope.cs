@@ -13,10 +13,6 @@ namespace FitMe.Panel
             base.Configure(builder);
             builder.RegisterComponent(panelView).AsSelf().As<IPanelView>();
             builder.Register<GameplayPanelViewModel>(Lifetime.Singleton).AsSelf().As<IPanelViewModel>();
-            // builder.RegisterBuildCallback(x =>
-            // {
-            //     _panelViewModel = x.Resolve<GameplayPanelViewModel>();
-            // });
         }
 
         public override IPanelViewModel CreatPanel()
