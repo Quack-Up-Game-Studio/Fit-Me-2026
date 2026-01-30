@@ -213,7 +213,7 @@ namespace FitMe.Grid
                 int randomRotation = index * 90;
                 DebugUtils.Log("Random Rotation: " + randomRotation);
                 Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
-                var block = InstantiateBlock(spawnTransform, randomRotationQuaternion, randomSchema, randomSchema.blockColor, _config.ObjectScale);
+                var block = InstantiateBlock(spawnTransform, randomRotationQuaternion, randomSchema.blockShape, randomSchema.blockColor, _config.ObjectScale);
                 block.Model.SpawnIndex = i;
                 _spawnPoints[i].IsFree = false;
                 _spawnPoints[i].CurrentBlock = block;
@@ -225,16 +225,15 @@ namespace FitMe.Grid
             DebugUtils.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
         }
 
-        private BlockInstance InstantiateBlock(Transform spawnTransform, Quaternion rotation, SpawnBlockData randomSchema, BlockColor color, float objectScale)
+        private BlockInstance InstantiateBlock(Transform spawnTransform, Quaternion rotation, BlockShape shape, BlockColor color, float objectScale)
         {
-            var face = randomSchema.blockShape;
             //block.BlockView.Transform.rotation = randomRotationQuaternion;
-            BlockInstance block = _blockFactory.Create(face, spawnTransform.position, rotation, new InstantiateParameters
+            BlockInstance block = _blockFactory.Create(shape, spawnTransform.position, rotation, new InstantiateParameters
             {
                 parent = spawnTransform,
                 worldSpace = true,
             });
-            block.GameObject.name = $"Block_{face}";
+            block.GameObject.name = $"Block_{shape}";
             block.Model.ChangeType(color, false);
             block.GameObject.transform.localScale = Vector3.zero;
             Vector3 scale = new Vector3(objectScale, objectScale, 1f);
@@ -247,21 +246,11 @@ namespace FitMe.Grid
         {
             var spawnedBlocks = new List<BlockInstance>();
             if (!_spawnPoints[0].IsFree) return;
-            Transform spawnTransform = _spawnPoints[0].Transform;
+            var spawnTransform = _spawnPoints[0].Transform;
             var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();
             var color = blockTypes.GetRandomElement();
             var face = _config.BlockPresetDictionary.FirstOrDefault(x => x.Value == preset).Key;
-            BlockInstance block = _blockFactory.Create(face, spawnTransform.position, Quaternion.identity, new InstantiateParameters
-            {
-                parent = spawnTransform
-            });
-            block.GameObject.name = $"Block_{face}";
-            block.Model.ChangeType(color, false);
-            block.Model.SpawnIndex = 0;
-            block.GameObject.transform.localScale = Vector3.zero;
-            Vector3 scale = new Vector3(_config.ObjectScale, _config.ObjectScale, 1f);
-            var promise = new Promise<Unit>();
-            block.ViewModel.ScaleInCommand.Execute(new ScaleInCommandData(promise, scale));
+            var block = InstantiateBlock(spawnTransform, Quaternion.identity, face, color, _config.ObjectScale);
             _spawnPoints[0].IsFree = false;
             _spawnPoints[0].CurrentBlock = block;
             spawnedBlocks.Add(block);
@@ -294,7 +283,7 @@ namespace FitMe.Grid
             _currentPreviewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
 
             var nextBlock = _spawnBag.Peek(); 
-            _currentPreviewBlock = InstantiateBlock(_previewTransform, Quaternion.identity, nextBlock, nextBlock.blockColor, _config.PreviewScale);
+            _currentPreviewBlock = InstantiateBlock(_previewTransform, Quaternion.identity, nextBlock.blockShape, nextBlock.blockColor, _config.PreviewScale);
             _currentPreviewBlock.Controller.SetActive(false);
         }
         

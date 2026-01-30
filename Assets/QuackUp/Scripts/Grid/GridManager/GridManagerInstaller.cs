@@ -1,4 +1,5 @@
 using System;
+using QuackUp.Utils;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -29,6 +30,8 @@ namespace FitMe.Grid
             builder.Register<CellFactory>(Lifetime.Scoped);
             
             //GridManager
+            builder.Register<IMessageHub, GridManagerMessageHub>(Lifetime.Singleton)
+                .Keyed(GridManagerMessageHub.GridManagerMessageHubKey);
             builder.Register<GridManager>(Lifetime.Singleton);
             builder.RegisterComponent(gridPreview);
             

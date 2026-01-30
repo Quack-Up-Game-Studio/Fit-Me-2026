@@ -106,7 +106,7 @@ namespace FitMe.Grid
         private readonly UnityEngine.Grid _grid;
         private readonly GridManagerConfig _config;
         private readonly CellFactory _cellFactory;
-        private readonly ISubscriber<LoadSceneStageEvent> _sceneStageSubscriber;
+        private readonly IMessageHub _messageHub;
         
         private IDisposable _subscriptions;
         
@@ -157,12 +157,12 @@ namespace FitMe.Grid
             UnityEngine.Grid grid,
             GridManagerConfig config,
             CellFactory cellFactory,
-            ISubscriber<LoadSceneStageEvent> sceneStageSubscriber)
+            [Key(GridManagerMessageHub.GridManagerMessageHubKey)] IMessageHub messageHub)
         {
             _grid = grid;
             _config = config;
             _cellFactory = cellFactory;
-            _sceneStageSubscriber = sceneStageSubscriber;
+            _messageHub = messageHub;
             _grid.cellSize = config.CellSize;
             Subscribe();
         }
@@ -170,11 +170,13 @@ namespace FitMe.Grid
         private void Subscribe()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _sceneStageSubscriber
-                .AsObservable().ToObservable()
+            _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage == LoadSceneStage.FinishLoading)
                 .Select(x => x.NextSceneType)
                 .Subscribe(OnFinishedLoading)
+                .AddTo(ref disposableBuilder);
+            _messageHub
+                .Subscribe<StartSpawnEvent>(x => OnSpawnGridWithPreset(x.BlockPreset))
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -193,16 +195,8 @@ namespace FitMe.Grid
         {
             DebugUtils.Log("GridManager: OnFinishedLoading " + sceneType);
             CurrentSceneType = sceneType;
-            switch (sceneType)
-            {
-                case SceneType.MainMenu:
-                    OnMainMenuSceneActivated();
-                    break;
-                case SceneType.Gameplay:
-                default:
-                    OnGameplaySceneActivated();
-                    break;
-            }
+            if (CurrentSceneType is SceneType.Gameplay) 
+                OnGameplaySceneActivated();
         }
         
         private void OnGameplaySceneActivated()
@@ -211,15 +205,10 @@ namespace FitMe.Grid
             CreateCells();
         }
 
-        private void OnMainMenuSceneActivated()
+        private void OnSpawnGridWithPreset(BlockPreset preset)
         {
-            // if (_blockPresetRequestHandler == null) return;
-            // var blockPresets = _blockPresetRequestHandler.Invoke(new BlockPresetRequest());
-            // if (blockPresets.Count == 0) return;
-            // var randomPreset = blockPresets.GetRandomElement();
-            // SetUpMainMenuGridPreset(randomPreset);
-            // CreateCells();
-            // _startSpawnPublisher.Publish(new StartSpawnEvent(randomPreset));
+            SetUpMainMenuGridPreset(preset);
+            CreateCells();
         }
         #endregion
         
