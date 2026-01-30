@@ -207,6 +207,7 @@ namespace FitMe.Grid
 
         private void OnSpawnGridWithPreset(BlockPreset preset)
         {
+            if (CurrentSceneType is SceneType.Gameplay) return;
             SetUpMainMenuGridPreset(preset);
             CreateCells();
         }
