@@ -57,9 +57,7 @@ namespace FitMe.Scene.UI.Score
         {
             Vector3 endPosition = _endPoint;
             Tween.Position(transform, endPosition, duration, easeType);
-            
             Tween.Alpha(popUpScoreText, 0f, duration, easeType);
-            
             Tween.Delay(duration, () => 
             {
                 Destroy(gameObject); 
