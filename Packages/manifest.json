@@ -4,7 +4,7 @@
     "com.cysharp.messagepipe.vcontainer": "1.8.1",
     "com.cysharp.r3": "1.3.0",
     "com.cysharp.unitask": "2.5.10",
-    "com.esotericsoftware.spine.urp-shaders": "file:/home/beaver_bloyde/SSD1/All projects/Unity/Fit Me 2026/Spine Packages/com.esotericsoftware.spine.urp-shaders-3.8-2019.3",
+    "com.esotericsoftware.spine.urp-shaders": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Modules/com.esotericsoftware.spine.urp-shaders#3.8",
     "com.github-glitchenzo.nugetforunity": "4.5.0",
     "com.github.messagepack-csharp": "https://github.com/MessagePack-CSharp/MessagePack-CSharp.git?path=src/MessagePack.UnityClient/Assets/Scripts/MessagePack",
     "com.kyrylokuzyk.primetween": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
