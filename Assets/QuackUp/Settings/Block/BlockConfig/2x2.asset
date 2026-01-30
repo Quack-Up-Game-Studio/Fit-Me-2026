@@ -198,7 +198,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-  <UseAtomSprite>k__BackingField: 1
+  <UseAtomSprite>k__BackingField: 0
   idleAnimations:
   - Idle1
   - Idle2
