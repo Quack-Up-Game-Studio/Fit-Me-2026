@@ -12,6 +12,11 @@ namespace FitMe.Panel
         protected PanelManager ParentPanelManager;
         public abstract IPanelViewModel CreatPanel();
         
+        public void Initialize()
+        {
+            Awake();
+        }
+        
         protected override void Configure(IContainerBuilder builder)
         {
             panelManagerInstaller?.Install(builder);

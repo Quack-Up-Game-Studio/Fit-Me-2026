@@ -24,6 +24,7 @@ namespace FitMe.Panel
         {
             var disposableBuilder = Disposable.CreateBuilder();
             ViewModel.GameVersion
+                .Prepend(ViewModel.GameVersion.CurrentValue)
                 .Subscribe(OnGameVersionChanged)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();

@@ -389,7 +389,8 @@ namespace FitMe.Grid
             {
                 _gridManager.CreateVacantSchema(out _, out var vacantCount);
                 _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));    
-                await _gridManager.RemoveAllBlocks(true);
+                await _gridManager.ClearGrid();
+                _gridManager.RegenerateGrid();
             }
         }
         #endregion

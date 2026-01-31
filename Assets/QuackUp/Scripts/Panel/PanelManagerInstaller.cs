@@ -29,6 +29,7 @@ namespace FitMe.Panel
                 {
                     x.gameObject.SetActive(true);
                     x.parentReference.Object = parentLifetimeScope;
+                    x.Initialize();
                     x.Build();
                 });
                 c.Resolve<PanelManager>().Initialize();
