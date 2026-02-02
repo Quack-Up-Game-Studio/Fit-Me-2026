@@ -47,7 +47,7 @@ namespace FitMe.Scene.MainMenu
         public void Start()
         {
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
-            _messageHub.Publish(new StartSpawnEvent(randomPreset));
+            _messageHub.Publish(new StartSpawnEvent(randomPreset, false));
         }
 
         public void Dispose()

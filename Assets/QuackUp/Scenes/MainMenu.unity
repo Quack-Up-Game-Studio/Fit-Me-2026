@@ -322,6 +322,8 @@ MonoBehaviour:
     - {fileID: 7436585757268251111, guid: 2ecba2ad996a9b9678ae48b0bd59b3c5, type: 3}
     - {fileID: 31369993}
     - {fileID: 973191131}
+    - {fileID: 1773429783}
+    - {fileID: 1980688519}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -437,7 +439,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 2
     - Name: 
       Entry: 7
       Data: 
@@ -447,6 +449,18 @@ MonoBehaviour:
     - Name: $v
       Entry: 10
       Data: 14
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Settings
+    - Name: $v
+      Entry: 10
+      Data: 15
     - Name: 
       Entry: 8
       Data: 
@@ -480,7 +494,16 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 0
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 11|FitMe.Scene.UI.DragMeToPlayInstaller, FitMe.Scene
+    - Name: dragMeToPlayView
+      Entry: 10
+      Data: 16
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 13
       Data: 
@@ -1365,8 +1388,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Player Info.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 625306eb5d3ea0043a4eeb4619ebf831, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 9d763f1bf671c674098faff02d5a62b8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1650,7 +1673,6 @@ GameObject:
   - component: {fileID: 216857563}
   - component: {fileID: 216857562}
   - component: {fileID: 216857561}
-  - component: {fileID: 216857560}
   m_Layer: 5
   m_Name: ChallengeScreen
   m_TagString: Untagged
@@ -1681,18 +1703,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &216857560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 216857558}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b8f2876c3ec49eda23a8f059a4e91ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!225 &216857561
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2133,8 +2143,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Yes
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2948,7 +2958,6 @@ GameObject:
   - component: {fileID: 437537591}
   - component: {fileID: 437537590}
   - component: {fileID: 437537593}
-  - component: {fileID: 437537592}
   m_Layer: 5
   m_Name: SplashScreen
   m_TagString: Untagged
@@ -3017,18 +3026,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 437537588}
   m_CullTransparentMesh: 1
---- !u!114 &437537592
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 437537588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ec05d4fdcd04f7b827fa3b30a731fbe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!225 &437537593
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3415,7 +3412,6 @@ GameObject:
   - component: {fileID: 502009611}
   - component: {fileID: 502009610}
   - component: {fileID: 502009609}
-  - component: {fileID: 502009608}
   m_Layer: 5
   m_Name: HelpScreen
   m_TagString: Untagged
@@ -3443,18 +3439,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &502009608
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 502009606}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e0a3e094f1c4373a0e5e16b17436dc8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!225 &502009609
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -4579,7 +4563,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &863518086
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5065,7 +5049,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &936891445
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5292,7 +5276,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &962096672
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5311,7 +5295,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 985, y: -91.35}
+  m_AnchoredPosition: {x: 937, y: -91.35}
   m_SizeDelta: {x: 321, y: 201}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &962096673
@@ -5595,7 +5579,7 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 2
     - Name: 
       Entry: 7
       Data: 
@@ -5639,6 +5623,48 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Settings
+    - Name: $v
+      Entry: 7
+      Data: 5|FitMe.Panel.CrossfadeRule, FitMe.Panel
+    - Name: crossfadeSettings
+      Entry: 7
+      Data: FitMe.Panel.CrossfadeSettings, FitMe.Panel
+    - Name: crossFadeType
+      Entry: 3
+      Data: 3
+    - Name: hidePreviousPanel
+      Entry: 5
+      Data: false
+    - Name: customOffset
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: transitionPair
+      Entry: 7
+      Data: 6|FitMe.Panel.TransitionPair, FitMe.Panel
+    - Name: transitionGroupIn
+      Entry: 6
+      Data: 
+    - Name: transitionGroupOut
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
       Entry: 13
       Data: 
     - Name: 
@@ -5646,6 +5672,10 @@ MonoBehaviour:
       Data: 
   canvasGroup: {fileID: 973191128}
   gameVersionText: {fileID: 1272262860}
+  challengeButton: {fileID: 1569611660}
+  settingsButton: {fileID: 1356761732}
+  challengePanelId: Challenge
+  settingsPanelId: Settings
 --- !u!1 &985918387
 GameObject:
   m_ObjectHideFlags: 0
@@ -6086,8 +6116,8 @@ MonoBehaviour:
 
     to play tutorial ?'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7313,7 +7343,6 @@ GameObject:
   - component: {fileID: 1356761734}
   - component: {fileID: 1356761733}
   - component: {fileID: 1356761732}
-  - component: {fileID: 1356761731}
   - component: {fileID: 1356761735}
   m_Layer: 5
   m_Name: SettingButton
@@ -7338,23 +7367,11 @@ RectTransform:
   - {fileID: 46437177}
   m_Father: {fileID: 863518086}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 223, y: -91.35}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 321, y: 201}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1356761731
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1356761729}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073abbde76bf7dc4a98aa052ad160c4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1356761732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7446,9 +7463,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1356761729}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc704d0a5fb446d9a5882be9e2985ec1, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e0eecf36db4055d1bb0852fca385022, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
+  up: {fileID: 2114490995}
+  down: {fileID: 46437176}
 --- !u!1 &1372976606
 GameObject:
   m_ObjectHideFlags: 0
@@ -7819,8 +7838,7 @@ GameObject:
   - component: {fileID: 1414808498}
   - component: {fileID: 1414808497}
   - component: {fileID: 1414808496}
-  - component: {fileID: 1414808495}
-  - component: {fileID: 1414808494}
+  - component: {fileID: 1414808499}
   m_Layer: 5
   m_Name: ReturnButton
   m_TagString: Untagged
@@ -7849,30 +7867,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0.38979, y: -411}
   m_SizeDelta: {x: 639, y: 314}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1414808494
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1414808492}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073abbde76bf7dc4a98aa052ad160c4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1414808495
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1414808492}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc704d0a5fb446d9a5882be9e2985ec1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1414808496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7955,6 +7949,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1414808492}
   m_CullTransparentMesh: 1
+--- !u!114 &1414808499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1414808492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e0eecf36db4055d1bb0852fca385022, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
+  up: {fileID: 1883914080}
+  down: {fileID: 2082365948}
 --- !u!1 &1423552882
 GameObject:
   m_ObjectHideFlags: 0
@@ -8405,8 +8413,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Return
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: cb09555b97d32ba4baf9ecb1c8dd6f9e, type: 2}
+  m_sharedMaterial: {fileID: -1061448209630770140, guid: cb09555b97d32ba4baf9ecb1c8dd6f9e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8637,7 +8645,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1540016476
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8707,8 +8715,7 @@ GameObject:
   - component: {fileID: 1569611662}
   - component: {fileID: 1569611661}
   - component: {fileID: 1569611660}
-  - component: {fileID: 1569611659}
-  - component: {fileID: 1569611658}
+  - component: {fileID: 1569611663}
   m_Layer: 5
   m_Name: Achivement
   m_TagString: Untagged
@@ -8732,35 +8739,11 @@ RectTransform:
   - {fileID: 177028162}
   m_Father: {fileID: 863518086}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 604, y: -91.35}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 321, y: 201}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1569611658
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1569611656}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073abbde76bf7dc4a98aa052ad160c4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1569611659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1569611656}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc704d0a5fb446d9a5882be9e2985ec1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1569611660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8843,6 +8826,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1569611656}
   m_CullTransparentMesh: 1
+--- !u!114 &1569611663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1569611656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e0eecf36db4055d1bb0852fca385022, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
+  up: {fileID: 1692857498}
+  down: {fileID: 177028161}
 --- !u!1 &1609771819
 GameObject:
   m_ObjectHideFlags: 0
@@ -9000,7 +8997,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 30.229858}
-  m_SizeDelta: {x: 946, y: 822}
+  m_SizeDelta: {x: 958, y: 828}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1623943755
 MonoBehaviour:
@@ -9174,8 +9171,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 999
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9616,8 +9613,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: no
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9817,7 +9814,8 @@ GameObject:
   - component: {fileID: 1773429781}
   - component: {fileID: 1773429780}
   - component: {fileID: 1773429779}
-  - component: {fileID: 1773429778}
+  - component: {fileID: 1773429783}
+  - component: {fileID: 1773429782}
   m_Layer: 5
   m_Name: MainMenuSettingScreen
   m_TagString: Untagged
@@ -9845,18 +9843,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1773429778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773429776}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98a113f7a84a47da8ba551dafecefd76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!225 &1773429779
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -9907,6 +9893,634 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1773429776}
   m_CullTransparentMesh: 1
+--- !u!114 &1773429782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1773429776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71415322dc974f74a9670c6afe67fcbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FitMe.Panel::FitMe.Panel.SettingsPanelView
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects:
+    - {fileID: 1623943754}
+    - {fileID: 1773429780}
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: transitionObjects
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[UnityEngine.Component,
+        UnityEngine.CoreModule]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: PanelRectTransform
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Background
+    - Name: $v
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: crossfadeRules
+      Entry: 7
+      Data: 2|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.CrossfadeRule,
+        FitMe.Panel]], mscorlib
+    - Name: comparer
+      Entry: 9
+      Data: 1
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: MainMenu
+    - Name: $v
+      Entry: 7
+      Data: 3|FitMe.Panel.CrossfadeRule, FitMe.Panel
+    - Name: crossfadeSettings
+      Entry: 7
+      Data: FitMe.Panel.CrossfadeSettings, FitMe.Panel
+    - Name: crossFadeType
+      Entry: 3
+      Data: 4
+    - Name: hidePreviousPanel
+      Entry: 5
+      Data: false
+    - Name: customOffset
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: transitionPair
+      Entry: 7
+      Data: 4|FitMe.Panel.TransitionPair, FitMe.Panel
+    - Name: transitionGroupIn
+      Entry: 7
+      Data: 5|FitMe.Panel.BasicTransitionGroup, FitMe.Panel
+    - Name: overrideDefaultCycles
+      Entry: 5
+      Data: false
+    - Name: cycles
+      Entry: 3
+      Data: 1
+    - Name: cycleMode
+      Entry: 3
+      Data: 0
+    - Name: cancelBehavior
+      Entry: 3
+      Data: 0
+    - Name: transition
+      Entry: 7
+      Data: 6|System.Collections.Generic.List`1[[FitMe.Panel.TransitionData, FitMe.Panel]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 7|FitMe.Panel.TransitionData, FitMe.Panel
+    - Name: transition
+      Entry: 7
+      Data: 8|FitMe.Panel.ScaleTransition, FitMe.Panel
+    - Name: rectTransformKey
+      Entry: 1
+      Data: PanelRectTransform
+    - Name: relative
+      Entry: 5
+      Data: false
+    - Name: transitionSettings
+      Entry: 7
+      Data: PrimeTween.TweenSettings`1[[UnityEngine.Vector3, UnityEngine.CoreModule]],
+        PrimeTween.Runtime
+    - Name: startFromCurrent
+      Entry: 5
+      Data: false
+    - Name: startValue
+      Entry: 7
+      Data: UnityEngine.Vector3, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: endValue
+      Entry: 7
+      Data: UnityEngine.Vector3, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: settings
+      Entry: 7
+      Data: PrimeTween.TweenSettings, PrimeTween.Runtime
+    - Name: duration
+      Entry: 4
+      Data: 0.25
+    - Name: ease
+      Entry: 3
+      Data: 27
+    - Name: customEase
+      Entry: 7
+      Data: 9|UnityEngine.AnimationCurve, UnityEngine.CoreModule
+    - Name: 
+      Entry: 7
+      Data: 10|UnityEngine.Keyframe[], UnityEngine.CoreModule
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: cycles
+      Entry: 3
+      Data: 1
+    - Name: cycleMode
+      Entry: 3
+      Data: 0
+    - Name: startDelay
+      Entry: 4
+      Data: 0
+    - Name: endDelay
+      Entry: 4
+      Data: 0
+    - Name: useUnscaledTime
+      Entry: 5
+      Data: false
+    - Name: _useFixedUpdate
+      Entry: 5
+      Data: false
+    - Name: _updateType
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: transitionGroupType
+      Entry: 3
+      Data: 0
+    - Name: delay
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 11|FitMe.Panel.TransitionData, FitMe.Panel
+    - Name: transition
+      Entry: 7
+      Data: 12|FitMe.Panel.AlphaTransition, FitMe.Panel
+    - Name: objectKey
+      Entry: 1
+      Data: Background
+    - Name: relative
+      Entry: 5
+      Data: false
+    - Name: transitionSettings
+      Entry: 7
+      Data: PrimeTween.TweenSettings`1[[System.Single, mscorlib]], PrimeTween.Runtime
+    - Name: startFromCurrent
+      Entry: 5
+      Data: false
+    - Name: startValue
+      Entry: 4
+      Data: 0
+    - Name: endValue
+      Entry: 4
+      Data: 0.3
+    - Name: settings
+      Entry: 7
+      Data: PrimeTween.TweenSettings, PrimeTween.Runtime
+    - Name: duration
+      Entry: 4
+      Data: 0.25
+    - Name: ease
+      Entry: 3
+      Data: 0
+    - Name: customEase
+      Entry: 7
+      Data: 13|UnityEngine.AnimationCurve, UnityEngine.CoreModule
+    - Name: 
+      Entry: 9
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: cycles
+      Entry: 3
+      Data: 1
+    - Name: cycleMode
+      Entry: 3
+      Data: 0
+    - Name: startDelay
+      Entry: 4
+      Data: 0
+    - Name: endDelay
+      Entry: 4
+      Data: 0
+    - Name: useUnscaledTime
+      Entry: 5
+      Data: false
+    - Name: _useFixedUpdate
+      Entry: 5
+      Data: false
+    - Name: _updateType
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: transitionGroupType
+      Entry: 3
+      Data: 0
+    - Name: delay
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: transitionGroupOut
+      Entry: 7
+      Data: 14|FitMe.Panel.BasicTransitionGroup, FitMe.Panel
+    - Name: overrideDefaultCycles
+      Entry: 5
+      Data: false
+    - Name: cycles
+      Entry: 3
+      Data: 1
+    - Name: cycleMode
+      Entry: 3
+      Data: 0
+    - Name: cancelBehavior
+      Entry: 3
+      Data: 0
+    - Name: transition
+      Entry: 7
+      Data: 15|System.Collections.Generic.List`1[[FitMe.Panel.TransitionData, FitMe.Panel]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 16|FitMe.Panel.TransitionData, FitMe.Panel
+    - Name: transition
+      Entry: 7
+      Data: 17|FitMe.Panel.AlphaTransition, FitMe.Panel
+    - Name: objectKey
+      Entry: 1
+      Data: Background
+    - Name: relative
+      Entry: 5
+      Data: false
+    - Name: transitionSettings
+      Entry: 7
+      Data: PrimeTween.TweenSettings`1[[System.Single, mscorlib]], PrimeTween.Runtime
+    - Name: startFromCurrent
+      Entry: 5
+      Data: false
+    - Name: startValue
+      Entry: 4
+      Data: 0.3
+    - Name: endValue
+      Entry: 4
+      Data: 0
+    - Name: settings
+      Entry: 7
+      Data: PrimeTween.TweenSettings, PrimeTween.Runtime
+    - Name: duration
+      Entry: 4
+      Data: 0.25
+    - Name: ease
+      Entry: 3
+      Data: 0
+    - Name: customEase
+      Entry: 7
+      Data: 18|UnityEngine.AnimationCurve, UnityEngine.CoreModule
+    - Name: 
+      Entry: 9
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: cycles
+      Entry: 3
+      Data: 1
+    - Name: cycleMode
+      Entry: 3
+      Data: 0
+    - Name: startDelay
+      Entry: 4
+      Data: 0
+    - Name: endDelay
+      Entry: 4
+      Data: 0
+    - Name: useUnscaledTime
+      Entry: 5
+      Data: false
+    - Name: _useFixedUpdate
+      Entry: 5
+      Data: false
+    - Name: _updateType
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: transitionGroupType
+      Entry: 3
+      Data: 0
+    - Name: delay
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 19|FitMe.Panel.TransitionData, FitMe.Panel
+    - Name: transition
+      Entry: 7
+      Data: 20|FitMe.Panel.ScaleTransition, FitMe.Panel
+    - Name: rectTransformKey
+      Entry: 1
+      Data: PanelRectTransform
+    - Name: relative
+      Entry: 5
+      Data: false
+    - Name: transitionSettings
+      Entry: 7
+      Data: PrimeTween.TweenSettings`1[[UnityEngine.Vector3, UnityEngine.CoreModule]],
+        PrimeTween.Runtime
+    - Name: startFromCurrent
+      Entry: 5
+      Data: false
+    - Name: startValue
+      Entry: 7
+      Data: UnityEngine.Vector3, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: endValue
+      Entry: 7
+      Data: UnityEngine.Vector3, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: settings
+      Entry: 7
+      Data: PrimeTween.TweenSettings, PrimeTween.Runtime
+    - Name: duration
+      Entry: 4
+      Data: 0.25
+    - Name: ease
+      Entry: 3
+      Data: 15
+    - Name: customEase
+      Entry: 7
+      Data: 21|UnityEngine.AnimationCurve, UnityEngine.CoreModule
+    - Name: 
+      Entry: 9
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: cycles
+      Entry: 3
+      Data: 1
+    - Name: cycleMode
+      Entry: 3
+      Data: 0
+    - Name: startDelay
+      Entry: 4
+      Data: 0
+    - Name: endDelay
+      Entry: 4
+      Data: 0
+    - Name: useUnscaledTime
+      Entry: 5
+      Data: false
+    - Name: _useFixedUpdate
+      Entry: 5
+      Data: false
+    - Name: _updateType
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: transitionGroupType
+      Entry: 3
+      Data: 0
+    - Name: delay
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  canvasGroup: {fileID: 1773429779}
+  musicToggleButton: {fileID: 373770406}
+  musicSlashImage: {fileID: 1540016477}
+  sfxToggleButton: {fileID: 1105766468}
+  sfxSlashImage: {fileID: 936891446}
+  closeButton: {fileID: 1414808496}
+  mainMenuPanelId: MainMenu
+--- !u!114 &1773429783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1773429776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dccd3dd1b1c244c581eb233d5c90ea11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FitMe.Panel::FitMe.Panel.SettingsPanelLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 0
+  autoInjectGameObjects: []
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  panelManagerInstaller:
+    rid: -2
+  settingsPanelView: {fileID: 1773429782}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1 &1780423175
 GameObject:
   m_ObjectHideFlags: 0
@@ -9966,8 +10580,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: History
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 625306eb5d3ea0043a4eeb4619ebf831, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 9d763f1bf671c674098faff02d5a62b8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10280,9 +10894,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1892995141}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8f2fcfce7874a5191e680c271d5738b, type: 3}
+  m_Script: {fileID: 11500000, guid: ca1719291a93919ab9d44979852573c3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.HoldButton
+  <OnFirstHold>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []
+  <OnHold>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []
+  <OnClick>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []
+  <OnRelease>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1908056077
 GameObject:
   m_ObjectHideFlags: 0
@@ -10342,7 +10968,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: Return
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: cb09555b97d32ba4baf9ecb1c8dd6f9e, type: 2}
   m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -10409,7 +11035,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1908056080
@@ -10971,8 +11597,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 999,999,999
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -11092,9 +11718,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 1980688517}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77c1f3a4505044a78d357dea1ac87350, type: 3}
+  m_Script: {fileID: 11500000, guid: c2a0108ccabd4a039849761f65edd40a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: FitMe.Scene::FitMe.Scene.UI.DragMeToPlayView
+  dragMeToPlaySpriteRenderer: {fileID: 919157562}
+  glowSpriteRenderer: {fileID: 746627577}
+  alphaTweenSettings:
+    startFromCurrent: 0
+    startValue: 0
+    endValue: 1
+    settings:
+      duration: 0.25
+      ease: 0
+      customEase:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      cycles: 1
+      cycleMode: 0
+      startDelay: 0
+      endDelay: 0
+      useUnscaledTime: 0
+      _useFixedUpdate: 0
+      _updateType: 0
 --- !u!1 &2009745628
 GameObject:
   m_ObjectHideFlags: 0
@@ -11291,8 +11939,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 000000000000000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -11428,8 +12076,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Achievement
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 625306eb5d3ea0043a4eeb4619ebf831, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 9d763f1bf671c674098faff02d5a62b8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

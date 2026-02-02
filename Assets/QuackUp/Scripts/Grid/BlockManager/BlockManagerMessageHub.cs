@@ -31,20 +31,22 @@ namespace FitMe.Grid
     public struct StartSpawnEvent
     {
         public readonly BlockPreset BlockPreset;
+        public readonly bool AllowRotation;
         
-        public StartSpawnEvent(BlockPreset blockPreset = null)
+        public StartSpawnEvent(BlockPreset blockPreset = null, bool allowRotation = true)
         {
+            AllowRotation = allowRotation;
             BlockPreset = blockPreset;
         }
     }
     
     public struct BlockSpawnedEvent
     {
-        public readonly List<BlockInstance> BlockModels;
+        public readonly List<BlockInstance> BlockInstances;
         
-        public BlockSpawnedEvent(List<BlockInstance> blockModels)
+        public BlockSpawnedEvent(List<BlockInstance> blockInstances)
         {
-            BlockModels = blockModels;
+            BlockInstances = blockInstances;
         }
     }
     

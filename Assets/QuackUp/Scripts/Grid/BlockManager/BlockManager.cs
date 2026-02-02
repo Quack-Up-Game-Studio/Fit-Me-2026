@@ -59,8 +59,6 @@ namespace FitMe.Grid
         
         #region Fields
         public const string PreviewTransformKey = "PreviewTransform";
-        public static event Action OnGameOver;
-        public static event Action<List<BlockInstance>> OnBlockSpawned;
         
         private readonly Queue<SpawnBlockData> _spawnBag = new();
         private readonly List<SpawnBlockData> _blockPool = new();
@@ -120,7 +118,7 @@ namespace FitMe.Grid
             if (!eventData.BlockPreset)
                 SpawnRandomBlock();
             else
-                SpawnBlock(eventData.BlockPreset);
+                SpawnBlock(eventData);
         }
 
         private void OnFitCheck(FitTypeEvent eventData)
@@ -242,15 +240,16 @@ namespace FitMe.Grid
             return block;
         }
 
-        private void SpawnBlock(BlockPreset preset)
+        private void SpawnBlock(StartSpawnEvent data)
         {
             var spawnedBlocks = new List<BlockInstance>();
             if (!_spawnPoints[0].IsFree) return;
             var spawnTransform = _spawnPoints[0].Transform;
             var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();
             var color = blockTypes.GetRandomElement();
-            var face = _config.BlockPresetDictionary.FirstOrDefault(x => x.Value == preset).Key;
+            var face = _config.BlockPresetDictionary.FirstOrDefault(x => x.Value == data.BlockPreset).Key;
             var block = InstantiateBlock(spawnTransform, Quaternion.identity, face, color, _config.ObjectScale);
+            block.Controller.AllowRotation = data.AllowRotation;
             _spawnPoints[0].IsFree = false;
             _spawnPoints[0].CurrentBlock = block;
             spawnedBlocks.Add(block);
