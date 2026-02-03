@@ -1,6 +1,7 @@
 ﻿using System;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -30,7 +31,7 @@ namespace QuackUp.SceneManagement
         [Required, InlineEditor,
          SerializeField] private LoadSceneManagerConfig config;
         [Required, 
-         SerializeField] private LoadSceneTransitionView transitionScreen;
+         OdinSerialize] private ITransitionable transitionScreen;
         
 #if UNITY_EDITOR
         [Title("Debug")]
