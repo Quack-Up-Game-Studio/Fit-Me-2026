@@ -203,8 +203,8 @@ MonoBehaviour:
   <BlockSize>k__BackingField: {x: 2, y: 3}
   <PickupSfx>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 284041522
+      Data2: 1197800517
+      Data3: 735489412
+      Data4: 1054993519
+    Path: event:/SFX/Game Play/Loopie Woopie/Smirr

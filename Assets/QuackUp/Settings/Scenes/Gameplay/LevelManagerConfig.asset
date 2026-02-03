@@ -28,3 +28,10 @@ MonoBehaviour:
   <ScorePerFitMe>k__BackingField: 10000
   <HasCountOff>k__BackingField: 0
   <CountOffDuration>k__BackingField: 3
+  <GameplayBgm>k__BackingField:
+    Guid:
+      Data1: -427414803
+      Data2: 1332713969
+      Data3: -480146507
+      Data4: -805563045
+    Path: event:/BGM/BGM02_Game Play

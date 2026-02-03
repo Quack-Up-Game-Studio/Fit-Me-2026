@@ -58,12 +58,12 @@ namespace QuackUp.SceneManagement
 
     public enum LoadSceneStage
     {
-        StartFadeOut,
-        FinishFadeOut,
+        StartOut,
+        FinishOut,
         StartLoading,
         FinishLoading,
-        StartFadeIn,
-        FinishFadeIn
+        StartIn,
+        FinishIn
     }
 
         #endregion
@@ -136,7 +136,7 @@ namespace QuackUp.SceneManagement
             CurrentSceneType = sceneType ?? SceneType.MainMenu;
             PreviousSceneType = CurrentSceneType;
             _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishLoading, PreviousSceneType, CurrentSceneType));
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishFadeIn, PreviousSceneType, CurrentSceneType));
+            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishIn, PreviousSceneType, CurrentSceneType));
         }
 
         #endregion
@@ -199,7 +199,7 @@ namespace QuackUp.SceneManagement
             LoadSceneMode = loadSceneMode;
             PreviousSceneType = CurrentSceneType;
             NextSceneType = sceneType;
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.StartFadeOut, PreviousSceneType, NextSceneType));
+            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.StartOut, PreviousSceneType, NextSceneType));
             _audioManager.PlayAudioOneShot(_config.TransitionSfx, Vector3.zero);
             await _currentTransitionScreen.TransitionIn();
             OnFadeOutComplete(useLoadingScene);
@@ -207,7 +207,7 @@ namespace QuackUp.SceneManagement
 
         private void OnFadeOutComplete(bool useLoadingScene)
         {
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishFadeOut, PreviousSceneType, NextSceneType));
+            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishOut, PreviousSceneType, NextSceneType));
             if (useLoadingScene)
             {
                 string loadingScene;
@@ -284,9 +284,9 @@ namespace QuackUp.SceneManagement
             {
                 await SceneManager.UnloadSceneAsync(lastScene);
             }
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.StartFadeIn, PreviousSceneType, NextSceneType));
+            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.StartIn, PreviousSceneType, NextSceneType));
             await _currentTransitionScreen.TransitionOut();
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishFadeIn, PreviousSceneType, NextSceneType));
+            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishIn, PreviousSceneType, NextSceneType));
         }
         #endregion
     }

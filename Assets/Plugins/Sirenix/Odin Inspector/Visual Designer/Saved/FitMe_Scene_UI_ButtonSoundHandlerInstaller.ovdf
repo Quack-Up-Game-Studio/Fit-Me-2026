@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.Scene.UI.ButtonSoundHandlerInstaller, FitMe.Scene
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Button Sound Handler"
++ [Sirenix.OdinInspector.HideLabelAttribute]

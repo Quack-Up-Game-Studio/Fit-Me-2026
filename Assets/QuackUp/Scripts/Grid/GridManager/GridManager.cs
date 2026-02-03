@@ -4,6 +4,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
 using ObservableCollections;
+using QuackUp.Audio;
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
 using R3;
@@ -105,6 +106,7 @@ namespace FitMe.Grid
         private readonly UnityEngine.Grid _grid;
         private readonly GridManagerConfig _config;
         private readonly CellFactory _cellFactory;
+        private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
         
         private IDisposable _subscriptions;
@@ -156,11 +158,13 @@ namespace FitMe.Grid
             UnityEngine.Grid grid,
             GridManagerConfig config,
             CellFactory cellFactory,
+            IAudioManager audioManager,
             [Key(GridManagerMessageHub.GridManagerMessageHubKey)] IMessageHub messageHub)
         {
             _grid = grid;
             _config = config;
             _cellFactory = cellFactory;
+            _audioManager = audioManager;
             _messageHub = messageHub;
             _grid.cellSize = config.CellSize;
             Subscribe();
@@ -562,7 +566,7 @@ namespace FitMe.Grid
 
         public async UniTask ClearGrid()
         {
-            //AudioManager.Instance.PlayAudioOneShot(fitMeExplodeSfx, transform.position);
+            _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
             await RemoveAllBlocks(true);
         }
     

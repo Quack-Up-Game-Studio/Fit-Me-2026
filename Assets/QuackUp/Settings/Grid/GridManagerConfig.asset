@@ -44,3 +44,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9ca8e72be3315c7428466b8ce1368edb, type: 2}
   - {fileID: 11400000, guid: ccba8797749977049ab0474a4f06ec30, type: 2}
   - {fileID: 11400000, guid: 694dcad42ddb372499cbdc5f880f0b8f, type: 2}
+  <FitExplodeSfx>k__BackingField:
+    Guid:
+      Data1: 845146018
+      Data2: 1179994146
+      Data3: 1596898966
+      Data4: -257840896
+    Path: event:/SFX/Game Play/GP07_Fit Explode

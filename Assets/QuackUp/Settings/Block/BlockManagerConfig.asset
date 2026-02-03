@@ -604,17 +604,19 @@ MonoBehaviour:
   <GridSortingLayer>k__BackingField: 133995437
   <AllowPickUpAfterPlacement>k__BackingField: 0
   <RotateClockwise>k__BackingField: 1
+  <PickUpScaleMultiplier>k__BackingField: 1.2
+  <SwitchIdleTimeRange>k__BackingField: {x: 30, y: 60}
   <PlaceSucceedSfx>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 724217357
+      Data2: 1334338036
+      Data3: 718497672
+      Data4: 801821144
+    Path: event:/SFX/Game Play/GP01_Confirm Place
   <PlaceFailSfx>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -307433879
+      Data2: 1268295283
+      Data3: 156051903
+      Data4: -1858921210
+    Path: event:/SFX/Game Play/GP02_Cancel Place

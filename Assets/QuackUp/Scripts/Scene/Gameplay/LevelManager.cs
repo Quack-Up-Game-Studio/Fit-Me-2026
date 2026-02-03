@@ -3,6 +3,8 @@ using FitMe.Entity;
 using FitMe.Grid;
 using FitMe.Scene.UI.Score;
 using FitMe.Shared;
+using QuackUp.Audio;
+using QuackUp.SceneManagement;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
@@ -24,10 +26,12 @@ namespace FitMe.Scene
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
         private readonly LevelManagerConfig _config;
         private readonly EntityManager _entityManager;
+        private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
         private readonly GridManager _gridManager;
         private readonly PopUpScoreFactory _popUpScoreFactory;
         
+        private AudioReference _bgmReference;
         private GameState _previousStateBeforePause;
         private IDisposable _subscriptions;
         
@@ -35,12 +39,14 @@ namespace FitMe.Scene
         public LevelManager(
             LevelManagerConfig config, 
             EntityManager entityManager,
+            IAudioManager audioManager,
             [Key(LevelManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
             GridManager gridManager,
             PopUpScoreFactory popUpScoreFactory)
         {
             _config = config;
             _entityManager = entityManager;
+            _audioManager = audioManager;
             _messageHub = messageHub;
             _gridManager = gridManager;
             _popUpScoreFactory = popUpScoreFactory;
@@ -62,6 +68,10 @@ namespace FitMe.Scene
             _gridManager.OnScoreAdded
                 .Subscribe(OnScoreAdded)
                 .AddTo(ref disposableBuilder);
+            _messageHub.GetObservable<LoadSceneStageEvent>()
+                .Where(x => x.Stage is LoadSceneStage.StartOut)
+                .Subscribe(_ => OnSceneStartOut())
+                .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
         
@@ -78,6 +88,8 @@ namespace FitMe.Scene
             _entityManager.TryGetEntityOfType<PlayerEntity>(out var player);
             player.TryGetComponent<HealthComponent>(out var healthComponent);
             DebugUtils.Log($"Player current health: {healthComponent.CurrentHealth.Value}");
+            
+            _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
         }
         
         private void OnScoreAdded(ScoreEvent scoreEvent)
@@ -110,6 +122,11 @@ namespace FitMe.Scene
             }
             ChangeScore(finalScore);
             _popUpScoreFactory.Create(finalScore, scoreEvent.WorldPosition, "Score");
+        }
+        
+        private void OnSceneStartOut()
+        {
+            _audioManager.StopAudio(_bgmReference);
         }
         
         private void ChangeScore(int value)
