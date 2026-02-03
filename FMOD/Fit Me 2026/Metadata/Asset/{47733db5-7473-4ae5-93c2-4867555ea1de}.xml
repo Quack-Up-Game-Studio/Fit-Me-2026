@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="EncodableAsset" id="{47733db5-7473-4ae5-93c2-4867555ea1de}">
+		<property name="assetPath">
+			<value>SFX/02_Gameplay/!Loopies Woopies/</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{cc1ab444-65cc-4190-b885-910fe1717263}</destination>
+		</relationship>
+	</object>
+</objects>
