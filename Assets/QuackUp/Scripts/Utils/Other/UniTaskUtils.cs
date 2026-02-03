@@ -20,7 +20,7 @@ namespace QuackUp.Utils
         public Promise()
         {
             _cancellationRegistration = CancellationToken.Register(() => 
-                _completionSource.TrySetCanceled(CancellationToken));
+                TrySetCanceled());
         }
     
         public bool TrySetResult(T result) => _completionSource.TrySetResult(result);

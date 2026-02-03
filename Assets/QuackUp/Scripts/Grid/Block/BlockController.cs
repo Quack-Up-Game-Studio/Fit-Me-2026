@@ -18,6 +18,8 @@ namespace FitMe.Grid
         public ReactiveCommand<PointerEventData> EndDragCommand { get; } = new();
         public ReactiveCommand<PointerEventData> ClickCommand { get; } = new();
         
+        public bool AllowRotation { get; set; } = true;
+        
         private readonly BlockManagerConfig _config;
         private readonly GridManager _gridManager;
         private readonly IGameStateManager _gameStateManager;
@@ -166,6 +168,7 @@ namespace FitMe.Grid
         
         private async UniTask OnClickToRotate(PointerEventData eventData)
         {
+            if (!AllowRotation) return;
             if (_gameStateManager.GameState.CurrentValue is GameState.CountOff or GameState.Pause or GameState.GameOver) return;
             if (_isDragging) return;
             if (_blockInstance.ViewModel.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid) return;

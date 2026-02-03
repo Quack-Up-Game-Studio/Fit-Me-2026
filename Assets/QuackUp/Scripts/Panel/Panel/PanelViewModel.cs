@@ -98,12 +98,30 @@ namespace FitMe.Panel
             CrossfadeCommand
                 .SubscribeAwait((x, ct) => OnCrossfadeRequested(x), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
+            VisibilityState
+                .Where(x => x == Panel.VisibilityState.Visible)
+                .Subscribe(_ => OnVisible())
+                .AddTo(ref disposableBuilder);
+            VisibilityState
+                .Where(x => x == Panel.VisibilityState.Hidden)
+                .Subscribe(_ => OnHidden())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
         public virtual void Dispose()
         {
             _bindings?.Dispose();
+        }
+
+        protected virtual void OnVisible()
+        {
+            
+        }
+        
+        protected virtual void OnHidden()
+        {
+            
         }
         
         protected virtual async UniTask OnCrossfadeRequested(CrossfadeCommandData data)

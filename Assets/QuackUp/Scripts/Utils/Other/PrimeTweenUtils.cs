@@ -1,4 +1,5 @@
-﻿using PrimeTween;
+﻿using Cysharp.Threading.Tasks;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -33,6 +34,11 @@ namespace QuackUp.Utils
                 }
             }
             return seq;
+        }
+
+        public static UniTask ToUniTask(this Sequence seq)
+        {
+            return seq.ToYieldInstruction().ToUniTask();
         }
         
         #region ToRelative

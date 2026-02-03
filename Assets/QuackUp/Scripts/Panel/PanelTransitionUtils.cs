@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using PrimeTween;
+using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -73,7 +74,7 @@ namespace FitMe.Panel
                         throw new ArgumentOutOfRangeException();
                 }
             });
-            return _transitionSequence.ToUniTask(cancellationToken: cancellationToken);
+            return _transitionSequence.ToUniTask();
         }
     }
     
@@ -132,7 +133,7 @@ namespace FitMe.Panel
                 }
                 if (data.delay > 0) _ = _transitionSequence.ChainDelay(data.delay);
             }
-            await _transitionSequence.ToUniTask(cancellationToken: cancellationToken);
+            await _transitionSequence.ToUniTask();
         }
 
         public void CancelTransition()
