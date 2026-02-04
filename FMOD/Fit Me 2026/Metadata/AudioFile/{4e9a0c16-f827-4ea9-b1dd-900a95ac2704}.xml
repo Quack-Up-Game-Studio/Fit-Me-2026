@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{4e9a0c16-f827-4ea9-b1dd-900a95ac2704}">
+		<property name="assetPath">
+			<value>SFX/02_Gameplay/!Loopies Woopies/08_Smirror.mp3</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.52244897959183678</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{cc1ab444-65cc-4190-b885-910fe1717263}</destination>
+		</relationship>
+	</object>
+</objects>

@@ -104,7 +104,7 @@ namespace FitMe.Grid
             _mousePositionDifference = new Vector2(mousePosition.x - position.x,
                 mousePosition.y - position.y);
             //ChangeSortingOrder(1);
-            //AudioManager.Instance.PlayAudioOneShot(BlockPreset.PickupSfx, transform.position);
+            _audioManager.PlayAudioOneShot(_blockInstance.Model.BlockPreset.PickupSfx, _blockInstance.GameObject.transform.position);
             _blockInstance.ViewModel.SetSortingLayerCommand.Execute(_config.PickUpSortingLayer);
         }
 

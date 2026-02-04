@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FMODUnity;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -36,5 +37,7 @@ namespace FitMe.Grid
         
         [field: SerializeField] private List<GridPreset> gridPresets = new();
         public IReadOnlyList<GridPreset> GridPresets => gridPresets;
+        
+        [field: SerializeField] public EventReference FitExplodeSfx { get; private set; }
     }
 }

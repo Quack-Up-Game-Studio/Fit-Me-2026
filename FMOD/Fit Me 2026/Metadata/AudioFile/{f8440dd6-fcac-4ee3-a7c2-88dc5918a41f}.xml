@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{f8440dd6-fcac-4ee3-a7c2-88dc5918a41f}">
+		<property name="assetPath">
+			<value>SFX/02_Gameplay/Block Explode/BE02_Stretch.mp3</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>2.5600000000000001</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{cc1ab444-65cc-4190-b885-910fe1717263}</destination>
+		</relationship>
+	</object>
+</objects>

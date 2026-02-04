@@ -155,8 +155,8 @@ MonoBehaviour:
   <BlockSize>k__BackingField: {x: 1, y: 2}
   <PickupSfx>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -1235050644
+      Data2: 1302146388
+      Data3: 2076365187
+      Data4: -1476269522
+    Path: event:/SFX/Game Play/Loopie Woopie/I2

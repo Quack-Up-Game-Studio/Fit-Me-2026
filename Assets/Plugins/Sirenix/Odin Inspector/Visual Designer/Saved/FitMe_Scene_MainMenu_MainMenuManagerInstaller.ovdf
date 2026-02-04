@@ -1,0 +1,10 @@
+OVDF v1.1
+FitMe.Scene.MainMenu.MainMenuManagerInstaller, FitMe.Scene
+
+# _title
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Main Menu Manager"
+
+# mainMenuManagerConfig
++ [Sirenix.OdinInspector.RequiredAttribute]

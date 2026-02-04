@@ -323,6 +323,7 @@ MonoBehaviour:
     - {fileID: 31369993}
     - {fileID: 973191131}
     - {fileID: 1773429783}
+    - {fileID: 11400000, guid: 6d880a90fcf292609a13d8552d85c84c, type: 2}
     - {fileID: 1980688519}
     SerializedBytesString: 
     Prefab: {fileID: 0}
@@ -335,7 +336,7 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 5
+      Data: 6
     - Name: 
       Entry: 7
       Data: 1|QuackUp.Input.PointerHandlerInstaller, QuackUp.Input
@@ -479,6 +480,15 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 9|FitMe.Scene.MainMenu.MainMenuManagerInstaller, FitMe.Scene
+    - Name: mainMenuManagerConfig
+      Entry: 10
+      Data: 16
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 10|FitMe.Scene.UI.ButtonSoundHandlerInstaller, FitMe.Scene
     - Name: 
       Entry: 8
       Data: 
@@ -490,17 +500,17 @@ MonoBehaviour:
       Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 10|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 11|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12
       Data: 1
     - Name: 
       Entry: 7
-      Data: 11|FitMe.Scene.UI.DragMeToPlayInstaller, FitMe.Scene
+      Data: 12|FitMe.Scene.UI.DragMeToPlayInstaller, FitMe.Scene
     - Name: dragMeToPlayView
       Entry: 10
-      Data: 16
+      Data: 17
     - Name: 
       Entry: 8
       Data: 
@@ -2396,7 +2406,7 @@ GameObject:
   - component: {fileID: 373770408}
   - component: {fileID: 373770407}
   - component: {fileID: 373770406}
-  - component: {fileID: 373770405}
+  - component: {fileID: 373770409}
   m_Layer: 5
   m_Name: MusicButton
   m_TagString: Untagged
@@ -2424,18 +2434,6 @@ RectTransform:
   m_AnchoredPosition: {x: 717.31024, y: -266}
   m_SizeDelta: {x: 258, y: 266}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &373770405
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 373770403}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073abbde76bf7dc4a98aa052ad160c4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &373770406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2518,6 +2516,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 373770403}
   m_CullTransparentMesh: 1
+--- !u!114 &373770409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 373770403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983cf819bca448c09ed90bc268c01e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FitMe.Scene::FitMe.Scene.UI.ButtonSoundHandler
+  button: {fileID: 373770406}
+  buttonClickSound:
+    Guid:
+      Data1: 1609711286
+      Data2: 1193813318
+      Data3: -748454981
+      Data4: 1977297278
+    Path: event:/SFX/Menu/M01_Any Button
 --- !u!1 &398098206
 GameObject:
   m_ObjectHideFlags: 0
@@ -6206,7 +6224,7 @@ GameObject:
   - component: {fileID: 1105766470}
   - component: {fileID: 1105766469}
   - component: {fileID: 1105766468}
-  - component: {fileID: 1105766467}
+  - component: {fileID: 1105766471}
   m_Layer: 5
   m_Name: SfxButton
   m_TagString: Untagged
@@ -6234,18 +6252,6 @@ RectTransform:
   m_AnchoredPosition: {x: 309.31024, y: -266}
   m_SizeDelta: {x: 258, y: 266}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &1105766467
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1105766465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073abbde76bf7dc4a98aa052ad160c4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1105766468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6328,6 +6334,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1105766465}
   m_CullTransparentMesh: 1
+--- !u!114 &1105766471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105766465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983cf819bca448c09ed90bc268c01e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FitMe.Scene::FitMe.Scene.UI.ButtonSoundHandler
+  button: {fileID: 1105766468}
+  buttonClickSound:
+    Guid:
+      Data1: 1609711286
+      Data2: 1193813318
+      Data3: -748454981
+      Data4: 1977297278
+    Path: event:/SFX/Menu/M01_Any Button
 --- !u!1 &1134314236
 GameObject:
   m_ObjectHideFlags: 0
@@ -7344,6 +7370,7 @@ GameObject:
   - component: {fileID: 1356761733}
   - component: {fileID: 1356761732}
   - component: {fileID: 1356761735}
+  - component: {fileID: 1356761736}
   m_Layer: 5
   m_Name: SettingButton
   m_TagString: Untagged
@@ -7468,6 +7495,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 2114490995}
   down: {fileID: 46437176}
+--- !u!114 &1356761736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1356761729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983cf819bca448c09ed90bc268c01e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FitMe.Scene::FitMe.Scene.UI.ButtonSoundHandler
+  button: {fileID: 1356761732}
+  buttonClickSound:
+    Guid:
+      Data1: 1609711286
+      Data2: 1193813318
+      Data3: -748454981
+      Data4: 1977297278
+    Path: event:/SFX/Menu/M01_Any Button
 --- !u!1 &1372976606
 GameObject:
   m_ObjectHideFlags: 0
@@ -7839,6 +7886,7 @@ GameObject:
   - component: {fileID: 1414808497}
   - component: {fileID: 1414808496}
   - component: {fileID: 1414808499}
+  - component: {fileID: 1414808500}
   m_Layer: 5
   m_Name: ReturnButton
   m_TagString: Untagged
@@ -7963,6 +8011,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 1883914080}
   down: {fileID: 2082365948}
+--- !u!114 &1414808500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1414808492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983cf819bca448c09ed90bc268c01e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FitMe.Scene::FitMe.Scene.UI.ButtonSoundHandler
+  button: {fileID: 1414808496}
+  buttonClickSound:
+    Guid:
+      Data1: 1609711286
+      Data2: 1193813318
+      Data3: -748454981
+      Data4: 1977297278
+    Path: event:/SFX/Menu/M01_Any Button
 --- !u!1 &1423552882
 GameObject:
   m_ObjectHideFlags: 0
@@ -8716,6 +8784,7 @@ GameObject:
   - component: {fileID: 1569611661}
   - component: {fileID: 1569611660}
   - component: {fileID: 1569611663}
+  - component: {fileID: 1569611664}
   m_Layer: 5
   m_Name: Achivement
   m_TagString: Untagged
@@ -8840,6 +8909,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 1692857498}
   down: {fileID: 177028161}
+--- !u!114 &1569611664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1569611656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983cf819bca448c09ed90bc268c01e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FitMe.Scene::FitMe.Scene.UI.ButtonSoundHandler
+  button: {fileID: 1569611660}
+  buttonClickSound:
+    Guid:
+      Data1: 1609711286
+      Data2: 1193813318
+      Data3: -748454981
+      Data4: 1977297278
+    Path: event:/SFX/Menu/M01_Any Button
 --- !u!1 &1609771819
 GameObject:
   m_ObjectHideFlags: 0
