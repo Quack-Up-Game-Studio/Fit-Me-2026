@@ -1,4 +1,5 @@
 using System;
+using FitMe.Shared;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;

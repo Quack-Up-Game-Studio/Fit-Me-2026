@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FitMe.Shared;
 using FMODUnity;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;

@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using FitMe.Shared;
 using PrimeTween;
 using QuackUp.Utils;
 using R3;

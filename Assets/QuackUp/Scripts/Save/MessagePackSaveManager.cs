@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -92,6 +93,7 @@ namespace QuackUp.Save
         public T GetFirstSaveObjectOfType<T>() where T : MessagePackSaveObject
         {
             var type = typeof(T);
+            DebugUtils.Log($"_saveObjects count: {_saveObjects.Count}");
             foreach (var saveObject in _saveObjects.Values)
             {
                 if (saveObject is T typedSaveObject)

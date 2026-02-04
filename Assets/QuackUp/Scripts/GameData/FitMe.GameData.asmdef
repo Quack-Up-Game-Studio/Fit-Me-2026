@@ -1,0 +1,19 @@
+{
+    "name": "FitMe.GameData",
+    "rootNamespace": "FitMe.GameData",
+    "references": [
+        "GUID:867378844ccc1994885ce7926790233c",
+        "GUID:034c977408447714e91237bd5f97c1ff",
+        "GUID:1726fbb01b8ef92eb9b726e0dbefdbd2",
+        "GUID:11c1da7ad5eea0631bd966b09402e5f3"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

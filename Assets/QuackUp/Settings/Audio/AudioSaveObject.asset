@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd00b26e16794420bb8fdd534bda9db8, type: 3}
+  m_Name: AudioSaveObject
+  m_EditorClassIdentifier: QuackUp.Audio::QuackUp.Audio.AudioSaveObject
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: saveData
+      Entry: 7
+      Data: 0|QuackUp.Audio.AudioSaveData, QuackUp.Audio
+    - Name: <Version>k__BackingField
+      Entry: 1
+      Data: 0.2.1-devbuild.1+macOS
+    - Name: <BusSaveData>k__BackingField
+      Entry: 7
+      Data: 1|System.Collections.Generic.Dictionary`2[[QuackUp.Audio.BusType, QuackUp.Audio],[QuackUp.Audio.BusSaveData,
+        QuackUp.Audio]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 2|System.Collections.Generic.EnumEqualityComparer`1[[QuackUp.Audio.BusType,
+        QuackUp.Audio]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 7
+      Data: 3|QuackUp.Audio.BusSaveData, QuackUp.Audio
+    - Name: <LinearVolume>k__BackingField
+      Entry: 4
+      Data: 1
+    - Name: <IsMuted>k__BackingField
+      Entry: 5
+      Data: false
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 7
+      Data: 4|QuackUp.Audio.BusSaveData, QuackUp.Audio
+    - Name: <LinearVolume>k__BackingField
+      Entry: 4
+      Data: 1
+    - Name: <IsMuted>k__BackingField
+      Entry: 5
+      Data: true
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 7
+      Data: 5|QuackUp.Audio.BusSaveData, QuackUp.Audio
+    - Name: <LinearVolume>k__BackingField
+      Entry: 4
+      Data: 1
+    - Name: <IsMuted>k__BackingField
+      Entry: 5
+      Data: false
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: migrationResolvers
+      Entry: 7
+      Data: 6|System.Collections.Generic.List`1[[QuackUp.Save.ISaveMigrationResolver`1[[QuackUp.Audio.AudioSaveData,
+        QuackUp.Audio]], QuackUp.Save]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  <SaveSeparately>k__BackingField: 1
+  saveAsJson: 1
+  debugMode: 1
+  debugSaveSettings:
+    saveLocation: 1
+    encryptSave: 0
+    encryptionKey: 
+    saveDirectory: TestSave/settings
+    saveFileName: audio-settings.json
+  releaseSaveSettings:
+    saveLocation: 0
+    encryptSave: 0
+    encryptionKey: 
+    saveDirectory: /settings
+    saveFileName: audio-settings.json

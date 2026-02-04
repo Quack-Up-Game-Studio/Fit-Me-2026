@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using FitMe.Shared;
 using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
@@ -27,28 +28,6 @@ namespace FitMe.Grid
         PlacedOnSpawn,
         PickUp,
         PlacedOnGrid
-    }
-
-    public enum BlockShape
-    {
-        OneByOne,
-        OneByTwo,
-        OneByThree,
-        TwoByTwo,
-        Z,
-        S,
-        J,
-        L,
-        T
-    }
-    
-    public enum BlockColor
-    {
-        Red,
-        Yellow,
-        Green,
-        Purple,
-        Blue
     }
     #endregion
 
@@ -85,7 +64,7 @@ namespace FitMe.Grid
         
         public ReactiveCommand UpdateGridCommand { get; } = new();
         
-        private ReactiveProperty<BlockColor> _blockColor = new(Grid.BlockColor.Red);
+        private ReactiveProperty<BlockColor> _blockColor = new(Shared.BlockColor.Red);
         private int _originalSortingOrder;
         #endregion
 

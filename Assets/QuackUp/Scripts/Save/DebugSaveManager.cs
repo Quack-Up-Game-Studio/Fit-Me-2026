@@ -40,7 +40,7 @@ namespace QuackUp.Save
         }
         
 #if UNITY_EDITOR
-        [MenuItem("ATL/Save Manager")]
+        [MenuItem("Tools/Save Manager")]
         public static void OpenFishRegistryWindow()
         {
             Sirenix.OdinInspector.Editor.OdinEditorWindow.InspectObject(Instance);
@@ -51,7 +51,7 @@ namespace QuackUp.Save
         {
             Instance = Resources.Load<DebugSaveManager>("DebugSaveManager");
             if (Instance) return;
-            Debug.LogWarning("FishRegistry instance is null. Creating a new one");
+            Debug.LogWarning("Debug Save Manager instance is null. Creating a new one");
             var asset = CreateInstance<DebugSaveManager>();
             AssetDatabase.CreateAsset(asset, "Assets/QuackUp/Resources/DebugSaveManager.asset");
             AssetDatabase.SaveAssets();
