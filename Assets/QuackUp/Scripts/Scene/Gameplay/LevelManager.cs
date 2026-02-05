@@ -5,6 +5,7 @@ using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Scene.UI.Score;
 using FitMe.Shared;
+using FitMe.Panel;
 using QuackUp.Audio;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
@@ -16,7 +17,8 @@ using VContainer.Unity;
 
 namespace FitMe.Scene
 {
-    public class LevelManager : IGameStateManager, IStartable, IDisposable
+    
+    public class LevelManager : ILevelManager, IStartable, IDisposable
     {
         public ReactiveProperty<int> Score { get; } = new(0);
         public ReactiveProperty<int> FitMeScore { get; } = new(0);
@@ -35,6 +37,7 @@ namespace FitMe.Scene
         private readonly MessagePackSaveManager _saveManager;
         private readonly AchievementManager _achievementManager;
         private readonly PopUpScoreFactory _popUpScoreFactory;
+        private readonly PanelManager _panelManager;
         
         private PlayerRecordSaveObject _playerRecordSaveObject;
         private AudioReference _bgmReference;
@@ -50,7 +53,8 @@ namespace FitMe.Scene
             GridManager gridManager,
             MessagePackSaveManager saveManager,
             AchievementManager achievementManager,
-            PopUpScoreFactory popUpScoreFactory)
+            PopUpScoreFactory popUpScoreFactory,
+            PanelManager panelManager)
         {
             _config = config;
             _entityManager = entityManager;
@@ -60,6 +64,7 @@ namespace FitMe.Scene
             _popUpScoreFactory = popUpScoreFactory;
             _saveManager = saveManager;
             _achievementManager = achievementManager;
+            _panelManager = panelManager;
             Initialize();
             Subscribe();
         }
@@ -81,6 +86,8 @@ namespace FitMe.Scene
             _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage is LoadSceneStage.StartOut)
                 .Subscribe(_ => OnSceneStartOut())
+                .AddTo(ref disposableBuilder);
+            _messageHub.Subscribe<GameOverEvent>(OnGameOverEvent)
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -180,6 +187,19 @@ namespace FitMe.Scene
         public void Unpause()
         {
             _gameState.Value = _previousStateBeforePause;
+        }
+
+        private void OnGameOverEvent(GameOverEvent evt)
+        {
+            if (!evt.IsOver) return;
+            Debug.Log("Game Over Event Received!");
+            GameOver();
+        }
+        
+        private void GameOver()
+        {
+            _panelManager.Crossfade(_config.GameplayPanelId, _config.GameOverPanelId, 
+                new CrossfadeSettings(){crossFadeType = CrossfadeType.InOnly});
         }
     }
 }

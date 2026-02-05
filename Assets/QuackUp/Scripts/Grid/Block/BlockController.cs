@@ -22,7 +22,7 @@ namespace FitMe.Grid
         
         private readonly BlockManagerConfig _config;
         private readonly GridManager _gridManager;
-        private readonly IGameStateManager _gameStateManager;
+        private readonly ILevelManager _levelManager;
         private readonly IAudioManager _audioManager;
         private readonly IPointerHandler _pointerHandler;
         
@@ -38,13 +38,13 @@ namespace FitMe.Grid
         public BlockController(
             BlockManagerConfig config,
             GridManager gridManager,
-            IGameStateManager gameStateManager,
+            ILevelManager levelManager,
             IAudioManager audioManager,
             IPointerHandler pointerHandler)
         {
             _config = config;
             _gridManager = gridManager;
-            _gameStateManager = gameStateManager;
+            _levelManager = levelManager;
             _audioManager = audioManager;
             _pointerHandler = pointerHandler;
         }
@@ -86,12 +86,12 @@ namespace FitMe.Grid
         private void OnBeginDrag(PointerEventData eventData)
         {
             if (_dragWhileRotating) return;
-            if (_gameStateManager.GameState.CurrentValue is GameState.GameOver or GameState.GameClear)
+            if (_levelManager.GameState.CurrentValue is GameState.GameOver or GameState.GameClear)
             {
                 OnEndDrag(eventData);
                 return;
             }
-            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
+            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
             if (_isRotating)
             {
                 _dragWhileRotating = true;
@@ -111,12 +111,12 @@ namespace FitMe.Grid
         private void OnDrag(PointerEventData eventData)
         {
             if (_dragWhileRotating) return;
-            if (_gameStateManager.GameState.CurrentValue is GameState.GameOver or GameState.GameClear)
+            if (_levelManager.GameState.CurrentValue is GameState.GameOver or GameState.GameClear)
             {
                 OnEndDrag(eventData);
                 return;
             }
-            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
+            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
             if (_isRotating)
             {
                 _dragWhileRotating = true;
@@ -142,7 +142,7 @@ namespace FitMe.Grid
                 _dragWhileRotating = false;
                 return;
             }
-            if (_gameStateManager.GameState.CurrentValue is GameState.CountOff or GameState.Pause) return;
+            if (_levelManager.GameState.CurrentValue is GameState.CountOff or GameState.Pause) return;
             if (!_isDragging) return;
             if (_isRotating)
             {
@@ -169,7 +169,7 @@ namespace FitMe.Grid
         private async UniTask OnClickToRotate(PointerEventData eventData)
         {
             if (!AllowRotation) return;
-            if (_gameStateManager.GameState.CurrentValue is GameState.CountOff or GameState.Pause or GameState.GameOver) return;
+            if (_levelManager.GameState.CurrentValue is GameState.CountOff or GameState.Pause or GameState.GameOver) return;
             if (_isDragging) return;
             if (_blockInstance.ViewModel.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid) return;
             var rotateClockwise = _config.RotateClockwise ? -1f : 1f;

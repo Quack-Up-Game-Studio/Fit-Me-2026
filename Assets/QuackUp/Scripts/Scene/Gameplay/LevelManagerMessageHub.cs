@@ -1,4 +1,5 @@
 using FitMe.Grid;
+using FitMe.Shared;
 using MessagePipe;
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
@@ -14,6 +15,7 @@ namespace FitMe.Scene
         public LevelManagerMessageHub(
             IPublisher<StartSpawnEvent> startSpawnPublisher,
             ISubscriber<LoadSceneStageEvent> loadSceneStageSubscriber)
+            ISubscriber<GameOverEvent> gameOverSubscriber)
         {
             MessageWrappers[typeof(StartSpawnEvent)] = new MessageWrapper<StartSpawnEvent>(
                 startSpawnPublisher,
@@ -21,6 +23,9 @@ namespace FitMe.Scene
             MessageWrappers[typeof(LoadSceneStageEvent)] = new MessageWrapper<LoadSceneStageEvent>(
                 null,
                 loadSceneStageSubscriber);
+            MessageWrappers[typeof(GameOverEvent)] = new MessageWrapper<GameOverEvent>(
+                null,
+                gameOverSubscriber);
         }
     }
 }

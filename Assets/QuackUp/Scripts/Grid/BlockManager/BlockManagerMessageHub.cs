@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FitMe.Shared;
 using MessagePipe;
 using QuackUp.Utils;
 using VContainer;
@@ -13,7 +14,8 @@ namespace FitMe.Grid
         public BlockManagerMessageHub(
             ISubscriber<StartSpawnEvent> startSpawnSubscription,
             IPublisher<BlockSpawnedEvent> blockSpawnedPublisher,
-            IPublisher<NoPlaceableBlockEvent> noPlaceableBlockPublisher)
+            IPublisher<NoPlaceableBlockEvent> noPlaceableBlockPublisher,
+            IPublisher<GameOverEvent> gameOverPublisher)
         {
             MessageWrappers[typeof(StartSpawnEvent)] = new MessageWrapper<StartSpawnEvent>(
                 null,
@@ -23,6 +25,9 @@ namespace FitMe.Grid
                 null);
             MessageWrappers[typeof(NoPlaceableBlockEvent)] = new MessageWrapper<NoPlaceableBlockEvent>(
                 noPlaceableBlockPublisher,
+                null);
+            MessageWrappers[typeof(GameOverEvent)] = new MessageWrapper<GameOverEvent>(
+                gameOverPublisher,
                 null);
         }
     }

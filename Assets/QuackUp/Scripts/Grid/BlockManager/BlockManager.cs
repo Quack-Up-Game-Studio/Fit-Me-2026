@@ -377,19 +377,18 @@ namespace FitMe.Grid
             }
         }
 
+        
+        
         public async UniTask GameOverCheck()
         {
-            // if (_scaleTween.isAlive)
-            // {
-            //     await _scaleTween.ToUniTask();
-            // }
             List<BlockModel> blockToCheck = _spawnPoints.Where(x => !x.IsFree).Select(spawnPoint => spawnPoint.CurrentBlock.Model).ToList();
             if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
                 _gridManager.CreateVacantSchema(out _, out var vacantCount);
                 _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));    
-                await _gridManager.ClearGrid();
-                _gridManager.RegenerateGrid();
+                /*await _gridManager.ClearGrid();
+                _gridManager.RegenerateGrid();*/
+                _messageHub.Publish(new GameOverEvent(true));
             }
         }
         #endregion

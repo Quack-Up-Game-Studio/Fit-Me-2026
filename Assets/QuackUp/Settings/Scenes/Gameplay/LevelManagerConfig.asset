@@ -35,3 +35,5 @@ MonoBehaviour:
       Data3: -480146507
       Data4: -805563045
     Path: event:/BGM/BGM02_Game Play
+  <GameOverPanelId>k__BackingField: GameOver
+  <GameplayPanelId>k__BackingField: Gameplay
