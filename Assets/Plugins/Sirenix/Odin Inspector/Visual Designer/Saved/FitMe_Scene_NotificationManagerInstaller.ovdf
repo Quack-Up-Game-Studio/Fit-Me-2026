@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.Scene.NotificationManagerInstaller, FitMe.Scene
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Notification Manager"
++ [Sirenix.OdinInspector.HideLabelAttribute]

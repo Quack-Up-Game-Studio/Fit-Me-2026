@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace QuackUp.Save
 {
-    [Union(0, typeof(TestMessagePackSaveData))]
+    //[Union(0, typeof(TestMessagePackSaveData))]
     public interface IMessagePackSaveData
     {
         public string Version { get; set; }

@@ -11,7 +11,7 @@ namespace QuackUp.Save
     {
         [field: SerializeField] public bool LoadAtStart { get; private set; } = true;
         [field: OdinSerialize] private Dictionary<string, MessagePackSaveObject> initialSaveObjects = new();
-        public IReadOnlyDictionary<string, MessagePackSaveObject> InitialSaveObjects => (Dictionary<string, MessagePackSaveObject>)initialSaveObjects;
+        public IReadOnlyDictionary<string, MessagePackSaveObject> InitialSaveObjects => initialSaveObjects;
         [SerializeField] private bool debugMode = true;
         [ShowIf(nameof(debugMode)), 
          SerializeField] private SaveSettings debugSaveSettings;

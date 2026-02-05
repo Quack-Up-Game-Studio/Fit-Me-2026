@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a17002a0010d48b18c89b105ca226429, type: 3}
+  m_Name: Score 1000
+  m_EditorClassIdentifier: FitMe.Achievement::FitMe.Achievement.CumulativeScoreAchievementPreset
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  <AchievementId>k__BackingField: score-1000
+  <AchievementName>k__BackingField: 1000 Score
+  <AchievementDescription>k__BackingField: Get 1000 Score lol
+  <AchievementIcon>k__BackingField: {fileID: 7085680453519524019, guid: ed706abf120a1c242af517115ea2b41c, type: 3}
+  <TargetCumulativeScore>k__BackingField: 1000

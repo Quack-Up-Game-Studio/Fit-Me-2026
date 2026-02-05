@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.Achievement.AchievementManagerInstaller, FitMe.Achievement
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Achievement Manager"
++ [Sirenix.OdinInspector.HideLabelAttribute]

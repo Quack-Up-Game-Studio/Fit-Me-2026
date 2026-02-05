@@ -167,7 +167,15 @@ namespace QuackUp.Audio
             Debug.Log("Loading audio settings from save data.");
             foreach (var busEntry in BusData)
             {
-                if (!saveData.BusSaveData.TryGetValue(busEntry.Key, out var busSaveData)) continue;
+                if (!saveData.BusSaveData.TryGetValue(busEntry.Key, out var busSaveData))
+                {
+                    saveData.BusSaveData[busEntry.Key] = new BusSaveData
+                    {
+                        IsMuted = false,
+                        LinearVolume = 1f
+                    };
+                    continue;
+                }
                 busEntry.Value.SetVolume(busSaveData.LinearVolume);
                 busEntry.Value.SetMute(busSaveData.IsMuted);
             }
@@ -180,7 +188,11 @@ namespace QuackUp.Audio
             {
                 if (!saveData.BusSaveData.ContainsKey(busEntry.Key))
                 {
-                    saveData.BusSaveData[busEntry.Key] = new BusSaveData();
+                    saveData.BusSaveData[busEntry.Key] = new BusSaveData
+                    {
+                        IsMuted = false,
+                        LinearVolume = 1f
+                    };
                 }
                 var busSaveData = saveData.BusSaveData[busEntry.Key];
                 busSaveData.LinearVolume = busEntry.Value.LinearVolume;

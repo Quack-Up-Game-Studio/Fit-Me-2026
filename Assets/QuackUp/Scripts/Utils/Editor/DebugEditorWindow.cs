@@ -13,6 +13,16 @@ namespace QuackUp.Utils
         public bool AutoCloseWhenPlayModeEnds { get; }
     }
     
+    [Serializable]
+    public abstract class DebugDataBase : IDebugData
+    {
+        [SerializeField] private bool constantUpdate = false;
+        [SerializeField] private bool autoCloseWhenPlayModeEnds = true;
+        
+        public bool ConstantUpdate => constantUpdate;
+        public bool AutoCloseWhenPlayModeEnds => autoCloseWhenPlayModeEnds;
+    }
+    
 #if UNITY_EDITOR
     /// <summary>
     /// Debug window for inspecting IDebugData objects.

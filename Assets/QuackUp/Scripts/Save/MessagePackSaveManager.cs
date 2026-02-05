@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -12,6 +13,7 @@ using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace QuackUp.Save
 {
+
     [Serializable]
     public class MessagePackSaveManager : IInitializable
     {
@@ -92,6 +94,7 @@ namespace QuackUp.Save
         public T GetFirstSaveObjectOfType<T>() where T : MessagePackSaveObject
         {
             var type = typeof(T);
+            DebugUtils.Log($"_saveObjects count: {_saveObjects.Count}");
             foreach (var saveObject in _saveObjects.Values)
             {
                 if (saveObject is T typedSaveObject)
@@ -102,7 +105,7 @@ namespace QuackUp.Save
             Debug.LogError($"Save object of type {type} not found.");
             return null;
         }
-        
+
         public T[] GetAllSaveObjectsOfType<T>() where T : MessagePackSaveObject
         {
             var type = typeof(T);

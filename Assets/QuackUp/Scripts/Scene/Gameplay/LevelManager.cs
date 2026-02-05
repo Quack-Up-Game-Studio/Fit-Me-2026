@@ -1,9 +1,12 @@
 using System;
+using FitMe.Achievement;
 using FitMe.Entity;
+using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Scene.UI.Score;
 using FitMe.Shared;
 using QuackUp.Audio;
+using QuackUp.Save;
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
 using R3;
@@ -29,8 +32,11 @@ namespace FitMe.Scene
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
         private readonly GridManager _gridManager;
+        private readonly MessagePackSaveManager _saveManager;
+        private readonly AchievementManager _achievementManager;
         private readonly PopUpScoreFactory _popUpScoreFactory;
         
+        private PlayerRecordSaveObject _playerRecordSaveObject;
         private AudioReference _bgmReference;
         private GameState _previousStateBeforePause;
         private IDisposable _subscriptions;
@@ -42,6 +48,8 @@ namespace FitMe.Scene
             IAudioManager audioManager,
             [Key(LevelManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
             GridManager gridManager,
+            MessagePackSaveManager saveManager,
+            AchievementManager achievementManager,
             PopUpScoreFactory popUpScoreFactory)
         {
             _config = config;
@@ -50,6 +58,8 @@ namespace FitMe.Scene
             _messageHub = messageHub;
             _gridManager = gridManager;
             _popUpScoreFactory = popUpScoreFactory;
+            _saveManager = saveManager;
+            _achievementManager = achievementManager;
             Initialize();
             Subscribe();
         }
@@ -90,6 +100,9 @@ namespace FitMe.Scene
             DebugUtils.Log($"Player current health: {healthComponent.CurrentHealth.Value}");
             
             _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
+            
+            _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            DebugUtils.Log($"PlayerRecordSaveObject found: {_playerRecordSaveObject}");
         }
         
         private void OnScoreAdded(ScoreEvent scoreEvent)
@@ -132,11 +145,19 @@ namespace FitMe.Scene
         private void ChangeScore(int value)
         {
             Score.Value += value;
+            if (!_playerRecordSaveObject) return;
+            var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            if (saveData == null) return;
+            saveData.cumulativeScore += value;
         }
         
         private void ChangeFitMe(int value)
         {
             FitMeScore.Value += value;
+            if (!_playerRecordSaveObject) return;
+            var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            if (saveData == null) return;
+            saveData.cumulativeFitMe += value;
         }
         
         public void SetGameState(GameState newState)

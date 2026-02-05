@@ -28,6 +28,7 @@ namespace QuackUp.Audio
         private readonly MessagePackSaveManager _saveManager;
         
         public AudioSettings AudioSettings => _audioManagerConfig.AudioSettings;
+        private AudioSaveObject _audioSaveObject;
         
         #region Constructor
         [Inject]
@@ -292,20 +293,37 @@ namespace QuackUp.Audio
         {
             if (!GetBusData(busType, out var busData)) return;
             busData.SetMute(mute);
+            if (!_audioSaveObject) return;
+            var audioSaveData = _audioSaveObject.GetSaveData<AudioSaveData>();
+            if (audioSaveData == null) return;
+            audioSaveData.BusSaveData[busType].IsMuted = mute;
         }
         
         public void ToggleMuteBus(BusType busType)
         {
             if (!GetBusData(busType, out var busData)) return;
             busData.SetMute(!busData.IsMuted);
+            if (!_audioSaveObject) return;
+            var audioSaveData = _audioSaveObject.GetSaveData<AudioSaveData>();
+            if (audioSaveData == null) return;
+            audioSaveData.BusSaveData[busType].IsMuted = busData.IsMuted;
         }
         
         public void SetVolumeBus(BusType busType, float value, VolumeUnit inUnit)
         {
             if (!GetBusData(busType, out var busData)) return;
             busData.SetVolume(value, inUnit);
+            if (!_audioSaveObject) return;
+            var audioSaveData = _audioSaveObject.GetSaveData<AudioSaveData>();
+            if (audioSaveData == null) return;
+            audioSaveData.BusSaveData[busType].LinearVolume = busData.LinearVolume;
         }
-        
+
+        public void SaveChanges()
+        {
+            _saveManager.Save(_audioSaveObject);
+        }
+
         public void StopAllAudioInBus(BusType busType, STOP_MODE stopMode = STOP_MODE.ALLOWFADEOUT)
         {
             if (!GetBusData(busType, out var busData)) return;
@@ -328,9 +346,9 @@ namespace QuackUp.Audio
         public void Load()
         {
             Debug.Log("Loading Audio Manager Settings...");
-            var audioSaveObject = _saveManager.GetFirstSaveObjectOfType<AudioSaveObject>();
-            if (!audioSaveObject) return;
-            var audioSaveData = audioSaveObject.GetSaveData<AudioSaveData>();
+            _audioSaveObject = _saveManager.GetFirstSaveObjectOfType<AudioSaveObject>();
+            if (!_audioSaveObject) return;
+            var audioSaveData = _audioSaveObject.GetSaveData<AudioSaveData>();
             if (audioSaveData == null) return;
             _audioManagerConfig.AudioSettings.LoadFromSaveData(audioSaveData);
         }

@@ -1,5 +1,6 @@
 using System;
 using QuackUp.Audio;
+using QuackUp.Save;
 using QuackUp.Utils;
 using R3;
 using VContainer;
@@ -12,6 +13,7 @@ namespace FitMe.Panel
         public ReactiveProperty<bool> SfxMuteState { get; private set; } = new(true);
 
         private readonly IAudioBusManager _audioBusManager;
+        
         private IDisposable _bindings;
         
         [Inject]
@@ -36,7 +38,6 @@ namespace FitMe.Panel
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
-        
         public override void Dispose()
         {
             base.Dispose();
@@ -47,9 +48,15 @@ namespace FitMe.Panel
         {
             base.OnVisible();
             _audioBusManager.GetBusMuteState(BusType.BGM, out var bgmMuteState);
-            BGMMuteState.Value = bgmMuteState;
             _audioBusManager.GetBusMuteState(BusType.SFX, out var sfxMuteState);
+            BGMMuteState.Value = bgmMuteState;
             SfxMuteState.Value = sfxMuteState;
+        }
+        
+        protected override void OnHidden()
+        {
+            base.OnHidden();
+            _audioBusManager.SaveChanges();
         }
 
         private void OnMusicToggled(bool isOn)

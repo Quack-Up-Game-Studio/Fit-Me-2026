@@ -99,10 +99,12 @@ namespace FitMe.Panel
                 .SubscribeAwait((x, ct) => OnCrossfadeRequested(x), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
             VisibilityState
+                .IgnoreFirstValueWhenSubscribe()
                 .Where(x => x == Panel.VisibilityState.Visible)
                 .Subscribe(_ => OnVisible())
                 .AddTo(ref disposableBuilder);
             VisibilityState
+                .IgnoreFirstValueWhenSubscribe()
                 .Where(x => x == Panel.VisibilityState.Hidden)
                 .Subscribe(_ => OnHidden())
                 .AddTo(ref disposableBuilder);

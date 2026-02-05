@@ -1,0 +1,17 @@
+{
+  "Version": "0.2.1-devbuild.1+macOS",
+  "BusData": {
+    "Master": {
+      "LinearVolume": 1,
+      "IsMuted": false
+    },
+    "BGM": {
+      "LinearVolume": 1,
+      "IsMuted": true
+    },
+    "SFX": {
+      "LinearVolume": 1,
+      "IsMuted": false
+    }
+  }
+}
