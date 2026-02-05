@@ -14,8 +14,8 @@ namespace FitMe.Scene.MainMenu
         
         public void Install(IContainerBuilder builder)
         {
-            var gameStateManagerMock = new GameStateManagerMock(GameState.PlaceBlock);
-            builder.RegisterInstance<IGameStateManager, GameStateManagerMock>(gameStateManagerMock);
+            var gameStateManagerMock = new LevelManagerMock(GameState.PlaceBlock);
+            builder.RegisterInstance<ILevelManager, LevelManagerMock>(gameStateManagerMock);
             builder.Register<IMessageHub, MainMenuManagerMessageHub>(Lifetime.Singleton)
                 .Keyed(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey);
             builder.RegisterEntryPoint<MainMenuManager>().AsSelf();

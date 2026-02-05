@@ -12,19 +12,33 @@ namespace FitMe.Shared
         Pause,
     }
     
-    public interface IGameStateManager
+    public struct GameOverEvent
+    {
+        public bool IsOver;
+
+        public GameOverEvent(bool isOver = false)
+        {
+            IsOver = isOver;
+        }
+    }
+    
+    public interface ILevelManager
     {
         ReadOnlyReactiveProperty<GameState> GameState { get; }
+        ReactiveProperty<int> Score { get; }
+        ReactiveProperty<int> FitMeScore { get; }
         void SetGameState(GameState newState);
         void Pause();
         void Unpause();
     }
     
-    public class GameStateManagerMock : IGameStateManager
+    public class LevelManagerMock : ILevelManager
     {
         public ReadOnlyReactiveProperty<GameState> GameState => _currentGameState.ToReadOnlyReactiveProperty();
+        public ReactiveProperty<int> Score { get; }
+        public ReactiveProperty<int> FitMeScore { get; }
         private readonly ReactiveProperty<GameState> _currentGameState = new(Shared.GameState.PlaceBlock);
-        public GameStateManagerMock(GameState initialState)
+        public LevelManagerMock(GameState initialState)
         {
             _currentGameState.Value = initialState;
         }

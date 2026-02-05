@@ -15,5 +15,8 @@ namespace FitMe.Scene
         
         [field: SerializeField] public bool HasCountOff { get; private set; } = true;
         [field: SerializeField] public float CountOffDuration { get; private set; } = 3f;
+        
+        [field: SerializeField] public string GameOverPanelId { get; private set; } = "GameOverPanel";
+        [field: SerializeField] public string GameplayPanelId { get; private set; } = "Gameplay";
     }
 }

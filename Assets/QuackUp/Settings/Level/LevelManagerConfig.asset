@@ -28,3 +28,5 @@ MonoBehaviour:
   <ScorePerFitMe>k__BackingField: 10000
   <HasCountOff>k__BackingField: 0
   <CountOffDuration>k__BackingField: 3
+  <GameOverPanelId>k__BackingField: GameOver
+  <GameplayPanelId>k__BackingField: Gameplay

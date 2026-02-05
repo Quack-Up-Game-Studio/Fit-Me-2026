@@ -49,7 +49,7 @@ namespace FitMe.Panel
             }).Forget();
         }
 
-        private bool TryGetPanel(string panelId, out IPanelViewModel panel)
+        public bool TryGetPanel(string panelId, out IPanelViewModel panel)
         {
             if (_panels.TryGetValue(panelId, out panel)) return true;
             DebugUtils.LogError($"Panel {panelId} not found");

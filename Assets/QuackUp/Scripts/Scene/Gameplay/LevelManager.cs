@@ -3,6 +3,7 @@ using FitMe.Entity;
 using FitMe.Grid;
 using FitMe.Scene.UI.Score;
 using FitMe.Shared;
+using FitMe.Panel;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
@@ -11,7 +12,8 @@ using VContainer.Unity;
 
 namespace FitMe.Scene
 {
-    public class LevelManager : IGameStateManager, IStartable, IDisposable
+    
+    public class LevelManager : ILevelManager, IStartable, IDisposable
     {
         public ReactiveProperty<int> Score { get; } = new(0);
         public ReactiveProperty<int> FitMeScore { get; } = new(0);
@@ -27,6 +29,7 @@ namespace FitMe.Scene
         private readonly IMessageHub _messageHub;
         private readonly GridManager _gridManager;
         private readonly PopUpScoreFactory _popUpScoreFactory;
+        private readonly PanelManager _panelManager;
         
         private GameState _previousStateBeforePause;
         private IDisposable _subscriptions;
@@ -37,13 +40,15 @@ namespace FitMe.Scene
             EntityManager entityManager,
             [Key(LevelManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
             GridManager gridManager,
-            PopUpScoreFactory popUpScoreFactory)
+            PopUpScoreFactory popUpScoreFactory,
+            PanelManager panelManager)
         {
             _config = config;
             _entityManager = entityManager;
             _messageHub = messageHub;
             _gridManager = gridManager;
             _popUpScoreFactory = popUpScoreFactory;
+            _panelManager = panelManager;
             Initialize();
             Subscribe();
         }
@@ -61,6 +66,8 @@ namespace FitMe.Scene
             var disposableBuilder = Disposable.CreateBuilder();
             _gridManager.OnScoreAdded
                 .Subscribe(OnScoreAdded)
+                .AddTo(ref disposableBuilder);
+            _messageHub.Subscribe<GameOverEvent>(OnGameOverEvent)
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -142,6 +149,19 @@ namespace FitMe.Scene
         public void Unpause()
         {
             _gameState.Value = _previousStateBeforePause;
+        }
+
+        private void OnGameOverEvent(GameOverEvent evt)
+        {
+            if (!evt.IsOver) return;
+            Debug.Log("Game Over Event Received!");
+            GameOver();
+        }
+        
+        private void GameOver()
+        {
+            _panelManager.Crossfade(_config.GameplayPanelId, _config.GameOverPanelId, 
+                new CrossfadeSettings(){crossFadeType = CrossfadeType.InOnly});
         }
     }
 }
