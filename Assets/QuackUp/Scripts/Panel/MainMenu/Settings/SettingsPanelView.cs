@@ -74,6 +74,7 @@ namespace FitMe.Panel
 
         private void OnCloseButtonClicked()
         {
+            ViewModel.ApplyChangesCommand.Execute(Unit.Default);
             if (!TryGetCrossfadeRule(mainMenuPanelId, out var rule)) return;
             ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData(mainMenuPanelId, rule.crossfadeSettings));
         }

@@ -14,7 +14,7 @@ namespace FitMe.Scene
         [Inject]
         public LevelManagerMessageHub(
             IPublisher<StartSpawnEvent> startSpawnPublisher,
-            ISubscriber<LoadSceneStageEvent> loadSceneStageSubscriber)
+            ISubscriber<LoadSceneStageEvent> loadSceneStageSubscriber,
             ISubscriber<GameOverEvent> gameOverSubscriber)
         {
             MessageWrappers[typeof(StartSpawnEvent)] = new MessageWrapper<StartSpawnEvent>(

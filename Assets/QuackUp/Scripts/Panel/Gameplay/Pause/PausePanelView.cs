@@ -9,6 +9,10 @@ namespace FitMe.Panel
     {
         [SerializeField] private Button resumeButton;
         [SerializeField] private Button mainMenuButton;
+        [SerializeField] private Button musicToggleButton;
+        [SerializeField] private Image musicSlashImage;
+        [SerializeField] private Button sfxToggleButton;
+        [SerializeField] private Image sfxSlashImage;
         [SerializeField] private string gameplayPanelId = "Gameplay";
 
         private PausePanelViewModel ViewModel => (PausePanelViewModel)BaseViewModel;
@@ -30,6 +34,18 @@ namespace FitMe.Panel
             mainMenuButton.OnClickAsObservable()
                 .Subscribe(_ => OnMainMenu())
                 .AddTo(ref disposableBuilder);
+            ViewModel.BGMMuteState
+                .Subscribe(OnMusicToggleStateChanged)
+                .AddTo(ref disposableBuilder);
+            ViewModel.SfxMuteState
+                .Subscribe(OnSfxToggleStateChanged)
+                .AddTo(ref disposableBuilder);
+            musicToggleButton.OnClickAsObservable()
+                .Subscribe(_ => OnMusicToggleButtonClicked())
+                .AddTo(ref disposableBuilder);
+            sfxToggleButton.OnClickAsObservable()
+                .Subscribe(_ => OnSfxToggleButtonClicked())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 
@@ -38,9 +54,30 @@ namespace FitMe.Panel
             base.Dispose();
             _bindings.Dispose();
         }
+        
+        private void OnMusicToggleStateChanged(bool isMuted)
+        {
+            musicSlashImage.enabled = isMuted;
+        }
+        
+        private void OnSfxToggleStateChanged(bool isMuted)
+        {
+            sfxSlashImage.enabled = isMuted;
+        }
+        
+        private void OnMusicToggleButtonClicked()
+        {
+            ViewModel.BGMMuteState.Value = !ViewModel.BGMMuteState.Value;
+        }
+        
+        private void OnSfxToggleButtonClicked()
+        {
+            ViewModel.SfxMuteState.Value = !ViewModel.SfxMuteState.Value;
+        }
 
         private void OnResume()
         {
+            ViewModel.ApplyChangesCommand.Execute(Unit.Default);
             ViewModel.ResumeCommand.Execute(Unit.Default);
             if (!TryGetCrossfadeRule(gameplayPanelId, out var rule)) return;
             ViewModel.CrossfadeCommand.Execute(new(gameplayPanelId, rule.crossfadeSettings));
@@ -48,6 +85,7 @@ namespace FitMe.Panel
         
         private void OnMainMenu()
         {
+            ViewModel.ApplyChangesCommand.Execute(Unit.Default);
             ViewModel.ToMainMenuCommand.Execute(Unit.Default);
         }
     }

@@ -9,8 +9,9 @@ namespace FitMe.Panel
 {
     public class SettingsPanelViewModel : PanelViewModel
     {
-        public ReactiveProperty<bool> BGMMuteState { get; private set; } = new(true);
-        public ReactiveProperty<bool> SfxMuteState { get; private set; } = new(true);
+        public ReactiveProperty<bool> BGMMuteState { get; } = new(true);
+        public ReactiveProperty<bool> SfxMuteState { get; } = new(true);
+        public ReactiveCommand ApplyChangesCommand { get; } = new();
 
         private readonly IAudioBusManager _audioBusManager;
         
@@ -36,6 +37,9 @@ namespace FitMe.Panel
                 .IgnoreFirstValueWhenSubscribe()
                 .Subscribe(OnSfxToggled)
                 .AddTo(ref disposableBuilder);
+            ApplyChangesCommand
+                .Subscribe(_ => OnApplyChanges())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         public override void Dispose()
@@ -52,12 +56,6 @@ namespace FitMe.Panel
             BGMMuteState.Value = bgmMuteState;
             SfxMuteState.Value = sfxMuteState;
         }
-        
-        protected override void OnHidden()
-        {
-            base.OnHidden();
-            _audioBusManager.SaveChanges();
-        }
 
         private void OnMusicToggled(bool isOn)
         {
@@ -67,6 +65,11 @@ namespace FitMe.Panel
         private void OnSfxToggled(bool isOn)
         {
             _audioBusManager.SetMuteBus(BusType.SFX, isOn);
+        }
+        
+        private void OnApplyChanges()
+        {
+            _audioBusManager.SaveChanges();
         }
     }
 }

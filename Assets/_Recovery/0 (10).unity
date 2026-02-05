@@ -10366,9 +10366,9 @@ GameObject:
   - component: {fileID: 1773429777}
   - component: {fileID: 1773429781}
   - component: {fileID: 1773429780}
+  - component: {fileID: 1773429779}
   - component: {fileID: 1773429783}
   - component: {fileID: 1773429782}
-  - component: {fileID: 1773429779}
   m_Layer: 5
   m_Name: MainMenuSettingScreen
   m_TagString: Untagged

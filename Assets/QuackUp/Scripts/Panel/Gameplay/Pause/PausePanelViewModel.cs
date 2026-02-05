@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
+using QuackUp.Audio;
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
 using R3;
@@ -13,7 +14,11 @@ namespace FitMe.Panel
     {
         public ReactiveCommand ToMainMenuCommand { get; } = new();
         public ReactiveCommand ResumeCommand { get; } = new();
+        public ReactiveProperty<bool> BGMMuteState { get; } = new(true);
+        public ReactiveProperty<bool> SfxMuteState { get; } = new(true);
+        public ReactiveCommand ApplyChangesCommand { get; } = new();
 
+        private readonly IAudioBusManager _audioBusManager;
         private readonly LoadSceneManager _loadSceneManager;
         private readonly ILevelManager _levelManager;
         private IDisposable _bindings;
@@ -22,10 +27,12 @@ namespace FitMe.Panel
         public PausePanelViewModel(
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
+            IAudioBusManager audioBusManager,
             ILevelManager levelManager) : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
             _levelManager = levelManager;
+            _audioBusManager = audioBusManager;
             Bind();
         }
 
@@ -38,6 +45,17 @@ namespace FitMe.Panel
             ResumeCommand
                 .Subscribe(_ => Resume())
                 .AddTo(ref disposableBuilder);
+            BGMMuteState
+                .IgnoreFirstValueWhenSubscribe()
+                .Subscribe(OnMusicToggled)
+                .AddTo(ref disposableBuilder);
+            SfxMuteState
+                .IgnoreFirstValueWhenSubscribe()
+                .Subscribe(OnSfxToggled)
+                .AddTo(ref disposableBuilder);
+            ApplyChangesCommand
+                .Subscribe(_ => OnApplyChanges())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 
@@ -45,6 +63,21 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings.Dispose();
+        }
+        
+        protected override void OnVisible()
+        {
+            base.OnVisible();
+            _audioBusManager.GetBusMuteState(BusType.BGM, out var bgmMuteState);
+            _audioBusManager.GetBusMuteState(BusType.SFX, out var sfxMuteState);
+            BGMMuteState.Value = bgmMuteState;
+            SfxMuteState.Value = sfxMuteState;
+        }
+        
+        protected override void OnHidden()
+        {
+            base.OnHidden();
+            _audioBusManager.SaveChanges();
         }
 
         private async UniTask ToMainMenu()
@@ -55,6 +88,21 @@ namespace FitMe.Panel
         private void Resume()
         {
             _levelManager.Unpause();
+        }
+
+        private void OnMusicToggled(bool isOn)
+        {
+            _audioBusManager.SetMuteBus(BusType.BGM, isOn);
+        }
+        
+        private void OnSfxToggled(bool isOn)
+        {
+            _audioBusManager.SetMuteBus(BusType.SFX, isOn);
+        }
+        
+        private void OnApplyChanges()
+        {
+            _audioBusManager.SaveChanges();
         }
     }
 }
