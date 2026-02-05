@@ -1108,8 +1108,7 @@ MonoBehaviour:
     - {fileID: 2477642407168563817}
     - {fileID: 11400000, guid: 2d52b47cf6ec4962e873f5e0d20f1cc8, type: 2}
     - {fileID: 11400000, guid: b90f06e68dacac831ad715d9153ac335, type: 2}
-    - {fileID: 11400000, guid: dedcdfb19b7329ea9b095606eb9cedcd, type: 2}
-    - {fileID: 11400000, guid: 1e72d21f5ea6410518d00ea8894d6907, type: 2}
+    - {fileID: 11400000, guid: 56618cd220cfb6841a8892baa7acd477, type: 2}
     - {fileID: 11400000, guid: 5cbae03cbf7cc1145b8c227100061b6c, type: 2}
     - {fileID: 3989526417426172819}
     SerializedBytesString: 
@@ -1157,37 +1156,21 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 4|FitMe.Achievement.AchievementManagerInstaller, FitMe.Achievement
-    - Name: achievementPresets
-      Entry: 7
-      Data: 5|System.Collections.Generic.List`1[[FitMe.Achievement.AchievementPreset,
-        FitMe.Achievement]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
+    - Name: config
       Entry: 10
       Data: 4
     - Name: 
-      Entry: 10
-      Data: 5
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 6|FitMe.Scene.NotificationManagerInstaller, FitMe.Scene
+      Data: 5|FitMe.Scene.NotificationManagerInstaller, FitMe.Scene
     - Name: config
       Entry: 10
-      Data: 6
+      Data: 5
     - Name: notificationParentTransform
       Entry: 10
-      Data: 7
+      Data: 6
     - Name: 
       Entry: 8
       Data: 

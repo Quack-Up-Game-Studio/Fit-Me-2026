@@ -12,15 +12,15 @@ namespace FitMe.Achievement
     public class AchievementManagerInstaller : IInstaller
     {
         [ShowInInspector] private InspectorPlaceholder _title;
-        [SerializeField] private List<AchievementPreset> achievementPresets;
+        [SerializeField] private AchievementManagerConfig config;
         
         public void Install(IContainerBuilder builder)
         {
-            builder.RegisterInstance(achievementPresets).As<IReadOnlyList<AchievementPreset>>();
+            builder.RegisterInstance(config);
             builder.Register<AchievementManager>(Lifetime.Singleton);
             builder.RegisterBuildCallback(x =>
             {
-                foreach (var preset in achievementPresets)
+                foreach (var preset in config.AchievementPresets)
                 {
                     x.Inject(preset);
                 }

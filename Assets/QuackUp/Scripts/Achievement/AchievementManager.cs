@@ -25,21 +25,23 @@ namespace FitMe.Achievement
     {
         private readonly MessagePackSaveManager _saveManager;
         private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayPublisher;
-        private readonly IReadOnlyList<AchievementPreset> _achievementPresets;
+        private readonly AchievementManagerConfig _config;
         private readonly Dictionary<string, AchievementInstance> _achievements = new();
         private Dictionary<string, AchievementPreset> _presetsById = new();
         
         private AchievementSaveObject _saveObject;
         
+        public IReadOnlyDictionary<string, AchievementInstance> Achievements => _achievements;
+        
         [Inject]
         public AchievementManager(
             MessagePackSaveManager saveManager,
             IPublisher<NotificationDisplayEvent> notificationDisplayPublisher,
-            IReadOnlyList<AchievementPreset> achievementPresets)
+            AchievementManagerConfig config)
         {
             _saveManager = saveManager;
             _notificationDisplayPublisher = notificationDisplayPublisher;
-            _achievementPresets = achievementPresets;
+            _config = config;
             Initialize();
         }
 
@@ -61,7 +63,7 @@ namespace FitMe.Achievement
             if (!_saveObject) return;
             var saveData = _saveObject.GetSaveData<AchievementSaveData>();
             if (saveData == null) return;
-            _presetsById = _achievementPresets.ToDictionary(x => x.AchievementId, x => x);
+            _presetsById = _config.AchievementPresets.ToDictionary(x => x.AchievementId, x => x);
             var tempPresetsById = new Dictionary<string, AchievementPreset>(_presetsById);
             foreach (var saveAchievement in saveData.Achievements)
             {

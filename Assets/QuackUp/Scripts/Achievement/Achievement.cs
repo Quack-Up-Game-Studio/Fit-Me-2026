@@ -10,6 +10,7 @@ namespace FitMe.Achievement
     public interface IAchievement
     {
         AchievementPreset BasePreset { get; }
+        bool IsCompleted { get; }
         void Apply();
         Vector2 GetProgress();
         void Complete();
@@ -45,7 +46,8 @@ namespace FitMe.Achievement
         {
             Complete();
         }
-
+        
+        public bool IsCompleted => AchievementData.completed;
         public ReactiveCommand<IAchievement> SaveRequestCommand { get; } = new();
         public ReactiveCommand<IAchievement> OnComplete { get; } = new();
         public AchievementPreset BasePreset { get; private set; }

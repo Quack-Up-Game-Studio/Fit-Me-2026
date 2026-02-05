@@ -82,7 +82,7 @@ MonoBehaviour:
       Data: 1
     - Name: <IsMuted>k__BackingField
       Entry: 5
-      Data: true
+      Data: false
     - Name: 
       Entry: 8
       Data: 

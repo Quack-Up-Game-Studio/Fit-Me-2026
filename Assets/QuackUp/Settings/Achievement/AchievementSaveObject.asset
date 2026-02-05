@@ -67,7 +67,7 @@ MonoBehaviour:
       Data: 4|FitMe.Achievement.CumulativeScoreAchievementData, FitMe.Achievement
     - Name: completed
       Entry: 5
-      Data: true
+      Data: false
     - Name: 
       Entry: 8
       Data: 
