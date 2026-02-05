@@ -14,6 +14,7 @@ namespace FitMe.Achievement
         Vector2 GetProgress();
         void Complete();
         public ReactiveCommand<IAchievement> SaveRequestCommand { get; }
+        public ReactiveCommand<IAchievement> OnComplete { get; } 
     }
     
     public interface IAchievement<out T> : IAchievement where T : AchievementData
@@ -46,6 +47,7 @@ namespace FitMe.Achievement
         }
 
         public ReactiveCommand<IAchievement> SaveRequestCommand { get; } = new();
+        public ReactiveCommand<IAchievement> OnComplete { get; } = new();
         public AchievementPreset BasePreset { get; private set; }
         
         protected Achievement(AchievementPreset basePreset, AchievementData data)
@@ -72,6 +74,7 @@ namespace FitMe.Achievement
         {
             AchievementData.completed = true;
             SaveAchievementData();
+            OnComplete.Execute(this);
         }
     }
 }

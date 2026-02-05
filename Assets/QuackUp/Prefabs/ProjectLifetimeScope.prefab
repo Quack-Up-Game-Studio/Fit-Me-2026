@@ -1081,6 +1081,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1295933892543239893}
+  - {fileID: 3989526417426172819}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2868341562368104086
@@ -1100,8 +1101,8 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   serializationData:
-    SerializedFormat: 0
-    SerializedBytes: 01010a00000069006e007300740061006c006c006500720073002f000000000156000000530079007300740065006d002e0043006f006c006c0065006300740069006f006e0073002e00470065006e0065007200690063002e004c00690073007400600031005b005b00560043006f006e007400610069006e00650072002e0055006e006900740079002e00490049006e007300740061006c006c00650072002c002000560043006f006e007400610069006e00650072005d005d002c0020006d00730063006f0072006c006900620000000000060400000000000000022f01000000014a00000051007500610063006b00550070002e005300630065006e0065004d0061006e006100670065006d0065006e0074002e004c006f00610064005300630065006e0065004d0061006e00610067006500720049006e007300740061006c006c00650072002c00200051007500610063006b00550070002e005300630065006e0065004d0061006e006100670065006d0065006e007400010000000b010600000063006f006e00660069006700000000000b01100000007400720061006e0073006900740069006f006e00530063007200650065006e000100000005022f02000000013200000051007500610063006b00550070002e0041007500640069006f002e0041007500640069006f004d0061006e00610067006500720049006e007300740061006c006c00650072002c00200051007500610063006b00550070002e0041007500640069006f00020000000b011200000061007500640069006f004d0061006e00610067006500720043006f006e006600690067000200000005022f03000000013a00000051007500610063006b00550070002e0053006100760065002e004d006500730073006100670065005000610063006b0053006100760065004d0061006e00610067006500720049006e007300740061006c006c00650072002c00200051007500610063006b00550070002e005300610076006500030000000b010600000063006f006e006600690067000300000005022f0400000001400000004600690074004d0065002e0041006300680069006500760065006d0065006e0074002e0041006300680069006500760065006d0065006e0074004d0061006e00610067006500720049006e007300740061006c006c00650072002c0020004600690074004d0065002e0041006300680069006500760065006d0065006e0074000400000001011200000061006300680069006500760065006d0065006e00740050007200650073006500740073002f050000000165000000530079007300740065006d002e0043006f006c006c0065006300740069006f006e0073002e00470065006e0065007200690063002e004c00690073007400600031005b005b004600690074004d0065002e0041006300680069006500760065006d0065006e0074002e0041006300680069006500760065006d0065006e0074005000720065007300650074002c0020004600690074004d0065002e0041006300680069006500760065006d0065006e0074005d005d002c0020006d00730063006f0072006c0069006200050000000602000000000000000c040000000c050000000705050705
+    SerializedFormat: 2
+    SerializedBytes: 
     ReferencedUnityObjects:
     - {fileID: 11400000, guid: 6b97e310faab6c79790d2fa17286d4aa, type: 2}
     - {fileID: 2477642407168563817}
@@ -1109,11 +1110,93 @@ MonoBehaviour:
     - {fileID: 11400000, guid: b90f06e68dacac831ad715d9153ac335, type: 2}
     - {fileID: 11400000, guid: dedcdfb19b7329ea9b095606eb9cedcd, type: 2}
     - {fileID: 11400000, guid: 1e72d21f5ea6410518d00ea8894d6907, type: 2}
+    - {fileID: 11400000, guid: 5cbae03cbf7cc1145b8c227100061b6c, type: 2}
+    - {fileID: 3989526417426172819}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes: []
+    SerializationNodes:
+    - Name: installers
+      Entry: 7
+      Data: 0|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 5
+    - Name: 
+      Entry: 7
+      Data: 1|QuackUp.SceneManagement.LoadSceneManagerInstaller, QuackUp.SceneManagement
+    - Name: config
+      Entry: 10
+      Data: 0
+    - Name: transitionScreen
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 2|QuackUp.Audio.AudioManagerInstaller, QuackUp.Audio
+    - Name: audioManagerConfig
+      Entry: 10
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 3|QuackUp.Save.MessagePackSaveManagerInstaller, QuackUp.Save
+    - Name: config
+      Entry: 10
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 4|FitMe.Achievement.AchievementManagerInstaller, FitMe.Achievement
+    - Name: achievementPresets
+      Entry: 7
+      Data: 5|System.Collections.Generic.List`1[[FitMe.Achievement.AchievementPreset,
+        FitMe.Achievement]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 10
+      Data: 4
+    - Name: 
+      Entry: 10
+      Data: 5
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 6|FitMe.Scene.NotificationManagerInstaller, FitMe.Scene
+    - Name: config
+      Entry: 10
+      Data: 6
+    - Name: notificationParentTransform
+      Entry: 10
+      Data: 7
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
 --- !u!1 &5279211513894760570
 GameObject:
   m_ObjectHideFlags: 0
@@ -1243,6 +1326,107 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &6299034462865438555
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3989526417426172819}
+  - component: {fileID: 2774793611326244082}
+  - component: {fileID: 5958575046065266809}
+  - component: {fileID: 751671593731622079}
+  m_Layer: 0
+  m_Name: NotificationCanvas
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3989526417426172819
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6299034462865438555}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6616527776596297275}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
+--- !u!223 &2774793611326244082
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6299034462865438555}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &5958575046065266809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6299034462865438555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
+  m_UiScaleMode: 1
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 1125, y: 2436}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!114 &751671593731622079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6299034462865438555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 55
 --- !u!1 &6658179671688208854
 GameObject:
   m_ObjectHideFlags: 0

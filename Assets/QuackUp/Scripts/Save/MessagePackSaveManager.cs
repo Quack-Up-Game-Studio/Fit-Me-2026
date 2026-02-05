@@ -13,6 +13,7 @@ using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace QuackUp.Save
 {
+
     [Serializable]
     public class MessagePackSaveManager : IInitializable
     {
@@ -104,7 +105,7 @@ namespace QuackUp.Save
             Debug.LogError($"Save object of type {type} not found.");
             return null;
         }
-        
+
         public T[] GetAllSaveObjectsOfType<T>() where T : MessagePackSaveObject
         {
             var type = typeof(T);

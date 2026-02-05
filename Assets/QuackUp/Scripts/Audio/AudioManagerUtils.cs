@@ -51,6 +51,7 @@ namespace QuackUp.Audio
         bool GetBusVolume(BusType busType, out float volume, VolumeUnit outUnit);
         void SetMuteBus(BusType busType, bool mute);
         void ToggleMuteBus(BusType busType);
+        void SaveChanges();
         void SetVolumeBus(BusType busType, float value, VolumeUnit inUnit);
         void StopAllAudioInBus(BusType busType, STOP_MODE stopMode = STOP_MODE.ALLOWFADEOUT);
     }
@@ -104,6 +105,7 @@ namespace QuackUp.Audio
         public void SetMuteBus(BusType busType, bool mute){ }
         public void ToggleMuteBus(BusType busType){ }
         public void SetVolumeBus(BusType busType, float value, VolumeUnit inUnit){ }
+        public void SaveChanges(){}
         public void StopAllAudioInBus(BusType busType, STOP_MODE stopMode = STOP_MODE.ALLOWFADEOUT){ }
     }
     #endregion

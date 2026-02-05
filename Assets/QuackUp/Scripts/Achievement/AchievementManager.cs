@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FitMe.Shared;
+using MessagePipe;
 using QuackUp.Save;
 using QuackUp.Utils;
 using R3;
@@ -21,8 +23,9 @@ namespace FitMe.Achievement
     }
     public class AchievementManager : IDisposable
     {
-        private readonly IReadOnlyList<AchievementPreset> _achievementPresets;
         private readonly MessagePackSaveManager _saveManager;
+        private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayPublisher;
+        private readonly IReadOnlyList<AchievementPreset> _achievementPresets;
         private readonly Dictionary<string, AchievementInstance> _achievements = new();
         private Dictionary<string, AchievementPreset> _presetsById = new();
         
@@ -31,9 +34,11 @@ namespace FitMe.Achievement
         [Inject]
         public AchievementManager(
             MessagePackSaveManager saveManager,
+            IPublisher<NotificationDisplayEvent> notificationDisplayPublisher,
             IReadOnlyList<AchievementPreset> achievementPresets)
         {
             _saveManager = saveManager;
+            _notificationDisplayPublisher = notificationDisplayPublisher;
             _achievementPresets = achievementPresets;
             Initialize();
         }
@@ -65,34 +70,40 @@ namespace FitMe.Achievement
                     DebugUtils.LogWarning($"AchievementManager: Achievement preset with ID {saveAchievement.Key} not found. Skipping.");
                     continue;
                 }
-                var achievement = preset.CrateAchievement(out _, saveAchievement.Value);
-                if (achievement is null)
-                {
-                    DebugUtils.LogError($"AchievementManager: Failed to create achievement with ID {saveAchievement.Key}. Skipping.");
-                    continue;
-                }
-                var subscription = achievement.SaveRequestCommand
-                    .Subscribe(OnSaveRequested);
-                var instance = new AchievementInstance(subscription, achievement);
-                _achievements.Add(saveAchievement.Key, instance);
+                var instance = CreateAchievementInstance(preset, out _);
+                if (instance is null) continue;
+                _achievements.Add(saveAchievement.Key, instance.Value);
                 tempPresetsById.Remove(saveAchievement.Key);
             }
             // Add remaining presets as new achievements
             foreach (var remainingPreset in tempPresetsById.Values)
             {
-                var newAchievement = remainingPreset.CrateAchievement(out var achievementData);
-                if (newAchievement is null)
-                {
-                    DebugUtils.LogError($"AchievementManager: Failed to create achievement with ID {remainingPreset.AchievementId}. Skipping.");
-                    continue;
-                }
-                var subscription = newAchievement.SaveRequestCommand
-                    .Subscribe(OnSaveRequested);
-                var instance = new AchievementInstance(subscription, newAchievement);
-                _achievements.Add(remainingPreset.AchievementId, instance);
+                var instance = CreateAchievementInstance(remainingPreset, out var achievementData);
+                if (instance is null) continue;
+                _achievements.Add(remainingPreset.AchievementId, instance.Value);
                 saveData.Achievements.Add(remainingPreset.AchievementId, achievementData);
             }
             DebugUtils.Log($"Number of achievements initialized: {_achievements.Count}");
+        }
+
+        private AchievementInstance? CreateAchievementInstance(AchievementPreset preset, out AchievementData achievementData)
+        {
+            var newAchievement = preset.CrateAchievement(out achievementData);
+            if (newAchievement is null)
+            {
+                DebugUtils.LogError($"AchievementManager: Failed to create achievement with ID {preset.AchievementId}. Skipping.");
+                return null;
+            }
+            var disposableBuilder = Disposable.CreateBuilder();
+            newAchievement.SaveRequestCommand
+                .Subscribe(OnSaveRequested)
+                .AddTo(ref disposableBuilder);
+            newAchievement.OnComplete
+                .Subscribe(OnComplete)
+                .AddTo(ref disposableBuilder);
+            var subscription = disposableBuilder.Build();
+            var instance = new AchievementInstance(subscription, newAchievement);
+            return instance;
         }
 
         public bool TryGetAchievement<T>(string achievementId, out IAchievement<T> achievement) where T : AchievementData
@@ -118,6 +129,11 @@ namespace FitMe.Achievement
             if (achievement is not IAchievement<AchievementData> typedAchievement) return;
             saveData.Achievements[id] = typedAchievement.AchievementData;
             _saveManager.Save(_saveObject);
+        }
+
+        private void OnComplete(IAchievement achievement)
+        {
+            _notificationDisplayPublisher.Publish(new NotificationDisplayEvent(NotificationType.Challenge, new AchievementNotificationData(achievement)));
         }
     }
 }
