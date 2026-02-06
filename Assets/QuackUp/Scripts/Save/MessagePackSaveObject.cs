@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 using QuackUp.Utils;
 using MessagePack;
 using MessagePack.Resolvers;
@@ -49,9 +50,13 @@ namespace QuackUp.Save
          HideIf(nameof(debugMode)), GUIColor("red"),
          SerializeField] protected SaveSettings releaseSaveSettings;
         
+        public virtual MessagePackSerializerOptions DefaultSerializerOptions => ContractlessStandardResolver.Options;
+
+        public abstract void OnInitialize();
+        
         public abstract T GetSaveData<T>() where T : IMessagePackSaveData;
 
-        public abstract bool TrySerializeSaveData(out byte[] bytes);
+        public abstract bool TrySerializeSaveData(out byte[] bytes, [CanBeNull] MessagePackSerializerOptions options = null);
         
         public abstract void Save();
         
@@ -59,7 +64,11 @@ namespace QuackUp.Save
 
         public abstract void Reset();
         
-        public abstract void LoadFromBytes(byte[] bytes);
+        public abstract void LoadFromBytes(byte[] bytes, [CanBeNull] MessagePackSerializerOptions options = null);
+        
+        public abstract void WriteToFile(byte[] bytes);
+        
+        public abstract byte[] ReadByte();
         
         public SaveSettings CurrentSaveSettings
         {
@@ -113,10 +122,15 @@ namespace QuackUp.Save
         {
             Reset();
         }
-        
+
+        /// <summary>
+        /// Called when the save object is initialized.
+        /// </summary>
+        public override void OnInitialize(){}
+
         [ButtonGroup("JSON")]
         [Button("Export JSON", ButtonSizes.Large)]
-        protected void ExportJson()
+        protected virtual void ExportJson([CanBeNull] MessagePackSerializerOptions options = null)
         {
 #if UNITY_EDITOR
             var path = UnityEditor.EditorUtility.SaveFilePanel("Export Save Data to JSON", "", 
@@ -126,8 +140,9 @@ namespace QuackUp.Save
             var path = Path.Combine(Application.persistentDataPath,
                 $"{CurrentSaveSettings.saveFileName}_export.json");
 #endif
+            options ??= DefaultSerializerOptions;
             var json = MessagePackSerializer.ConvertToJson(
-                MessagePackSerializer.Serialize(saveData, ContractlessStandardResolver.Options));
+                MessagePackSerializer.Serialize(saveData, options));
             var beautifiedJson = JsonUtils.BeautifyJson(json);
             var jsonPath = Path.ChangeExtension(path, "json");
             File.WriteAllText(jsonPath, beautifiedJson);
@@ -136,21 +151,23 @@ namespace QuackUp.Save
         
         [ButtonGroup("JSON")]
         [Button("Import JSON", ButtonSizes.Large)]
-        protected void ImportJson()
+        protected virtual void ImportJson([CanBeNull] MessagePackSerializerOptions options = null)
         {
 #if UNITY_EDITOR
             var path = UnityEditor.EditorUtility.OpenFilePanel("Select JSON Save File", "", "json");
             if (string.IsNullOrEmpty(path)) return;
             var json = File.ReadAllText(path);
-            var bytes = MessagePackSerializer.ConvertFromJson(json);
+            options ??= DefaultSerializerOptions;
+            var bytes = MessagePackSerializer.ConvertFromJson(json, options);
             LoadFromBytes(bytes);
 #else
             Debug.LogWarning("ImportJson is only available in the Unity Editor.");
 #endif
         }
         
-        public override bool TrySerializeSaveData(out byte[] bytes)
+        public override bool TrySerializeSaveData(out byte[] bytes, MessagePackSerializerOptions options = null)
         {
+            options ??= DefaultSerializerOptions;
             bytes = null;
             if (!SemVersion.TryParse(Application.version, out _))
             {
@@ -160,7 +177,7 @@ namespace QuackUp.Save
             saveData.Version = Application.version;
             try
             {
-                bytes = MessagePackSerializer.Serialize(saveData, ContractlessStandardResolver.Options);
+                bytes = MessagePackSerializer.Serialize(saveData, options);
             }
             catch (Exception e)
             {
@@ -222,7 +239,7 @@ namespace QuackUp.Save
         
         private void LoadInternal()
         {
-            var bytes = ReadFromFile();
+            var bytes = ReadByte();
             if (bytes == null)
             {
                 Debug.LogError("No save file found to load.");
@@ -233,16 +250,25 @@ namespace QuackUp.Save
         
         public override void Reset() { } // Implement reset logic in derived classes if needed
         
-        public override void LoadFromBytes(byte[] bytes)
+        public override void LoadFromBytes(byte[] bytes, MessagePackSerializerOptions options = null)
         {
+            options ??= DefaultSerializerOptions;
             T deserializedSave;
             try
-            {
-                deserializedSave = MessagePackSerializer.Deserialize<T>(bytes, ContractlessStandardResolver.Options);
+            {   
+                deserializedSave = MessagePackSerializer.Deserialize<T>(bytes, options);
             } 
             catch (Exception ex)
             {
                 Debug.LogError($"Failed to deserialize save data: {ex.Message}");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(saveData.Version))
+            {
+                Debug.LogWarning("No current save version specified. No migration needed.");
+                saveData = deserializedSave;
+                OnLoadComplete();
                 return;
             }
             SemVersion.TryParse(saveData.Version, out var currentVersion);
@@ -251,19 +277,27 @@ namespace QuackUp.Save
             {
                 saveData = deserializedSave;
                 Debug.Log("Save version matches current version. No migration needed.");
+                OnLoadComplete();
                 return;
             }
             if (TryMigrateSave(deserializedSave.Version, saveData.Version, bytes, out var migratedSave))
             {
                 saveData = migratedSave;
                 Debug.Log("Save data loaded successfully.");
+                OnLoadComplete();
             }
             else
             {
                 saveData = deserializedSave;
                 Debug.LogWarning("Failed to migrate save data. Using deserialized data as fallback.");
+                OnLoadComplete();
             }
         }
+        
+        /// <summary>
+        /// Called after a successful load and migration of save data.
+        /// </summary>
+        protected virtual void OnLoadComplete() { }
 
         protected virtual bool TryMigrateSave(string from, string to, byte[] bytes, out T migratedSave)
         {
@@ -360,7 +394,7 @@ namespace QuackUp.Save
             return true;
         }
 
-        protected virtual void WriteToFile(byte[] bytes)
+        public override void WriteToFile(byte[] bytes)
         {
             var fullPath = CurrentSaveSettings.GetFullSavePath();
             if (!Directory.Exists(Path.GetDirectoryName(fullPath)))
@@ -377,7 +411,7 @@ namespace QuackUp.Save
             File.WriteAllBytes(fullPath, bytes);
         }
         
-        protected virtual byte[] ReadFromFile()
+        public override byte[] ReadByte()
         {
             var fullPath = CurrentSaveSettings.GetFullSavePath();
             if (!saveAsJson) return File.Exists(fullPath) ? File.ReadAllBytes(fullPath) : null;

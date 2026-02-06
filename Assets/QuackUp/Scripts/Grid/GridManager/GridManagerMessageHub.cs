@@ -1,3 +1,4 @@
+using FitMe.Shared;
 using MessagePipe;
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
@@ -12,7 +13,8 @@ namespace FitMe.Grid
         [Inject]
         public GridManagerMessageHub(
             ISubscriber<LoadSceneStageEvent> loadSceneStageSubscriber,
-            ISubscriber<StartSpawnEvent> startSpawnSubscriber)
+            ISubscriber<StartSpawnEvent> startSpawnSubscriber,
+            ISubscriber<ClearGridEvent> clearGridSubscriber)
         {
             MessageWrappers[typeof(LoadSceneStageEvent)] = new MessageWrapper<LoadSceneStageEvent>(
                 null,
@@ -20,6 +22,9 @@ namespace FitMe.Grid
             MessageWrappers[typeof(StartSpawnEvent)] = new MessageWrapper<StartSpawnEvent>(
                 null,
                 startSpawnSubscriber);
+            MessageWrappers[typeof(ClearGridEvent)] = new MessageWrapper<ClearGridEvent>(
+                null,
+                clearGridSubscriber);
         }
     }
 }

@@ -112,7 +112,7 @@ namespace FitMe.Panel
                     Destroy(recordBlock.gameObject);
             });
             _recordBlocks.Clear();
-            var records = ViewModel.PlayerRecordData.runData;
+            var records = ViewModel.PlayerRecordData.RunDataList;
             foreach (var record in records)
             {
                 var recordBlock = Instantiate(recordBlockPrefab, recordParent.transform);
@@ -244,7 +244,7 @@ namespace FitMe.Panel
             var recordData = ViewModel.PlayerRecordData;
             highscoreText.text = recordData.highScore.score.ToString("N0");
             mostFitText.text = recordData.mostFitMe.fitMe.ToString("N0");
-            var records = ViewModel.PlayerRecordData.runData;
+            var records = ViewModel.PlayerRecordData.RunDataList;
             for (var i = 0; i < _recordBlocks.Count; i++)
             {
                 if (i >= records.Count)

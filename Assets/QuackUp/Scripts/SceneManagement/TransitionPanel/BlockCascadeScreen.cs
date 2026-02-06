@@ -18,6 +18,13 @@ namespace QuackUp.SceneManagement
         {
             public RectTransform block;
             public TweenSettings<Vector2> positionTweenSettings;
+            
+            [Button("Set End Value")]
+            private void SetEndValue(float startYPos)
+            {
+                positionTweenSettings.startValue = block.anchoredPosition.WithY(startYPos);
+                positionTweenSettings.endValue = block.anchoredPosition;
+            }
         }
         
         [Title("References")]

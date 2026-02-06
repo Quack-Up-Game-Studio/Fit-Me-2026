@@ -1,4 +1,6 @@
 using System;
+using FitMe.Shared;
+using MessagePipe;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
@@ -10,15 +12,19 @@ namespace FitMe.Panel
     {
         public ReactiveCommand AdsContinueCommand { get; } = new();
         public ReactiveCommand SkipCommand { get; } = new();
-        public readonly ReactiveProperty<int> RemainingContinueCount = new ReactiveProperty<int>();
-        public readonly ReactiveProperty<float> CountdownTimePercent = new ReactiveProperty<float>();
+        public Subject<Unit> OnAdsCompleted { get; } = new();
+        public ReadOnlyReactiveProperty<int> RemainingContinueCount => _remainingContinueCount;
+        public ReadOnlyReactiveProperty<float> CountdownTimePercent => _countdownTimePercent;
         
+        private readonly ReactiveProperty<int> _remainingContinueCount = new();
+        private readonly ReactiveProperty<float> _countdownTimePercent = new();
+        private readonly AdsService _adsService;
         private readonly int _maxContinueCount;
         private readonly bool _enableAds = true;
+        private readonly IPublisher<ClearGridEvent> _clearGridEventPublisher;
+        
         private float _maxCountdownTime;
         private float _countdownTime;
-        
-        private readonly AdsService _adsService;
         private IDisposable _bindings;
         private IDisposable _countdownTimer;
         
@@ -30,16 +36,19 @@ namespace FitMe.Panel
             PanelManager panelManager,
             AdsService adsService,
             [Key(MaxContinueCountId)] int maxContinueCount,
-            [Key(CountdownTimeId)] float maxCountdownTime) : base(panelManager)
+            [Key(CountdownTimeId)] float maxCountdownTime,
+            IPublisher<ClearGridEvent> clearGridEventPublisher) : base(panelManager)
         {
             _adsService = adsService;
             
             _maxContinueCount = maxContinueCount;
-            RemainingContinueCount.Value = _maxContinueCount;
+            _remainingContinueCount.Value = _maxContinueCount;
             
             _maxCountdownTime = maxCountdownTime;
             _countdownTime = _maxCountdownTime;
-            CountdownTimePercent.Value = _maxCountdownTime;
+            _countdownTimePercent.Value = _maxCountdownTime;
+            
+            _clearGridEventPublisher = clearGridEventPublisher;
             
             Bind();
         }
@@ -70,7 +79,7 @@ namespace FitMe.Panel
         
         private void OnAdsButtonClicked()
         {
-            if (RemainingContinueCount.CurrentValue >= 0  && _enableAds)
+            if (_remainingContinueCount.CurrentValue >= 0  && _enableAds)
             {
                 bool isAdShown = _adsService.TryShowRewardedAd();
                 if (!isAdShown)
@@ -82,7 +91,10 @@ namespace FitMe.Panel
         
         private void OnAdSuccess()
         {
-            RemainingContinueCount.Value --;
+            _countdownTimer.Dispose();
+            _remainingContinueCount.Value--;
+            _clearGridEventPublisher.Publish(new ClearGridEvent());
+            OnAdsCompleted.OnNext(Unit.Default);
         }
 
         protected override void OnVisible()
@@ -93,15 +105,16 @@ namespace FitMe.Panel
 
         private void UpdateCountdown()
         {
+            _countdownTime = _maxCountdownTime;
             _countdownTimer = 
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
                     _countdownTime -= Time.deltaTime;
-                    CountdownTimePercent.Value = Mathf.Clamp01(_countdownTime / _maxCountdownTime);
+                    _countdownTimePercent.Value = Mathf.Clamp01(_countdownTime / _maxCountdownTime);
                     if (_countdownTime <= 0f)
                     {
-                        CountdownTimePercent.Value = 0;
+                        _countdownTimePercent.Value = 0;
                         _countdownTimer.Dispose();
                     }
                 });
@@ -109,7 +122,7 @@ namespace FitMe.Panel
         
         private void OnSkip()
         { 
-            
+            _countdownTimer.Dispose();
         }
     }
 }

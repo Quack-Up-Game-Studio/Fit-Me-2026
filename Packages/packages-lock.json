@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.coffee.ui-material-property-injector": {
+      "version": "1.2.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      },
+      "url": "https://package.openupm.com"
+    },
     "com.cysharp.messagepipe": {
       "version": "1.8.1",
       "depth": 0,

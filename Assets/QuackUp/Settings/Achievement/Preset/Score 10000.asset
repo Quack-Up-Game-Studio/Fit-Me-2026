@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 786515918fbe49769189aabf7fb91561, type: 3}
-  m_Name: AchievementManagerConfig
-  m_EditorClassIdentifier: FitMe.Achievement::FitMe.Achievement.AchievementManagerConfig
+  m_Script: {fileID: 11500000, guid: a17002a0010d48b18c89b105ca226429, type: 3}
+  m_Name: Score 10000
+  m_EditorClassIdentifier: FitMe.Achievement::FitMe.Achievement.CumulativeScoreAchievementPreset
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -21,7 +21,8 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  achievementPresets:
-  - {fileID: 11400000, guid: dedcdfb19b7329ea9b095606eb9cedcd, type: 2}
-  - {fileID: 11400000, guid: 1e72d21f5ea6410518d00ea8894d6907, type: 2}
-  - {fileID: 11400000, guid: b0e72f322808a23a18b4751fdc7c19d2, type: 2}
+  <AchievementId>k__BackingField: score-10000
+  <AchievementName>k__BackingField: 10000 Score
+  <AchievementDescription>k__BackingField: Get 10000 Score lol
+  <AchievementIcon>k__BackingField: {fileID: 7085680453519524019, guid: ed706abf120a1c242af517115ea2b41c, type: 3}
+  <TargetCumulativeScore>k__BackingField: 10000

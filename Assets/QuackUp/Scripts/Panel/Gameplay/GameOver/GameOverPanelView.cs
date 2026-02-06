@@ -11,6 +11,7 @@ namespace FitMe.Panel
     {
         [SerializeField] private Button adsButton;
         [SerializeField] private Button skipButton;
+        [SerializeField] private string gameplayPanelId = "Gameplay";
         [SerializeField] private string resultPanelId = "Result";
         
         [SerializeField] private TMP_Text continueCountText;
@@ -39,7 +40,10 @@ namespace FitMe.Panel
                 .AddTo(ref disposableBuilder);
             
             ViewModel.RemainingContinueCount
-                .Subscribe(count => continueCountText.text = $"Remaining: {count}")
+                .Subscribe(count =>
+                {
+                    continueCountText.text = $"Remaining: {count}";
+                })
                 .AddTo(ref disposableBuilder);
             
             ViewModel.CountdownTimePercent
@@ -51,6 +55,10 @@ namespace FitMe.Panel
                         OnSkip();
                     }
                 })
+                .AddTo(ref disposableBuilder);
+            
+            ViewModel.OnAdsCompleted
+                .Subscribe(_ => OnAdsCompleted())
                 .AddTo(ref disposableBuilder);
             
             _bindings = disposableBuilder.Build();
@@ -65,6 +73,12 @@ namespace FitMe.Panel
         private void OnAdsContinue()
         {
             ViewModel.AdsContinueCommand.Execute(Unit.Default);
+        }
+
+        private void OnAdsCompleted()
+        {
+            if (!TryGetCrossfadeRule(gameplayPanelId, out var rule)) return;
+            ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData(gameplayPanelId, rule.crossfadeSettings));
         }
         
         private void OnSkip()

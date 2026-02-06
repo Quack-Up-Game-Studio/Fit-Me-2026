@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.coffee.ui-material-property-injector": "1.2.0",
     "com.cysharp.messagepipe": "1.8.1",
     "com.cysharp.messagepipe.vcontainer": "1.8.1",
     "com.cysharp.r3": "1.3.0",
@@ -79,7 +80,8 @@
         "jp.hadashikick.vcontainer",
         "com.cysharp.messagepipe",
         "com.luca3317.tmpeffects",
-        "com.esotericsoftware.spine.urp-shaders"
+        "com.esotericsoftware.spine.urp-shaders",
+        "com.coffee.ui-material-property-injector"
       ]
     }
   ]

@@ -8,6 +8,10 @@ namespace FitMe.Achievement
     [ShowOdinSerializedPropertiesInInspector]
     public class AchievementSaveObject : MessagePackSaveObject<AchievementSaveData>
     {
-        
+        public override void Reset()
+        {
+            base.Reset();
+            saveData = new AchievementSaveData();
+        }
     }
 }

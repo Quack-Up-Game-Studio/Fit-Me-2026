@@ -25,12 +25,12 @@ MonoBehaviour:
     SerializationNodes:
     - Name: notificationPrefabDictionary
       Entry: 7
-      Data: 0|System.Collections.Generic.Dictionary`2[[FitMe.Scene.NotificationType,
-        FitMe.Scene],[FitMe.Scene.NotificationPrefabData, FitMe.Scene]], mscorlib
+      Data: 0|System.Collections.Generic.Dictionary`2[[FitMe.Shared.NotificationType,
+        FitMe.Shared],[FitMe.Scene.NotificationPrefabData, FitMe.Scene]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 1|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Scene.NotificationType,
-        FitMe.Scene]], mscorlib
+      Data: 1|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Shared.NotificationType,
+        FitMe.Shared]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -63,7 +63,7 @@ MonoBehaviour:
       Data: 0
     - Name: 
       Entry: 4
-      Data: 350
+      Data: 300
     - Name: 
       Entry: 8
       Data: 
@@ -120,7 +120,7 @@ MonoBehaviour:
       Data: 0
     - Name: 
       Entry: 4
-      Data: 350
+      Data: 300
     - Name: 
       Entry: 8
       Data: 

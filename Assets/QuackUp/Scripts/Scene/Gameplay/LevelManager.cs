@@ -156,6 +156,7 @@ namespace FitMe.Scene
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return;
             saveData.cumulativeScore += value;
+            _saveManager.Save(_playerRecordSaveObject);
         }
         
         private void ChangeFitMe(int value)
@@ -165,6 +166,7 @@ namespace FitMe.Scene
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return;
             saveData.cumulativeFitMe += value;
+            _saveManager.Save(_playerRecordSaveObject);
         }
         
         public void SetGameState(GameState newState)
@@ -198,8 +200,24 @@ namespace FitMe.Scene
         
         private void GameOver()
         {
+            _panelManager.TryGetPanel(_config.GameOverPanelId, out var panel);
+            if (panel is GameOverPanelViewModel gameOverPanelViewModel)
+            {
+                if (gameOverPanelViewModel.RemainingContinueCount.CurrentValue <= 0)
+                {
+                    _panelManager.Crossfade(_config.GameplayPanelId, _config.ResultPanelId, 
+                        new CrossfadeSettings
+                        {
+                            crossFadeType = CrossfadeType.InOnly
+                        });
+                    return;
+                }
+            }
             _panelManager.Crossfade(_config.GameplayPanelId, _config.GameOverPanelId, 
-                new CrossfadeSettings(){crossFadeType = CrossfadeType.InOnly});
+                new CrossfadeSettings
+                {
+                    crossFadeType = CrossfadeType.InOnly
+                });
         }
     }
 }

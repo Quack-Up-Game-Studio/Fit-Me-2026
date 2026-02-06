@@ -72,7 +72,7 @@ namespace FitMe.Achievement
                     DebugUtils.LogWarning($"AchievementManager: Achievement preset with ID {saveAchievement.Key} not found. Skipping.");
                     continue;
                 }
-                var instance = CreateAchievementInstance(preset, out _);
+                var instance = CreateAchievementInstance(preset, out _, saveAchievement.Value);
                 if (instance is null) continue;
                 _achievements.Add(saveAchievement.Key, instance.Value);
                 tempPresetsById.Remove(saveAchievement.Key);
@@ -88,9 +88,9 @@ namespace FitMe.Achievement
             DebugUtils.Log($"Number of achievements initialized: {_achievements.Count}");
         }
 
-        private AchievementInstance? CreateAchievementInstance(AchievementPreset preset, out AchievementData achievementData)
+        private AchievementInstance? CreateAchievementInstance(AchievementPreset preset, out AchievementData achievementData, AchievementData dataFromSave = null)
         {
-            var newAchievement = preset.CrateAchievement(out achievementData);
+            var newAchievement = preset.CrateAchievement(out achievementData, dataFromSave);
             if (newAchievement is null)
             {
                 DebugUtils.LogError($"AchievementManager: Failed to create achievement with ID {preset.AchievementId}. Skipping.");

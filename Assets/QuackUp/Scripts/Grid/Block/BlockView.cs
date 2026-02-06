@@ -243,7 +243,7 @@ namespace FitMe.Grid
                 _transformTween.Stop();
             }
             transform.SetParent(_originalParent);
-            OnSetSortingLayer(_originalSortingLayer);
+            //OnSetSortingLayer(_originalSortingLayer);
             _transformTween = Tween.Position(transform, _originalPosition, 0.2f);
             Tween.Rotation(transform, _originalEulerAngles, 0.2f);
             Tween.Scale(transform, _originalScale, 0.2f);

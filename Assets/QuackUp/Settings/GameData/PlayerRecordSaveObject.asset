@@ -24,6 +24,9 @@ MonoBehaviour:
     - Name: saveData
       Entry: 7
       Data: 0|FitMe.GameData.PlayerRecordSaveData, FitMe.GameData
+    - Name: <Version>k__BackingField
+      Entry: 1
+      Data: 0.2.1-devbuild.1+macOS
     - Name: highScore
       Entry: 7
       Data: 1|FitMe.GameData.PlayerRecordSaveData+RunData, FitMe.GameData
@@ -32,13 +35,13 @@ MonoBehaviour:
       Data: System.DateTime, mscorlib
     - Name: 
       Entry: 3
-      Data: 0
+      Data: -8584312418383426118
     - Name: 
       Entry: 8
       Data: 
     - Name: score
       Entry: 4
-      Data: 0
+      Data: 700
     - Name: fitMe
       Entry: 3
       Data: 0
@@ -66,13 +69,16 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: runData
+    - Name: runDataList
       Entry: 7
       Data: 3|System.Collections.Generic.List`1[[FitMe.GameData.PlayerRecordSaveData+RunData,
         FitMe.GameData]], mscorlib
     - Name: 
       Entry: 12
-      Data: 0
+      Data: 1
+    - Name: 
+      Entry: 9
+      Data: 1
     - Name: 
       Entry: 13
       Data: 
@@ -81,7 +87,7 @@ MonoBehaviour:
       Data: 
     - Name: cumulativeScore
       Entry: 4
-      Data: 0
+      Data: 700
     - Name: cumulativeFitMe
       Entry: 3
       Data: 0
@@ -116,3 +122,4 @@ MonoBehaviour:
     encryptionKey: 
     saveDirectory: TestSave
     saveFileName: testSave
+  <MaxRunDataCount>k__BackingField: 3

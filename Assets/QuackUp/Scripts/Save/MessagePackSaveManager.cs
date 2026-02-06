@@ -52,6 +52,11 @@ namespace QuackUp.Save
         {
             if (!_config.LoadAtStart) return;
             Debug.Log("SaveManager: Loading all save objects at start.");
+            foreach (var messagePackSaveObject in _saveObjects.Values)
+            {
+                messagePackSaveObject.OnInitialize();
+                messagePackSaveObject.Reset();
+            }
             LoadAll();
         }
         
@@ -185,24 +190,34 @@ namespace QuackUp.Save
 
         public void Load(MessagePackSaveObject saveObject)
         {
+            var data = LoadBytes(saveObject);
+            if (data != null)
+            {
+                saveObject.LoadFromBytes(data);
+            }
+        }
+        
+        public byte[] LoadBytes(string key)
+        {
+            var saveObject = GetSaveObject(key);
+            return LoadBytes(saveObject);
+        }
+
+        public byte[] LoadBytes(MessagePackSaveObject saveObject)
+        {
             if (!saveObject)
-                return;
+                return null;
             if (saveObject.SaveSeparately)
             {
-                saveObject.Load();
-                return;
+                return saveObject.ReadByte();
             }
             var entryName = _saveObjects.FirstOrDefault(x => x.Value == saveObject).Key;
             if (string.IsNullOrEmpty(entryName))
             {
                 Debug.LogError("Save object not registered in the save manager.");
-                return;
+                return null;
             }
-            var data = LoadFromZip(entryName);
-            if (data != null)
-            {
-                saveObject.LoadFromBytes(data);
-            }
+            return LoadFromZip(entryName);
         }
         
         public void Reset(string key)

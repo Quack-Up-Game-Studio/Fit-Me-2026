@@ -24,6 +24,9 @@ MonoBehaviour:
     - Name: saveData
       Entry: 7
       Data: 0|FitMe.GameData.GameRecordSaveData, FitMe.GameData
+    - Name: <Version>k__BackingField
+      Entry: 6
+      Data: 
     - Name: cumulativePreInfectBlockDestroyed
       Entry: 3
       Data: 0

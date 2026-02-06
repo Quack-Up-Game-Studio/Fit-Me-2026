@@ -182,6 +182,9 @@ namespace FitMe.Grid
             _messageHub
                 .Subscribe<StartSpawnEvent>(x => OnSpawnGridWithPreset(x.BlockPreset))
                 .AddTo(ref disposableBuilder);
+            _messageHub
+                .Subscribe<ClearGridEvent>(_ => ClearGrid().Forget())
+                .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
 
