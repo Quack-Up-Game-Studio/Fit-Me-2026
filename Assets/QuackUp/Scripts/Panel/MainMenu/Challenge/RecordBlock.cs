@@ -16,7 +16,7 @@ namespace FitMe.Panel
         public void SetData(PlayerRecordSaveData.RunData runData)
         {
             //var currentUICulture = CultureInfo.CurrentUICulture;
-            dateText.text = runData.dateTime.ToString("dd/MM/yy - HH:mm", CultureInfo.InvariantCulture);
+            dateText.text = runData.dateTime.ToLocalTime().ToString("dd/MM/yy - HH:mm", CultureInfo.InvariantCulture);
             scoreText.text = runData.score.ToString("N0");
             fitMeText.text = runData.fitMe.ToString("N0");
         }

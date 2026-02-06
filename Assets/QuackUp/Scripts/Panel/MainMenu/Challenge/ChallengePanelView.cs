@@ -40,9 +40,9 @@ namespace FitMe.Panel
         private readonly List<RecordBlock> _recordBlocks = new();
         
         private ChallengePanelViewModel ViewModel => (ChallengePanelViewModel)BaseViewModel; 
-#if UNITY_ANDROID
-        private IRequestHandler<GPGSServiceRequest, GPGSServiceResponse<IGPGSService>> _gpgsServiceRequestHandler;
-#endif
+// #if UNITY_ANDROID
+//         private IRequestHandler<GPGSServiceRequest, GPGSServiceResponse<IGPGSService>> _gpgsServiceRequestHandler;
+// #endif
         private IDisposable _bindings;
         private bool _isDataLoaded;
 
@@ -51,23 +51,23 @@ namespace FitMe.Panel
         {
             base.Construct(viewModel);
            Bind();
-#if UNITY_ANDROID
-            GPGSManager.OnFinishedAuthentication += OnFinishedAuthentication;
-            _gpgsServiceRequestHandler = GlobalMessagePipe.GetRequestHandler<GPGSServiceRequest, GPGSServiceResponse<IGPGSService>>();
-#else
-            authenticateButton.gameObject.SetActive(false);
-#endif
+// #if UNITY_ANDROID
+//             GPGSManager.OnFinishedAuthentication += OnFinishedAuthentication;
+//             _gpgsServiceRequestHandler = GlobalMessagePipe.GetRequestHandler<GPGSServiceRequest, GPGSServiceResponse<IGPGSService>>();
+// #else
+//             authenticateButton.gameObject.SetActive(false);
+// #endif
         }
 
-#if UNITY_ANDROID
-        private void OnFinishedAuthentication(SignInStatus status)
-        {
-
-            SetPlayerInfo();
-            AuthenticationDone(status);
-
-        }
-#endif
+// #if UNITY_ANDROID
+//         private void OnFinishedAuthentication(SignInStatus status)
+//         {
+//
+//             SetPlayerInfo();
+//             AuthenticationDone(status);
+//
+//         }
+// #endif
 
         private void Bind()
         {
@@ -140,11 +140,11 @@ namespace FitMe.Panel
         
         private void OnDestroy()
         {
-#if UNITY_ANDROID
-            GPGSManager.OnFinishedAuthentication -= OnFinishedAuthentication;
-            GPGSManager.OnFinishedAuthentication -= AuthenticationDone;
-            JsonSaveManager.OnLoadCompleted -= OnLoadAfterAuthentication;
-#endif
+// #if UNITY_ANDROID
+//             GPGSManager.OnFinishedAuthentication -= OnFinishedAuthentication;
+//             GPGSManager.OnFinishedAuthentication -= AuthenticationDone;
+//             JsonSaveManager.OnLoadCompleted -= OnLoadAfterAuthentication;
+// #endif
         }
 
         private async UniTask ForceRebuild()
@@ -161,67 +161,67 @@ namespace FitMe.Panel
         
         private void OnAuthenticateButtonClicked()
         {
-#if UNITY_ANDROID
-            GPGSManager.Instance.ManualAuthenticate();
-            authenticateButton.interactable = false;
-            GPGSManager.OnFinishedAuthentication += AuthenticationDone;
-#endif
+// #if UNITY_ANDROID
+//             GPGSManager.Instance.ManualAuthenticate();
+//             authenticateButton.interactable = false;
+//             GPGSManager.OnFinishedAuthentication += AuthenticationDone;
+// #endif
         }
         
-#if UNITY_ANDROID
-        void AuthenticationDone(SignInStatus status)
-        {
-            Debug.Log("Authentication Done with status: " + status);
-            authenticateButton.interactable = true;
-            GPGSManager.OnFinishedAuthentication -= AuthenticationDone;
-            if (status != SignInStatus.Success) return;
-            JsonSaveManager.OnLoadCompleted += OnLoadAfterAuthentication;
-        }
-
-        void OnLoadAfterAuthentication()
-        {
-            Debug.Log("Load after authentication completed.");
-            JsonSaveManager.OnLoadCompleted -= OnLoadAfterAuthentication;
-            LoadAfterAuthentication().Forget();
-        }
-
-        private async UniTaskVoid LoadAfterAuthentication()
-        {
-            await JsonSaveManager.Instance.Save(true);
-            await JsonSaveManager.Instance.Load();
-        }
-#endif
+// #if UNITY_ANDROID
+//         void AuthenticationDone(SignInStatus status)
+//         {
+//             Debug.Log("Authentication Done with status: " + status);
+//             authenticateButton.interactable = true;
+//             GPGSManager.OnFinishedAuthentication -= AuthenticationDone;
+//             if (status != SignInStatus.Success) return;
+//             JsonSaveManager.OnLoadCompleted += OnLoadAfterAuthentication;
+//         }
+//
+//         void OnLoadAfterAuthentication()
+//         {
+//             Debug.Log("Load after authentication completed.");
+//             JsonSaveManager.OnLoadCompleted -= OnLoadAfterAuthentication;
+//             LoadAfterAuthentication().Forget();
+//         }
+//
+//         private async UniTaskVoid LoadAfterAuthentication()
+//         {
+//             await JsonSaveManager.Instance.Save(true);
+//             await JsonSaveManager.Instance.Load();
+//         }
+// #endif
         
         private void OnLoadButtonClicked()
         {
-#if UNITY_ANDROID
-            var service = (GPGSSavedGame)_gpgsServiceRequestHandler.Invoke(GPGSServiceRequest.Create<GPGSSavedGame>()).service;
-            service?.ManualLoadFromService();
-#endif
+// #if UNITY_ANDROID
+//             var service = (GPGSSavedGame)_gpgsServiceRequestHandler.Invoke(GPGSServiceRequest.Create<GPGSSavedGame>()).service;
+//             service?.ManualLoadFromService();
+// #endif
         }
 
         private void OnSaveButtonClicked()
         {
-#if UNITY_ANDROID
-            var service = (GPGSSavedGame)_gpgsServiceRequestHandler.Invoke(GPGSServiceRequest.Create<GPGSSavedGame>()).service;
-            service?.ManualSaveToService().Forget();
-#endif
+// #if UNITY_ANDROID
+//             var service = (GPGSSavedGame)_gpgsServiceRequestHandler.Invoke(GPGSServiceRequest.Create<GPGSSavedGame>()).service;
+//             service?.ManualSaveToService().Forget();
+// #endif
         }
 
         private void SetPlayerInfo()
         {
             usernameText.text = "Guest";
-#if UNITY_ANDROID
-            authenticateButton.gameObject.SetActive(!PlayGamesPlatform.Instance.IsAuthenticated());
-            if (!PlayGamesPlatform.Instance.IsAuthenticated()) return;
-            var localUser = PlayGamesPlatform.Instance.localUser;
-            usernameText.text = localUser.userName;
-            if (!localUser.image) return;
-            var profilePicture = localUser.image;
-            var sprite = Sprite.Create(profilePicture, new Rect(0, 0, profilePicture.width, profilePicture.height), 
-                new Vector2(0.5f, 0.5f));
-            profileImage.sprite = sprite;
-#endif
+// #if UNITY_ANDROID
+//             authenticateButton.gameObject.SetActive(!PlayGamesPlatform.Instance.IsAuthenticated());
+//             if (!PlayGamesPlatform.Instance.IsAuthenticated()) return;
+//             var localUser = PlayGamesPlatform.Instance.localUser;
+//             usernameText.text = localUser.userName;
+//             if (!localUser.image) return;
+//             var profilePicture = localUser.image;
+//             var sprite = Sprite.Create(profilePicture, new Rect(0, 0, profilePicture.width, profilePicture.height), 
+//                 new Vector2(0.5f, 0.5f));
+//             profileImage.sprite = sprite;
+// #endif
         }
 
         private void SetChallenges()

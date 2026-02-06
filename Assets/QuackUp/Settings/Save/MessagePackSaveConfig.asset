@@ -94,7 +94,7 @@ MonoBehaviour:
       Entry: 8
       Data: 
   <LoadAtStart>k__BackingField: 1
-  debugMode: 1
+  debugMode: 0
   debugSaveSettings:
     saveLocation: 1
     encryptSave: 0
@@ -105,5 +105,5 @@ MonoBehaviour:
     saveLocation: 0
     encryptSave: 0
     encryptionKey: 
-    saveDirectory: /save
+    saveDirectory: save
     saveFileName: player-save.sav

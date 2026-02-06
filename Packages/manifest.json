@@ -8,6 +8,7 @@
     "com.esotericsoftware.spine.urp-shaders": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Modules/com.esotericsoftware.spine.urp-shaders#3.8",
     "com.github-glitchenzo.nugetforunity": "4.5.0",
     "com.github.messagepack-csharp": "https://github.com/MessagePack-CSharp/MessagePack-CSharp.git?path=src/MessagePack.UnityClient/Assets/Scripts/MessagePack",
+    "com.google.ads.mobile": "10.7.0",
     "com.kyrylokuzyk.primetween": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
     "com.luca3317.tmpeffects": "0.2.2",
     "com.unity.2d.animation": "13.0.2",
@@ -81,7 +82,8 @@
         "com.cysharp.messagepipe",
         "com.luca3317.tmpeffects",
         "com.esotericsoftware.spine.urp-shaders",
-        "com.coffee.ui-material-property-injector"
+        "com.coffee.ui-material-property-injector",
+        "com.google"
       ]
     }
   ]

@@ -4991,16 +4991,10 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 7
+      Data: 6
     - Name: 
       Entry: 7
-      Data: 1|QuackUp.Utils.AdsServiceInstaller, QuackUp.Utils
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 2|QuackUp.Input.PointerHandlerInstaller, QuackUp.Input
+      Data: 1|QuackUp.Input.PointerHandlerInstaller, QuackUp.Input
     - Name: camera
       Entry: 10
       Data: 0
@@ -5012,7 +5006,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 3|FitMe.Grid.GridManagerInstaller, FitMe.Grid
+      Data: 2|FitMe.Grid.GridManagerInstaller, FitMe.Grid
     - Name: grid
       Entry: 10
       Data: 2
@@ -5036,7 +5030,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 4|FitMe.Grid.BlockManagerInstaller, FitMe.Grid
+      Data: 3|FitMe.Grid.BlockManagerInstaller, FitMe.Grid
     - Name: blockManagerConfig
       Entry: 10
       Data: 8
@@ -5045,13 +5039,13 @@ MonoBehaviour:
       Data: 9
     - Name: spawnPoints
       Entry: 7
-      Data: 5|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
+      Data: 4|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
     - Name: 
       Entry: 12
       Data: 3
     - Name: 
       Entry: 7
-      Data: 6|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
+      Data: 5|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
     - Name: <Transform>k__BackingField
       Entry: 10
       Data: 10
@@ -5066,7 +5060,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 7|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
+      Data: 6|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
     - Name: <Transform>k__BackingField
       Entry: 10
       Data: 11
@@ -5081,7 +5075,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 8|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
+      Data: 7|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
     - Name: <Transform>k__BackingField
       Entry: 10
       Data: 12
@@ -5114,13 +5108,13 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 9|FitMe.Entity.EntityManagerInstaller, FitMe.Entity
+      Data: 8|FitMe.Entity.EntityManagerInstaller, FitMe.Entity
     - Name: entityManagerConfig
       Entry: 10
       Data: 16
     - Name: sceneEntity
       Entry: 7
-      Data: 10|System.Collections.Generic.List`1[[FitMe.Entity.IEntityLifetimeScope,
+      Data: 9|System.Collections.Generic.List`1[[FitMe.Entity.IEntityLifetimeScope,
         FitMe.Entity]], mscorlib
     - Name: 
       Entry: 12
@@ -5139,7 +5133,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 11|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
+      Data: 10|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
     - Name: levelManagerConfig
       Entry: 10
       Data: 18
@@ -5148,17 +5142,17 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 12|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
+      Data: 11|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
     - Name: parentLifetimeScope
       Entry: 10
       Data: 19
     - Name: panelLifetimeScopes
       Entry: 7
-      Data: 13|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
+      Data: 12|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
         FitMe.Panel]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 14|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+      Data: 13|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -5234,14 +5228,14 @@ MonoBehaviour:
       Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 15|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 14|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12
       Data: 2
     - Name: 
       Entry: 7
-      Data: 16|FitMe.Scene.UI.Score.ScoreUiInstaller, FitMe.Scene
+      Data: 15|FitMe.Scene.UI.Score.ScoreUiInstaller, FitMe.Scene
     - Name: scoreView
       Entry: 10
       Data: 24
@@ -5262,7 +5256,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 17|FitMe.Scene.UI.ButtonSoundHandlerInstaller, FitMe.Scene
+      Data: 16|FitMe.Scene.UI.ButtonSoundHandlerInstaller, FitMe.Scene
     - Name: 
       Entry: 8
       Data: 
@@ -8957,7 +8951,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -100
   m_TargetDisplay: 0
 --- !u!224 &1878189343
 RectTransform:

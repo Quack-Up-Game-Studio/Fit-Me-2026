@@ -145,5 +145,5 @@ MonoBehaviour:
     saveLocation: 0
     encryptSave: 0
     encryptionKey: 
-    saveDirectory: /settings
+    saveDirectory: settings
     saveFileName: audio-settings.json

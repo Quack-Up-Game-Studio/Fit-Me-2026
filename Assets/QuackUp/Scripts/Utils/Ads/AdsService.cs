@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using GoogleMobileAds.Api;
+using GoogleMobileAds.Common;
 using R3;
 using UnityEngine;
 using VContainer.Unity;
@@ -24,9 +25,9 @@ namespace QuackUp.Utils
 
         public void Start()
         {
+            //MobileAds.RaiseAdEventsOnUnityMainThread = true;
             MobileAds.Initialize(status => 
             {
-                MobileAds.RaiseAdEventsOnUnityMainThread = true;
                 LoadRewardedAd();
             });
         }
@@ -93,11 +94,14 @@ namespace QuackUp.Utils
 
         private void HandleAdClosed()
         {
-            if (_isRewardEarned)
+            MobileAdsEventExecutor.ExecuteInUpdate(() =>
             {
-                _onUserEarnedReward.OnNext(Unit.Default);
-            }
-            _onAdClosed.OnNext(Unit.Default);
+                if (_isRewardEarned)
+                {
+                    _onUserEarnedReward.OnNext(Unit.Default);
+                }
+                _onAdClosed.OnNext(Unit.Default);
+            });
 
             LoadRewardedAd();
         }

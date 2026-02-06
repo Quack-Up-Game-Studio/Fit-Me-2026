@@ -1,0 +1,7 @@
+OVDF v1.1
+QuackUp.Utils.AdsServiceInstaller, QuackUp.Utils
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Ads Service"
++ [Sirenix.OdinInspector.HideLabelAttribute]

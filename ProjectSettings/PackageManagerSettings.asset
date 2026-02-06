@@ -43,6 +43,7 @@ MonoBehaviour:
     - com.luca3317.tmpeffects
     - com.esotericsoftware.spine.urp-shaders
     - com.coffee.ui-material-property-injector
+    - com.google
     m_IsDefault: 0
     m_Capabilities: 0
     m_ConfigSource: 4

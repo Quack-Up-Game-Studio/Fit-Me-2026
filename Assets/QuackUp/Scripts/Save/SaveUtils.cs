@@ -21,6 +21,8 @@ namespace QuackUp.Save
         public string saveDirectory = "TestSave";
         public string saveFileName = "testSave";
         
+        [ShowInInspector] private string DebugFullSavePath => GetFullSavePath();
+        
         [Button("Select Save Location")]
         private void SelectSaveLocation()
         {

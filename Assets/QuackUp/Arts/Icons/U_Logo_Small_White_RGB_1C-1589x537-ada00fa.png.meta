@@ -1,0 +1,351 @@
+fileFormatVersion: 2
+guid: 2fb58098e334b234392d9c4095603441
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1907698562057448712
+    second: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_0
+  - first:
+      213: 8672396659383014711
+    second: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_1
+  - first:
+      213: 6085484174235941727
+    second: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_2
+  - first:
+      213: 6008218488979214697
+    second: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_3
+  - first:
+      213: -9200423272402432322
+    second: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_4
+  - first:
+      213: 6016701054876702476
+    second: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_5
+  - first:
+      213: 8662069433650723022
+    second: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_6
+  - first:
+      213: -5770466739357464877
+    second: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_7
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 478
+        height: 536
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80d25f91cb1897a10800000000000000
+      internalID: 1907698562057448712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_1
+      rect:
+        serializedVersion: 2
+        x: 597
+        y: 146
+        width: 223
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7351fc930da8a5870800000000000000
+      internalID: 8672396659383014711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_2
+      rect:
+        serializedVersion: 2
+        x: 1051
+        y: 362
+        width: 67
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5b389b3d9bf37450800000000000000
+      internalID: 6085484174235941727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_3
+      rect:
+        serializedVersion: 2
+        x: 1131
+        y: 148
+        width: 122
+        height: 252
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9615a8002ea716350800000000000000
+      internalID: 6008218488979214697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_4
+      rect:
+        serializedVersion: 2
+        x: 843
+        y: 150
+        width: 185
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebe473997c7815080800000000000000
+      internalID: -9200423272402432322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_5
+      rect:
+        serializedVersion: 2
+        x: 1051
+        y: 150
+        width: 67
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c07d4a74bbd9f7350800000000000000
+      internalID: 6016701054876702476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_6
+      rect:
+        serializedVersion: 2
+        x: 1263
+        y: 90
+        width: 198
+        height: 252
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec8358c914ad53870800000000000000
+      internalID: 8662069433650723022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: U_Logo_Small_White_RGB_1C-1589x537-ada00fa_7
+      rect:
+        serializedVersion: 2
+        x: 1491
+        y: 242
+        width: 98
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d64464e21f2befa0800000000000000
+      internalID: -5770466739357464877
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      U_Logo_Small_White_RGB_1C-1589x537-ada00fa_0: 1907698562057448712
+      U_Logo_Small_White_RGB_1C-1589x537-ada00fa_1: 8672396659383014711
+      U_Logo_Small_White_RGB_1C-1589x537-ada00fa_2: 6085484174235941727
+      U_Logo_Small_White_RGB_1C-1589x537-ada00fa_3: 6008218488979214697
+      U_Logo_Small_White_RGB_1C-1589x537-ada00fa_4: -9200423272402432322
+      U_Logo_Small_White_RGB_1C-1589x537-ada00fa_5: 6016701054876702476
+      U_Logo_Small_White_RGB_1C-1589x537-ada00fa_6: 8662069433650723022
+      U_Logo_Small_White_RGB_1C-1589x537-ada00fa_7: -5770466739357464877
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

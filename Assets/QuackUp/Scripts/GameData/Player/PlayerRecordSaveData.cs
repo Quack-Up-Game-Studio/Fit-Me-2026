@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using MessagePack;
 using QuackUp.Save;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
+using DateTimeFormatter = MessagePack.Formatters.DateTimeFormatter;
 
 namespace FitMe.GameData
 {
@@ -21,13 +23,14 @@ namespace FitMe.GameData
         public partial record RunData
         {
             [Key("DateTime")]
+            [MessagePackFormatter(typeof(DateTimeFormatter))]
             [field: OdinSerialize] public DateTime dateTime;
             [Key("Score")]
             [field: SerializeField] public float score;
             [Key("FitMe")]
             [field: SerializeField] public int fitMe;
             [IgnoreMember]
-            [ShowInInspector, DisplayAsString] private string DebugDateTime => dateTime.ToString("yyyy-MM-dd HH:mm:ss");
+            [ShowInInspector, DisplayAsString] private string DebugDateTime => dateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
         }
         
         [Key("HighScore")]

@@ -1,13 +1,38 @@
 {
-    "m_SelectedDeviceId": "",
+    "m_SelectedDeviceId": "a9130acf",
     "m_SelectedProcess": {
-        "deviceId": "",
-        "name": "",
-        "processId": 0,
+        "deviceId": "a9130acf",
+        "name": "com.QuackUp.FitMe",
+        "processId": 32695,
         "exited": false
     },
     "m_SelectedPriority": 0,
-    "m_KnownProcessesForSerialization": [],
+    "m_KnownProcessesForSerialization": [
+        {
+            "deviceId": "a9130acf",
+            "name": "com.miui.home",
+            "processId": 3291,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.QuackUp.FitMe",
+            "processId": 17494,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.QuackUp.FitMe",
+            "processId": 26316,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.QuackUp.FitMe",
+            "processId": 32695,
+            "exited": false
+        }
+    ],
     "m_Tags": {
         "m_Entries": [
             {
@@ -16,7 +41,7 @@
             },
             {
                 "m_Name": "No Filter",
-                "m_Selected": true
+                "m_Selected": false
             },
             {
                 "m_Name": "",
@@ -32,7 +57,7 @@
             },
             {
                 "m_Name": "Unity",
-                "m_Selected": false
+                "m_Selected": true
             },
             {
                 "m_Name": "CRASH",
@@ -45,8 +70,19 @@
         "Height": 0.0
     },
     "m_MemoryViewerState": {
-        "MemoryWindowWidth": 0.0,
-        "MemoryTypeEnabled": [],
+        "MemoryWindowWidth": 170.0,
+        "MemoryTypeEnabled": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+        ],
         "MemoryGroup": 2,
         "AutoCapture": true
     },

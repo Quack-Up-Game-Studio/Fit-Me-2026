@@ -81,11 +81,15 @@ namespace FitMe.Panel
         {
             if (_remainingContinueCount.CurrentValue >= 0  && _enableAds)
             {
+#if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR
                 bool isAdShown = _adsService.TryShowRewardedAd();
                 if (!isAdShown)
                 {
                     Debug.Log("Ads not ready");
                 }
+#else
+                OnAdSuccess(); // Simulate ad success in non-mobile platforms
+#endif
             }
         }
         
