@@ -92,6 +92,7 @@ namespace FitMe.Grid
                         worldSpace = false,
                         parent = instance.GameObject.transform
                     });
+                    atom.Model.ArrayIndex.Value = new Vector2Int(x, y);
                     //atom.AtomView?.SetParent(BlockView);
                     atom.Model.ParentBlock.Value = instance;
                     var hasTop = HasElement(x - 1, y);

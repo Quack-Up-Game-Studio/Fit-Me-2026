@@ -68,11 +68,13 @@ namespace FitMe.Grid
     {
         public readonly BlockInstance BlockInstance;
         public readonly IDisposable Subscription;
+        public readonly bool IsObstacle = false;
         
-        public GridBlockData(BlockInstance blockInstance, IDisposable subscription)
+        public GridBlockData(BlockInstance blockInstance, IDisposable subscription, bool isObstacle = false)
         {
             BlockInstance = blockInstance;
             Subscription = subscription;
+            IsObstacle = isObstacle;
         }
     }
 
@@ -104,14 +106,6 @@ namespace FitMe.Grid
     [ShowOdinSerializedPropertiesInInspector]
     public class GridManager : IDisposable
     {
-        private readonly UnityEngine.Grid _grid;
-        private readonly GridManagerConfig _config;
-        private readonly CellFactory _cellFactory;
-        private readonly IAudioManager _audioManager;
-        private readonly IMessageHub _messageHub;
-        
-        private IDisposable _subscriptions;
-        
         #region Inspector
         [field: Title("Grid Debug")] 
         [field: SerializeField, InlineEditor]
@@ -142,9 +136,18 @@ namespace FitMe.Grid
 
         #region Fields and Properties
         
+        private readonly UnityEngine.Grid _grid;
+        private readonly GridManagerConfig _config;
+        private readonly CellFactory _cellFactory;
+        private readonly IAudioManager _audioManager;
+        private readonly IMessageHub _messageHub;
+        
+        private IDisposable _subscriptions;
+        
         private List<CellInstance> _previousValidationCells = new();
         private readonly ObservableList<GridBlockData> _blockOnGrid = new();
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
+        public Subject<Unit> OnCellsCreated = new();
         // public event Action<BlockModel> OnBlockStateChanged;
         public Subject<BlockInstance> OnBlockPlaced = new();
         // public event Action<BlockModel> OnBlockDestroyed;
@@ -210,6 +213,7 @@ namespace FitMe.Grid
         {
             SetUpGameplayGridPreset();
             CreateCells();
+            OnCellsCreated.OnNext(Unit.Default);
         }
 
         private void OnSpawnGridWithPreset(BlockPreset preset)
@@ -432,13 +436,15 @@ namespace FitMe.Grid
             cells.ForEach(cell => cell.Model.State.Value = CellState.CanBePlaced);
             return true;
         }
-        
+
         /// <summary>
         /// Place the block in the grid
         /// </summary>
         /// <param name="blockInstance">Block to place</param>
+        /// <param name="updateGrid">Update the grid after placement, true by default</param>
+        /// <param name="isObstacle">Is the block an obstacle, false by default</param>
         /// <returns>true if the placement is valid, false otherwise</returns>
-        public bool TryPlaceBlock(BlockInstance blockInstance)
+        public bool TryPlaceBlock(BlockInstance blockInstance, bool updateGrid = true, bool isObstacle = false)
         {
             ResetPreviousValidationCells();
             var blockViewTransform = blockInstance.GameObject.transform;
@@ -467,14 +473,17 @@ namespace FitMe.Grid
             blockInstance.Model.BlockCells = cells;
             var subscription = blockInstance.Model.UpdateGridCommand
                 .Subscribe(_ => UpdateBlockOnGrid(blockInstance));
-            _blockOnGrid.Add(new(blockInstance, subscription));
-            OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockViewTransform.position));
+            _blockOnGrid.Add(new(blockInstance, subscription, isObstacle));
             blockInstance.ViewModel.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
             blockInstance.GameObject.transform.SetParent(_grid.transform);
             //blockView.ResetSortingLayer();
             ReorderRenderingOrder();
-            var fit = UpdateBlockOnGrid(blockInstance);
-            OnFitCheck?.OnNext(new FitTypeEvent(fit, blockInstance));
+            if (updateGrid)
+            {
+                OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockViewTransform.position));
+                var fit = UpdateBlockOnGrid(blockInstance);
+                OnFitCheck?.OnNext(new FitTypeEvent(fit, blockInstance));
+            }
             OnBlockPlaced?.OnNext(blockInstance);
             return true;
         }
@@ -545,6 +554,7 @@ namespace FitMe.Grid
         /// <param name="destroy">Destroy the block, false by default</param>
         public async UniTask RemoveBlock(GridBlockData gridBlockData, FitType fitType, bool destroy = false)
         {
+            if (gridBlockData.IsObstacle) return;
             _blockOnGrid.Remove(gridBlockData);
             //OnBlockDestroyed?.Invoke(gridBlockData.Block);
             var atoms = new List<AtomInstance>(gridBlockData.BlockInstance.Model.Atoms);

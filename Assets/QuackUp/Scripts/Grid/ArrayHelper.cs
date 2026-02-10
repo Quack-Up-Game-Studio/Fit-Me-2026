@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using QuackUp.Utils;
 using UnityEngine;
 
@@ -18,6 +20,47 @@ namespace FitMe.Grid
                 schemaString += "\n";
             }
             DebugUtils.Log(schemaString);
+        }
+        
+        public static List<(T, Vector2Int)> FlattenWithArrayIndex<T>(this T[,] array)
+        {
+            var result = new List<(T, Vector2Int)>();
+            for (var row = 0; row < array.GetLength(0); row++)
+            for (var column = 0; column < array.GetLength(1); column++)
+            {
+                var item = array[row, column];
+                result.Add((item, new Vector2Int(row, column)));
+            }
+            return result;
+        }
+        
+        public static bool IsTheSameShape(List<Vector2Int> shapeA, List<Vector2Int> shapeB)
+        {
+            var aCount = shapeA.Count;
+            var bCount = shapeB.Count;
+            if (aCount != bCount)
+            {
+                DebugUtils.Log($"Shape counts differ: A: {aCount}, B: {bCount}");
+                return false;
+            }
+            if (aCount == 1 && bCount == 1)
+            {
+                return true;
+            }
+            var sortedA = shapeA.OrderBy(x => x.x).ThenBy(x => x.y).ToList();
+            var sortedB = shapeB.OrderBy(x => x.x).ThenBy(x => x.y).ToList();
+            var firstA = sortedA[0];
+            var firstB = sortedB[0];
+            for (var i = 1; i < sortedA.Count; i++)
+            {
+                var offsetA = sortedA[i] - firstA;
+                var offsetB = sortedB[i] - firstB;
+                if (offsetA != offsetB)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     
         public static int[,] Rotate90(int[,] array)

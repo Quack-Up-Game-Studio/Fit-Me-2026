@@ -31,31 +31,22 @@ namespace FitMe.Grid
         private readonly BlockView _blockViewPrefab;
         private readonly BlockManagerConfig _blockManagerConfig;
         private readonly GridManagerConfig _gridConfig;
-        private readonly GridManager _gridManager;
         private readonly AtomFactory _atomFactory;
-        private readonly ILevelManager _levelManager;
-        private readonly IAudioManager _audioManager;
-        private readonly IPointerHandler _pointerHandler;
+        private readonly BlockControllerFactory _blockControllerFactory;
 
         [Inject]
         public BlockFactory(
             BlockView blockViewPrefab,
             BlockManagerConfig blockManagerConfig,
             GridManagerConfig gridConfig,
-            GridManager gridManager,
             AtomFactory atomFactory,
-            ILevelManager levelManager,
-            IAudioManager audioManager,
-            IPointerHandler pointerHandler)
+            BlockControllerFactory blockControllerFactory)
         {
             _blockViewPrefab = blockViewPrefab;
             _blockManagerConfig = blockManagerConfig;
             _gridConfig = gridConfig;
-            _gridManager = gridManager;
             _atomFactory = atomFactory;
-            _levelManager = levelManager;
-            _audioManager = audioManager;
-            _pointerHandler = pointerHandler;
+            _blockControllerFactory = blockControllerFactory;
         }
 
         public BlockInstance Create(BlockShape blockShape, Vector3 position, Quaternion rotation,
@@ -76,13 +67,8 @@ namespace FitMe.Grid
             var view = Object.Instantiate(_blockViewPrefab, position, rotation,
                 instantiateParameters.Value);
             var model = new BlockModel(blockConfig, _atomFactory);
-            var controller = new BlockController(
-                _blockManagerConfig,
-                _gridManager,
-                _levelManager,
-                _audioManager,
-                _pointerHandler);
             var viewModel = new BlockViewModel(model);
+            var controller = _blockControllerFactory.Create();
             view.Construct(blockConfig, 
                 _blockManagerConfig, 
                 _gridConfig, 
@@ -93,6 +79,44 @@ namespace FitMe.Grid
             model.GenerateAtom(blockShape, blockPreset, blockInstance);
             viewModel.SetSortingLayerCommand.Execute(_blockManagerConfig.SpawnSortingLayer);
             return blockInstance;
+        }
+    }
+
+    public class BlockControllerFactory : IFactory<BlockController>
+    {
+        public BlockController Current { get; private set; }
+        
+        private readonly BlockManagerConfig _blockManagerConfig;
+        private readonly GridManager _gridManager;
+        private readonly ILevelManager _levelManager;
+        private readonly IAudioManager _audioManager;
+        private readonly IPointerHandler _pointerHandler;
+
+        [Inject]
+        public BlockControllerFactory(
+            BlockManagerConfig blockManagerConfig,
+            GridManager gridManager,
+            ILevelManager levelManager,
+            IAudioManager audioManager,
+            IPointerHandler pointerHandler)
+        {
+            _blockManagerConfig = blockManagerConfig;
+            _gridManager = gridManager;
+            _levelManager = levelManager;
+            _audioManager = audioManager;
+            _pointerHandler = pointerHandler;
+        }
+        
+        public BlockController Create()
+        {
+            var controller = new BlockController(
+                _blockManagerConfig,
+                _gridManager,
+                _levelManager,
+                _audioManager,
+                _pointerHandler);
+            Current = controller;
+            return Current;
         }
     }
 }
