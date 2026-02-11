@@ -201,9 +201,9 @@ namespace FitMe.Grid
             return count;
         }
 
-        public static void ResizeArrayKeepMembers(ref int[,] array, Vector2Int newSize)
+        public static void ResizeArrayKeepMembers<T>(ref T[,] array, Vector2Int newSize, T defaultValue = default)
         {
-            var newArray = new int[newSize.y, newSize.x];
+            var newArray = new T[newSize.y, newSize.x];
             var oldRow = array.GetLength(0);
             var oldColumn = array.GetLength(1);
             var newRow = newArray.GetLength(0);
@@ -218,7 +218,7 @@ namespace FitMe.Grid
                     }
                     if (x >= oldRow || y >= oldColumn)
                     {
-                        newArray[x, y] = 0;
+                        newArray[x, y] = defaultValue;
                         continue;
                     }
                     if (x < newRow && y < newSize.x)
@@ -227,7 +227,7 @@ namespace FitMe.Grid
                     }
                     else
                     {
-                        newArray[x, y] = 0;
+                        newArray[x, y] = defaultValue;
                     }
                 }
             }

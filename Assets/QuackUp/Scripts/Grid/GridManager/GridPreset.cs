@@ -113,11 +113,12 @@ namespace FitMe.Grid
             var row1 = rect.Padding(1).SetHeight(rect.height / 3f);
             var row2 = row1.SetY(row1.yMax);
             var row3 = row2.SetY(row2.yMax);
+            var obstacleColor = value.hasObstacle ? Color.white : Color.red;
             value.hasObstacle = EditorGUI.ToggleLeft(row1, "Obstacle", value.hasObstacle, 
                 new GUIStyle(EditorStyles.label)
                 {
-                    normal = { textColor = value.hasObstacle ? Color.white : Color.red },
-                    active = { textColor = value.hasObstacle ? Color.white : Color.red }
+                    normal = { textColor = obstacleColor },
+                    active = { textColor = obstacleColor }
                 });
             if (!value.hasObstacle) return value;
             value.shape = (BlockShape)SirenixEditorFields.EnumDropdown(row2, value.shape); 
