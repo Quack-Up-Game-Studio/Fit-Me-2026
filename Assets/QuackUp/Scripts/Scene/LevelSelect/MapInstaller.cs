@@ -1,25 +1,27 @@
 using System;
-using UnityEngine;
+using QuackUp.Utils;
 using VContainer;
 using VContainer.Unity;
+using UnityEngine;
 
 namespace FitMe.Scene
 {
     [Serializable]
     public class MapInstaller : IInstaller
     {
-        // ลาก MapPage จากใน Scene มาใส่ตรงนี้
-        [SerializeField] private MapPageView mapPageView; 
+        [SerializeField] private MapPageView mapPageView;
+        [SerializeField] private LevelDatabase levelDatabase; 
 
         public void Install(IContainerBuilder builder)
         {
-            // 1. ลงทะเบียน View (MapPage)
             builder.RegisterComponent(mapPageView);
 
-            // 2. ลงทะเบียน ViewModel (MapPageViewModel)
-            // สมมติ MaxLevel = 100 (ของจริงอาจจะดึงจาก UserData)
+            builder.RegisterInstance(levelDatabase);
+            int currentPlayerLevel = 10;
+
             builder.Register<MapPageViewModel>(Lifetime.Scoped)
-                .WithParameter("playerMaxLevel", 1); 
+                .WithParameter("playerMaxLevel", currentPlayerLevel);
+            
         }
     }
 }

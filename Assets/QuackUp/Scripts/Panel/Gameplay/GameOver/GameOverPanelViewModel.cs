@@ -95,10 +95,10 @@ namespace FitMe.Panel
         
         private void OnAdSuccess()
         {
-            _countdownTimer.Dispose();
             _remainingContinueCount.Value--;
             _clearGridEventPublisher.Publish(new ClearGridEvent());
             OnAdsCompleted.OnNext(Unit.Default);
+            _countdownTimer.Dispose();
         }
 
         protected override void OnVisible()

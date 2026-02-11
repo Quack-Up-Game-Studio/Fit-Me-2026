@@ -13,7 +13,7 @@ namespace FitMe.Scene
         [SerializeField] private Image lockIcon;
         [SerializeField] private GameObject[] stars;
         [SerializeField] private TMP_Text levelText;
-
+        
         private IDisposable _bindings;
         
         [Inject]
@@ -24,11 +24,6 @@ namespace FitMe.Scene
             vm.IsLocked.Subscribe(isLocked => {
                 lockIcon.gameObject.SetActive(isLocked);
                 button.interactable = !isLocked;
-            }).AddTo(this);
-
-            vm.Stars.Subscribe(starCount => {
-                for(int i=0; i<stars.Length; i++) 
-                    stars[i].SetActive(i < starCount);
             }).AddTo(this);
 
             button.OnClickAsObservable()

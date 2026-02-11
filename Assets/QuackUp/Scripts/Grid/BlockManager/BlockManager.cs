@@ -101,6 +101,9 @@ namespace FitMe.Grid
             _gridManager.OnFitCheck
                 .Subscribe(OnFitCheck)
                 .AddTo(ref disposableBuilder);
+            _messageHub
+                .Subscribe<ClearGridEvent>(_ => ResetBag())
+                .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
 
@@ -184,6 +187,28 @@ namespace FitMe.Grid
                 _spawnBag.Enqueue(data);
             }
             DebugUtils.Log($"Yuirin: Bag Refilled from Pool! Total {_spawnBag.Count} items.");
+        }
+
+        private void ResetBlockInSlot()
+        {
+            for (int i = 0; i < _spawnPoints.Length; i++)
+            {
+                if (_spawnPoints[i].IsFree) continue;
+                _spawnPoints[i].CurrentBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
+                _spawnPoints[i].CurrentBlock = null;
+                _spawnPoints[i].IsFree = true;
+            }
+            
+            _currentPreviewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
+            _currentPreviewBlock = null;
+        }
+        
+        public void ResetBag()
+        {
+            _spawnBag.Clear();
+            ResetBlockInSlot();
+            SpawnRandomBlock();
+            Debug.Log("Yuirin: Bag Reset!");
         }
         
         /// <summary>
