@@ -12,10 +12,10 @@ namespace FitMe.Scene.MainMenu
         
         [Inject]
         public MainMenuManagerMessageHub(
-            IPublisher<StartSpawnEvent> startSpawnPublisher,
+            IPublisher<SpawnWithBlockPresetEvent> startSpawnPublisher,
             ISubscriber<LoadSceneStageEvent> loadSceneStageSubscriber)
         {
-            MessageWrappers[typeof(StartSpawnEvent)] = new MessageWrapper<StartSpawnEvent>(
+            MessageWrappers[typeof(SpawnWithBlockPresetEvent)] = new MessageWrapper<SpawnWithBlockPresetEvent>(
                 startSpawnPublisher,
                 null);
             MessageWrappers[typeof(LoadSceneStageEvent)] = new MessageWrapper<LoadSceneStageEvent>(

@@ -68,13 +68,11 @@ namespace FitMe.Grid
     {
         public readonly BlockInstance BlockInstance;
         public readonly IDisposable Subscription;
-        public readonly bool IsObstacle = false;
         
-        public GridBlockData(BlockInstance blockInstance, IDisposable subscription, bool isObstacle = false)
+        public GridBlockData(BlockInstance blockInstance, IDisposable subscription)
         {
             BlockInstance = blockInstance;
             Subscription = subscription;
-            IsObstacle = isObstacle;
         }
     }
 
@@ -183,7 +181,13 @@ namespace FitMe.Grid
                 .Subscribe(OnFinishedLoading)
                 .AddTo(ref disposableBuilder);
             _messageHub
-                .Subscribe<StartSpawnEvent>(x => OnSpawnGridWithPreset(x.BlockPreset))
+                .Subscribe<SpawnWithBlockPresetEvent>(x => OnSpawnGridWithBlockPreset(x.BlockPreset))
+                .AddTo(ref disposableBuilder);
+            _messageHub
+                .Subscribe<StartCreateGridEvent>(_ => StartGameplay())
+                .AddTo(ref disposableBuilder);
+            _messageHub
+                .Subscribe<SpawnWithGridPresetEvent>(x => OnSpawnGridWithGridPreset(x.GridPreset))
                 .AddTo(ref disposableBuilder);
             _messageHub
                 .Subscribe<ClearGridEvent>(_ => ClearGrid().Forget())
@@ -205,18 +209,23 @@ namespace FitMe.Grid
         {
             DebugUtils.Log("GridManager: OnFinishedLoading " + sceneType);
             CurrentSceneType = sceneType;
-            if (CurrentSceneType is SceneType.Gameplay) 
-                OnGameplaySceneActivated();
-        }
-        
-        private void OnGameplaySceneActivated()
-        {
-            SetUpGameplayGridPreset();
-            CreateCells();
-            OnCellsCreated.OnNext(Unit.Default);
         }
 
-        private void OnSpawnGridWithPreset(BlockPreset preset)
+        private void OnSpawnGridWithGridPreset(GridPreset preset)
+        {
+            if (CurrentSceneType is not SceneType.Gameplay) return;
+            CurrentGridPreset = preset;
+            CreateCells();
+        }
+        
+        private void StartGameplay()
+        {
+            if (CurrentSceneType is not SceneType.Gameplay) return;
+            SetUpGameplayGridPreset();
+            CreateCells();
+        }
+
+        private void OnSpawnGridWithBlockPreset(BlockPreset preset)
         {
             if (CurrentSceneType is SceneType.Gameplay) return;
             SetUpMainMenuGridPreset(preset);
@@ -400,6 +409,7 @@ namespace FitMe.Grid
                     _cellArray[x, y] = cell;
                 }
             }
+            OnCellsCreated.OnNext(Unit.Default);
         }
         #endregion
         
@@ -444,7 +454,7 @@ namespace FitMe.Grid
         /// <param name="updateGrid">Update the grid after placement, true by default</param>
         /// <param name="isObstacle">Is the block an obstacle, false by default</param>
         /// <returns>true if the placement is valid, false otherwise</returns>
-        public bool TryPlaceBlock(BlockInstance blockInstance, bool updateGrid = true, bool isObstacle = false)
+        public bool TryPlaceBlock(BlockInstance blockInstance, bool updateGrid = true)
         {
             ResetPreviousValidationCells();
             var blockViewTransform = blockInstance.GameObject.transform;
@@ -473,7 +483,7 @@ namespace FitMe.Grid
             blockInstance.Model.BlockCells = cells;
             var subscription = blockInstance.Model.UpdateGridCommand
                 .Subscribe(_ => UpdateBlockOnGrid(blockInstance));
-            _blockOnGrid.Add(new(blockInstance, subscription, isObstacle));
+            _blockOnGrid.Add(new(blockInstance, subscription));
             blockInstance.ViewModel.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
             blockInstance.GameObject.transform.SetParent(_grid.transform);
             //blockView.ResetSortingLayer();
@@ -514,7 +524,7 @@ namespace FitMe.Grid
         {
             if (CurrentSceneType is not SceneType.Gameplay) return;
             List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
-                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
+                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState.CurrentValue, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
             await ClearGrid();
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
             OnScoreAdded.OnNext(new(ScoreTypes.FitMe, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
@@ -526,7 +536,7 @@ namespace FitMe.Grid
             var middleOfBlocks = contacts.Select(block => block.GameObject.transform.position)
                 .Aggregate(Vector3.zero, (current, position) => current + position) / contacts.Count;
             List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
-                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
+                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState.CurrentValue, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
             //AudioManager.Instance.PlayAudioOneShot(stackExplodeSfx, transform.position);
             var gridBlockData = _blockOnGrid.Where(x => contacts.Contains(x.BlockInstance)).ToList();
             //await UniTask.WhenAll(gridBlockData.Select(block => RemoveBlock(block, FitType.Combo, true)));
@@ -554,13 +564,13 @@ namespace FitMe.Grid
         /// <param name="destroy">Destroy the block, false by default</param>
         public async UniTask RemoveBlock(GridBlockData gridBlockData, FitType fitType, bool destroy = false)
         {
-            if (gridBlockData.IsObstacle) return;
+            if (gridBlockData.BlockInstance.Model.BlockState.CurrentValue is BlockState.Obstacle) return;
             _blockOnGrid.Remove(gridBlockData);
             //OnBlockDestroyed?.Invoke(gridBlockData.Block);
             var atoms = new List<AtomInstance>(gridBlockData.BlockInstance.Model.Atoms);
             if (CurrentSceneType is SceneType.Gameplay)
             {
-                gridBlockData.BlockInstance.Model.BlockState = BlockState.Exploding;
+                gridBlockData.BlockInstance.Model.BlockState.Value = BlockState.Exploding;
                 var promise = new Promise<Unit>();
                 gridBlockData.BlockInstance.ViewModel.ExplodeCommand.Execute(
                     new ExplodeCommandData(promise, fitType, destroy));
@@ -626,7 +636,7 @@ namespace FitMe.Grid
         /// <returns>true if the contacted blocks count is greater than or equal to the destroy threshold, false otherwise</returns>
         private bool CheckForContact(BlockInstance blockInstance, List<BlockInstance> contactedBlocks)
         {
-            BlockColor currentColor = blockInstance.Model.BlockColor.CurrentValue;
+            var currentColor = blockInstance.Model.BlockColor.CurrentValue;
             contactedBlocks.Add(blockInstance);
             foreach (var cell in blockInstance.Model.BlockCells)
             {
@@ -639,7 +649,7 @@ namespace FitMe.Grid
                 {
                     if (adjacentCell?.Model.CurrentAtom.Value == null) continue;
                     var adjacentBlock = adjacentCell.Model.CurrentAtom.Value.Model.ParentBlock.Value;
-                    if (adjacentBlock.Model.BlockState is BlockState.Infected or BlockState.Exploding) continue;
+                    if (adjacentBlock.Model.BlockState.CurrentValue is BlockState.Infected or BlockState.Exploding or BlockState.Obstacle) continue;
                     if (adjacentBlock.Model.BlockColor.CurrentValue != currentColor) continue;
                     if (contactedBlocks.Contains(adjacentBlock)) continue;
                     CheckForContact(adjacentBlock, contactedBlocks);
@@ -666,7 +676,7 @@ namespace FitMe.Grid
                     var cell = _cellArray[x, y];
                     if (cell == null) continue;
                     if (cell.Model.CurrentAtom.Value is not null &&
-                        cell.Model.CurrentAtom.Value.Model.ParentBlock.Value.Model.BlockState is not BlockState.Exploding) 
+                        cell.Model.CurrentAtom.Value.Model.ParentBlock.Value.Model.BlockState.CurrentValue is not BlockState.Exploding) 
                         continue;
                     vacantSchema[x, y] = 1;
                     vacantCount++;

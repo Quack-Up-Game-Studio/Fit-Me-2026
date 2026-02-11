@@ -20,6 +20,7 @@ namespace FitMe.Grid
         [Title("References")]
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private SkeletonAnimation skeletonAnimation;
+        [SerializeField] private SpriteRenderer obstacleSpriteRenderer;
         //[SerializeField] private SpriteRenderer infectedSpriteRenderer;
         
         [Title("Tween")] 
@@ -79,6 +80,10 @@ namespace FitMe.Grid
                 .DistinctUntilChanged()
                 .Subscribe(OnInteractionStateChanged)
                 .AddTo(ref disposableBuilder);
+            _viewModel.BlockState
+                .DistinctUntilChanged()
+                .Subscribe(OnBlockStateChanged)
+                .AddTo(ref disposableBuilder); 
             _viewModel.BlockColor
                 .IgnoreFirstValueWhenSubscribe()
                 .Subscribe(OnBlockColorChanged)
@@ -106,12 +111,12 @@ namespace FitMe.Grid
 
         public void Dispose()
         {
+            CancelIdleTimer();
             _bindings?.Dispose();
         }
         
         private void OnDestroy()
         {
-            CancelIdleTimer();
             Dispose();
         }
         
@@ -130,6 +135,21 @@ namespace FitMe.Grid
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+        }
+
+        private void OnBlockStateChanged(BlockState state)
+        {
+            if (state is BlockState.Obstacle)
+            {
+                obstacleSpriteRenderer.enabled = true;
+                obstacleSpriteRenderer.sprite = _blockConfig.ObstacleSprite;
+                meshRenderer.enabled = false;
+            }
+            else
+            {
+                obstacleSpriteRenderer.enabled = false;
+                meshRenderer.enabled = true;
             }
         }
 
@@ -213,11 +233,13 @@ namespace FitMe.Grid
         private void OnSetSortingLayer(int layer)
         {
             meshRenderer.sortingLayerID = layer;
+            obstacleSpriteRenderer.sortingLayerID = layer;
         }
 
         private void OnSetSortingOrder(int order)
         {
             meshRenderer.sortingOrder = order;
+            obstacleSpriteRenderer.sortingOrder = order;
         }
 
         private void OnBlockColorChanged(BlockColor color)

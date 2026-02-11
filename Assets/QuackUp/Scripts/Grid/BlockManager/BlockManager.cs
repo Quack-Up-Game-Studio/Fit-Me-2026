@@ -96,7 +96,7 @@ namespace FitMe.Grid
         {
             var disposableBuilder = Disposable.CreateBuilder();
             _messageHub
-                .Subscribe<StartSpawnEvent>(OnSpawnAtStart)
+                .Subscribe<SpawnWithBlockPresetEvent>(OnSpawnAtStart)
                 .AddTo(ref disposableBuilder);
             _gridManager.OnFitCheck
                 .Subscribe(OnFitCheck)
@@ -111,14 +111,14 @@ namespace FitMe.Grid
 
         #region Events
 
-        private void OnSpawnAtStart(StartSpawnEvent eventData)
+        private void OnSpawnAtStart(SpawnWithBlockPresetEvent withBlockPresetEventData)
         {
             CreatePool();
             _spawnPoints.ForEach(FreeSpawnPoint);
-            if (!eventData.BlockPreset)
+            if (!withBlockPresetEventData.BlockPreset)
                 SpawnRandomBlock();
             else
-                SpawnBlock(eventData);
+                SpawnBlock(withBlockPresetEventData);
         }
 
         private void OnFitCheck(FitTypeEvent eventData)
@@ -240,7 +240,7 @@ namespace FitMe.Grid
             return block;
         }
 
-        private void SpawnBlock(StartSpawnEvent data)
+        private void SpawnBlock(SpawnWithBlockPresetEvent data)
         {
             var spawnedBlocks = new List<BlockInstance>();
             if (!_spawnPoints[0].IsFree) return;

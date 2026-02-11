@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7534489792795102641}
   - component: {fileID: 4775901797917017567}
   m_Layer: 0
-  m_Name: Square
+  m_Name: ObstacleSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -8153512957740544025, guid: a3fdcec777169c84eba3b366ffe8e5c8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: de4ea0d795ba23542afdd6e5ddd6a9c5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 3439395880026869864}
   - component: {fileID: 6986726484017973002}
   m_Layer: 0
-  m_Name: New SkeletonAnimation
+  m_Name: SpineAnimation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -277,6 +277,7 @@ MonoBehaviour:
     SerializationNodes: []
   meshRenderer: {fileID: 3439395880026869864}
   skeletonAnimation: {fileID: 6986726484017973002}
+  obstacleSpriteRenderer: {fileID: 4775901797917017567}
   scaleTweenSettings:
     duration: 0.5
     ease: 0

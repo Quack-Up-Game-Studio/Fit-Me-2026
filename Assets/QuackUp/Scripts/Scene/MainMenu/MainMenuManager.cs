@@ -60,7 +60,7 @@ namespace FitMe.Scene.MainMenu
         public void Start()
         {
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
-            _messageHub.Publish(new StartSpawnEvent(randomPreset, false));
+            _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
         }
 

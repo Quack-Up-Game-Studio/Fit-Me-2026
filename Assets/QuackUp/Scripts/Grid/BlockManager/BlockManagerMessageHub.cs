@@ -12,12 +12,12 @@ namespace FitMe.Grid
         
         [Inject]
         public BlockManagerMessageHub(
-            ISubscriber<StartSpawnEvent> startSpawnSubscription,
+            ISubscriber<SpawnWithBlockPresetEvent> startSpawnSubscription,
             IPublisher<BlockSpawnedEvent> blockSpawnedPublisher,
             IPublisher<NoPlaceableBlockEvent> noPlaceableBlockPublisher,
             IPublisher<GameOverEvent> gameOverPublisher)
         {
-            MessageWrappers[typeof(StartSpawnEvent)] = new MessageWrapper<StartSpawnEvent>(
+            MessageWrappers[typeof(SpawnWithBlockPresetEvent)] = new MessageWrapper<SpawnWithBlockPresetEvent>(
                 null,
                 startSpawnSubscription);
             MessageWrappers[typeof(BlockSpawnedEvent)] = new MessageWrapper<BlockSpawnedEvent>(
@@ -33,17 +33,6 @@ namespace FitMe.Grid
     }
     
     #region Events
-    public struct StartSpawnEvent
-    {
-        public readonly BlockPreset BlockPreset;
-        public readonly bool AllowRotation;
-        
-        public StartSpawnEvent(BlockPreset blockPreset = null, bool allowRotation = true)
-        {
-            AllowRotation = allowRotation;
-            BlockPreset = blockPreset;
-        }
-    }
     
     public struct BlockSpawnedEvent
     {

@@ -115,8 +115,9 @@ namespace FitMe.Grid
                     var randomColor = EnumUtils.RandomValue<BlockColor>();
                     block.GameObject.name = $"Block_{shapes.Key}";
                     block.Model.ChangeType(randomColor, false);
+                    block.Model.BlockState.Value = BlockState.Obstacle;
                     block.ViewModel.ScaleInCommand.Execute(new ScaleInCommandData(new Promise<Unit>(), scale));
-                    _gridManager.TryPlaceBlock(block, false, true);
+                    _gridManager.TryPlaceBlock(block, false);
                     block.ViewModel.SetSortingLayerCommand.Execute(_blockManagerConfig.GridSortingLayer);
                 }
             }

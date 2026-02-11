@@ -28,6 +28,8 @@ namespace FitMe.Scene
         /// </remarks>
         public ReadOnlyReactiveProperty<GameState> GameState => _gameState.ToReadOnlyReactiveProperty();
 
+        public static GridPreset GridPreset { get; set; }
+
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
         private readonly LevelManagerConfig _config;
         private readonly EntityManager _entityManager;
@@ -99,7 +101,11 @@ namespace FitMe.Scene
         
         public void Start()
         {
-            _messageHub.Publish(new StartSpawnEvent());
+            if (!GridPreset) 
+                _messageHub.Publish(new StartCreateGridEvent());
+            else
+                _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
+            _messageHub.Publish(new SpawnWithBlockPresetEvent(null));
             _entityManager.CreateSceneEntities();
             _entityManager.TryCreateEntity<PlayerEntity>(EntityType.Player, out _, out _);
             _entityManager.TryGetEntityOfType<PlayerEntity>(out var player);
