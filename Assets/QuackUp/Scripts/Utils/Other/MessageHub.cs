@@ -88,4 +88,4 @@ namespace QuackUp.Utils
             return typedWrapper.GetObservable();
         }
     }
-}
+}   

@@ -71,7 +71,7 @@ namespace FitMe.Scene.MainMenu
 
         private void OnBlockPlaced()
         {
-            _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false).Forget();
+            _loadSceneManager.LoadScene(SceneType.LevelSelect, LoadSceneMode.Single, false).Forget();
         }
 
         private void OnSceneStartOut()
