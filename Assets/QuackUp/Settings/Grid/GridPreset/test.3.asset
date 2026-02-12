@@ -527,10 +527,10 @@ MonoBehaviour:
       Data: true
     - Name: hasObstacle
       Entry: 5
-      Data: true
+      Data: false
     - Name: shape
       Entry: 3
-      Data: 3
+      Data: 0
     - Name: id
       Entry: 3
       Data: 0
@@ -545,10 +545,10 @@ MonoBehaviour:
       Data: true
     - Name: hasObstacle
       Entry: 5
-      Data: true
+      Data: false
     - Name: shape
       Entry: 3
-      Data: 3
+      Data: 0
     - Name: id
       Entry: 3
       Data: 0
@@ -599,10 +599,10 @@ MonoBehaviour:
       Data: true
     - Name: hasObstacle
       Entry: 5
-      Data: true
+      Data: false
     - Name: shape
       Entry: 3
-      Data: 3
+      Data: 0
     - Name: id
       Entry: 3
       Data: 0
@@ -617,10 +617,10 @@ MonoBehaviour:
       Data: true
     - Name: hasObstacle
       Entry: 5
-      Data: true
+      Data: false
     - Name: shape
       Entry: 3
-      Data: 3
+      Data: 0
     - Name: id
       Entry: 3
       Data: 0

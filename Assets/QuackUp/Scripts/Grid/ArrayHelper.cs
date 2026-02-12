@@ -22,6 +22,11 @@ namespace FitMe.Grid
             DebugUtils.Log(schemaString);
         }
         
+        public static Vector2Int GetArraySize<T>(this T[,] array)
+        {
+            return new Vector2Int(array.GetLength(1), array.GetLength(0));
+        }
+        
         public static List<(T, Vector2Int)> FlattenWithArrayIndex<T>(this T[,] array)
         {
             var result = new List<(T, Vector2Int)>();
@@ -62,6 +67,18 @@ namespace FitMe.Grid
             }
             return true;
         }
+        
+        public static Vector2Int RotateIndexBySchema(Vector2Int index, int schemaIndex, Vector2Int arraySize)
+        {
+            return schemaIndex switch
+            {
+                0 => index,
+                1 => RotateIndex270(index, arraySize),
+                2 => RotateIndex180(index, arraySize),
+                3 => RotateIndex90(index, arraySize),
+                _ => throw new ArgumentOutOfRangeException(nameof(schemaIndex), "Schema index must be between 0 and 3.")
+            };
+        }
     
         public static int[,] Rotate90(int[,] array)
         {
@@ -79,6 +96,14 @@ namespace FitMe.Grid
             }
 
             return rotatedArray;
+        }
+        
+        public static Vector2Int RotateIndex90(Vector2Int index, Vector2Int arraySize)
+        {
+            // Rotating (x, y) 90 degrees clockwise in an array of size (rows, cols)
+            int newX = index.y;
+            int newY = arraySize.x - 1 - index.x;
+            return new Vector2Int(newX, newY);
         }
 
         public static int[,] Rotate180(int[,] array)
@@ -99,6 +124,14 @@ namespace FitMe.Grid
 
             return rotatedArray;
         }
+        
+        public static Vector2Int RotateIndex180(Vector2Int index, Vector2Int arraySize)
+        {
+            // Rotating (x, y) 180 degrees in an array of size (rows, cols)
+            int newX = arraySize.x - 1 - index.x;
+            int newY = arraySize.y - 1 - index.y;
+            return new Vector2Int(newX, newY);
+        }
     
         public static int[,] Rotate270(int[,] array)
         {
@@ -116,6 +149,14 @@ namespace FitMe.Grid
             }
 
             return rotatedArray;
+        }
+        
+        public static Vector2Int RotateIndex270(Vector2Int index, Vector2Int arraySize)
+        {
+            // Rotating (x, y) 270 degrees clockwise (or 90 degrees counterclockwise) in an array of size (rows, cols)
+            int newX = arraySize.y - 1 - index.y;
+            int newY = index.x;
+            return new Vector2Int(newX, newY);
         }
 
         public static bool CanBFitInA(int[,] a, int[,] b, out int[,] placedArray, bool simulatePlacement = false)

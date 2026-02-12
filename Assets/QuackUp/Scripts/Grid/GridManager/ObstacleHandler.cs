@@ -98,8 +98,8 @@ namespace FitMe.Grid
                         .ThenBy(x => x.Item2.y)
                         .First();
                     var destinationCell = _gridManager.GetCellByArrayIndex(topLeftObstacleCell.Item2);
-                    var randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomSchema.Index * 90f);
-                    var block = _blockFactory.Create(shapes.Key, Vector3.zero, randomRotationQuaternion, new InstantiateParameters
+                    var rotation = Quaternion.Euler(0, 0, randomSchema.Index * 90f);
+                    var block = _blockFactory.Create(shapes.Key, Vector3.zero, rotation, new InstantiateParameters
                     {
                         parent = null,
                         worldSpace = true,
@@ -107,8 +107,12 @@ namespace FitMe.Grid
                     var scale = new Vector3(_config.CellSize.x, _config.CellSize.y, 1f);
                     block.GameObject.transform.localScale = scale;
                     var topLeftBlockAtom = block.Model.Atoms
-                        .OrderBy(x => x.GameObject.transform.position.x)
-                        .ThenByDescending(x => x.GameObject.transform.position.y)
+                        .Select(x => (instance: x,
+                            arrayIndex: ArrayHelper.RotateIndexBySchema(x.Model.ArrayIndex.CurrentValue,
+                                randomSchema.Index, randomSchema.schema.GetArraySize())))
+                        .OrderBy(x => x.arrayIndex.x)
+                        .ThenBy(x => x.arrayIndex.y)
+                        .Select(x => x.instance)
                         .First();
                     var distance = destinationCell.GameObject.transform.position - topLeftBlockAtom.GameObject.transform.position;
                     block.GameObject.transform.position += distance;
