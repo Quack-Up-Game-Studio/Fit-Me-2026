@@ -33,12 +33,14 @@ namespace FitMe.Grid
             builder.Register<IMessageHub, GridManagerMessageHub>(Lifetime.Singleton)
                 .Keyed(GridManagerMessageHub.GridManagerMessageHubKey);
             builder.Register<GridManager>(Lifetime.Singleton);
+            builder.Register<ObstacleHandler>(Lifetime.Singleton);
             builder.RegisterComponent(gridPreview);
             
             builder.RegisterBuildCallback(x =>
             {
                 x.Resolve<GridManager>();
                 x.Resolve<GridPreview>();
+                x.Resolve<ObstacleHandler>();
             });
         }
     }

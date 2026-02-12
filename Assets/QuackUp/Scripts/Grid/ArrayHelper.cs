@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using QuackUp.Utils;
 using UnityEngine;
 
@@ -19,6 +21,64 @@ namespace FitMe.Grid
             }
             DebugUtils.Log(schemaString);
         }
+        
+        public static Vector2Int GetArraySize<T>(this T[,] array)
+        {
+            return new Vector2Int(array.GetLength(1), array.GetLength(0));
+        }
+        
+        public static List<(T, Vector2Int)> FlattenWithArrayIndex<T>(this T[,] array)
+        {
+            var result = new List<(T, Vector2Int)>();
+            for (var row = 0; row < array.GetLength(0); row++)
+            for (var column = 0; column < array.GetLength(1); column++)
+            {
+                var item = array[row, column];
+                result.Add((item, new Vector2Int(row, column)));
+            }
+            return result;
+        }
+        
+        public static bool IsTheSameShape(List<Vector2Int> shapeA, List<Vector2Int> shapeB)
+        {
+            var aCount = shapeA.Count;
+            var bCount = shapeB.Count;
+            if (aCount != bCount)
+            {
+                DebugUtils.Log($"Shape counts differ: A: {aCount}, B: {bCount}");
+                return false;
+            }
+            if (aCount == 1 && bCount == 1)
+            {
+                return true;
+            }
+            var sortedA = shapeA.OrderBy(x => x.x).ThenBy(x => x.y).ToList();
+            var sortedB = shapeB.OrderBy(x => x.x).ThenBy(x => x.y).ToList();
+            var firstA = sortedA[0];
+            var firstB = sortedB[0];
+            for (var i = 1; i < sortedA.Count; i++)
+            {
+                var offsetA = sortedA[i] - firstA;
+                var offsetB = sortedB[i] - firstB;
+                if (offsetA != offsetB)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        public static Vector2Int RotateIndexBySchema(Vector2Int index, int schemaIndex, Vector2Int arraySize)
+        {
+            return schemaIndex switch
+            {
+                0 => index,
+                1 => RotateIndex270(index, arraySize),
+                2 => RotateIndex180(index, arraySize),
+                3 => RotateIndex90(index, arraySize),
+                _ => throw new ArgumentOutOfRangeException(nameof(schemaIndex), "Schema index must be between 0 and 3.")
+            };
+        }
     
         public static int[,] Rotate90(int[,] array)
         {
@@ -36,6 +96,14 @@ namespace FitMe.Grid
             }
 
             return rotatedArray;
+        }
+        
+        public static Vector2Int RotateIndex90(Vector2Int index, Vector2Int arraySize)
+        {
+            // Rotating (x, y) 90 degrees clockwise in an array of size (rows, cols)
+            int newX = index.y;
+            int newY = arraySize.x - 1 - index.x;
+            return new Vector2Int(newX, newY);
         }
 
         public static int[,] Rotate180(int[,] array)
@@ -56,6 +124,14 @@ namespace FitMe.Grid
 
             return rotatedArray;
         }
+        
+        public static Vector2Int RotateIndex180(Vector2Int index, Vector2Int arraySize)
+        {
+            // Rotating (x, y) 180 degrees in an array of size (rows, cols)
+            int newX = arraySize.x - 1 - index.x;
+            int newY = arraySize.y - 1 - index.y;
+            return new Vector2Int(newX, newY);
+        }
     
         public static int[,] Rotate270(int[,] array)
         {
@@ -73,6 +149,14 @@ namespace FitMe.Grid
             }
 
             return rotatedArray;
+        }
+        
+        public static Vector2Int RotateIndex270(Vector2Int index, Vector2Int arraySize)
+        {
+            // Rotating (x, y) 270 degrees clockwise (or 90 degrees counterclockwise) in an array of size (rows, cols)
+            int newX = arraySize.y - 1 - index.y;
+            int newY = index.x;
+            return new Vector2Int(newX, newY);
         }
 
         public static bool CanBFitInA(int[,] a, int[,] b, out int[,] placedArray, bool simulatePlacement = false)
@@ -158,9 +242,9 @@ namespace FitMe.Grid
             return count;
         }
 
-        public static void ResizeArrayKeepMembers(ref int[,] array, Vector2Int newSize)
+        public static void ResizeArrayKeepMembers<T>(ref T[,] array, Vector2Int newSize, T defaultValue = default)
         {
-            var newArray = new int[newSize.y, newSize.x];
+            var newArray = new T[newSize.y, newSize.x];
             var oldRow = array.GetLength(0);
             var oldColumn = array.GetLength(1);
             var newRow = newArray.GetLength(0);
@@ -175,7 +259,7 @@ namespace FitMe.Grid
                     }
                     if (x >= oldRow || y >= oldColumn)
                     {
-                        newArray[x, y] = 0;
+                        newArray[x, y] = defaultValue;
                         continue;
                     }
                     if (x < newRow && y < newSize.x)
@@ -184,7 +268,7 @@ namespace FitMe.Grid
                     }
                     else
                     {
-                        newArray[x, y] = 0;
+                        newArray[x, y] = defaultValue;
                     }
                 }
             }

@@ -1,19 +1,22 @@
 ﻿using System;
+using FitMe.Shared;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
+using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FitMe.Grid
 {
+
     [Serializable]
-    public struct InfectionSettings
+    public record ObstacleData
     {
-        [field: SerializeField] public Vector2Int InfectionCountRange { get; private set; }
-        [field: SerializeField] public Vector2 InfectionTimeRange { get; private set; }
-        [field: SerializeField] public Vector2 FirstInfectTimeRange { get; private set; }
-        [field: SerializeField] public float PreInfectTime { get; private set; }
-        [ShowInInspector, ReadOnly] public bool CanInfect => InfectionCountRange.x >= 1;
+        public bool hasCell;
+        public bool hasObstacle;
+        public BlockShape shape;
+        public int id;
     }
     
     [CreateAssetMenu(fileName = "Grid Preset", menuName = "FitMe/Grid/Grid Preset", order = 1)]
@@ -45,21 +48,45 @@ namespace FitMe.Grid
             customGrid = new int[GridSize.y, GridSize.x];
         }
         [TitleGroup("Grid Settings")]
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         [field: TableMatrix(SquareCells = true, HorizontalTitle = "Custom Grid",
             DrawElementMethod = nameof(DrawCustomGridMatrix), Transpose = true)]
-        #endif
+#endif
         [field: SerializeField, ShowIf("@PresetGridType.HasFlag(GridType.Custom)")]
         public int[,] customGrid = { };
-        #endregion
         
-        [field: TitleGroup("Infection Settings")]
-        [field: SerializeField] public bool AllowInfection { get; set; } = true;
-        [field: TitleGroup("Infection Settings")] 
-        [field: SerializeField, ShowIf(nameof(AllowInfection))]
-        public InfectionSettings InfectionSettings { get; set; }
+#if UNITY_EDITOR
+        [field: TableMatrix(SquareCells = true, HorizontalTitle = "Obstacle Data", 
+            DrawElementMethod = nameof(DrawObstacleDataMatrix), Transpose = true, IsReadOnly =  true)]
+#endif
+        [field: SerializeField]
+        public ObstacleData[,] ObstacleData = { };
+        
+        [Button("Refresh Obstacle Data"), DisableInPlayMode]
+        private void RefreshObstacleData()
+        {
+            ObstacleData = new ObstacleData[GridSize.y, GridSize.x];
+            for (var row = 0; row < GridSize.y; row++)
+            for (var col = 0; col < GridSize.x; col++)
+            {
+                var cell = customGrid[row, col];
+                var hasCell = PresetGridType switch
+                {
+                    GridType.Rectangle => true,
+                    GridType.Custom => cell == 1,
+                    _ => false
+                };
+                ObstacleData[row, col] = new ObstacleData
+                {
+                    hasCell = hasCell,
+                    shape = BlockShape.OneByOne,
+                    id = 0
+                };
+            }
+        }
+        #endregion
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         #region Table Matrix
         private static int DrawCustomGridMatrix(Rect rect, int value)
         {
@@ -73,7 +100,33 @@ namespace FitMe.Grid
             EditorGUI.DrawRect(rect.Padding(1), value == 1 ? Color.green : Color.grey);
             return value;
         }
+        
+        private static ObstacleData DrawObstacleDataMatrix(Rect rect, ObstacleData value)
+        {
+            if (!value.hasCell)
+            {
+                EditorGUI.DrawRect(rect.Padding(1), Color.grey);
+                return value;
+            }
+            EditorGUI.DrawRect(rect.Padding(1), value.hasObstacle ? Color.red : Color.green);
+            // split the rect into 3 rows
+            var row1 = rect.Padding(1).SetHeight(rect.height / 3f);
+            var row2 = row1.SetY(row1.yMax);
+            var row3 = row2.SetY(row2.yMax);
+            var obstacleColor = value.hasObstacle ? Color.white : Color.red;
+            value.hasObstacle = EditorGUI.ToggleLeft(row1, "Obstacle", value.hasObstacle, 
+                new GUIStyle(EditorStyles.label)
+                {
+                    normal = { textColor = obstacleColor },
+                    active = { textColor = obstacleColor }
+                });
+            if (!value.hasObstacle) return value;
+            value.shape = (BlockShape)SirenixEditorFields.EnumDropdown(row2, value.shape); 
+            value.id = SirenixEditorFields.IntField(row3, value.id);
+            return value;
+        }
+        
         #endregion
-        #endif
+#endif
     }
 }

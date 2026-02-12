@@ -20,7 +20,8 @@ namespace FitMe.Grid
         PreInfected,
         Infected,
         Protected,
-        Exploding
+        Exploding,
+        Obstacle
     }
 
     public enum BlockInteractionState
@@ -57,7 +58,7 @@ namespace FitMe.Grid
         public BlockShape BlockShape { get; private set; }
         public List<AtomInstance> Atoms { get; private set; } = new(); 
         public BlockPreset BlockPreset { get; private set; }
-        public BlockState BlockState { get; set; } = BlockState.Normal;
+        public ReactiveProperty<BlockState> BlockState { get; set; } = new(Grid.BlockState.Normal);
         public List<CellInstance> BlockCells { get; set; }
         public int SpawnIndex { get; set; }
         public int RotationalIndex { get; set; }
@@ -92,6 +93,7 @@ namespace FitMe.Grid
                         worldSpace = false,
                         parent = instance.GameObject.transform
                     });
+                    atom.Model.ArrayIndex.Value = new Vector2Int(x, y);
                     //atom.AtomView?.SetParent(BlockView);
                     atom.Model.ParentBlock.Value = instance;
                     var hasTop = HasElement(x - 1, y);

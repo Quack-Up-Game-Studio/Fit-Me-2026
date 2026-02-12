@@ -17,6 +17,7 @@ namespace FitMe.Grid
     {
         [Title("Block Settings")]
         [field: SerializeField] public bool UseAtomSprite { get; private set; }
+        [field: SerializeField] public Sprite ObstacleSprite { get; private set; }
         
         [Title("Animations")]
         [field: SerializeField, SpineAnimation] private List<string> idleAnimations = new();

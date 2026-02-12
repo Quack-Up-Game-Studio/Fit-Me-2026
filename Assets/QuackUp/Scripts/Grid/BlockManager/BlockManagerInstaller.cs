@@ -32,6 +32,7 @@ namespace FitMe.Grid
             
             //Block
             builder.RegisterInstance(blockViewPrefab);
+            builder.Register<BlockControllerFactory>(Lifetime.Scoped);
             builder.Register<BlockFactory>(Lifetime.Scoped);
             
             //BlockManager

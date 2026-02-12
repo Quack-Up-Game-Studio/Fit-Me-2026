@@ -52,6 +52,7 @@ namespace FitMe.Grid
     {
         public ReactiveProperty<BlockInteractionState> BlockInteractionState { get; private set; } = new(Grid.BlockInteractionState.PlacedOnSpawn);
         public ReadOnlyReactiveProperty<BlockColor> BlockColor => _model.BlockColor;
+        public ReadOnlyReactiveProperty<BlockState> BlockState => _model.BlockState;
         public ReactiveCommand<int> SetSortingLayerCommand { get; private set; } = new();
         public ReactiveCommand<int> SetSortingOrderCommand { get; private set; } = new();
         public ReactiveCommand<ExplodeCommandData> ExplodeCommand { get; private set; } = new();

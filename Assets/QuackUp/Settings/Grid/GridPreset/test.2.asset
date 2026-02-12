@@ -183,11 +183,668 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: ObstacleData
+      Entry: 7
+      Data: 1|FitMe.Grid.ObstacleData[,], FitMe.Grid
+    - Name: 
+      Entry: 12
+      Data: 36
+    - Name: ranks
+      Entry: 1
+      Data: 6|6
+    - Name: 
+      Entry: 7
+      Data: 2|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 3|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 4|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 5|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 6|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 7|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 8|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 9|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 10|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 11|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 12|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 13|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 14|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 15|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 16|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 17|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 18|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 19|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 20|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 21|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 22|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 23|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 24|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 25|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 26|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 27|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 28|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 29|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 30|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 31|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 32|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 33|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 34|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 35|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 36|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 37|FitMe.Grid.ObstacleData, FitMe.Grid
+    - Name: hasCell
+      Entry: 5
+      Data: true
+    - Name: hasObstacle
+      Entry: 5
+      Data: false
+    - Name: shape
+      Entry: 3
+      Data: 0
+    - Name: id
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
   <PresetGridType>k__BackingField: 1
   <GridSize>k__BackingField: {x: 6, y: 6}
-  <AllowInfection>k__BackingField: 1
-  <InfectionSettings>k__BackingField:
-    <InfectionCountRange>k__BackingField: {x: 0, y: 0}
-    <InfectionTimeRange>k__BackingField: {x: 0, y: 0}
-    <FirstInfectTimeRange>k__BackingField: {x: 0, y: 0}
-    <PreInfectTime>k__BackingField: 0
