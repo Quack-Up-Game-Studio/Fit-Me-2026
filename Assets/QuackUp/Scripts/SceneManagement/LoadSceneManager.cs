@@ -53,6 +53,7 @@ namespace QuackUp.SceneManagement
     {
         MainMenu,
         Loading,
+        LevelSelect,
         Gameplay
     }
 

@@ -568,8 +568,8 @@ MonoBehaviour:
     SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects:
-    - {fileID: 1836884254}
-    - {fileID: 11400000, guid: 8df2f96e2f337c3478f182523fc38029, type: 2}
+    - {fileID: 1593186022}
+    - {fileID: 1836884256}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -581,14 +581,40 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 1|FitMe.Scene.LevelSelectManagerInstaller, FitMe.Scene
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 2|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
+    - Name: parentLifetimeScope
+      Entry: 10
+      Data: 0
+    - Name: panelLifetimeScopes
+      Entry: 7
+      Data: 3|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
+        FitMe.Panel]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 4|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
       Data: 1
     - Name: 
       Entry: 7
-      Data: 1|FitMe.Scene.MapInstaller, FitMe.Scene
-    - Name: mapPageView
-      Entry: 10
-      Data: 0
-    - Name: levelDatabase
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: LevelSelect
+    - Name: $v
       Entry: 10
       Data: 1
     - Name: 
@@ -600,9 +626,21 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: startupPanelId
+      Entry: 1
+      Data: LevelSelect
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 2|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 5|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12
@@ -716,7 +754,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1836884253}
+  - component: {fileID: 1836884256}
   - component: {fileID: 1836884254}
+  - component: {fileID: 1836884255}
   m_Layer: 5
   m_Name: MapPage
   m_TagString: Untagged
@@ -756,10 +796,102 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed1e689e99d6ee24bb051ff3d0b87d0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FitMe.Scene::FitMe.Scene.MapPageView
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: transitionObjects
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[UnityEngine.Component,
+        UnityEngine.CoreModule]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: crossfadeRules
+      Entry: 7
+      Data: 2|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.CrossfadeRule,
+        FitMe.Panel]], mscorlib
+    - Name: comparer
+      Entry: 9
+      Data: 1
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  canvasGroup: {fileID: 1836884255}
   scrollRect: {fileID: 168900284}
   contentParent: {fileID: 230788651}
   chunkPrefab:
   - {fileID: 2200901554864627361, guid: 27c58661c63ade24698da121c83a3f10, type: 3}
+--- !u!225 &1836884255
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1836884252}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1836884256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1836884252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b74a12845c865ff47a29afc117cb17a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FitMe.Panel::FitMe.Panel.LevelSelectLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 0
+  autoInjectGameObjects: []
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  panelManagerInstaller:
+    rid: -2
+  panelView: {fileID: 1836884254}
+  levelDatabase: {fileID: 11400000, guid: 8df2f96e2f337c3478f182523fc38029, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1 &1868298853
 GameObject:
   m_ObjectHideFlags: 0

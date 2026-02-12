@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using FitMe.GameData;
+using FitMe.Grid;
 using QuackUp.SceneManagement;
-using QuackUp.Utils; 
 using R3;
 using UnityEngine.SceneManagement;
 
-namespace FitMe.Scene
+namespace FitMe.Panel
 {
-    public class MapPageViewModel
+    public class LevelSelectViewModel : PanelViewModel
     {
         public int PlayerMaxLevel { get; }
         private readonly int _levelsPerChunk = 10;
@@ -15,7 +16,12 @@ namespace FitMe.Scene
         private readonly LevelDatabase _levelDatabase;
         private readonly LoadSceneManager _loadSceneManager;
         
-        public MapPageViewModel(int playerMaxLevel, LevelDatabase levelDatabase, LoadSceneManager loadSceneManager)
+        public Subject<GridPreset> LevelSelected = new Subject<GridPreset>();
+        
+        public LevelSelectViewModel(int playerMaxLevel,
+            PanelManager panelManager,
+            LevelDatabase levelDatabase, 
+            LoadSceneManager loadSceneManager) : base(panelManager)
         {
             PlayerMaxLevel = playerMaxLevel;
             _levelDatabase = levelDatabase;
@@ -43,7 +49,7 @@ namespace FitMe.Scene
 
             if (preset != null)
             {
-                LevelManager.GridPreset = preset;
+                LevelSelected?.OnNext(preset);
                 await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
             }
         }

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
-namespace FitMe.Scene
+namespace FitMe.Panel
 {
     public class LevelButtonView : MonoBehaviour
     {

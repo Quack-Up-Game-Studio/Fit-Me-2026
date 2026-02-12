@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FitMe.Scene
+namespace FitMe.Panel
 {
     public class MapChunkView : MonoBehaviour
     {
         [SerializeField] private List<LevelButtonView> buttonViews; 
 
-        public void Setup(int startLevelID, MapPageViewModel pageVM)
+        public void Setup(int startLevelID, LevelSelectViewModel pageVM)
         {
             for (int i = 0; i < buttonViews.Count; i++)
             {

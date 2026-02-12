@@ -2,15 +2,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
-namespace FitMe.Scene
+namespace FitMe.Panel
 {
-    public class MapPageView : MonoBehaviour
+    public class LevelSelectView : PanelView
     {
         [SerializeField] private ScrollRect scrollRect; 
         [SerializeField] private Transform contentParent;
         [SerializeField] private MapChunkView[] chunkPrefab;
         
-        private MapPageViewModel _vm;
+        private LevelSelectViewModel _vm;
         
         private int _lowestLoadedChunk = -1;
         private int _highestLoadedChunk = -1;
@@ -18,7 +18,7 @@ namespace FitMe.Scene
         private bool _isLoading = false; 
 
         [Inject]
-        public void Construct(MapPageViewModel vm)
+        public void Construct(LevelSelectViewModel vm)
         {
             _vm = vm;
             var initialChunks = vm.GetChunksToLoad();

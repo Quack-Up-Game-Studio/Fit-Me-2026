@@ -1,6 +1,6 @@
 using R3;
 
-namespace FitMe.Scene
+namespace FitMe.Panel
 {
     public class LevelButtonViewModel
     {
@@ -10,9 +10,9 @@ namespace FitMe.Scene
         
         public ReactiveCommand OnClickCommand { get; } = new();
 
-        private readonly MapPageViewModel _parentMapVM;
+        private readonly LevelSelectViewModel _parentMapVM;
 
-        public LevelButtonViewModel(int levelId, int playerMaxLevel, MapPageViewModel parentVM)
+        public LevelButtonViewModel(int levelId, int playerMaxLevel, LevelSelectViewModel parentVM)
         {
             LevelID = levelId;
             _parentMapVM = parentVM;

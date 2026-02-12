@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using FitMe.Grid;
 using UnityEngine;
 
-namespace FitMe.Scene
+namespace FitMe.GameData
 {
     [CreateAssetMenu(fileName = "LevelDatabase", menuName = "FitMe/Level Database")]
     public class LevelDatabase : ScriptableObject
