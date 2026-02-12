@@ -18,7 +18,7 @@ namespace FitMe.Panel
             builder.RegisterComponent(panelView).AsSelf().As<IPanelView>();
             
             builder.RegisterInstance(levelDatabase);
-            int currentPlayerLevel = 10; ;
+            int currentPlayerLevel = levelDatabase.LevelPresets.Count;
             
             builder.Register<LevelSelectViewModel>(Lifetime.Singleton)
                 .AsSelf().As<IPanelViewModel>()
