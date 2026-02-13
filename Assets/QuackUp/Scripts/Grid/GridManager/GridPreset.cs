@@ -65,17 +65,27 @@ namespace FitMe.Grid
         [Button("Refresh Obstacle Data"), DisableInPlayMode]
         private void RefreshObstacleData()
         {
-            ObstacleData = new ObstacleData[GridSize.y, GridSize.x];
+            //ObstacleData = new ObstacleData[GridSize.y, GridSize.x];
+            ArrayHelper.ResizeArrayKeepMembers(ref ObstacleData, GridSize);
             for (var row = 0; row < GridSize.y; row++)
             for (var col = 0; col < GridSize.x; col++)
             {
-                var cell = customGrid[row, col];
-                var hasCell = PresetGridType switch
+               
+                bool hasCell;
+                switch (PresetGridType)
                 {
-                    GridType.Rectangle => true,
-                    GridType.Custom => cell == 1,
-                    _ => false
-                };
+                    case GridType.Rectangle:
+                        hasCell = true;
+                        break;
+                    case GridType.Custom:
+                        var cell = customGrid[row, col];
+                        hasCell = cell == 1;
+                        break;
+                    default:
+                        hasCell = false;
+                        break;
+                }
+
                 ObstacleData[row, col] = new ObstacleData
                 {
                     hasCell = hasCell,

@@ -85,6 +85,10 @@ namespace FitMe.Scene
             _gridManager.OnScoreAdded
                 .Subscribe(OnScoreAdded)
                 .AddTo(ref disposableBuilder);
+            _gridManager.OnFitCheck
+                .Where(x => x.FitType is FitType.FitMe)
+                .Subscribe(_ => OnFit())
+                .AddTo(ref disposableBuilder);
             _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage is LoadSceneStage.StartOut)
                 .Subscribe(_ => OnSceneStartOut())
@@ -148,6 +152,15 @@ namespace FitMe.Scene
             }
             ChangeScore(finalScore);
             _popUpScoreFactory.Create(finalScore, scoreEvent.WorldPosition, "Score");
+        }
+
+        private void OnFit()
+        {
+            _panelManager.Crossfade(_config.GameplayPanelId, _config.ResultPanelId, 
+                new CrossfadeSettings
+                {
+                    crossFadeType = CrossfadeType.InOnly
+                });
         }
         
         private void OnSceneStartOut()
