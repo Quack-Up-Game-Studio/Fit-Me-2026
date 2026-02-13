@@ -119,7 +119,7 @@ namespace FitMe.Grid
             CreatePool();
             _spawnPoints.ForEach(FreeSpawnPoint);
             if (!withBlockPresetEventData.BlockPreset)
-                SpawnRandomBlock();
+                SpawnRandomBlock(true);
             else
                 SpawnBlock(withBlockPresetEventData);
         }
@@ -129,7 +129,7 @@ namespace FitMe.Grid
             if (_gridManager.CurrentSceneType != SceneType.Gameplay) return;
             FreeSpawnPoint(eventData.Block.Model.SpawnIndex);
             //ResetSpawnPoint();
-            SpawnRandomBlock();
+            SpawnRandomBlock(_config.CanRefill);
             if (eventData.FitType is FitType.None or FitType.Combo) 
                 GameOverCheck().Forget();
         }
@@ -207,17 +207,17 @@ namespace FitMe.Grid
         {
             _spawnBag.Clear();
             ResetBlockInSlot();
-            SpawnRandomBlock();
+            SpawnRandomBlock(true);
             Debug.Log("Yuirin: Bag Reset!");
         }
         
         /// <summary>
         /// Spawns random blocks at spawn points.
         /// </summary>
-        public void SpawnRandomBlock()
+        public void SpawnRandomBlock(bool refill)
         {
             var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();
-            if (_spawnBag.Count <= _config.MaxRandomAmount) 
+            if (_spawnBag.Count <= _config.MaxRandomAmount && refill)
             {
                 RefillBag();
             }
@@ -304,6 +304,7 @@ namespace FitMe.Grid
 
         private void PreviewNextQueue()
         {
+            if (_spawnBag.Count == 0) return;
             _currentPreviewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
 
             var nextBlock = _spawnBag.Peek(); 
