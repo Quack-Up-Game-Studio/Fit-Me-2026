@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c76a6f3bfc06ff55ab0cba9d894e0c9c, type: 3}
-  m_Name: test.4
+  m_Name: Shape_2
   m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.GridPreset
   serializationData:
     SerializedFormat: 2
@@ -38,15 +38,6 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
       Data: 1
     - Name: 
       Entry: 3
@@ -60,81 +51,6 @@ MonoBehaviour:
     - Name: 
       Entry: 3
       Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 0
     - Name: 
       Entry: 3
       Data: 1
@@ -171,6 +87,90 @@ MonoBehaviour:
     - Name: 
       Entry: 3
       Data: 0
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
     - Name: 
       Entry: 3
       Data: 1
@@ -233,7 +233,7 @@ MonoBehaviour:
       Data: 4|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -251,7 +251,7 @@ MonoBehaviour:
       Data: 5|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -269,7 +269,7 @@ MonoBehaviour:
       Data: 6|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -449,7 +449,7 @@ MonoBehaviour:
       Data: 16|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -485,7 +485,7 @@ MonoBehaviour:
       Data: 18|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -503,7 +503,7 @@ MonoBehaviour:
       Data: 19|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -521,7 +521,7 @@ MonoBehaviour:
       Data: 20|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -557,7 +557,7 @@ MonoBehaviour:
       Data: 22|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -575,7 +575,7 @@ MonoBehaviour:
       Data: 23|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -611,7 +611,7 @@ MonoBehaviour:
       Data: 25|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -629,7 +629,7 @@ MonoBehaviour:
       Data: 26|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -647,7 +647,7 @@ MonoBehaviour:
       Data: 27|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -683,7 +683,7 @@ MonoBehaviour:
       Data: 29|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -701,7 +701,7 @@ MonoBehaviour:
       Data: 30|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -737,7 +737,7 @@ MonoBehaviour:
       Data: 32|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -755,7 +755,7 @@ MonoBehaviour:
       Data: 33|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -773,7 +773,7 @@ MonoBehaviour:
       Data: 34|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -809,7 +809,7 @@ MonoBehaviour:
       Data: 36|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -989,7 +989,7 @@ MonoBehaviour:
       Data: 46|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -1007,7 +1007,7 @@ MonoBehaviour:
       Data: 47|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
@@ -1025,7 +1025,7 @@ MonoBehaviour:
       Data: 48|FitMe.Grid.ObstacleData, FitMe.Grid
     - Name: hasCell
       Entry: 5
-      Data: false
+      Data: true
     - Name: hasObstacle
       Entry: 5
       Data: false
