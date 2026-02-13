@@ -2,7 +2,9 @@
 using FitMe.Shared;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
+#if UNITY_EDITOR
 using Sirenix.Utilities.Editor;
+#endif
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;

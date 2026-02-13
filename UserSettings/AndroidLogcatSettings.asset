@@ -3,7 +3,7 @@
     "m_SelectedProcess": {
         "deviceId": "a9130acf",
         "name": "com.QuackUp.FitMe",
-        "processId": 32695,
+        "processId": 30706,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -30,6 +30,12 @@
             "deviceId": "a9130acf",
             "name": "com.QuackUp.FitMe",
             "processId": 32695,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.QuackUp.FitMe",
+            "processId": 30706,
             "exited": false
         }
     ],
