@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using FitMe.Shared;
 using FMODUnity;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
@@ -56,7 +58,8 @@ namespace FitMe.Grid
     public class BlockPreset : SerializedScriptableObject
     {
         [field: TitleGroup("Block Preset Settings")]
-        [field: SerializeField] public Sprite BlockSprite { get; private set; }
+        //[field: SerializeField] public BlockShape BlockShape { get; private set; }
+        //[field: SerializeField] public Sprite BlockSprite { get; private set; }
         [field: TitleGroup("Block Preset Settings")]
         [field: SerializeField] [field: MinValue(1)] 
         public Vector2Int BlockSize { get; private set; } = new(3, 3);
@@ -77,6 +80,12 @@ namespace FitMe.Grid
         [field: TitleGroup("Block Debug")]
         [field: OdinSerialize, HideReferenceObjectPicker]
         public List<BlockSchema> BlockSchemas { get; private set; } = new();
+
+        public IReadOnlyList<BlockSchema> DistinctBlockSchemas => BlockSchemas
+            .GroupBy(x => x.schema, comparer: ArrayMemberComparer<int>.Default)
+            .Select(x => x.First())
+            .ToList();
+        
         [TitleGroup("Block Debug")]
         [Button("Test Schema")]
         public void GenerateSchema()
