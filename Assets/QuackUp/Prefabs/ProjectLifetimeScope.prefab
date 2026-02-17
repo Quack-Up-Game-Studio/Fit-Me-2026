@@ -1111,6 +1111,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 56618cd220cfb6841a8892baa7acd477, type: 2}
     - {fileID: 11400000, guid: 5cbae03cbf7cc1145b8c227100061b6c, type: 2}
     - {fileID: 3989526417426172819}
+    - {fileID: 11400000, guid: d0abbb28b780bdd968d943ed878c4027, type: 2}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -1122,7 +1123,7 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 6
+      Data: 7
     - Name: 
       Entry: 7
       Data: 1|QuackUp.SceneManagement.LoadSceneManagerInstaller, QuackUp.SceneManagement
@@ -1177,6 +1178,15 @@ MonoBehaviour:
     - Name: 
       Entry: 7
       Data: 6|QuackUp.Utils.AdsServiceInstaller, QuackUp.Utils
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 7|FitMe.GameData.EnergyManagerInstaller, FitMe.GameData
+    - Name: config
+      Entry: 10
+      Data: 7
     - Name: 
       Entry: 8
       Data: 

@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.GameData.EnergyManagerInstaller, FitMe.GameData
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Energy Manager"
++ [Sirenix.OdinInspector.HideLabelAttribute]

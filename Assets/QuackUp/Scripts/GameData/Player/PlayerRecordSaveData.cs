@@ -18,6 +18,9 @@ namespace FitMe.GameData
         [Key("Version")]
         [field: SerializeField] public string Version { get; set; }
         
+        [Key("IsFirstTimePlayer")]
+        [field: SerializeField] public bool IsFirstTimePlayer { get; set; } = true;
+        
         [Serializable]
         [MessagePackObject(AllowPrivate = true)]
         public partial record RunData

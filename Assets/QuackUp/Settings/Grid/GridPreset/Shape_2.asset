@@ -201,4 +201,4 @@ MonoBehaviour:
   <PresetGridType>k__BackingField: 2
   <GridSize>k__BackingField: {x: 7, y: 7}
   <ObstacleMode>k__BackingField: 0
-  <ObstacleCount>k__BackingField: 2
+  <ObstacleCount>k__BackingField: 5

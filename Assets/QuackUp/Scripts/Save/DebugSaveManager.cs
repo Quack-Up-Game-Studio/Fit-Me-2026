@@ -41,7 +41,7 @@ namespace QuackUp.Save
         
 #if UNITY_EDITOR
         [MenuItem("Tools/Save Manager")]
-        public static void OpenFishRegistryWindow()
+        public static void OpenDebugSaveManager()
         {
             Sirenix.OdinInspector.Editor.OdinEditorWindow.InspectObject(Instance);
         }
