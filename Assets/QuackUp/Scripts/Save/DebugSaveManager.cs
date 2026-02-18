@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace QuackUp.Save
 {
-    [CreateAssetMenu(fileName = "DebugSaveManager", menuName = "QuackUp/Core/DebugSaveManager", order = 0)]
+    [CreateAssetMenu(fileName = "DebugSaveManager", menuName = "QuackUp/Save/DebugSaveManager", order = 0)]
     [ShowOdinSerializedPropertiesInInspector]
     public class DebugSaveManager : SerializedScriptableObject
     {

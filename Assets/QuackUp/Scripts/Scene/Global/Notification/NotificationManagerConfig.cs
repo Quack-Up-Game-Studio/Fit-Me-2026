@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace FitMe.Scene
 {
-    [CreateAssetMenu(fileName = "NotificationManagerConfig", menuName = "FitMe/Scene/NotificationManagerConfig")]
+    [CreateAssetMenu(fileName = "NotificationManagerConfig", menuName = "FitMe/Scene/Global/NotificationManagerConfig")]
     [ShowOdinSerializedPropertiesInInspector]
     public class NotificationManagerConfig : SerializedScriptableObject
     {

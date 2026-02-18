@@ -27,7 +27,7 @@ namespace FitMe.Grid
         Custom
     }
     
-    [CreateAssetMenu(fileName = "Grid Preset", menuName = "FitMe/Grid/Grid Preset", order = 1)]
+    [CreateAssetMenu(fileName = "Grid Preset", menuName = "FitMe/Grid/Grid/Grid Preset", order = 1)]
     [ShowOdinSerializedPropertiesInInspector]
     public class GridPreset : SerializedScriptableObject
     {

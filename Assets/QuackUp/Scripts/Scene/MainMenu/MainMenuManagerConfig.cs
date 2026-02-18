@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace FitMe.Scene.MainMenu
 {
-    [CreateAssetMenu(fileName = "MainMenuManagerConfig", menuName = "FitMe/MainMenu/MainMenuManagerConfig")]
+    [CreateAssetMenu(fileName = "MainMenuManagerConfig", menuName = "FitMe/Scene/MainMenu/MainMenuManagerConfig")]
     public class MainMenuManagerConfig : SerializedScriptableObject
     {
         [field: SerializeField] public EventReference MainMenuBgm { get; private set; }

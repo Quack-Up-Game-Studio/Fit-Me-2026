@@ -25,8 +25,8 @@ MonoBehaviour:
       Entry: 7
       Data: 0|FitMe.GameData.GameRecordSaveData, FitMe.GameData
     - Name: <Version>k__BackingField
-      Entry: 6
-      Data: 
+      Entry: 1
+      Data: 0.4.0-devbuild.1+android
     - Name: cumulativePreInfectBlockDestroyed
       Entry: 3
       Data: 0

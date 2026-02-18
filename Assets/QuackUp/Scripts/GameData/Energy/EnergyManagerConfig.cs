@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace FitMe.GameData
 {
-    [CreateAssetMenu(fileName = "EnergyManagerConfig", menuName = "FitMe/GameData/EnergyManagerConfig")]
+    [CreateAssetMenu(fileName = "EnergyManagerConfig", menuName = "FitMe/GameData/Energy/EnergyManagerConfig")]
     public class EnergyManagerConfig : SerializedScriptableObject
     {
         [field: SerializeField] public int MaxEnergy { get; private set; } = 5;

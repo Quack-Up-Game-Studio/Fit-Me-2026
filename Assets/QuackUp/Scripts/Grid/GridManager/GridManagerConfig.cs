@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 
 namespace FitMe.Grid
 {
-    [CreateAssetMenu(fileName = "GridManagerConfig", menuName = "FitMe/Grid/GridManagerConfig")]
+    [CreateAssetMenu(fileName = "GridManagerConfig", menuName = "FitMe/Grid/Grid/GridManagerConfig")]
     public class GridManagerConfig : SerializedScriptableObject
     {
         [field: SerializeField]

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d37062bc6b4b46418ff6de2bf5a98f3f, type: 3}
-  m_Name: EnergyManagerSaveData
+  m_Name: EnergyManagerSaveObject
   m_EditorClassIdentifier: FitMe.GameData::FitMe.GameData.EnergyManagerSaveObject
   serializationData:
     SerializedFormat: 2
@@ -22,11 +22,20 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes:
     - Name: saveData
-      Entry: 6
+      Entry: 7
+      Data: 0|FitMe.GameData.EnergyManagerSaveData, FitMe.GameData
+    - Name: <Version>k__BackingField
+      Entry: 1
+      Data: 0.4.0-devbuild.1+android
+    - Name: <CurrentEnergy>k__BackingField
+      Entry: 3
+      Data: 5
+    - Name: 
+      Entry: 8
       Data: 
     - Name: migrationResolvers
       Entry: 7
-      Data: 0|System.Collections.Generic.List`1[[QuackUp.Save.ISaveMigrationResolver`1[[FitMe.GameData.EnergyManagerSaveData,
+      Data: 1|System.Collections.Generic.List`1[[QuackUp.Save.ISaveMigrationResolver`1[[FitMe.GameData.EnergyManagerSaveData,
         FitMe.GameData]], QuackUp.Save]], mscorlib
     - Name: 
       Entry: 12

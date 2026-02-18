@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace FitMe.GameData
 {
-    [CreateAssetMenu(fileName = "LevelDatabase", menuName = "FitMe/Level Database")]
+    [CreateAssetMenu(fileName = "LevelDatabase", menuName = "FitMe/GameData/Level/Level Database")]
     public class LevelDatabase : ScriptableObject
     {
         public List<GridPreset> LevelPresets; 

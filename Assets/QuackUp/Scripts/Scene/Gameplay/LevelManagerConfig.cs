@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace FitMe.Scene
 {
-    [CreateAssetMenu(fileName = "LevelManagerConfig", menuName = "FitMe/Level/LevelManagerConfig")]
+    [CreateAssetMenu(fileName = "LevelManagerConfig", menuName = "FitMe/Scene/Gameplay/LevelManagerConfig")]
     [ShowOdinSerializedPropertiesInInspector]
     public class LevelManagerConfig : SerializedScriptableObject
     {

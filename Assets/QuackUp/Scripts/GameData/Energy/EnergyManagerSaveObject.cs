@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace FitMe.GameData
 {
-    [CreateAssetMenu(fileName = "EnergyManagerSaveData", menuName = "FitMe/GameData/EnergyManagerSaveData")]
+    [CreateAssetMenu(fileName = "EnergyManagerSaveObject", menuName = "FitMe/GameData/Energy/EnergyManagerSaveObject")]
     [ShowOdinSerializedPropertiesInInspector]
     public class EnergyManagerSaveObject : MessagePackSaveObject<EnergyManagerSaveData>
     {
