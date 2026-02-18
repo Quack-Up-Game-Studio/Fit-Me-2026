@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FitMe.Achievement;
 using FitMe.Entity;
 using FitMe.GameData;
@@ -17,6 +18,11 @@ using VContainer.Unity;
 
 namespace FitMe.Scene
 {
+    public enum AllGameMode
+    {
+        Original = 0,
+        LevelShape = 1
+    }
     
     public class LevelManager : ILevelManager, IStartable, IDisposable
     {
@@ -27,9 +33,12 @@ namespace FitMe.Scene
         /// For pausing, use <see cref="Pause"/> to pause the game or use <see cref="Unpause"/> to restore the previous state before pausing.
         /// </remarks>
         public ReadOnlyReactiveProperty<GameState> GameState => _gameState.ToReadOnlyReactiveProperty();
-
+        
+        public static AllGameMode GameMode { get; set; }
         public static GridPreset GridPreset { get; set; }
 
+        private static List<GridPreset> _presets;
+        
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
         private readonly LevelManagerConfig _config;
         private readonly EntityManager _entityManager;
@@ -105,6 +114,8 @@ namespace FitMe.Scene
         
         public void Start()
         {
+            OnGameMode();
+            
             if (!GridPreset) 
                 _messageHub.Publish(new StartCreateGridEvent());
             else
@@ -153,6 +164,48 @@ namespace FitMe.Scene
             ChangeScore(finalScore);
             _popUpScoreFactory.Create(finalScore, scoreEvent.WorldPosition, "Score");
         }
+        
+        #region GameMode
+        public void OnGameMode()
+        {
+            switch (GameMode)
+            {
+                case AllGameMode.Original:
+                    OriginalMode();
+                    break;
+                case AllGameMode.LevelShape:
+                    LevelShapeMode();
+                    break;
+            }
+        }
+        
+        private void OriginalMode()
+        {
+            GridPreset = _config.OriginalLevel;
+        }
+        
+        private void LevelShapeMode()
+        {
+            if (_presets == null || _presets.Count == 0)
+            {
+                LevelPool();
+            }
+            var randomIndex = UnityEngine.Random.Range(0, _presets.Count);
+            GridPreset = _presets[randomIndex];
+            _presets.RemoveAt(randomIndex);
+        }
+
+        private void LevelPool()
+        {
+            _presets = new List<GridPreset>(_config.LevelShapeLevel);
+        }
+        
+        public void ResetLevelPool()
+        {
+            _presets = null;
+            GridPreset = null;
+        }
+        #endregion
 
         private void OnFit()
         {
@@ -161,6 +214,7 @@ namespace FitMe.Scene
                 {
                     crossFadeType = CrossfadeType.InOnly
                 });
+            _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
         }
         
         private void OnSceneStartOut()

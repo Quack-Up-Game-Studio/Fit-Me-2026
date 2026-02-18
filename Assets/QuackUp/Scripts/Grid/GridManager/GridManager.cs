@@ -526,10 +526,10 @@ namespace FitMe.Grid
             List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
                 _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState.CurrentValue, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
             
-            //await ClearGrid();
+            await ClearGrid();
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
             OnScoreAdded.OnNext(new(ScoreTypes.FitMe, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
-            //RegenerateGrid();
+            RegenerateGrid();
         }
 
         private async UniTask Combo(List<BlockInstance> contacts)

@@ -20,6 +20,7 @@ MonoBehaviour:
     - {fileID: 102900000, guid: d60b3911ea8620a198f693c9e8675d7d, type: 3}
     - {fileID: 102900000, guid: f72f140b597b8c344a54f9dd7326b9e3, type: 3}
     - {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
+    - {fileID: 102900000, guid: c200760d613a86e458e05e3202ee98f2, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -45,7 +46,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 4
+      Data: 5
     - Name: 
       Entry: 7
       Data: 
@@ -114,7 +115,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 3
+      Data: 4
     - Name: $v
       Entry: 7
       Data: 5|Redcode.Extensions.SceneReference, Extensions
@@ -124,6 +125,27 @@ MonoBehaviour:
     - Name: _path
       Entry: 1
       Data: Assets/QuackUp/Scenes/Gameplay.unity
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 7
+      Data: 6|Redcode.Extensions.SceneReference, Extensions
+    - Name: _sceneObject
+      Entry: 10
+      Data: 4
+    - Name: _path
+      Entry: 1
+      Data: Assets/QuackUp/Scenes/ModeSelect.unity
     - Name: 
       Entry: 8
       Data: 
