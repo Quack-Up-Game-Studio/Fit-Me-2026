@@ -123,7 +123,7 @@ namespace FitMe.Panel
 
         private void ReturnToGameplay()
         {
-            _clearGridEventPublisher.Publish(new ClearGridEvent());
+            _clearGridEventPublisher.Publish(new ClearGridEvent(false));
             OnReturnToGameplay.OnNext(Unit.Default);
             _countdownTimer.Dispose();
         }

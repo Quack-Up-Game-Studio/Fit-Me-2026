@@ -59,8 +59,7 @@ namespace FitMe.Grid
     public enum ScoreTypes
     {
         FitMe,
-        Combo,
-        Bomb,
+        Chain,
         Placement,
     }
 
@@ -90,13 +89,13 @@ namespace FitMe.Grid
     public struct ScoreEvent
     {
         public readonly ScoreTypes ScoreType;
-        public readonly int ContactCount;
+        public readonly List<BlockInstance> Contacts;
         public readonly Vector3 WorldPosition;
         
-        public ScoreEvent(ScoreTypes scoreType, int contactCount = 0, Vector3 worldPosition = default)
+        public ScoreEvent(ScoreTypes scoreType, List<BlockInstance> contactCount = null, Vector3 worldPosition = default)
         {
             ScoreType = scoreType;
-            ContactCount = contactCount;
+            Contacts = contactCount ?? new List<BlockInstance>();
             WorldPosition = worldPosition;
         }
     }
@@ -127,7 +126,7 @@ namespace FitMe.Grid
         {
             OnScoreAdded.OnNext(new
             (ScoreTypes.FitMe, 
-                0, 
+                null, 
                 _grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
         }
         #endregion
@@ -143,6 +142,7 @@ namespace FitMe.Grid
         private IDisposable _subscriptions;
         
         private List<CellInstance> _previousValidationCells = new();
+        private List<List<BlockInstance>> _allContacts = new();
         private readonly ObservableList<GridBlockData> _blockOnGrid = new();
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
         public Subject<Unit> OnCellsCreated = new();
@@ -190,7 +190,7 @@ namespace FitMe.Grid
                 .Subscribe<SpawnWithGridPresetEvent>(x => OnSpawnGridWithGridPreset(x.GridPreset))
                 .AddTo(ref disposableBuilder);
             _messageHub
-                .Subscribe<ClearGridEvent>(_ => ClearGrid().Forget())
+                .Subscribe<ClearGridEvent>(x => ClearGrid(x.ShouldClearGrid).Forget())
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -490,7 +490,7 @@ namespace FitMe.Grid
             ReorderRenderingOrder();
             if (updateGrid)
             {
-                OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockViewTransform.position));
+                //OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockViewTransform.position));
                 var fit = UpdateBlockOnGrid(blockInstance);
                 OnFitCheck?.OnNext(new FitTypeEvent(fit, blockInstance));
             }
@@ -501,35 +501,39 @@ namespace FitMe.Grid
         /// <summary>
         /// Update the block on the grid, check for contacts and validate placement
         /// </summary>
-        /// <param name="blockModel"></param>
+        /// <param name="blockInstance"></param>
         /// <returns>FitType indicating the result of the update</returns>
-        public FitType UpdateBlockOnGrid(BlockInstance blockModel)
+        public FitType UpdateBlockOnGrid(BlockInstance blockInstance)
         {
-            if (!CreateVacantSchema(out var vacantSchema, out _)) //Fit Me!
-            {
-                _vacantSchema = vacantSchema;
-                FitMe().Forget();
-                return FitType.FitMe;
-            }
             var contacts = new List<BlockInstance>();
-            if (!CheckForContact(blockModel, contacts))
+            var hasContact = CheckForContact(blockInstance, contacts);
+            AddContact(contacts, blockInstance);
+            if (!hasContact)
             {
-                return FitType.None;
+                OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockInstance.GameObject.transform.position));
             }
-            Combo(contacts).Forget();
-            return FitType.Combo;
+            else
+            {
+                Combo(contacts).Forget();
+            }
+            if (CreateVacantSchema(out var vacantSchema, out _)) 
+                return !hasContact ? FitType.None : FitType.Combo;
+            _vacantSchema = vacantSchema;
+            var longestChain = _allContacts.OrderByDescending(x => x.Count).FirstOrDefault();
+            FitMe(longestChain).Forget();
+            return FitType.FitMe;
         }
 
-        private async UniTask FitMe()
+        private async UniTask FitMe(List<BlockInstance> contacts)
         {
             if (CurrentSceneType is not SceneType.Gameplay) return;
             List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
                 _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState.CurrentValue, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
             
-            //await ClearGrid();
+            await ClearGrid(true);
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
-            OnScoreAdded.OnNext(new(ScoreTypes.FitMe, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
-            //RegenerateGrid();
+            OnScoreAdded.OnNext(new(ScoreTypes.FitMe, contacts, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
+            RegenerateGrid();
         }
 
         private async UniTask Combo(List<BlockInstance> contacts)
@@ -542,8 +546,7 @@ namespace FitMe.Grid
             var gridBlockData = _blockOnGrid.Where(x => contacts.Contains(x.BlockInstance)).ToList();
             //await UniTask.WhenAll(gridBlockData.Select(block => RemoveBlock(block, FitType.Combo, true)));
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.Combo, blocksToSave);
-            OnScoreAdded.OnNext(new(ScoreTypes.Combo, contacts.Count, middleOfBlocks));
-            OnScoreAdded.OnNext(new(ScoreTypes.Bomb, contacts.Count, middleOfBlocks));
+            OnScoreAdded.OnNext(new(ScoreTypes.Chain, contacts, middleOfBlocks));
             //BlockManager.Instance.GameOverCheck().Forget();
         }
 
@@ -565,8 +568,8 @@ namespace FitMe.Grid
         /// <param name="destroy">Destroy the block, false by default</param>
         public async UniTask RemoveBlock(GridBlockData gridBlockData, FitType fitType, bool destroy = false)
         {
-            if (gridBlockData.BlockInstance.Model.BlockState.CurrentValue is BlockState.Obstacle) return;
             _blockOnGrid.Remove(gridBlockData);
+            _allContacts.RemoveAll(x => x.Contains(gridBlockData.BlockInstance));
             //OnBlockDestroyed?.Invoke(gridBlockData.Block);
             var atoms = new List<AtomInstance>(gridBlockData.BlockInstance.Model.Atoms);
             if (CurrentSceneType is SceneType.Gameplay)
@@ -589,17 +592,27 @@ namespace FitMe.Grid
             gridBlockData.Subscription.Dispose();
         }
 
-        public async UniTask ClearGrid()
+        public async UniTask ClearGrid(bool destroyObstacle = true)
         {
             _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
-            await RemoveAllBlocks(true);
+            if (destroyObstacle)
+            {
+                await RemoveAllBlocks(true);
+            }
+            else
+            {
+                var excludeObstacle = _blockOnGrid
+                    .Where(x => x.BlockInstance.Model.BlockState.CurrentValue is not BlockState.Obstacle)
+                    .ToList();
+                await UniTask.WhenAll(excludeObstacle.Select(block => RemoveBlock(block, FitType.FitMe, true)));
+            }
         }
     
         /// <summary>
         /// Remove all blocks from the grid
         /// </summary>
         /// <param name="destroy">Destroy the blocks, false by default</param>
-        public async UniTask RemoveAllBlocks(bool destroy = false)
+        private async UniTask RemoveAllBlocks(bool destroy = false)
         {
             List<GridBlockData> blocksToRemove = new List<GridBlockData>(_blockOnGrid);
             await UniTask.WhenAll(blocksToRemove.Select(block => RemoveBlock(block, FitType.FitMe, destroy)));
@@ -641,11 +654,13 @@ namespace FitMe.Grid
             contactedBlocks.Add(blockInstance);
             foreach (var cell in blockInstance.Model.BlockCells)
             {
-                var upCell = GetCellByArrayIndex(cell.Model.ArrayIndex.Value[0] - 1, cell.Model.ArrayIndex.Value[1]);
-                var downCell = GetCellByArrayIndex(cell.Model.ArrayIndex.Value[0] + 1, cell.Model.ArrayIndex.Value[1]);
-                var leftCell = GetCellByArrayIndex(cell.Model.ArrayIndex.Value[0], cell.Model.ArrayIndex.Value[1] - 1);
-                var rightCell = GetCellByArrayIndex(cell.Model.ArrayIndex.Value[0], cell.Model.ArrayIndex.Value[1] + 1);
-                var adjacentCells = new List<CellInstance> {upCell, downCell, leftCell, rightCell};
+                var cellX = cell.Model.ArrayIndex.Value[0];
+                var cellY = cell.Model.ArrayIndex.Value[1];
+                var upCell = GetCellByArrayIndex(cellX - 1, cellY);
+                var downCell = GetCellByArrayIndex(cellX + 1, cellY);
+                var leftCell = GetCellByArrayIndex(cellX, cellY - 1);
+                var rightCell = GetCellByArrayIndex(cellX, cellY + 1);
+                var adjacentCells = new[] {upCell, downCell, leftCell, rightCell};
                 foreach (var adjacentCell in adjacentCells)
                 {
                     if (adjacentCell?.Model.CurrentAtom.Value == null) continue;
@@ -657,6 +672,13 @@ namespace FitMe.Grid
                 }
             }
             return contactedBlocks.Count >= _config.ComboThreshold;
+        }
+
+        private void AddContact(List<BlockInstance> contact, BlockInstance blockInstance)
+        {
+            //Remove contact with this block
+            _allContacts.RemoveAll(x => x.Contains(blockInstance));
+            _allContacts.Add(contact);
         }
 
         /// <summary>
