@@ -20,6 +20,12 @@ namespace FitMe.Grid
         public BlockShape shape;
         public int id;
     }
+
+    public enum ObstacleMode
+    {
+        Generated,
+        Custom
+    }
     
     [CreateAssetMenu(fileName = "Grid Preset", menuName = "FitMe/Grid/Grid Preset", order = 1)]
     [ShowOdinSerializedPropertiesInInspector]
@@ -57,18 +63,26 @@ namespace FitMe.Grid
         [field: SerializeField, ShowIf("@PresetGridType.HasFlag(GridType.Custom)")]
         public int[,] customGrid = { };
         
+        [TitleGroup("Obstacle Settings")]
+        [field: SerializeField] public ObstacleMode ObstacleMode {get; private set;} = ObstacleMode.Generated;
+        [field: SerializeField, 
+                HideIf(nameof(ObstacleMode), ObstacleMode.Custom)] 
+        public int ObstacleCount { get; private set; } = 2; //TODO: Will be deprecated soon, remove later when difficulty settings are implemented.
 #if UNITY_EDITOR
         [field: TableMatrix(SquareCells = true, HorizontalTitle = "Obstacle Data", 
             DrawElementMethod = nameof(DrawObstacleDataMatrix), Transpose = true, IsReadOnly =  true)]
 #endif
-        [field: SerializeField]
-        public ObstacleData[,] ObstacleData = { };
+        [field: SerializeField, 
+                ShowIf(nameof(ObstacleMode), ObstacleMode.Custom)]
+        public ObstacleData[,] CustomObstacleData = { };
         
-        [Button("Refresh Obstacle Data"), DisableInPlayMode]
+        [Button("Refresh Obstacle Data"), 
+         ShowIf(nameof(ObstacleMode), ObstacleMode.Custom), 
+         DisableInPlayMode]
         private void RefreshObstacleData()
         {
             //ObstacleData = new ObstacleData[GridSize.y, GridSize.x];
-            ArrayHelper.ResizeArrayKeepMembers(ref ObstacleData, GridSize);
+            ArrayHelper.ResizeArrayKeepMembers(ref CustomObstacleData, GridSize);
             for (var row = 0; row < GridSize.y; row++)
             for (var col = 0; col < GridSize.x; col++)
             {
@@ -88,7 +102,7 @@ namespace FitMe.Grid
                         break;
                 }
 
-                ObstacleData[row, col] = new ObstacleData
+                CustomObstacleData[row, col] = new ObstacleData
                 {
                     hasCell = hasCell,
                     shape = BlockShape.OneByOne,
@@ -99,6 +113,7 @@ namespace FitMe.Grid
         #endregion
 
 #if UNITY_EDITOR
+        
         #region Table Matrix
         private static int DrawCustomGridMatrix(Rect rect, int value)
         {

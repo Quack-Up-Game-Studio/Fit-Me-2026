@@ -27,7 +27,7 @@ namespace FitMe.Grid
             return new Vector2Int(array.GetLength(1), array.GetLength(0));
         }
         
-        public static List<(T, Vector2Int)> FlattenWithArrayIndex<T>(this T[,] array)
+        public static List<(T Item, Vector2Int ArrayIndex)> FlattenWithArrayIndex<T>(this T[,] array)
         {
             var result = new List<(T, Vector2Int)>();
             for (var row = 0; row < array.GetLength(0); row++)
@@ -158,6 +158,52 @@ namespace FitMe.Grid
             int newY = index.x;
             return new Vector2Int(newX, newY);
         }
+        
+        public static int[,] GenerateRectangleGrid(Vector2Int gridSize)
+        {
+            int[,] grid = new int[gridSize.y, gridSize.x];
+            for (int i = 0; i < gridSize.y; i++)
+            for (int j = 0; j < gridSize.x; j++)
+            {
+                grid[i, j] = 1; // Fill with 1s to represent occupied cells
+            }
+            return grid;
+        }
+
+        public static int[,] GenerateWindow(int[,] array, Vector2Int topLeft, Vector2Int windowSize)
+        {
+            int[,] window = new int[windowSize.y, windowSize.x];
+            for (int i = 0; i < windowSize.y; i++)
+            for (int j = 0; j < windowSize.x; j++)
+            {
+                int sourceX = topLeft.x + i;
+                int sourceY = topLeft.y + j;
+                if (sourceX < array.GetLength(0) && sourceY < array.GetLength(1))
+                {
+                    window[i, j] = array[sourceX, sourceY];
+                }
+                else
+                {
+                    window[i, j] = 0; // Fill with default value if out of bounds
+                }
+            }
+            return window;
+        }
+        
+        public static bool TryGetFirstDifference(int[,] a, int[,] b, out Vector2Int differenceIndex)
+        {
+            int rows = Math.Min(a.GetLength(0), b.GetLength(0));
+            int cols = Math.Min(a.GetLength(1), b.GetLength(1));
+            for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+            {
+                if (a[i, j] == b[i, j]) continue;
+                differenceIndex = new Vector2Int(i, j);
+                return true;
+            }
+            differenceIndex = default;
+            return false;
+        }
 
         public static bool CanBFitInA(int[,] a, int[,] b, out int[,] placedArray, bool simulatePlacement = false)
         {
@@ -173,13 +219,11 @@ namespace FitMe.Grid
 
             // Slide a window over A and compare
             for (int i = 0; i <= rowsA - rowsB; i++)
+            for (int j = 0; j <= colsA - colsB; j++)
             {
-                for (int j = 0; j <= colsA - colsB; j++)
-                {
-                    if (!CompareMemberBToA(a, b, i, j, out var tempPlacedArray, simulatePlacement)) continue;
-                    placedArray = simulatePlacement ? tempPlacedArray : a; // If not simulating, return original array
-                    return true;
-                }
+                if (!CompareMemberBToA(a, b, i, j, out var tempPlacedArray, simulatePlacement)) continue;
+                placedArray = simulatePlacement ? tempPlacedArray : a; // If not simulating, return original array
+                return true;
             }
             return false;
         }
@@ -210,17 +254,16 @@ namespace FitMe.Grid
             
             // Compare each element
             for (int i = 0; i < rowsB; i++)
+            for (int j = 0; j < colsB; j++)
             {
-                for (int j = 0; j < colsB; j++)
+                if (b[i, j] == 0) continue; // Skip empty cells in B
+                if (b[i, j] != 0 && a[i + ax, j + ay] != b[i, j])
                 {
-                    if (b[i, j] != 0 && a[i + ax, j + ay] != b[i, j])
-                    {
-                        return false;
-                    }
-                    if (!simulatePlacement) continue;
-                    // If simulating placement, mark the position in placedArray
-                    if (tempPlacedArray != null) tempPlacedArray[i + ax, j + ay] = 0;
+                    return false;
                 }
+                if (!simulatePlacement) continue;
+                // If simulating placement, mark the position in placedArray
+                if (tempPlacedArray != null) tempPlacedArray[i + ax, j + ay] = 0;
             }
             placedArray = simulatePlacement ? tempPlacedArray : a; // If not simulating, return original array
             return true;
@@ -273,6 +316,47 @@ namespace FitMe.Grid
                 }
             }
             array = newArray;
+        }
+    }
+    
+    public class ArrayMemberComparer<T> : IEqualityComparer<T[,]> where T : IEquatable<T>
+    {
+        private static ArrayMemberComparer<T> _instance;
+        public static ArrayMemberComparer<T> Default => _instance ??= new ArrayMemberComparer<T>();
+        private ArrayMemberComparer() { }
+        
+        public bool Equals(T[,] x, T[,] y)
+        {
+            if (x == null && y == null)
+                return true;
+            if (x == null || y == null)
+                return false;
+            if (x.GetLength(0) != y.GetLength(0) || x.GetLength(1) != y.GetLength(1))
+                return false;
+
+            for (int i = 0; i < x.GetLength(0); i++)
+            {
+                for (int j = 0; j < x.GetLength(1); j++)
+                {
+                    if (!x[i, j].Equals(y[i, j]))
+                        return false;
+                }
+            }
+            return true;
+        }
+        
+
+        public int GetHashCode(T[,] obj)
+        {
+            var hash = new HashCode();
+            for (int i = 0; i < obj.GetLength(0); i++)
+            {
+                for (int j = 0; j < obj.GetLength(1); j++)
+                {
+                    hash.Add(obj[i, j]);
+                }
+            }
+            return hash.ToHashCode();  
         }
     }
 }
