@@ -125,13 +125,13 @@ namespace FitMe.Grid
             switch (state)
             {
                 case BlockInteractionState.PlacedOnSpawn:
-                    ReturnToOriginal();
+                    ReturnToSpawn();
                     break;
                 case BlockInteractionState.PickUp:
                     PickUp();
                     break;
                 case BlockInteractionState.PlacedOnGrid:
-                    Place();
+                    Place(_gridConfig.CellSize);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
@@ -201,10 +201,10 @@ namespace FitMe.Grid
             skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.PickUpAnimation, true);
         }
         
-        private void Place()
+        private void Place(Vector3 scale)
         {
             _pickUpTween.Stop();
-            _pickUpTween = Tween.Scale(transform, _originalScale, 0.2f);
+            _pickUpTween = Tween.Scale(transform, scale, 0.2f);
             skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
             StartIdleTimer();
         }
@@ -258,7 +258,7 @@ namespace FitMe.Grid
         /// <summary>
         /// Return the block to its original position, rotation and scale
         /// </summary>
-        private void ReturnToOriginal()
+        private void ReturnToSpawn()
         {
             if (_transformTween.isAlive)
             {
@@ -268,8 +268,7 @@ namespace FitMe.Grid
             //OnSetSortingLayer(_originalSortingLayer);
             _transformTween = Tween.Position(transform, _originalPosition, 0.2f);
             Tween.Rotation(transform, _originalEulerAngles, 0.2f);
-            Tween.Scale(transform, _originalScale, 0.2f);
-            Place();
+            Place(_originalScale);
         }
 
         private async UniTask ScaleIn(ScaleInCommandData data)

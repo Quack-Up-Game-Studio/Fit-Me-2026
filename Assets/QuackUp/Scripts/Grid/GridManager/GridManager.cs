@@ -124,7 +124,7 @@ namespace FitMe.Grid
         [Button("Test Fit-me")]
         private void TestFitMe()
         {
-            OnScoreAdded.OnNext(new
+            _onScoreAdded.OnNext(new
             (ScoreTypes.FitMe, 
                 null, 
                 _grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
@@ -145,12 +145,16 @@ namespace FitMe.Grid
         private List<List<BlockInstance>> _allContacts = new();
         private readonly ObservableList<GridBlockData> _blockOnGrid = new();
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
-        public Subject<Unit> OnCellsCreated = new();
-        // public event Action<BlockModel> OnBlockStateChanged;
-        public Subject<BlockInstance> OnBlockPlaced = new();
-        // public event Action<BlockModel> OnBlockDestroyed;
-        public Subject<ScoreEvent> OnScoreAdded = new();
-        public Subject<FitTypeEvent> OnFitCheck = new();
+        public Observable<Unit> OnCellsCreated => _onCellsCreated;
+        private readonly Subject<Unit> _onCellsCreated = new();
+        public Observable<BlockInstance> OnBlockPlaced => _onBlockPlaced;
+        private readonly Subject<BlockInstance> _onBlockPlaced = new();
+        public Observable<ScoreEvent> OnScoreAdded => _onScoreAdded;
+        private readonly Subject<ScoreEvent> _onScoreAdded = new();
+        public Observable<FitTypeEvent> OnFitCheck => _onFitCheck;
+        private readonly Subject<FitTypeEvent> _onFitCheck = new();
+        public Observable<Unit> OnClearGrid => _onClearGrid;
+        private readonly Subject<Unit> _onClearGrid = new();
         private int _currentPresetIndex;
         public SceneType CurrentSceneType { get; private set; }
         #endregion
@@ -197,8 +201,8 @@ namespace FitMe.Grid
 
         public void Dispose()
         {
-            OnScoreAdded.Dispose();
-            OnFitCheck.Dispose();
+            _onScoreAdded.Dispose();
+            _onFitCheck.Dispose();
             _subscriptions.Dispose();
             _blockOnGrid.ForEach(x => x.Subscription?.Dispose());
         }
@@ -363,8 +367,8 @@ namespace FitMe.Grid
             }
             _cellArray = new CellInstance[0, 0];
             _vacantSchema = new int[0, 0];
-            SetUpGameplayGridPreset();
-            CreateCells();
+            // SetUpGameplayGridPreset();
+            // CreateCells();
         }
         
         private void UpdateGridOffset()
@@ -391,25 +395,23 @@ namespace FitMe.Grid
             var column = CurrentGridSize.x;
             var cellSize = _grid.cellSize.x;
             _cellArray = new CellInstance[row, column];
-            for (int x = 0; x < row; x++)
+            for (var x = 0; x < row; x++)
+            for (var y = 0; y < column; y++)
             {
-                for (int y = 0; y < column; y++)
-                {
-                    if (CurrentGridPreset.PresetGridType is GridType.Custom && CurrentGridPreset.customGrid[x, y] == 0) continue; 
-                    var halfSize = cellSize / 2;
-                    var spawnPosition =
-                        (Vector3)(new Vector2(halfSize, halfSize) +
-                                  new Vector2(y + CurrentOffset.x, CurrentOffset.y - x) * cellSize);
-                        //+ _grid.transform.position;
-                    var cell = _cellFactory.Create(spawnPosition, Quaternion.identity);
-                    cell.GameObject.transform.localScale = Vector3.one * cellSize;
-                    cell.GameObject.name = $"Cell {x}_{y}";
-                    cell.Model.ArrayIndex.Value = new Vector2Int(x, y);
-                    cell.Model.GridIndex.Value = GridUtils.ArrayToGridIndex(new Vector2Int(x, y), CurrentOffset);
-                    _cellArray[x, y] = cell;
-                }
+                if (CurrentGridPreset.PresetGridType is GridType.Custom && CurrentGridPreset.customGrid[x, y] == 0) continue; 
+                var halfSize = cellSize / 2;
+                var spawnPosition =
+                    (Vector3)(new Vector2(halfSize, halfSize) +
+                              new Vector2(y + CurrentOffset.x, CurrentOffset.y - x) * cellSize);
+                //+ _grid.transform.position;
+                var cell = _cellFactory.Create(spawnPosition, Quaternion.identity);
+                cell.GameObject.transform.localScale = Vector3.one * cellSize;
+                cell.GameObject.name = $"Cell {x}_{y}";
+                cell.Model.ArrayIndex.Value = new Vector2Int(x, y);
+                cell.Model.GridIndex.Value = GridUtils.ArrayToGridIndex(new Vector2Int(x, y), CurrentOffset);
+                _cellArray[x, y] = cell;
             }
-            OnCellsCreated.OnNext(Unit.Default);
+            _onCellsCreated.OnNext(Unit.Default);
         }
         #endregion
         
@@ -492,9 +494,9 @@ namespace FitMe.Grid
             {
                 //OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockViewTransform.position));
                 var fit = UpdateBlockOnGrid(blockInstance);
-                OnFitCheck?.OnNext(new FitTypeEvent(fit, blockInstance));
+                _onFitCheck?.OnNext(new FitTypeEvent(fit, blockInstance));
             }
-            OnBlockPlaced?.OnNext(blockInstance);
+            _onBlockPlaced?.OnNext(blockInstance);
             return true;
         }
         
@@ -510,7 +512,7 @@ namespace FitMe.Grid
             AddContact(contacts, blockInstance);
             if (!hasContact)
             {
-                OnScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockInstance.GameObject.transform.position));
+                _onScoreAdded.OnNext(new(ScoreTypes.Placement, worldPosition: blockInstance.GameObject.transform.position));
             }
             else
             {
@@ -532,8 +534,8 @@ namespace FitMe.Grid
             
             await ClearGrid(true);
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
-            OnScoreAdded.OnNext(new(ScoreTypes.FitMe, contacts, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
             RegenerateGrid();
+            _onScoreAdded.OnNext(new(ScoreTypes.FitMe, contacts, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
         }
 
         private async UniTask Combo(List<BlockInstance> contacts)
@@ -546,7 +548,7 @@ namespace FitMe.Grid
             var gridBlockData = _blockOnGrid.Where(x => contacts.Contains(x.BlockInstance)).ToList();
             //await UniTask.WhenAll(gridBlockData.Select(block => RemoveBlock(block, FitType.Combo, true)));
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.Combo, blocksToSave);
-            OnScoreAdded.OnNext(new(ScoreTypes.Chain, contacts, middleOfBlocks));
+            _onScoreAdded.OnNext(new(ScoreTypes.Chain, contacts, middleOfBlocks));
             //BlockManager.Instance.GameOverCheck().Forget();
         }
 
@@ -606,6 +608,7 @@ namespace FitMe.Grid
                     .ToList();
                 await UniTask.WhenAll(excludeObstacle.Select(block => RemoveBlock(block, FitType.FitMe, true)));
             }
+            _onClearGrid?.OnNext(Unit.Default);
         }
     
         /// <summary>

@@ -11,6 +11,7 @@ using QuackUp.Save;
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
 using R3;
+using Redcode.Extensions;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -35,8 +36,6 @@ namespace FitMe.Scene
         
         public static AllGameMode GameMode { get; set; }
         public static GridPreset GridPreset { get; set; }
-
-        private static List<GridPreset> _presets;
         
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
         private readonly LevelManagerConfig _config;
@@ -49,6 +48,7 @@ namespace FitMe.Scene
         private readonly PopUpScoreFactory _popUpScoreFactory;
         private readonly PanelManager _panelManager;
         
+        private List<GridPreset> _presets;
         private PlayerRecordSaveObject _playerRecordSaveObject;
         private AudioReference _bgmReference;
         private GameState _previousStateBeforePause;
@@ -93,8 +93,8 @@ namespace FitMe.Scene
             _gridManager.OnScoreAdded
                 .Subscribe(OnScoreAdded)
                 .AddTo(ref disposableBuilder);
-            _gridManager.OnFitCheck
-                .Where(x => x.FitType is FitType.FitMe)
+            _gridManager.OnScoreAdded
+                .Where(x => x.ScoreType is ScoreTypes.FitMe)
                 .Subscribe(_ => OnFit())
                 .AddTo(ref disposableBuilder);
             _messageHub.GetObservable<LoadSceneStageEvent>()
@@ -113,7 +113,7 @@ namespace FitMe.Scene
         
         public void Start()
         {
-            OnGameMode();
+            CheckGameMode();
             
             if (!GridPreset) 
                 _messageHub.Publish(new StartCreateGridEvent());
@@ -159,7 +159,7 @@ namespace FitMe.Scene
         }
         
         #region GameMode
-        public void OnGameMode()
+        public void CheckGameMode()
         {
             switch (GameMode)
             {
@@ -179,16 +179,21 @@ namespace FitMe.Scene
         
         private void LevelShapeMode()
         {
+            GridPreset = GetLevelFromPool();
+        }
+        
+        private GridPreset GetLevelFromPool()
+        {
             if (_presets == null || _presets.Count == 0)
             {
-                LevelPool();
+                CreateLevelPool();
             }
-            var randomIndex = UnityEngine.Random.Range(0, _presets.Count);
-            GridPreset = _presets[randomIndex];
-            _presets.RemoveAt(randomIndex);
+            var preset = _presets.GetRandomElement();
+            _presets?.Remove(preset);
+            return preset;
         }
 
-        private void LevelPool()
+        private void CreateLevelPool()
         {
             _presets = new List<GridPreset>(_config.LevelShapeLevel);
         }
@@ -202,11 +207,8 @@ namespace FitMe.Scene
 
         private void OnFit()
         {
-            // _panelManager.Crossfade(_config.GameplayPanelId, _config.ResultPanelId, 
-            //     new CrossfadeSettings
-            //     {
-            //         crossFadeType = CrossfadeType.InOnly
-            //     });
+            GridPreset = GetLevelFromPool();
+            _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
         }
         
         private void OnSceneStartOut()

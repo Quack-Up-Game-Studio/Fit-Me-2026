@@ -101,8 +101,8 @@ namespace FitMe.Grid
             _gridManager.OnFitCheck
                 .Subscribe(OnFitCheck)
                 .AddTo(ref disposableBuilder);
-            _messageHub
-                .Subscribe<ClearGridEvent>(_ => ResetBag())
+            _gridManager.OnClearGrid
+                .Subscribe(_ => ResetBag())
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }

@@ -32,18 +32,9 @@ MonoBehaviour:
   <CustomOffsetX>k__BackingField: 0
   <GridVerticalOffsetType>k__BackingField: 1
   <CustomOffsetY>k__BackingField: 6
-  <ComboThreshold>k__BackingField: 3
+  <ComboThreshold>k__BackingField: 2
   gridPresets:
   - {fileID: 11400000, guid: 2aad68baf83cb5ff29e7395cd725463e, type: 2}
-  - {fileID: 11400000, guid: f3a7320f8a559024c99a4c99bbbe31df, type: 2}
-  - {fileID: 11400000, guid: ed93c0cc3bdea0a448c23d4d0c921178, type: 2}
-  - {fileID: 11400000, guid: d1bc2a04f8d8dea4facfc839102ac970, type: 2}
-  - {fileID: 11400000, guid: ac8b9f2ddb88c07408f76461a93ccdd1, type: 2}
-  - {fileID: 11400000, guid: 69a415a0b90ddf44ca164cc5d0275364, type: 2}
-  - {fileID: 11400000, guid: 5b4cb4f612df5b747b4719d4da69eb94, type: 2}
-  - {fileID: 11400000, guid: 9ca8e72be3315c7428466b8ce1368edb, type: 2}
-  - {fileID: 11400000, guid: ccba8797749977049ab0474a4f06ec30, type: 2}
-  - {fileID: 11400000, guid: 694dcad42ddb372499cbdc5f880f0b8f, type: 2}
   <FitExplodeSfx>k__BackingField:
     Guid:
       Data1: 845146018
