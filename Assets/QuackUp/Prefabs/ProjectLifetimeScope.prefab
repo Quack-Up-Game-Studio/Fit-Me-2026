@@ -1165,7 +1165,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 5|FitMe.Scene.NotificationManagerInstaller, FitMe.Scene
+      Data: 5|FitMe.Panel.NotificationManagerInstaller, FitMe.Panel
     - Name: config
       Entry: 10
       Data: 5

@@ -23,7 +23,7 @@ MonoBehaviour:
     SerializationNodes: []
   <ScorePerPlacement>k__BackingField: 10
   <ScorePerChain>k__BackingField: 100
-  <ScorePerFitMe>k__BackingField: 10000
+  <ScorePerFitMe>k__BackingField: 1000
   <HasCountOff>k__BackingField: 0
   <CountOffDuration>k__BackingField: 3
   <GameplayBgm>k__BackingField:

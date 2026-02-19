@@ -15,10 +15,14 @@ namespace FitMe.GameData
         /// Use <see cref="ChangeEnergy"/> to change the energy value.
         /// </remarks>
         public ReadOnlyReactiveProperty<int> CurrentEnergy => _currentEnergy;
+        public ReadOnlyReactiveProperty<TimeSpan> TimeUntilNextRecharge => _timeUntilNextRecharge;
+        private readonly ReactiveProperty<TimeSpan> _timeUntilNextRecharge = new(TimeSpan.Zero);
         private readonly ReactiveProperty<int> _currentEnergy = new(0);
         [ShowInInspector] private int DebugCurrentEnergy => _currentEnergy.Value;
         private readonly MessagePackSaveManager _saveManager;
         private readonly EnergyManagerConfig _config;
+        
+        public EnergyManagerConfig Config => _config;
 
         private EnergyManagerSaveObject _saveObject;
         private IDisposable _energyTimer;
@@ -53,9 +57,18 @@ namespace FitMe.GameData
             _energyTimer = Observable.Interval(TimeSpan.FromSeconds(1)) //NOTE: Check every second as we do not need that much precision.
                 .Subscribe(_ =>
                 {
-                    if (_currentEnergy.Value >= _config.MaxEnergy) return;
+                    if (_currentEnergy.Value >= _config.MaxEnergy)
+                    {
+                        _timeUntilNextRecharge.Value = TimeSpan.Zero;
+                        return;
+                    }
                     var timeDifference = DateTime.UtcNow - saveData.LastEnergyUpdateTime;
-                    if (timeDifference < _config.EnergyRechargeTime) return;
+                    if (timeDifference < _config.EnergyRechargeTime)
+                    {
+                        _timeUntilNextRecharge.Value = _config.EnergyRechargeTime - timeDifference;
+                        return;
+                    }
+                    _timeUntilNextRecharge.Value = _config.EnergyRechargeTime;
                     var changeAmount = Mathf.FloorToInt((float)(timeDifference / _config.EnergyRechargeTime));
                     var remains = TimeSpan.FromSeconds(timeDifference.TotalSeconds % _config.EnergyRechargeTime.TimeSpan.TotalSeconds);
                     ChangeEnergy(changeAmount);

@@ -3,7 +3,6 @@ using FitMe.Achievement;
 using FitMe.Entity;
 using FitMe.GameData;
 using FitMe.Grid;
-using FitMe.Scene.UI.Score;
 using FitMe.Shared;
 using FitMe.Panel;
 using QuackUp.Audio;

@@ -20,22 +20,26 @@ namespace QuackUp.Utils
 
         private RewardedAd _rewardedAd;
         private IDisposable _adsRefreshTimer;
+        private IDisposable _callbackSubscription;
         private CancellationTokenSource _timerCts;
         private bool _isRewardEarned;
 
         public void Start()
         {
             //MobileAds.RaiseAdEventsOnUnityMainThread = true;
+#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             MobileAds.Initialize(status => 
             {
                 LoadRewardedAd();
             });
+#endif
         }
 
         public void Dispose()
         {
             CancelAdsSessionTimer();
             DisposeAd();
+            _callbackSubscription?.Dispose();
             _onUserEarnedReward.Dispose();
             _onAdClosed.Dispose();
         }
@@ -49,7 +53,7 @@ namespace QuackUp.Utils
 
 #if UNITY_ANDROID
         adUnitId = "ca-app-pub-3940256099942544/5224354917";
-#elif UNITY_IPHONE
+#elif UNITY_IOS
         adUnitId = "ca-app-pub-3940256099942544/2934735716";
 #else
             adUnitId = "ca-app-pub-3940256099942544/5224354917";
@@ -75,10 +79,18 @@ namespace QuackUp.Utils
             ad.OnAdFullScreenContentClosed += HandleAdClosed;
         }
 
-        public bool TryShowRewardedAd()
+        public bool TryShowRewardedAd(Action earnRewardCallback = null, Action adClosedCallback = null)
         {
+#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             if (_rewardedAd != null && _rewardedAd.CanShowAd())
             {
+                _callbackSubscription?.Dispose();
+                var disposableBuilder = Disposable.CreateBuilder();
+                OnUserEarnedReward.Subscribe(_ => earnRewardCallback?.Invoke())
+                    .AddTo(ref disposableBuilder);
+                OnAdClosed.Subscribe(_ => adClosedCallback?.Invoke())
+                    .AddTo(ref disposableBuilder);
+                _callbackSubscription = disposableBuilder.Build();
                 _isRewardEarned = false;
                 _rewardedAd.Show(reward =>
                 {
@@ -90,6 +102,12 @@ namespace QuackUp.Utils
             Debug.Log("Ad not ready yet.");
             LoadRewardedAd();
             return false;
+            
+#else // Simulate ad success in non-supported platforms
+            earnRewardCallback?.Invoke();
+            adClosedCallback?.Invoke();
+            return true;
+#endif
         }
 
         private void HandleAdClosed()
@@ -101,6 +119,7 @@ namespace QuackUp.Utils
                     _onUserEarnedReward.OnNext(Unit.Default);
                 }
                 _onAdClosed.OnNext(Unit.Default);
+                _callbackSubscription?.Dispose();
             });
 
             LoadRewardedAd();
@@ -127,12 +146,10 @@ namespace QuackUp.Utils
 
         private void DisposeAd()
         {
-            if (_rewardedAd != null)
-            {
-                _rewardedAd.OnAdFullScreenContentClosed -= HandleAdClosed;
-                _rewardedAd.Destroy();
-                _rewardedAd = null;
-            }
+            if (_rewardedAd == null) return;
+            _rewardedAd.OnAdFullScreenContentClosed -= HandleAdClosed;
+            _rewardedAd.Destroy();
+            _rewardedAd = null;
         }
     }
 }
