@@ -1,3 +1,4 @@
+using FitMe.Grid;
 using FMODUnity;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -8,14 +9,21 @@ namespace FitMe.Scene
     [ShowOdinSerializedPropertiesInInspector]
     public class LevelManagerConfig : SerializedScriptableObject
     {
+        [field: Title("Score Setting")]
         [field: SerializeField] public int ScorePerPlacement { get; private set; } = 100;
         [field: SerializeField] public int ScorePerChain { get; private set; } = 100;
         [field: SerializeField] public int ScorePerFitMe { get; private set; } = 1000;
         
+        [field: Title("Level Setting")]
+        [field: SerializeField] public GridPreset OriginalLevel { get; private set; }
+        [field: SerializeField] public GridPreset[] LevelShapeLevel { get; private set; }
+        
+        [field: Title("Other Setting")]
         [field: SerializeField] public bool HasCountOff { get; private set; } = true;
         [field: SerializeField] public float CountOffDuration { get; private set; } = 3f;
         [field: SerializeField] public EventReference GameplayBgm { get; private set; }
         
+        [field: Title("Scene Key")]
         [field: SerializeField] public string GameOverPanelId { get; private set; } = "GameOver";
         [field: SerializeField] public string GameplayPanelId { get; private set; } = "Gameplay";
         [field: SerializeField] public string ResultPanelId { get; private set; } = "Result";
