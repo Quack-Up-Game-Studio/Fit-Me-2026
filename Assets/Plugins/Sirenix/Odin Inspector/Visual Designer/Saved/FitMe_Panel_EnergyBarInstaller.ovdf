@@ -1,0 +1,10 @@
+OVDF v1.1
+FitMe.Panel.EnergyBarInstaller, FitMe.Panel
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Energy Bar"
++ [Sirenix.OdinInspector.HideLabelAttribute]
+
+# energyBarView
++ [Sirenix.OdinInspector.RequiredAttribute]

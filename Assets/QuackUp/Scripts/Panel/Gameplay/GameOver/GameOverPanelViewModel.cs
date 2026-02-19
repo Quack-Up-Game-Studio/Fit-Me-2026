@@ -39,6 +39,7 @@ namespace FitMe.Panel
         public GameOverPanelViewModel(
             PanelManager panelManager,
             EnergyManager energyManager,
+            EnergyBarViewModel energyBarViewModel,
             AdsService adsService,
             [Key(MaxContinueCountId)] int maxContinueCount,
             [Key(CountdownTimeId)] float maxCountdownTime,
@@ -55,6 +56,8 @@ namespace FitMe.Panel
             _countdownTimePercent.Value = _maxCountdownTime;
             
             _clearGridEventPublisher = clearGridEventPublisher;
+
+            energyBarViewModel.AllowWatchAd.Value = false;
             
             Bind();
         }
@@ -73,10 +76,6 @@ namespace FitMe.Panel
             SkipCommand
                 .Subscribe(_ => OnSkip())
                 .AddTo(ref disposableBuilder);
-
-            _adsService.OnUserEarnedReward
-                .Subscribe(_ => OnAdSuccess())
-                .AddTo(ref disposableBuilder);
             
             _bindings = disposableBuilder.Build();
         }
@@ -91,15 +90,7 @@ namespace FitMe.Panel
         {
             if (_remainingContinueCount.CurrentValue >= 0  && _enableAds)
             {
-#if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR
-                bool isAdShown = _adsService.TryShowRewardedAd();
-                if (!isAdShown)
-                {
-                    Debug.Log("Ads not ready");
-                }
-#else
-                OnAdSuccess(); // Simulate ad success in non-mobile platforms
-#endif
+                _adsService.TryShowRewardedAd(earnRewardCallback: OnAdSuccess);
             }
         }
         

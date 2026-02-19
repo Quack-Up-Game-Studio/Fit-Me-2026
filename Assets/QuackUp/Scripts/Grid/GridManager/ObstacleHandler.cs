@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FitMe.Shared;
+using QuackUp.SceneManagement;
 using QuackUp.Utils;
 using R3;
 using Redcode.Extensions;
@@ -50,6 +51,7 @@ namespace FitMe.Grid
 
         private void CreateObstacles(ObstacleMode obstacleMode)
         {
+            if (_gridManager.CurrentSceneType is not SceneType.Gameplay) return;
             switch (obstacleMode)
             {
                 case ObstacleMode.Generated:
