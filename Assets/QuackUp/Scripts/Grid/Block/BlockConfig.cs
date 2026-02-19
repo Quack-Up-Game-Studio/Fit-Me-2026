@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 
 namespace FitMe.Grid
 {
-    [CreateAssetMenu(fileName = "BlockConfig", menuName = "FitMe/Block/BlockConfig")]
+    [CreateAssetMenu(fileName = "BlockConfig", menuName = "FitMe/Grid/Block/BlockConfig")]
     [ShowOdinSerializedPropertiesInInspector]
     public class BlockConfig : SerializedScriptableObject, IHasSkeletonDataAsset
     {

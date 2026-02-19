@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace FitMe.Grid
 {
-    [CreateAssetMenu(fileName = "CellConfig", menuName = "FitMe/Cell/CellConfig")]
+    [CreateAssetMenu(fileName = "CellConfig", menuName = "FitMe/Grid/Cell/CellConfig")]
     public class CellConfig : SerializedScriptableObject
     {
         [field: SerializeField] public bool UseDedicatedSprite { get; private set; } = true;

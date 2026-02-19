@@ -1,4 +1,5 @@
 using System;
+using FitMe.GameData;
 using FitMe.Shared;
 using MessagePipe;
 using QuackUp.Utils;
@@ -11,11 +12,14 @@ namespace FitMe.Panel
     public class GameOverPanelViewModel : PanelViewModel
     {
         public ReactiveCommand AdsContinueCommand { get; } = new();
+        public ReactiveCommand RetryCommand { get; } = new();
         public ReactiveCommand SkipCommand { get; } = new();
-        public Subject<Unit> OnAdsCompleted { get; } = new();
+        public Subject<Unit> OnReturnToGameplay { get; } = new();
+        public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
         public ReadOnlyReactiveProperty<int> RemainingContinueCount => _remainingContinueCount;
         public ReadOnlyReactiveProperty<float> CountdownTimePercent => _countdownTimePercent;
         
+        private readonly EnergyManager _energyManager;
         private readonly ReactiveProperty<int> _remainingContinueCount = new();
         private readonly ReactiveProperty<float> _countdownTimePercent = new();
         private readonly AdsService _adsService;
@@ -34,11 +38,13 @@ namespace FitMe.Panel
         [Inject]
         public GameOverPanelViewModel(
             PanelManager panelManager,
+            EnergyManager energyManager,
             AdsService adsService,
             [Key(MaxContinueCountId)] int maxContinueCount,
             [Key(CountdownTimeId)] float maxCountdownTime,
             IPublisher<ClearGridEvent> clearGridEventPublisher) : base(panelManager)
         {
+            _energyManager = energyManager;
             _adsService = adsService;
             
             _maxContinueCount = maxContinueCount;
@@ -58,6 +64,10 @@ namespace FitMe.Panel
             var disposableBuilder = Disposable.CreateBuilder();
             AdsContinueCommand
                 .Subscribe(_ => OnAdsButtonClicked())
+                .AddTo(ref disposableBuilder);
+            
+            RetryCommand
+                .Subscribe(_ => OnRetry())
                 .AddTo(ref disposableBuilder);
 
             SkipCommand
@@ -96,15 +106,26 @@ namespace FitMe.Panel
         private void OnAdSuccess()
         {
             _remainingContinueCount.Value--;
-            _clearGridEventPublisher.Publish(new ClearGridEvent());
-            OnAdsCompleted.OnNext(Unit.Default);
-            _countdownTimer.Dispose();
+            ReturnToGameplay();
+        }
+
+        private void OnRetry()
+        {
+            _energyManager.ChangeEnergy(-1);
+            ReturnToGameplay();
         }
 
         protected override void OnVisible()
         {
             base.OnVisible();
             UpdateCountdown();
+        }
+
+        private void ReturnToGameplay()
+        {
+            _clearGridEventPublisher.Publish(new ClearGridEvent(false));
+            OnReturnToGameplay.OnNext(Unit.Default);
+            _countdownTimer.Dispose();
         }
 
         private void UpdateCountdown()

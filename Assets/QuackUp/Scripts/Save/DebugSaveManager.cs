@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace QuackUp.Save
 {
-    [CreateAssetMenu(fileName = "DebugSaveManager", menuName = "QuackUp/Core/DebugSaveManager", order = 0)]
+    [CreateAssetMenu(fileName = "DebugSaveManager", menuName = "QuackUp/Save/DebugSaveManager", order = 0)]
     [ShowOdinSerializedPropertiesInInspector]
     public class DebugSaveManager : SerializedScriptableObject
     {
@@ -41,7 +41,7 @@ namespace QuackUp.Save
         
 #if UNITY_EDITOR
         [MenuItem("Tools/Save Manager")]
-        public static void OpenFishRegistryWindow()
+        public static void OpenDebugSaveManager()
         {
             Sirenix.OdinInspector.Editor.OdinEditorWindow.InspectObject(Instance);
         }

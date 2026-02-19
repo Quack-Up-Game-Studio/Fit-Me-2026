@@ -133,34 +133,28 @@ namespace FitMe.Scene
                 case ScoreTypes.Placement:
                     finalScore = _config.ScorePerPlacement;
                     break;
-                /*case ScoreTypes.PreInfect:
-                    finalScore = scorePerPreInfect;
-                    break;*/
-                case ScoreTypes.Combo:
-                    if (scoreEvent.ContactCount <= 1) return;
-                    finalScore = _config.ScorePerCombo * (scoreEvent.ContactCount - 1);
-                    break;
-                case ScoreTypes.Bomb:
-                    if (scoreEvent.ContactCount <= 2) return;
-                    finalScore = _config.ScorePerBomb * scoreEvent.ContactCount;    
+                case ScoreTypes.Chain:
+                    if (scoreEvent.Contacts.Count <= 1) return;
+                    finalScore = (int)Mathf.Pow(scoreEvent.Contacts.Count - 1, 2f) * _config.ScorePerChain;
                     break;
                 case ScoreTypes.FitMe:
                     ChangeFitMe(1);
                     _popUpScoreFactory.Create(1, scoreEvent.WorldPosition, "Fitme");
-                    finalScore = _config.ScorePerFitMe; 
+                    finalScore = _config.ScorePerFitMe * scoreEvent.Contacts.Count; 
                     break;
             }
+            DebugUtils.Log($"Score added: {finalScore} (Type: {scoreEvent.ScoreType}, Contacts: {scoreEvent.Contacts.Count})");
             ChangeScore(finalScore);
             _popUpScoreFactory.Create(finalScore, scoreEvent.WorldPosition, "Score");
         }
 
         private void OnFit()
         {
-            _panelManager.Crossfade(_config.GameplayPanelId, _config.ResultPanelId, 
-                new CrossfadeSettings
-                {
-                    crossFadeType = CrossfadeType.InOnly
-                });
+            // _panelManager.Crossfade(_config.GameplayPanelId, _config.ResultPanelId, 
+            //     new CrossfadeSettings
+            //     {
+            //         crossFadeType = CrossfadeType.InOnly
+            //     });
         }
         
         private void OnSceneStartOut()

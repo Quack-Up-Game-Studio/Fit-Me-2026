@@ -1,8 +1,10 @@
 using System;
 using Cysharp.Threading.Tasks;
+using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Shared;
 using QuackUp.Audio;
+using QuackUp.Save;
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
 using R3;
@@ -20,6 +22,7 @@ namespace FitMe.Scene.MainMenu
         private readonly BlockManagerConfig _blockManagerConfig;
         private readonly GridManager _gridManager;
         private readonly LoadSceneManager _loadSceneManager;
+        private readonly MessagePackSaveManager _saveManager;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
         
@@ -32,6 +35,7 @@ namespace FitMe.Scene.MainMenu
             BlockManagerConfig blockManagerConfig,
             GridManager gridManager,
             LoadSceneManager loadSceneManager,
+            MessagePackSaveManager saveManager,
             IAudioManager audioManager,
             [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub)
         {
@@ -39,6 +43,7 @@ namespace FitMe.Scene.MainMenu
             _blockManagerConfig = blockManagerConfig;
             _gridManager = gridManager;
             _loadSceneManager = loadSceneManager;
+            _saveManager = saveManager;
             _audioManager = audioManager;
             _messageHub = messageHub;
             Subscribe();
@@ -59,6 +64,11 @@ namespace FitMe.Scene.MainMenu
         
         public void Start()
         {
+            var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
+            saveData.IsFirstTimePlayer = false;
+            _saveManager.Save(saveObjects);
+            
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);

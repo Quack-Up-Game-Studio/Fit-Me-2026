@@ -1,5 +1,8 @@
+using System;
+using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 namespace QuackUp.Utils
@@ -24,5 +27,21 @@ namespace QuackUp.Utils
         {
             UnitySerializationUtility.SerializeUnityObject(this, ref serializationData);
         }
+    }
+    
+    [Serializable]
+    [ShowOdinSerializedPropertiesInInspector]
+    public abstract class DebugableInstaller<T> : IInstaller where T : IDebugData
+    {
+        protected T DebugData;
+        
+#if UNITY_EDITOR
+        [Button("Open Debug Window"), HideInEditorMode]
+        private void OpenDebugWindow()
+        {
+            DebugEditorWindow.Inspect(DebugData, typeof(T).ToString());
+        }
+#endif
+        public abstract void Install(IContainerBuilder builder);
     }
 }

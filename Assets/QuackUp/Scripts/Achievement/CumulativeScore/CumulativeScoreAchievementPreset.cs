@@ -6,7 +6,7 @@ using VContainer;
 
 namespace FitMe.Achievement
 {
-    [CreateAssetMenu(fileName = "CumulativeScoreAchievementPreset", menuName = "FitMe/Achievement/Presets/CumulativeScoreAchievementPreset", order = 0)]
+    [CreateAssetMenu(fileName = "CumulativeScoreAchievementPreset", menuName = "FitMe/Achievement/Preset/CumulativeScoreAchievementPreset", order = 0)]
     public class CumulativeScoreAchievementPreset : AchievementPreset
     {
         [field: SerializeField] public float TargetCumulativeScore { get; private set; }

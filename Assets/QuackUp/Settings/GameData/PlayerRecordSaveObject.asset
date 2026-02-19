@@ -26,7 +26,10 @@ MonoBehaviour:
       Data: 0|FitMe.GameData.PlayerRecordSaveData, FitMe.GameData
     - Name: <Version>k__BackingField
       Entry: 1
-      Data: 0.3.0-devbuild.1+windows
+      Data: 0.4.0-devbuild.1+android
+    - Name: <IsFirstTimePlayer>k__BackingField
+      Entry: 5
+      Data: true
     - Name: highScore
       Entry: 7
       Data: 1|FitMe.GameData.PlayerRecordSaveData+RunData, FitMe.GameData
@@ -35,16 +38,16 @@ MonoBehaviour:
       Data: System.DateTime, mscorlib
     - Name: 
       Entry: 3
-      Data: 5250745757293594894
+      Data: 5250751494916052744
     - Name: 
       Entry: 8
       Data: 
     - Name: score
       Entry: 4
-      Data: 4800
+      Data: 18300
     - Name: fitMe
       Entry: 3
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -56,16 +59,16 @@ MonoBehaviour:
       Data: System.DateTime, mscorlib
     - Name: 
       Entry: 3
-      Data: 4611686018427387904
+      Data: 5250751493456096184
     - Name: 
       Entry: 8
       Data: 
     - Name: score
       Entry: 4
-      Data: 0
+      Data: 11600
     - Name: fitMe
       Entry: 3
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -84,16 +87,16 @@ MonoBehaviour:
       Data: System.DateTime, mscorlib
     - Name: 
       Entry: 3
-      Data: 5250745757293594894
+      Data: 5250751494916052744
     - Name: 
       Entry: 8
       Data: 
     - Name: score
       Entry: 4
-      Data: 4800
+      Data: 18300
     - Name: fitMe
       Entry: 3
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -105,13 +108,13 @@ MonoBehaviour:
       Data: System.DateTime, mscorlib
     - Name: 
       Entry: 3
-      Data: 5250745726011766664
+      Data: 5250751493775327454
     - Name: 
       Entry: 8
       Data: 
     - Name: score
       Entry: 4
-      Data: 500
+      Data: 7200
     - Name: fitMe
       Entry: 3
       Data: 0
@@ -126,16 +129,16 @@ MonoBehaviour:
       Data: System.DateTime, mscorlib
     - Name: 
       Entry: 3
-      Data: 5250745724940426464
+      Data: 5250751493456096184
     - Name: 
       Entry: 8
       Data: 
     - Name: score
       Entry: 4
-      Data: 700
+      Data: 11600
     - Name: fitMe
       Entry: 3
-      Data: 0
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
@@ -147,10 +150,10 @@ MonoBehaviour:
       Data: 
     - Name: cumulativeScore
       Entry: 4
-      Data: 13100
+      Data: 46000
     - Name: cumulativeFitMe
       Entry: 3
-      Data: 0
+      Data: 2
     - Name: 
       Entry: 8
       Data: 

@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d37062bc6b4b46418ff6de2bf5a98f3f, type: 3}
+  m_Name: EnergyManagerSaveObject
+  m_EditorClassIdentifier: FitMe.GameData::FitMe.GameData.EnergyManagerSaveObject
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: saveData
+      Entry: 7
+      Data: 0|FitMe.GameData.EnergyManagerSaveData, FitMe.GameData
+    - Name: <Version>k__BackingField
+      Entry: 1
+      Data: 0.4.0-devbuild.1+android
+    - Name: <CurrentEnergy>k__BackingField
+      Entry: 3
+      Data: 5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: migrationResolvers
+      Entry: 7
+      Data: 1|System.Collections.Generic.List`1[[QuackUp.Save.ISaveMigrationResolver`1[[FitMe.GameData.EnergyManagerSaveData,
+        FitMe.GameData]], QuackUp.Save]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  <SaveSeparately>k__BackingField: 0
+  saveAsJson: 0
+  debugMode: 1
+  debugSaveSettings:
+    saveLocation: 1
+    encryptSave: 0
+    encryptionKey: 
+    saveDirectory: TestSave
+    saveFileName: testSave
+  releaseSaveSettings:
+    saveLocation: 1
+    encryptSave: 0
+    encryptionKey: 
+    saveDirectory: TestSave
+    saveFileName: testSave
