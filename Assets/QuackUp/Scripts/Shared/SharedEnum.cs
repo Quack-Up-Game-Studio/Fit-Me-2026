@@ -21,4 +21,10 @@ namespace FitMe.Shared
         Purple,
         Blue
     }
+    
+    public enum GameMode
+    {
+        Original = 0,
+        LevelShape = 1
+    }
 }

@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
+using JetBrains.Annotations;
 using PrimeTween;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
@@ -13,15 +14,10 @@ namespace FitMe.Panel
     [Serializable]
     public struct GeneralNotificationData : INotificationData
     {
-        public readonly string message;
-        public readonly Sprite icon;
-
-        public GeneralNotificationData(string message, Sprite icon)
-        {
-            this.message = message;
-            this.icon = icon;
-        }
+        public string message;
+        [CanBeNull] public Sprite icon;
     }
+    
     public class GeneralNotificationView : MonoBehaviour, INotificationView
     {
         [Title("Inspectors")]

@@ -1,5 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
+using QuackUp.Utils;
+using R3;
 using Sirenix.Serialization;
 using UnityEngine.SocialPlatforms;
 
@@ -28,11 +30,13 @@ namespace FitMe.Shared
     {
         public NotificationType notificationType;
         [OdinSerialize] public INotificationData data;
+        public Promise<Unit> CompletionPromise;
 
-        public NotificationDisplayEvent(NotificationType notificationType, INotificationData data)
+        public NotificationDisplayEvent(NotificationType notificationType, INotificationData data, Promise<Unit> completionPromise = null)
         {
             this.notificationType = notificationType;
             this.data = data;
+            this.CompletionPromise = completionPromise;
         }
     }
 }

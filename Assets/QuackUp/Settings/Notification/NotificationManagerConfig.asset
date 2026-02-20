@@ -26,7 +26,7 @@ MonoBehaviour:
     - Name: notificationPrefabDictionary
       Entry: 7
       Data: 0|System.Collections.Generic.Dictionary`2[[FitMe.Shared.NotificationType,
-        FitMe.Shared],[FitMe.Scene.NotificationPrefabData, FitMe.Scene]], mscorlib
+        FitMe.Shared],[FitMe.Panel.NotificationPrefabData, FitMe.Panel]], mscorlib
     - Name: comparer
       Entry: 7
       Data: 1|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Shared.NotificationType,
@@ -51,7 +51,7 @@ MonoBehaviour:
       Data: 0
     - Name: $v
       Entry: 7
-      Data: FitMe.Scene.NotificationPrefabData, FitMe.Scene
+      Data: FitMe.Panel.NotificationPrefabData, FitMe.Panel
     - Name: notificationViewPrefab
       Entry: 10
       Data: 0
@@ -108,7 +108,7 @@ MonoBehaviour:
       Data: 1
     - Name: $v
       Entry: 7
-      Data: FitMe.Scene.NotificationPrefabData, FitMe.Scene
+      Data: FitMe.Panel.NotificationPrefabData, FitMe.Panel
     - Name: notificationViewPrefab
       Entry: 10
       Data: 1

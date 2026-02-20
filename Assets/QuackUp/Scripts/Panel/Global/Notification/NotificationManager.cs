@@ -6,6 +6,7 @@ using FMODUnity;
 using MessagePipe;
 using QuackUp.Audio;
 using QuackUp.Utils;
+using R3;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -100,6 +101,7 @@ namespace FitMe.Panel
             await UniTask.WhenAll(UniTask.WaitForSeconds(_config.NotificationStayDuration),
                 view.PlayAnimation());
             await view.Hide();
+            notificationEvent.CompletionPromise?.TrySetResult(Unit.Default);
             Object.Destroy(viewObject);
             _showingNotification = false;
             if (_notificationQueue.Count > 0)

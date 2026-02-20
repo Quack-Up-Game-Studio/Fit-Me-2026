@@ -1,4 +1,5 @@
 using System;
+using FitMe.Shared;
 using R3;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -21,7 +22,6 @@ namespace FitMe.Panel
         public void Construct(ModeSelectViewModel vm)
         {
             _vm = vm;
-            
             Bind();
         }
 
@@ -48,12 +48,12 @@ namespace FitMe.Panel
         
         private void OnOriginalMode()
         {
-            _ = _vm.OnGameMode(0);
+            _vm.SelectGameModeCommand.Execute(GameMode.Original);
         }
         
         private void OnLevelShapeMode()
         {
-            _ = _vm.OnGameMode(1);
+            _vm.SelectGameModeCommand.Execute(GameMode.LevelShape);
         }
     }
 }

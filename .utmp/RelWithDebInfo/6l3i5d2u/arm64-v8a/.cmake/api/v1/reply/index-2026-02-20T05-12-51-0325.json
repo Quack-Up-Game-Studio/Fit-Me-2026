@@ -8,10 +8,10 @@
 		},
 		"paths" : 
 		{
-			"cmake" : "/home/beaver_bloyde/Unity/Hub/Editor/6000.3.3f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/cmake",
-			"cpack" : "/home/beaver_bloyde/Unity/Hub/Editor/6000.3.3f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/cpack",
-			"ctest" : "/home/beaver_bloyde/Unity/Hub/Editor/6000.3.3f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/ctest",
-			"root" : "/home/beaver_bloyde/Unity/Hub/Editor/6000.3.3f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/share/cmake-3.22"
+			"cmake" : "/home/beaver_bloyde/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/cmake",
+			"cpack" : "/home/beaver_bloyde/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/cpack",
+			"ctest" : "/home/beaver_bloyde/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/ctest",
+			"root" : "/home/beaver_bloyde/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/share/cmake-3.22"
 		},
 		"version" : 
 		{
@@ -35,7 +35,7 @@
 			}
 		},
 		{
-			"jsonFile" : "cache-v2-8b5b8a2f853dfab39268.json",
+			"jsonFile" : "cache-v2-dfdc00e4417ab0c99d19.json",
 			"kind" : "cache",
 			"version" : 
 			{
@@ -44,7 +44,7 @@
 			}
 		},
 		{
-			"jsonFile" : "cmakeFiles-v1-8f20b77315cf320fbb16.json",
+			"jsonFile" : "cmakeFiles-v1-ec9307295fb590888274.json",
 			"kind" : "cmakeFiles",
 			"version" : 
 			{
@@ -59,7 +59,7 @@
 		{
 			"cache-v2" : 
 			{
-				"jsonFile" : "cache-v2-8b5b8a2f853dfab39268.json",
+				"jsonFile" : "cache-v2-dfdc00e4417ab0c99d19.json",
 				"kind" : "cache",
 				"version" : 
 				{
@@ -69,7 +69,7 @@
 			},
 			"cmakeFiles-v1" : 
 			{
-				"jsonFile" : "cmakeFiles-v1-8f20b77315cf320fbb16.json",
+				"jsonFile" : "cmakeFiles-v1-ec9307295fb590888274.json",
 				"kind" : "cmakeFiles",
 				"version" : 
 				{

@@ -18,12 +18,6 @@ using VContainer.Unity;
 
 namespace FitMe.Scene
 {
-    public enum AllGameMode
-    {
-        Original = 0,
-        LevelShape = 1
-    }
-    
     public class LevelManager : ILevelManager, IStartable, IDisposable
     {
         public ReactiveProperty<int> Score { get; } = new(0);
@@ -34,7 +28,7 @@ namespace FitMe.Scene
         /// </remarks>
         public ReadOnlyReactiveProperty<GameState> GameState => _gameState.ToReadOnlyReactiveProperty();
         
-        public static AllGameMode GameMode { get; set; }
+        public static GameMode GameMode { get; set; }
         public static GridPreset GridPreset { get; set; }
         
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
@@ -163,10 +157,10 @@ namespace FitMe.Scene
         {
             switch (GameMode)
             {
-                case AllGameMode.Original:
+                case GameMode.Original:
                     OriginalMode();
                     break;
-                case AllGameMode.LevelShape:
+                case GameMode.LevelShape:
                     LevelShapeMode();
                     break;
             }
