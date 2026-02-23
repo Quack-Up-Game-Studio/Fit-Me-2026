@@ -1,5 +1,6 @@
 using System;
 using QuackUp.Utils;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -7,7 +8,18 @@ using VContainer.Unity;
 namespace FitMe.Grid
 {
     [Serializable]
-    public class GridManagerInstaller : IInstaller
+    public class GridManagerDebugData : DebugDataBase
+    {
+        [ShowInInspector] private GridManager _gridManager;
+        
+        public GridManagerDebugData(GridManager gridManager)
+        {
+            _gridManager = gridManager;
+        }
+    }
+    
+    [Serializable]
+    public class GridManagerInstaller : DebugableInstaller<GridManagerDebugData>
     {
         [SerializeField] private UnityEngine.Grid grid;
         [SerializeField] private GridManagerConfig gridManagerConfig;
@@ -17,7 +29,7 @@ namespace FitMe.Grid
         [SerializeField] private Transform cellParent;
         [SerializeField] private GridPreview gridPreview;
         
-        public void Install(IContainerBuilder builder)
+        public override void Install(IContainerBuilder builder)
         {
             //Shared
             builder.RegisterComponent(grid);
@@ -38,7 +50,8 @@ namespace FitMe.Grid
             
             builder.RegisterBuildCallback(x =>
             {
-                x.Resolve<GridManager>();
+                var gridManager = x.Resolve<GridManager>();
+                DebugData = new GridManagerDebugData(gridManager);
                 x.Resolve<GridPreview>();
                 x.Resolve<ObstacleHandler>();
             });

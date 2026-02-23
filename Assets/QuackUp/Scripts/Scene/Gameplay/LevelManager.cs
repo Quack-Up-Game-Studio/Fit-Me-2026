@@ -201,7 +201,7 @@ namespace FitMe.Scene
 
         private void OnFit()
         {
-            GridPreset = GetLevelFromPool();
+            GridPreset = GameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
             _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
         }
         

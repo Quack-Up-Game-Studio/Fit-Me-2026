@@ -101,6 +101,7 @@ namespace FitMe.Grid
     }
     
     [ShowOdinSerializedPropertiesInInspector]
+    [Serializable]
     public class GridManager : IDisposable
     {
         #region Inspector
@@ -124,10 +125,7 @@ namespace FitMe.Grid
         [Button("Test Fit-me")]
         private void TestFitMe()
         {
-            _onScoreAdded.OnNext(new
-            (ScoreTypes.FitMe, 
-                null, 
-                _grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
+            FitMe(new List<BlockInstance>()).Forget();
         }
         #endregion
 
@@ -529,9 +527,6 @@ namespace FitMe.Grid
         private async UniTask FitMe(List<BlockInstance> contacts)
         {
             if (CurrentSceneType is not SceneType.Gameplay) return;
-            List<(BlockState beforeExplodeState, BlockColor blockType)> blocksToSave = 
-                _blockOnGrid.Select(x => (x.BlockInstance.Model.BlockState.CurrentValue, x.BlockInstance.Model.BlockColor.CurrentValue)).ToList();
-            
             await ClearGrid(true);
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
             RegenerateGrid();
