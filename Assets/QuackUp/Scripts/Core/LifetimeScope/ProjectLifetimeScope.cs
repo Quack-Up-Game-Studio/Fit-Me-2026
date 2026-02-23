@@ -18,8 +18,6 @@ namespace QuackUp.Core
         
         protected override void Configure(IContainerBuilder builder)
         {
-            Application.targetFrameRate = (int)Screen.currentResolution.refreshRateRatio.value;
-            QualitySettings.vSyncCount = 0;
             builder.RegisterMessagePipe(options =>
             {
                 options.InstanceLifetime = InstanceLifetime.Singleton;

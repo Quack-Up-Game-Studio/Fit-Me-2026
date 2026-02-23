@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 
 public class SanityCheck : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    [SerializeField] private AnimationCurve animationCurve;
     public void Update()
     {
         Debug.Log($"Over GOBJ: {EventSystem.current.IsPointerOverGameObject()}");
