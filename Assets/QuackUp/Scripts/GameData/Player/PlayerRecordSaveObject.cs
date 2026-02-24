@@ -4,6 +4,7 @@ using System.Dynamic;
 using MessagePack;
 using MessagePack.Resolvers;
 using QuackUp.Save;
+using R3;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ namespace FitMe.GameData
             base.OnInitialize();
             saveData.Initialize(MaxRunDataCount);
         }
-        
+
         public override void Reset()
         {
             base.Reset();

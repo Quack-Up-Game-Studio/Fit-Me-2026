@@ -1,0 +1,26 @@
+{
+    "name": "QuackUp.GPGS",
+    "rootNamespace": "QuackUp.GPGS",
+    "references": [
+        "R3.Unity",
+        "VContainer",
+        "QuackUp.Utils",
+        "MessagePipe",
+        "Extensions",
+        "Google.Play.Games",
+        "UniTask",
+        "QuackUp.SocialService"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
