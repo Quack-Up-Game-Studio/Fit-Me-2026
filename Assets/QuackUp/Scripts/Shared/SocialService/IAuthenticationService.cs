@@ -1,10 +1,5 @@
-using System;
 using Cysharp.Threading.Tasks;
-using QuackUp.Utils;
 using R3;
-using Sirenix.OdinInspector;
-using VContainer;
-using VContainer.Unity;
 
 namespace FitMe.Shared
 {
@@ -13,18 +8,6 @@ namespace FitMe.Shared
         UniTask<bool> Authenticate();
         Observable<bool> OnAuthenticationResult { get; }
         bool IsAuthenticated { get; }
-    }
-    
-    [Serializable]
-    public class MockAuthenticationServiceInstaller : IInstaller
-    {
-        [ShowInInspector] private InspectorPlaceholder _title;
-        
-        public void Install(IContainerBuilder builder)
-        {
-            builder.Register<MockAuthenticationService>(Lifetime.Singleton)
-                .As<IAuthenticationService>();
-        }
     }
 
     public class MockAuthenticationService : IAuthenticationService
