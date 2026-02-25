@@ -13,10 +13,12 @@ namespace FitMe.Scene
         [field: SerializeField] public int ScorePerPlacement { get; private set; } = 100;
         [field: SerializeField] public int ScorePerChain { get; private set; } = 100;
         [field: SerializeField] public int ScorePerFitMe { get; private set; } = 1000;
-        
-        [field: Title("Level Setting")]
+        [field: SerializeField] public int OriginalLevelsPerCycle { get; private set; } = 24;
         [field: SerializeField] public GridPreset OriginalLevel { get; private set; }
-        [field: SerializeField] public GridPreset[] LevelShapeLevel { get; private set; }
+        [field: SerializeField] public AnimationCurve OriginalLevelCurve { get; private set; }
+        [field: SerializeField] public int ShapeLevelsPerCycle { get; private set; } = 24;
+        [field: SerializeField] public GridPreset[] ShapeLevel { get; private set; }
+        [field: SerializeField] public AnimationCurve ShapeLevelCurve { get; private set; }
         
         [field: Title("Other Setting")]
         [field: SerializeField] public bool HasCountOff { get; private set; } = true;
