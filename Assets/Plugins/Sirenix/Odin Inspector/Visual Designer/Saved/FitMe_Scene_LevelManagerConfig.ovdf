@@ -1,0 +1,41 @@
+OVDF v1.1
+FitMe.Scene.LevelManagerConfig, FitMe.Scene
+MetaGuid:a77ab1ee1bf6420d88fd241b6f3d7f01
+
+# $Q7SxX54tjK1AaddTEJ23G7
+Position: $GdpBRNjZYd6TNMub5EeNCQ:0
++ [Sirenix.OdinInspector.BoxGroupAttribute]
+	GroupName = "Original Level Setting"
+	ShowLabel = True
+	CenterLabel = True
+
+# $6myxSSiKbQdWxZATcbsKTt
+Position: $GdpBRNjZYd6TNMub5EeNCQ:1
++ [Sirenix.OdinInspector.BoxGroupAttribute]
+	GroupName = "Shape Level Setting"
+	ShowLabel = True
+	CenterLabel = True
+
+# $GdpBRNjZYd6TNMub5EeNCQ
+Position: $root:5
++ [Sirenix.OdinInspector.TitleGroupAttribute]
+	GroupName = "Level Setting"
+	Alignment = Left
+
+# <OriginalLevelsPerCycle>k__BackingField
+Position: $Q7SxX54tjK1AaddTEJ23G7:0
+
+# <OriginalLevel>k__BackingField
+Position: $Q7SxX54tjK1AaddTEJ23G7:1
+
+# <OriginalLevelCurve>k__BackingField
+Position: $Q7SxX54tjK1AaddTEJ23G7:2
+
+# <ShapeLevelsPerCycle>k__BackingField
+Position: $6myxSSiKbQdWxZATcbsKTt:0
+
+# <ShapeLevel>k__BackingField
+Position: $6myxSSiKbQdWxZATcbsKTt:1
+
+# <ShapeLevelCurve>k__BackingField
+Position: $6myxSSiKbQdWxZATcbsKTt:2

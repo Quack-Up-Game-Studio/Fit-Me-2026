@@ -32,6 +32,9 @@ namespace FitMe.Scene
         
         public static GameMode GameMode { get; set; }
         public static GridPreset GridPreset { get; set; }
+
+        private AnimationCurve _difficultyCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
+        private int _levelCycle;
         
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
         private readonly LevelManagerConfig _config;
@@ -171,11 +174,15 @@ namespace FitMe.Scene
         private void OriginalMode()
         {
             GridPreset = _config.OriginalLevel;
+            _difficultyCurve = _config.OriginalLevelCurve;
+            _levelCycle = _config.OriginalLevelsPerCycle;
         }
         
         private void LevelShapeMode()
         {
             GridPreset = GetLevelFromPool();
+            _difficultyCurve = _config.ShapeLevelCurve;
+            _levelCycle = _config.ShapeLevelsPerCycle;
         }
         
         private GridPreset GetLevelFromPool()
@@ -191,7 +198,7 @@ namespace FitMe.Scene
 
         private void CreateLevelPool()
         {
-            _presets = new List<GridPreset>(_config.LevelShapeLevel);
+            _presets = new List<GridPreset>(_config.ShapeLevel);
         }
         
         public void ResetLevelPool()
@@ -201,8 +208,25 @@ namespace FitMe.Scene
         }
         #endregion
 
+        #region Difficulty level
+        private void CurrentDifficultyLevel()
+        {
+            int currentFit = FitMeScore.Value;
+            int difficultyLevel = CalculateDifficultyLevel(_difficultyCurve, currentFit);
+            CurrentObstacleCount = difficultyLevel;
+        }
+        
+        private int CalculateDifficultyLevel(AnimationCurve curve, int currentFit)
+        {
+            float currentX = (currentFit % _levelCycle) + 1;
+            float yValue = curve.Evaluate(currentX);
+            return Mathf.FloorToInt(yValue);
+        }
+        #endregion
+        
         private void OnFit()
         {
+            CurrentDifficultyLevel();
             GridPreset = GameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
             _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
         }

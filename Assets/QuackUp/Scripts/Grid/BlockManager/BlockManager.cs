@@ -33,12 +33,14 @@ namespace FitMe.Grid
         private struct SpawnBlockData
         {
             public readonly BlockShape blockShape;
+            public readonly Quaternion rotation;
             public readonly BlockSchema blockSchema;
             public readonly BlockColor blockColor;
             
-            public SpawnBlockData(BlockShape blockShape, BlockSchema blockSchema, BlockColor blockColor)
+            public SpawnBlockData(BlockShape blockShape, Quaternion rotation, BlockSchema blockSchema, BlockColor blockColor)
             {
                 this.blockShape = blockShape;
+                this.rotation = rotation;
                 this.blockSchema = blockSchema;
                 this.blockColor = blockColor;
             }
@@ -144,7 +146,7 @@ namespace FitMe.Grid
             {
                 for (int j = 0; j < blockColorCount; j++)
                 {
-                    _blockPool.Add(new SpawnBlockData((BlockShape)i, null, (BlockColor)j));
+                    _blockPool.Add(new SpawnBlockData((BlockShape)i, Quaternion.Euler(0f, 0f, 0f),null, (BlockColor)j));
                 }
             }
         }
@@ -175,10 +177,14 @@ namespace FitMe.Grid
                 var possibleSchemas = preset.BlockSchemas;
                 for (int i = 0; i < count; i++)
                 {
+                    var index = Random.Range(0, 4);
+                    int randomRotation = index * 90;
+                    Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
+                    
                     var template = shuffledTemplates[Random.Range(0, shuffledTemplates.Count)];
                     var randomSchema = possibleSchemas[Random.Range(0, possibleSchemas.Count)];
 
-                    tempBag.Add(new SpawnBlockData(shape, randomSchema, template.blockColor));
+                    tempBag.Add(new SpawnBlockData(shape, randomRotationQuaternion,randomSchema, template.blockColor));
                 }
             }
 
@@ -232,11 +238,7 @@ namespace FitMe.Grid
                 }
                 Transform spawnTransform = _spawnPoints[i].Transform;
                 var randomSchema = _spawnBag.Dequeue();
-                var index = Random.Range(0, 4);
-                int randomRotation = index * 90;
-                DebugUtils.Log("Random Rotation: " + randomRotation);
-                Quaternion randomRotationQuaternion = Quaternion.Euler(0f, 0f, randomRotation);
-                var block = InstantiateBlock(spawnTransform, randomRotationQuaternion, randomSchema.blockShape, randomSchema.blockColor, _config.ObjectScale);
+                var block = InstantiateBlock(spawnTransform, randomSchema.rotation, randomSchema.blockShape, randomSchema.blockColor, _config.ObjectScale);
                 block.Model.SpawnIndex = i;
                 _spawnPoints[i].IsFree = false;
                 _spawnPoints[i].CurrentBlock = block;
@@ -308,7 +310,7 @@ namespace FitMe.Grid
             _currentPreviewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
 
             var nextBlock = _spawnBag.Peek(); 
-            _currentPreviewBlock = InstantiateBlock(_previewTransform, Quaternion.identity, nextBlock.blockShape, nextBlock.blockColor, _config.PreviewScale);
+            _currentPreviewBlock = InstantiateBlock(_previewTransform, nextBlock.rotation, nextBlock.blockShape, nextBlock.blockColor, _config.PreviewScale);
             _currentPreviewBlock.Controller.SetActive(false);
         }
         
