@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.Shared.MockUserDataProviderInstaller, FitMe.Shared
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Mock User Data Provider"
++ [Sirenix.OdinInspector.HideLabelAttribute]

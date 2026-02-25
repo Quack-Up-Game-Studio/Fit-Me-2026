@@ -4146,14 +4146,13 @@ GameObject:
   - component: {fileID: 498168670}
   - component: {fileID: 498168669}
   - component: {fileID: 498168668}
-  - component: {fileID: 498168667}
   m_Layer: 5
   m_Name: Load
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &498168666
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4174,18 +4173,6 @@ RectTransform:
   m_AnchoredPosition: {x: 165, y: -243}
   m_SizeDelta: {x: 231.0854, y: 50.801}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &498168667
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 498168665}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073abbde76bf7dc4a98aa052ad160c4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &498168668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4445,14 +4432,13 @@ GameObject:
   - component: {fileID: 503483924}
   - component: {fileID: 503483923}
   - component: {fileID: 503483922}
-  - component: {fileID: 503483921}
   m_Layer: 5
   m_Name: Save
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &503483920
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4473,18 +4459,6 @@ RectTransform:
   m_AnchoredPosition: {x: -99, y: -243}
   m_SizeDelta: {x: 231.0854, y: 50.801}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &503483921
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 503483919}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073abbde76bf7dc4a98aa052ad160c4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &503483922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12581,14 +12555,13 @@ GameObject:
   - component: {fileID: 1970899662}
   - component: {fileID: 1970899661}
   - component: {fileID: 1970899660}
-  - component: {fileID: 1970899659}
   m_Layer: 5
   m_Name: Authenticate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1970899658
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12608,18 +12581,6 @@ RectTransform:
   m_AnchoredPosition: {x: -353.58997, y: -243.00006}
   m_SizeDelta: {x: 231.0854, y: 50.801}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1970899659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1970899657}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073abbde76bf7dc4a98aa052ad160c4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1970899660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13476,7 +13437,7 @@ Grid:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2087902267}
   m_Enabled: 1
-  m_CellSize: {x: 0.5, y: 0.5, z: 0}
+  m_CellSize: {x: 0, y: 0, z: 0}
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
@@ -13489,7 +13450,7 @@ Transform:
   m_GameObject: {fileID: 2087902267}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.25, y: -2.4, z: 0}
+  m_LocalPosition: {x: -0, y: -2.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

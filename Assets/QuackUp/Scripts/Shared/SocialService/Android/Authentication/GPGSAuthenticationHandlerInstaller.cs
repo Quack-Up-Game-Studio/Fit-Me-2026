@@ -8,13 +8,14 @@ using VContainer.Unity;
 namespace FitMe.SocialService.Android
 {
     [Serializable]
-    public class GPGSUserDataProviderInstaller : IInstaller
+    public class GPGSAuthenticationHandlerInstaller : IInstaller
     {
         [ShowInInspector] private InspectorPlaceholder _title;
         
         public void Install(IContainerBuilder builder)
         {
-            builder.Register<GPGSUserDataProvider>(Lifetime.Singleton)
+            builder.Register<GPGSAuthenticationHandler>(Lifetime.Singleton)
+                .As<IAuthenticationService>()
                 .As<IUserDataProvider>();
         }
     }
