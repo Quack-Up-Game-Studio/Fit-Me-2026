@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.GameData.PlaytimeTrackerInstaller, FitMe.GameData
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Playtime Tracker"
++ [Sirenix.OdinInspector.HideLabelAttribute]

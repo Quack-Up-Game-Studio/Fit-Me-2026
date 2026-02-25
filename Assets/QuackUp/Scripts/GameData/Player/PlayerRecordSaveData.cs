@@ -21,6 +21,12 @@ namespace FitMe.GameData
         [Key("IsFirstTimePlayer")]
         [field: SerializeField] public bool IsFirstTimePlayer { get; set; } = true;
         
+        [Key("TotalPlayTime")]
+        [field: OdinSerialize] public TimeSpan TotalPlayTime { get; set; } = TimeSpan.Zero;
+        
+        [IgnoreMember]
+        [ShowInInspector, DisplayAsString] private string DebugTotalPlayTime => TotalPlayTime.ToString(@"hh\:mm\:ss");
+        
         [Serializable]
         [MessagePackObject(AllowPrivate = true)]
         public partial record RunData

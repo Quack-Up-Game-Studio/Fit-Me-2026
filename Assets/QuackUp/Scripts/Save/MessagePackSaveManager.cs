@@ -289,5 +289,42 @@ namespace QuackUp.Save
                 throw;
             }
         }
+        
+        public byte[] GetZipBytes()
+        {
+            var zipPath = Path.ChangeExtension(_config.CurrentSaveSettings.GetFullSavePath(), ".sav");
+            return !File.Exists(zipPath) ? null : File.ReadAllBytes(zipPath);
+        }
+
+        public void LoadFromZipBytes(byte[] zipBytes)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream(zipBytes);
+                using var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+                foreach (var entry in zipArchive.Entries)
+                {
+                    var entryName = Path.GetFileNameWithoutExtension(entry.Name);
+                    var saveObject = GetSaveObject(entryName);
+                    if (!saveObject)
+                    {
+                        Debug.LogWarning($"No save object found for entry {entryName} in ZIP.");
+                        continue;
+                    }
+
+                    using var entryStream = entry.Open();
+                    using var reader = new BinaryReader(entryStream);
+                    var data = reader.ReadBytes((int)entry.Length);
+                    saveObject.LoadFromBytes(data);
+                }
+
+                Debug.Log("ZIP bytes loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error loading from ZIP bytes: {ex.Message}");
+                throw;
+            }
+        }
     }
 }

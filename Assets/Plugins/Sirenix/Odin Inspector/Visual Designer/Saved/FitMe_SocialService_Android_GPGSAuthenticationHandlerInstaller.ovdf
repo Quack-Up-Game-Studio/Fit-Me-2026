@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.SocialService.Android.GPGSAuthenticationHandlerInstaller, FitMe.SocialService.Android
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "GPGS Authentication Handler"
++ [Sirenix.OdinInspector.HideLabelAttribute]

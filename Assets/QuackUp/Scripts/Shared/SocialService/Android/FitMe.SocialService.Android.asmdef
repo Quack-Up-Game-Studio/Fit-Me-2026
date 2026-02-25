@@ -1,0 +1,28 @@
+{
+    "name": "FitMe.SocialService.Android",
+    "rootNamespace": "FitMe.SocialService.Android",
+    "references": [
+        "GUID:1726fbb01b8ef92eb9b726e0dbefdbd2",
+        "GUID:1a36bf411a3f1ac7d9572518a65f5ffc",
+        "GUID:0fd230632a9e80bcd8bc166b1de2227e",
+        "GUID:11c1da7ad5eea0631bd966b09402e5f3",
+        "GUID:867378844ccc1994885ce7926790233c",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:77221876cc6b8244180b96e320b1bcd4",
+        "GUID:08b38f39e2d9e594389b7a4cf4c2c338",
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
+        "GUID:1ed07ff861e5f468287b0baef844706d"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,7 @@
+OVDF v1.1
+QuackUp.GPGS.GPGSSavedGamesInstaller, QuackUp.GPGS
+
+# _title
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "GPGS Saved Games"

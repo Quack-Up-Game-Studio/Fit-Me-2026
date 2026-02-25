@@ -33,41 +33,22 @@ namespace FitMe.Panel
         public void ForceRebuildLayout()
         {
             OnPlayerDataLoaded().Forget();
-            //LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent);
+            ForceRebuild().Forget();
         }
 
         private readonly List<ChallengeBlock> _challengeBlocks = new();
         private readonly List<RecordBlock> _recordBlocks = new();
         
         private ChallengePanelViewModel ViewModel => (ChallengePanelViewModel)BaseViewModel; 
-// #if UNITY_ANDROID
-//         private IRequestHandler<GPGSServiceRequest, GPGSServiceResponse<IGPGSService>> _gpgsServiceRequestHandler;
-// #endif
         private IDisposable _bindings;
         private bool _isDataLoaded;
 
         [Inject]
         public override void Construct(IPanelViewModel viewModel)
         {
-            base.Construct(viewModel);
-           Bind();
-// #if UNITY_ANDROID
-//             GPGSManager.OnFinishedAuthentication += OnFinishedAuthentication;
-//             _gpgsServiceRequestHandler = GlobalMessagePipe.GetRequestHandler<GPGSServiceRequest, GPGSServiceResponse<IGPGSService>>();
-// #else
-//             authenticateButton.gameObject.SetActive(false);
-// #endif
+            base.Construct(viewModel); 
+            Bind();
         }
-
-// #if UNITY_ANDROID
-//         private void OnFinishedAuthentication(SignInStatus status)
-//         {
-//
-//             SetPlayerInfo();
-//             AuthenticationDone(status);
-//
-//         }
-// #endif
 
         private void Bind()
         {
@@ -84,6 +65,9 @@ namespace FitMe.Panel
             saveButton.OnClickAsObservable()
                 .Subscribe(_ => OnSaveButtonClicked())
                 .AddTo(ref disposableBuilder);
+            ViewModel.AuthenticationService.OnAuthenticationResult
+                .Subscribe(OnFinishedAuthentication)
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 
@@ -91,6 +75,12 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
+        }
+        
+        private void OnFinishedAuthentication(bool success)
+        {
+            SetPlayerInfo();
+            AuthenticationDone(success);
         }
 
         protected override void OnVisibilityStateChanged(VisibilityState state)
@@ -133,18 +123,7 @@ namespace FitMe.Panel
                 challengeBlock.SetData(instance.achievement);
             }
             _isDataLoaded = true;
-            await UniTask.WaitForEndOfFrame();
-            LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent.transform as RectTransform);
             await ForceRebuild();
-        }
-        
-        private void OnDestroy()
-        {
-// #if UNITY_ANDROID
-//             GPGSManager.OnFinishedAuthentication -= OnFinishedAuthentication;
-//             GPGSManager.OnFinishedAuthentication -= AuthenticationDone;
-//             JsonSaveManager.OnLoadCompleted -= OnLoadAfterAuthentication;
-// #endif
         }
 
         private async UniTask ForceRebuild()
@@ -159,69 +138,40 @@ namespace FitMe.Panel
             ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData(mainMenuPanelKey, rule.crossfadeSettings));
         }
         
-        private void OnAuthenticateButtonClicked()
+        void AuthenticationDone(bool success)
         {
-// #if UNITY_ANDROID
-//             GPGSManager.Instance.ManualAuthenticate();
-//             authenticateButton.interactable = false;
-//             GPGSManager.OnFinishedAuthentication += AuthenticationDone;
-// #endif
+            Debug.Log("Authentication Done with status: " + success);
+            authenticateButton.interactable = !success;
         }
         
-// #if UNITY_ANDROID
-//         void AuthenticationDone(SignInStatus status)
-//         {
-//             Debug.Log("Authentication Done with status: " + status);
-//             authenticateButton.interactable = true;
-//             GPGSManager.OnFinishedAuthentication -= AuthenticationDone;
-//             if (status != SignInStatus.Success) return;
-//             JsonSaveManager.OnLoadCompleted += OnLoadAfterAuthentication;
-//         }
-//
-//         void OnLoadAfterAuthentication()
-//         {
-//             Debug.Log("Load after authentication completed.");
-//             JsonSaveManager.OnLoadCompleted -= OnLoadAfterAuthentication;
-//             LoadAfterAuthentication().Forget();
-//         }
-//
-//         private async UniTaskVoid LoadAfterAuthentication()
-//         {
-//             await JsonSaveManager.Instance.Save(true);
-//             await JsonSaveManager.Instance.Load();
-//         }
-// #endif
+        private void OnAuthenticateButtonClicked()
+        {
+            ViewModel.AuthenticateButtonClickCommand.Execute(Unit.Default);
+        }
         
         private void OnLoadButtonClicked()
         {
-// #if UNITY_ANDROID
-//             var service = (GPGSSavedGame)_gpgsServiceRequestHandler.Invoke(GPGSServiceRequest.Create<GPGSSavedGame>()).service;
-//             service?.ManualLoadFromService();
-// #endif
+            ViewModel.LoadButtonClickCommand.Execute(Unit.Default);
         }
 
         private void OnSaveButtonClicked()
         {
-// #if UNITY_ANDROID
-//             var service = (GPGSSavedGame)_gpgsServiceRequestHandler.Invoke(GPGSServiceRequest.Create<GPGSSavedGame>()).service;
-//             service?.ManualSaveToService().Forget();
-// #endif
+            ViewModel.SaveButtonClickedCommand.Execute(Unit.Default);
         }
 
         private void SetPlayerInfo()
         {
-            usernameText.text = "Guest";
-// #if UNITY_ANDROID
-//             authenticateButton.gameObject.SetActive(!PlayGamesPlatform.Instance.IsAuthenticated());
-//             if (!PlayGamesPlatform.Instance.IsAuthenticated()) return;
-//             var localUser = PlayGamesPlatform.Instance.localUser;
-//             usernameText.text = localUser.userName;
-//             if (!localUser.image) return;
-//             var profilePicture = localUser.image;
-//             var sprite = Sprite.Create(profilePicture, new Rect(0, 0, profilePicture.width, profilePicture.height), 
-//                 new Vector2(0.5f, 0.5f));
-//             profileImage.sprite = sprite;
-// #endif
+            var authenticated = ViewModel.AuthenticationService.IsAuthenticated;
+            authenticateButton.gameObject.SetActive(!authenticated);
+            if (!authenticated)
+            {
+                usernameText.text = "Guest";
+                return;
+            }
+            usernameText.text = ViewModel.UserDataProvider.DisplayName ?? "Guest";
+            var avatar = ViewModel.UserDataProvider.Avatar;
+            if (!avatar) return;
+            profileImage.sprite = avatar;
         }
 
         private void SetChallenges()

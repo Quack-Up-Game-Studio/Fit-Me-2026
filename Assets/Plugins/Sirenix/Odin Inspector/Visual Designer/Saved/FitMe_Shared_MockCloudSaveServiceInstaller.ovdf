@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.Shared.MockCloudSaveServiceInstaller, FitMe.Shared
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Mock Cloud Save Service"
++ [Sirenix.OdinInspector.HideLabelAttribute]
