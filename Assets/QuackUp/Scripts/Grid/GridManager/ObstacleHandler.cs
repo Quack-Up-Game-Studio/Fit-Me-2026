@@ -18,6 +18,7 @@ namespace FitMe.Grid
         private readonly GridManagerConfig _config;
         private readonly BlockManagerConfig _blockManagerConfig;
         private readonly BlockFactory _blockFactory;
+        private readonly ILevelManager _levelManager;
 
         private IDisposable _bindings;
 
@@ -26,12 +27,14 @@ namespace FitMe.Grid
             GridManager gridManager,
             GridManagerConfig config,
             BlockManagerConfig blockManagerConfig,
-            BlockFactory blockFactory)
+            BlockFactory blockFactory,
+            ILevelManager levelManager)
         {
             _config = config;
             _gridManager = gridManager;
             _blockManagerConfig = blockManagerConfig;
             _blockFactory = blockFactory;
+            _levelManager = levelManager;
             Bind();
         }
 
@@ -67,15 +70,14 @@ namespace FitMe.Grid
 
         private void GenerateObstacles()
         {
-            var currentGridPreset = _gridManager.CurrentGridPreset;
-            if (currentGridPreset.ObstacleCount == 0) return; //TODO: will be deprecated soon, remove later when difficulty settings are implemented.
+            if (_levelManager.CurrentObstacleCount == 0) return;
             var allPresetArraySize = _blockManagerConfig.BlockPresetDictionary.Values
                 .Select(x => x.BlockSchema.schema.GetArraySize())
                 .ToList();
             var maxCol = allPresetArraySize.Max(size => size.x);
             var maxRow = allPresetArraySize.Max(size => size.y);
             var windowSize = new Vector2Int(maxCol, maxRow);
-            for (var i = 0; i < currentGridPreset.ObstacleCount; i++) //TODO: will be deprecated soon, remove later when difficulty settings are implemented.
+            for (var i = 0; i < _levelManager.CurrentObstacleCount; i++)
             {
                 _gridManager.CreateVacantSchema(out var grid, out _);
                 var randomCell = grid

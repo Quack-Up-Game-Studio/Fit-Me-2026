@@ -22,6 +22,8 @@ namespace FitMe.Scene
     {
         public ReactiveProperty<int> Score { get; } = new(0);
         public ReactiveProperty<int> FitMeScore { get; } = new(0);
+        public int CurrentObstacleCount { get; private set; }
+
         /// <remarks>
         /// Use <see cref="SetGameState"/> to change game state.
         /// For pausing, use <see cref="Pause"/> to pause the game or use <see cref="Unpause"/> to restore the previous state before pausing.
