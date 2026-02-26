@@ -21,4 +21,4 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  <AutoAuthenticateOnStart>k__BackingField: 0
+  <AutoAuthenticateOnStart>k__BackingField: 1

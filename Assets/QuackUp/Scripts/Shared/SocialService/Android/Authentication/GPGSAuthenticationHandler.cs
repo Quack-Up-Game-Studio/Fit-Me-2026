@@ -14,29 +14,14 @@ namespace FitMe.SocialService.Android
     {
         public Observable<bool> OnAuthenticationResult => _onAuthenticationResult;
         public bool IsAuthenticated => PlayGamesPlatform.Instance.IsAuthenticated();
-        private readonly Subject<bool> _onAuthenticationResult = new();
+        public string DisplayName => IsAuthenticated ? PlayGamesPlatform.Instance.GetUserDisplayName() : "Guest";
         
+        
+        private readonly Subject<bool> _onAuthenticationResult = new();
         private readonly GPGSAuthenticationManager _authenticationManager;
         
+        private Sprite _avatarCache;
         private IDisposable _subscriptions;
-        
-        public Sprite Avatar
-        {
-            get
-            {
-                if (!PlayGamesPlatform.Instance.IsAuthenticated()) return null;
-                return PlayGamesPlatform.Instance.localUser.image.ToSprite();
-            }
-        }
-        
-        public string DisplayName
-        {
-            get
-            {
-                if (!PlayGamesPlatform.Instance.IsAuthenticated()) return null;
-                return PlayGamesPlatform.Instance.localUser.userName;
-            }
-        }
         
         public GPGSAuthenticationHandler(
             GPGSAuthenticationManager authenticationManager)
@@ -56,6 +41,7 @@ namespace FitMe.SocialService.Android
         
         private void OnAuthenticationResultReceived(SignInStatus success)
         {
+            _avatarCache = null; // Clear avatar cache on authentication result to ensure we fetch the correct avatar for the authenticated user
             _onAuthenticationResult.OnNext(success == SignInStatus.Success);
         }
         
@@ -68,6 +54,18 @@ namespace FitMe.SocialService.Android
         {
             var result = await _authenticationManager.Authenticate();
             return result == SignInStatus.Success;
+        }
+        
+        public async UniTask<Sprite> GetAvatar()
+        {
+            if (!IsAuthenticated) return null;
+            if (_avatarCache) return _avatarCache;
+            var url = PlayGamesPlatform.Instance.GetUserImageUrl();
+            if (string.IsNullOrEmpty(url)) return null;
+            var texture = await Texture2DUtils.LoadTextureFromUrl(url);
+            if (!texture) return null;
+            _avatarCache = texture.ToSprite();
+            return _avatarCache;
         }
     }
 }

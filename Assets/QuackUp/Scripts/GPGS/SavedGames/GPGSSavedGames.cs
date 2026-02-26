@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-#if UNITY_ANDROID
-using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using GooglePlayGames.BasicApi.SavedGame;
-#endif
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
@@ -37,6 +34,8 @@ namespace QuackUp.GPGS
         public Observable<Tuple<bool, byte[]>> OnLoadFromService => _onLoadFromService;
         
         private IDisposable _subscriptions;
+        private bool _throttlingSave;
+        private GPGSSaveData? _queuedSaveData;
 
         [Inject]
         public GPGSSavedGames(
@@ -204,11 +203,19 @@ namespace QuackUp.GPGS
 
         public async UniTask<bool> SaveToService(GPGSSaveData eventData, bool allowSaveSelection = false)
         {
+            if (_throttlingSave)
+            {
+                Debug.LogWarning("Save operation is already in progress. Throttling additional save requests.");
+                _queuedSaveData = eventData; // Store the latest save data to be saved after the current operation finishes
+                return false;
+            }
             if (!PlayGamesPlatform.Instance.IsAuthenticated()) return false;
+            _throttlingSave = true;
             var unopenedSaveGameResult = await TryGetUnopenedSavedGame(allowSaveSelection, _config.SaveUIConfig);
             if (!unopenedSaveGameResult.Item1)
             {
                 Debug.Log("No save game selected or available to save.");
+                CheckSaveInQueue();
                 return false;
             }
             var newSave = unopenedSaveGameResult.Item2 == null;
@@ -217,14 +224,32 @@ namespace QuackUp.GPGS
             if (!openResult.Item1 || openResult.Item2 == null)
             {
                 Debug.LogWarning("Failed to open the selected save game.");
+                CheckSaveInQueue();
                 return false;
             }
             var openedSavedGame = openResult.Item2;
             var data = eventData.Data;
             var saveResult = await TrySaveToService(openedSavedGame, data, eventData.TotalPlaytime, eventData.SavedImage);
-            if (!saveResult.Item1 || saveResult.Item2 == null) return false;
+            if (!saveResult.Item1 || saveResult.Item2 == null)
+            {
+                Debug.LogWarning("Failed to save the game to the cloud.");
+                CheckSaveInQueue();
+                return false;
+            }
             Debug.Log("Game saved to cloud successfully.");
+            CheckSaveInQueue();
             return true;
+        }
+        
+        private void CheckSaveInQueue()
+        {
+            _throttlingSave = false;
+            if (_queuedSaveData.HasValue)
+            {
+                var saveData = _queuedSaveData.Value;
+                _queuedSaveData = null; // Clear the queued save data before starting the save operation to prevent potential infinite loops
+                SaveToService(saveData).Forget();
+            }
         }
 
         private async UniTask<Tuple<bool, ISavedGameMetadata>> TrySaveToService(ISavedGameMetadata game, byte[] savedData, 

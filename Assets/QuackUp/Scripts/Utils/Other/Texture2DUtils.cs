@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace QuackUp.Utils
 {
@@ -31,6 +33,25 @@ namespace QuackUp.Utils
             return !texture
                 ? null
                 : Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        }
+        
+        public static async UniTask<Texture2D> LoadTextureFromUrl(string url)
+        {
+            using var uwr = UnityWebRequestTexture.GetTexture(url);
+            var operation = uwr.SendWebRequest();
+            
+            while (!operation.isDone)
+            {
+                await UniTask.Yield();
+            }
+            
+            if (uwr.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"Failed to load image: {uwr.error}");
+                return null;
+            }
+            
+            return DownloadHandlerTexture.GetContent(uwr);
         }
     }
 }

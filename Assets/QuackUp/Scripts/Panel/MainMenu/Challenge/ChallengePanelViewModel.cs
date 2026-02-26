@@ -16,7 +16,7 @@ namespace FitMe.Panel
         public ReactiveCommand LoadButtonClickCommand { get; } = new();
         public ReactiveCommand AuthenticateButtonClickCommand { get; } = new();
         public IReadOnlyDictionary<string, AchievementInstance> Achievements { get; private set; }
-        public PlayerRecordSaveData PlayerRecordData { get; private set; }
+        public PlayerRecordSaveData PlayerRecordData => _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>().GetSaveData<PlayerRecordSaveData>();
         public IUserDataProvider UserDataProvider { get; private set; }
         public IAuthenticationService AuthenticationService { get; private set; }
         public ICloudSaveService CloudSaveService { get; private set; }
@@ -34,7 +34,6 @@ namespace FitMe.Panel
             ICloudSaveService cloudSaveService) : base(panelManager)
         {
             Achievements = achievementManager.Achievements;
-            PlayerRecordData = saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>().GetSaveData<PlayerRecordSaveData>();
             _saveManager = saveManager;
             UserDataProvider = userDataProvider;
             AuthenticationService = authenticationService;

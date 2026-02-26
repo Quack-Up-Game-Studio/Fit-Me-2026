@@ -8,8 +8,7 @@
         "MessagePipe",
         "Extensions",
         "Google.Play.Games",
-        "UniTask",
-        "QuackUp.SocialService"
+        "UniTask"
     ],
     "includePlatforms": [
         "Android",

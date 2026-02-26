@@ -39,6 +39,7 @@ namespace FitMe.Panel
 
         private readonly LoadSceneManager _loadSceneManager;
         private readonly MessagePackSaveManager _saveManager;
+        private readonly ICloudSaveService _cloudSaveService;
         private readonly ILevelManager _levelManager;
 
         private Promise<Unit> _displayResultPromise;
@@ -50,12 +51,14 @@ namespace FitMe.Panel
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
             MessagePackSaveManager saveManager,
+            ICloudSaveService cloudSaveService,
             ILevelManager levelManager,
             IAudioManager audioManager) : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
             _levelManager = levelManager;
             _saveManager = saveManager;
+            _cloudSaveService = cloudSaveService;
             AudioManager = audioManager;
             Bind();
         }
@@ -104,6 +107,7 @@ namespace FitMe.Panel
                 fitMe = _levelManager.FitMeScore.Value
             });
             _saveManager.Save(_saveObject);
+            _cloudSaveService.SaveToService();
             var isNewHighScore = _levelManager.Score.Value > highScoreBefore;
             var isNewFitMe = _levelManager.FitMeScore.Value > mostFitMeBefore;
             _displayResultPromise = new Promise<Unit>();

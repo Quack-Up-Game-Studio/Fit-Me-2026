@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using FitMe.Shared;
 using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
@@ -84,7 +85,7 @@ namespace FitMe.Panel
         {
             DebugUtils.Log($"OnFinishedAuthentication: {success}");
             if (!success) return;
-            SetPlayerInfo();
+            SetPlayerInfo().Forget();
         }
         
         private void OnSyncResult(bool success)
@@ -102,7 +103,7 @@ namespace FitMe.Panel
             base.OnVisibilityStateChanged(state);
             if (state != VisibilityState.Visible) return;
             OnPlayerDataLoaded().Forget();
-            SetPlayerInfo();
+            SetPlayerInfo().Forget();
             SetRecords();
             SetChallenges();
             ForceRebuild().Forget();
@@ -167,18 +168,10 @@ namespace FitMe.Panel
             ViewModel.SaveButtonClickedCommand.Execute(Unit.Default);
         }
 
-        private void SetPlayerInfo()
+        private async UniTaskVoid SetPlayerInfo()
         {
-            DebugUtils.Log($"IsAuthenticated: {ViewModel.AuthenticationService.IsAuthenticated}");
-            var authenticated = ViewModel.AuthenticationService.IsAuthenticated;
-            authenticateButton.gameObject.SetActive(!authenticated);
-            if (!authenticated)
-            {
-                usernameText.text = "Guest";
-                return;
-            }
             usernameText.text = ViewModel.UserDataProvider.DisplayName ?? "Guest";
-            var avatar = ViewModel.UserDataProvider.Avatar;
+            var avatar = await ViewModel.UserDataProvider.GetAvatar();
             if (!avatar) return;
             profileImage.sprite = avatar;
         }
