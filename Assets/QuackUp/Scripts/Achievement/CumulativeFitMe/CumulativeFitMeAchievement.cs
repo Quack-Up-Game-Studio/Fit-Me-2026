@@ -24,29 +24,48 @@ namespace FitMe.Achievement
     {
         public CumulativeFitMeAchievementPreset Preset => (CumulativeFitMeAchievementPreset)BasePreset;
 
-        private PlayerRecordSaveData _playerRecordSaveData; 
-        private IDisposable _bindings;
+        private PlayerRecordSaveObject _playerRecordSaveObject;
+        private IDisposable _subscriptions;
+        private IDisposable _listener;
         
         public CumulativeFitMeAchievement(
-            PlayerRecordSaveData playerRecordSaveData,
+            PlayerRecordSaveObject playerRecordSaveObject,
             CumulativeFitMeAchievementPreset basePreset, 
             AchievementData data) 
             : base(basePreset, data)
         {
-            _playerRecordSaveData = playerRecordSaveData;
-            _bindings = Observable.EveryValueChanged(_playerRecordSaveData, x => x.cumulativeFitMe)
+            _playerRecordSaveObject = playerRecordSaveObject;
+            Subscribe();
+        }
+
+        private void Subscribe()
+        {
+            var disposableBuilder = Disposable.CreateBuilder();
+            _playerRecordSaveObject.OnLoadCompleteEvent
+                .Subscribe(_ => OnLoadCompleteEvent())
+                .AddTo(ref disposableBuilder);
+            _subscriptions = disposableBuilder.Build();
+        }
+
+        private void OnLoadCompleteEvent()
+        {
+            _listener?.Dispose();
+            var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            _listener = Observable.EveryValueChanged(saveData, x => x.cumulativeFitMe)
                 .Subscribe(_ => Apply());
         }
         
         public void Dispose()
         {
-            _bindings?.Dispose();
+            _subscriptions?.Dispose();
+            _listener?.Dispose();
         }
 
         public override void Apply()
         {
             if (AchievementData.completed) return;
-            if (_playerRecordSaveData.cumulativeFitMe < Preset.TargetCumulativeFitMe)
+            var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            if (saveData.cumulativeFitMe < Preset.TargetCumulativeFitMe)
             {
                 SaveAchievementData();
                 return;
@@ -56,7 +75,8 @@ namespace FitMe.Achievement
 
         public override Vector2 GetProgress()
         {
-            return new Vector2(_playerRecordSaveData.cumulativeFitMe, Preset.TargetCumulativeFitMe);
+            var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            return new Vector2(saveData.cumulativeFitMe, Preset.TargetCumulativeFitMe);
         }
     }
 }

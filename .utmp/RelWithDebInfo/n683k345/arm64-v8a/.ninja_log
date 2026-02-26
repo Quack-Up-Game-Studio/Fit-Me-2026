@@ -1,0 +1,23 @@
+# ninja log v5
+1546	1574	1772109220169801500	/mnt/ssd1/All projects/Unity/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/n683k345/obj/arm64-v8a/libgame.so	5c3fd2ba34c7a0ff
+2	1545	1772109220132503200	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	cc728a48066aed46
+128	205	1772109218794582100	/mnt/ssd1/All projects/Unity/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/n683k345/obj/arm64-v8a/libswappywrapper.so	a0b45405f2f6af68
+4	123	1772109218713440800	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	aa0c19f774ae15f2
+3	1305	1772109219751118000	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	b52213ac8986994d
+3	1401	1772109219984159800	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	4ff6460251df83a6
+3	1304	1772109219822217200	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	b04cc0cdddd1ed08
+3	1305	1772109219763110100	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	1146d22e20b1c81
+3	1337	1772109219921274400	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	d2d9ee69f07dcac
+4	1164	1772109219747376100	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	20af0f606cd0bed9
+4	1307	1772109219885648700	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	49515f2cc7e21403
+104	236	1772115597934938000	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	aa0c19f774ae15f2
+237	369	1772115598053795800	/mnt/ssd1/All projects/Unity/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/n683k345/obj/arm64-v8a/libswappywrapper.so	a0b45405f2f6af68
+103	1196	1772115598866965700	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	1146d22e20b1c81
+103	1236	1772115598902315900	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	b52213ac8986994d
+87	1282	1772115598937197200	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	d2d9ee69f07dcac
+104	1314	1772115598996193100	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	20af0f606cd0bed9
+84	1316	1772115599001861300	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	b04cc0cdddd1ed08
+104	1421	1772115599109955000	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	49515f2cc7e21403
+103	1444	1772115599130110100	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	4ff6460251df83a6
+84	1566	1772115599259322000	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	cc728a48066aed46
+1566	1593	1772115599296489400	/mnt/ssd1/All projects/Unity/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/n683k345/obj/arm64-v8a/libgame.so	5c3fd2ba34c7a0ff

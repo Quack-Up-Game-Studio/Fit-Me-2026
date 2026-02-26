@@ -24,41 +24,62 @@ namespace FitMe.Achievement
     public class CumulativeScoreAchievement : Achievement<CumulativeScoreAchievementData>, IDisposable
     {
         public CumulativeScoreAchievementPreset Preset => (CumulativeScoreAchievementPreset)BasePreset;
-        private PlayerRecordSaveData _playerRecordSaveData;
-        private IDisposable _bindings;
+        
+        private PlayerRecordSaveObject _playerRecordSaveObject;
+        private IDisposable _subscriptions;
+        private IDisposable _listener;
         
         public CumulativeScoreAchievement(
-            PlayerRecordSaveData playerRecordSaveData, 
+            PlayerRecordSaveObject playerRecordSaveObject,
             CumulativeScoreAchievementPreset basePreset, 
             AchievementData data) 
             : base(basePreset, data)
         {
-            _playerRecordSaveData = playerRecordSaveData;
-            _bindings = Observable.EveryValueChanged(_playerRecordSaveData, x => x.cumulativeScore)
-                .Subscribe(_ => Apply());
+            _playerRecordSaveObject = playerRecordSaveObject;
+            Subscribe();
         }
 
+        private void Subscribe()
+        {
+            var disposableBuilder = Disposable.CreateBuilder();
+            _playerRecordSaveObject.OnLoadCompleteEvent
+                .Subscribe(_ => OnLoadCompleteEvent())
+                .AddTo(ref disposableBuilder);
+            _subscriptions = disposableBuilder.Build();
+        }
+
+        private void OnLoadCompleteEvent()
+        {
+            _listener?.Dispose();
+            var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            _listener = Observable.EveryValueChanged(saveData, x => x.cumulativeScore)
+                .Subscribe(_ => Apply());
+        }
+        
         public void Dispose()
         {
-            _bindings?.Dispose();
+            _subscriptions?.Dispose();
+            _listener?.Dispose();
         }
 
         public override void Apply()
         {
             if (AchievementData.completed) return;
-            if (_playerRecordSaveData.cumulativeScore < Preset.TargetCumulativeScore)
+            var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            if (saveData.cumulativeScore < Preset.TargetCumulativeScore)
             {
                 SaveAchievementData();
-                DebugUtils.Log("CumulativeScoreAchievement not completed yet. Current: " + _playerRecordSaveData.cumulativeScore + ", Target: " + Preset.TargetCumulativeScore);
+                DebugUtils.Log("CumulativeScoreAchievement not completed yet. Current: " + saveData.cumulativeScore + ", Target: " + Preset.TargetCumulativeScore);
                 return;
             }
             Complete();
-            DebugUtils.Log("CumulativeScoreAchievement completed! Cumulative Score: " + _playerRecordSaveData.cumulativeScore);
+            DebugUtils.Log("CumulativeScoreAchievement completed! Cumulative Score: " + saveData.cumulativeScore);
         }
 
         public override Vector2 GetProgress()
         {
-            return new Vector2(_playerRecordSaveData.cumulativeScore, Preset.TargetCumulativeScore);
+            var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            return new Vector2(saveData.cumulativeScore, Preset.TargetCumulativeScore);
         }
     }
 }

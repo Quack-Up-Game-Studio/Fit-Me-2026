@@ -29,8 +29,6 @@ namespace FitMe.Achievement
             }
             var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             if (!saveObject) return null;
-            var playerRecordSaveData = saveObject.GetSaveData<PlayerRecordSaveData>();
-            if (playerRecordSaveData == null) return null;
             if (data == null)
             {
                 achievementData = new CumulativeFitMeAchievementData();
@@ -40,7 +38,7 @@ namespace FitMe.Achievement
                 achievementData = data as CumulativeFitMeAchievementData;
             }
             outData = achievementData;
-            var achievement = new CumulativeFitMeAchievement(playerRecordSaveData, this, achievementData);
+            var achievement = new CumulativeFitMeAchievement(saveObject, this, achievementData);
             return achievement;
         }
     }

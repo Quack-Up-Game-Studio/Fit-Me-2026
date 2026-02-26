@@ -53,7 +53,7 @@ namespace FitMe.GameData
 
         private void StartEnergyTimer()
         {
-            var saveData = _saveObject.GetSaveData<EnergyManagerSaveData>();
+           
             _energyTimer = Observable.Interval(TimeSpan.FromSeconds(1)) //NOTE: Check every second as we do not need that much precision.
                 .Subscribe(_ =>
                 {
@@ -62,6 +62,7 @@ namespace FitMe.GameData
                         _timeUntilNextRecharge.Value = TimeSpan.Zero;
                         return;
                     }
+                    var saveData = _saveObject.GetSaveData<EnergyManagerSaveData>();
                     var timeDifference = DateTime.UtcNow - saveData.LastEnergyUpdateTime;
                     if (timeDifference < _config.EnergyRechargeTime)
                     {

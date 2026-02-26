@@ -3,7 +3,7 @@
     "m_SelectedProcess": {
         "deviceId": "a9130acf",
         "name": "com.MadduckGameStudio.FitMe",
-        "processId": 11536,
+        "processId": 16250,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -42,6 +42,30 @@
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
             "processId": 11536,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 27446,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 3612,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 7434,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 16250,
             "exited": false
         }
     ],

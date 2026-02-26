@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using QuackUp.Utils;
 using MessagePack;
 using MessagePack.Resolvers;
+using R3;
 using Semver;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
@@ -50,6 +51,8 @@ namespace QuackUp.Save
          HideIf(nameof(debugMode)), GUIColor("red"),
          SerializeField] protected SaveSettings releaseSaveSettings;
         
+        public virtual Observable<Unit> OnLoadCompleteEvent { get; protected set; }
+        
         public virtual MessagePackSerializerOptions DefaultSerializerOptions => ContractlessStandardResolver.Options;
 
         public abstract void OnInitialize();
@@ -89,6 +92,9 @@ namespace QuackUp.Save
         [Title("Save Management")]
         [OdinSerialize] protected T saveData;
         [OdinSerialize] protected List<ISaveMigrationResolver<T>> migrationResolvers = new();
+
+        public override Observable<Unit> OnLoadCompleteEvent => _onLoadCompleteEvent;
+        private readonly Subject<Unit> _onLoadCompleteEvent = new();
 
         public override TDerived GetSaveData<TDerived>()
         {
@@ -293,11 +299,14 @@ namespace QuackUp.Save
                 OnLoadComplete();
             }
         }
-        
+
         /// <summary>
         /// Called after a successful load and migration of save data.
         /// </summary>
-        protected virtual void OnLoadComplete() { }
+        protected virtual void OnLoadComplete()
+        {
+            _onLoadCompleteEvent.OnNext(Unit.Default);
+        }
 
         protected virtual bool TryMigrateSave(string from, string to, byte[] bytes, out T migratedSave)
         {

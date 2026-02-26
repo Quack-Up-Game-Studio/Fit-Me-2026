@@ -84,6 +84,7 @@ namespace FitMe.Panel
         private void OnFinishedAuthentication(bool success)
         {
             DebugUtils.Log($"OnFinishedAuthentication: {success}");
+            authenticateButton.gameObject.SetActive(!success);
             if (!success) return;
             SetPlayerInfo().Forget();
         }
@@ -102,6 +103,8 @@ namespace FitMe.Panel
         {
             base.OnVisibilityStateChanged(state);
             if (state != VisibilityState.Visible) return;
+            var authenticated = ViewModel.AuthenticationService.IsAuthenticated;
+            authenticateButton.gameObject.SetActive(!authenticated);
             OnPlayerDataLoaded().Forget();
             SetPlayerInfo().Forget();
             SetRecords();
