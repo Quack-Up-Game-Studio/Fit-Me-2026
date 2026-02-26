@@ -14,7 +14,9 @@ namespace FitMe.SocialService.Android
         private readonly GPGSSavedGames _gpgsSavedGames;
         private readonly MessagePackSaveManager _messagePackSaveManager;
 
-        public Observable<Tuple<bool, byte[]>> OnLoadFromService => _gpgsSavedGames.OnLoadFromService;
+        public Observable<bool> OnSyncResult => _onSyncResult;
+        private readonly Subject<bool> _onSyncResult = new();
+        
         private IDisposable _subscriptions;
         
         [Inject]
@@ -30,31 +32,40 @@ namespace FitMe.SocialService.Android
         private void Subscribe()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            OnLoadFromService.Subscribe(OnSaveLoaded)
+            _gpgsSavedGames.OnLoadFromService
+                .Subscribe(OnSaveLoaded)
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
         
         private void OnSaveLoaded(Tuple<bool, byte[]> result)
         {
+            if (!result.Item1)
+            {
+                _onSyncResult.OnNext(false);
+                return;
+            }
             _messagePackSaveManager.LoadFromZipBytes(result.Item2);
+            _onSyncResult.OnNext(true);
         }
         
-        public UniTask<bool> SaveToService(byte[] data)
+        public UniTask<bool> SaveToService()
         {
             var playerSaveData = _messagePackSaveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>()
                 .GetSaveData<PlayerRecordSaveData>();
             var totalPlayTime = playerSaveData.TotalPlayTime;
+            var zipBytes = _messagePackSaveManager.GetZipBytes();
             return _gpgsSavedGames.SaveToService(new GPGSSaveData
             {
-                Data = data,
+                Data = zipBytes,
                 TotalPlaytime = totalPlayTime,
             }, false);
         } 
 
-        public UniTask<Tuple<bool, byte[]>> LoadFromService()
+        public async UniTask<bool> LoadFromService()
         {
-            return _gpgsSavedGames.LoadFromService(false);
+            var result = await _gpgsSavedGames.LoadFromService(false);
+            return result.Item1;
         }
 
         public void Dispose()

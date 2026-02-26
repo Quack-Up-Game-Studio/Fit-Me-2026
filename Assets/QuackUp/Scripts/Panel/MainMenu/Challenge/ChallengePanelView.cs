@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -41,7 +42,6 @@ namespace FitMe.Panel
         
         private ChallengePanelViewModel ViewModel => (ChallengePanelViewModel)BaseViewModel; 
         private IDisposable _bindings;
-        private bool _isDataLoaded;
 
         [Inject]
         public override void Construct(IPanelViewModel viewModel)
@@ -68,6 +68,9 @@ namespace FitMe.Panel
             ViewModel.AuthenticationService.OnAuthenticationResult
                 .Subscribe(OnFinishedAuthentication)
                 .AddTo(ref disposableBuilder);
+            ViewModel.CloudSaveService.OnSyncResult
+                .Subscribe(OnSyncResult)
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 
@@ -79,15 +82,26 @@ namespace FitMe.Panel
         
         private void OnFinishedAuthentication(bool success)
         {
+            DebugUtils.Log($"OnFinishedAuthentication: {success}");
+            if (!success) return;
             SetPlayerInfo();
-            AuthenticationDone(success);
+        }
+        
+        private void OnSyncResult(bool success)
+        {
+            DebugUtils.Log($"OnSyncResult: {success}");
+            if (!success) return;
+            OnPlayerDataLoaded().Forget();
+            SetRecords();
+            SetChallenges();
+            ForceRebuild().Forget();
         }
 
         protected override void OnVisibilityStateChanged(VisibilityState state)
         {
             base.OnVisibilityStateChanged(state);
             if (state != VisibilityState.Visible) return;
-            if (!_isDataLoaded) OnPlayerDataLoaded().Forget();
+            OnPlayerDataLoaded().Forget();
             SetPlayerInfo();
             SetRecords();
             SetChallenges();
@@ -103,6 +117,7 @@ namespace FitMe.Panel
             });
             _recordBlocks.Clear();
             var records = ViewModel.PlayerRecordData.RunDataList;
+            DebugUtils.Log($"OnPlayerDataLoaded: {records.Count}");
             foreach (var record in records)
             {
                 var recordBlock = Instantiate(recordBlockPrefab, recordParent.transform);
@@ -122,7 +137,6 @@ namespace FitMe.Panel
                 _challengeBlocks.Add(challengeBlock);
                 challengeBlock.SetData(instance.achievement);
             }
-            _isDataLoaded = true;
             await ForceRebuild();
         }
 
@@ -136,12 +150,6 @@ namespace FitMe.Panel
         {
             if (!TryGetCrossfadeRule(mainMenuPanelKey, out var rule)) return;
             ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData(mainMenuPanelKey, rule.crossfadeSettings));
-        }
-        
-        void AuthenticationDone(bool success)
-        {
-            Debug.Log("Authentication Done with status: " + success);
-            authenticateButton.interactable = !success;
         }
         
         private void OnAuthenticateButtonClicked()
@@ -161,6 +169,7 @@ namespace FitMe.Panel
 
         private void SetPlayerInfo()
         {
+            DebugUtils.Log($"IsAuthenticated: {ViewModel.AuthenticationService.IsAuthenticated}");
             var authenticated = ViewModel.AuthenticationService.IsAuthenticated;
             authenticateButton.gameObject.SetActive(!authenticated);
             if (!authenticated)

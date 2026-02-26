@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using QuackUp.Utils;
+using R3;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -19,6 +20,11 @@ namespace QuackUp.Save
     {
         private readonly MessagePackSaveConfig _config;
         [OdinSerialize, ReadOnly] private Dictionary<string, MessagePackSaveObject> _saveObjects = new();
+
+        public Observable<bool> OnSaveResult => _onSaveResult;
+        private readonly Subject<bool> _onSaveResult = new();
+        public Observable<bool> OnLoadResult => _onLoadResult;
+        private readonly Subject<bool> _onLoadResult = new();
         
         [Button("Test Save All")]
         private void TestSaveAll()
@@ -217,7 +223,7 @@ namespace QuackUp.Save
                 Debug.LogError("Save object not registered in the save manager.");
                 return null;
             }
-            return LoadFromZip(entryName);
+            return LoadEntryFromZip(entryName);
         }
         
         public void Reset(string key)
@@ -264,7 +270,7 @@ namespace QuackUp.Save
             }
         }
         
-        private byte[] LoadFromZip(string entryName)
+        private byte[] LoadEntryFromZip(string entryName)
         {
             var zipPath = Path.ChangeExtension(_config.CurrentSaveSettings.GetFullSavePath(), ".sav");
             
@@ -317,7 +323,6 @@ namespace QuackUp.Save
                     var data = reader.ReadBytes((int)entry.Length);
                     saveObject.LoadFromBytes(data);
                 }
-
                 Debug.Log("ZIP bytes loaded successfully.");
             }
             catch (Exception ex)

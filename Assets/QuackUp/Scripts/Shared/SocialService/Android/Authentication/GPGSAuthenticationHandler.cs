@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
 using GooglePlayGames;
@@ -9,13 +10,15 @@ using UnityEngine;
 
 namespace FitMe.SocialService.Android
 {
-    public class GPGSAuthenticationHandler : IAuthenticationService, IUserDataProvider
+    public class GPGSAuthenticationHandler : IAuthenticationService, IUserDataProvider, IDisposable
     {
         public Observable<bool> OnAuthenticationResult => _onAuthenticationResult;
         public bool IsAuthenticated => PlayGamesPlatform.Instance.IsAuthenticated();
         private readonly Subject<bool> _onAuthenticationResult = new();
         
         private readonly GPGSAuthenticationManager _authenticationManager;
+        
+        private IDisposable _subscriptions;
         
         public Sprite Avatar
         {
@@ -39,14 +42,32 @@ namespace FitMe.SocialService.Android
             GPGSAuthenticationManager authenticationManager)
         {
             _authenticationManager = authenticationManager;
+            Subscribe();
+        }
+
+        private void Subscribe()
+        {
+            var disposableBuilder = Disposable.CreateBuilder();
+            _authenticationManager.OnAuthenticationResult
+                .Subscribe(OnAuthenticationResultReceived)
+                .AddTo(ref disposableBuilder);
+            _subscriptions = disposableBuilder.Build();
+        }
+        
+        private void OnAuthenticationResultReceived(SignInStatus success)
+        {
+            _onAuthenticationResult.OnNext(success == SignInStatus.Success);
+        }
+        
+        public void Dispose()
+        {
+            _subscriptions.Dispose();
         }
 
         public async UniTask<bool> Authenticate()
         {
             var result = await _authenticationManager.Authenticate();
-            var success = result == SignInStatus.Success;
-            _onAuthenticationResult.OnNext(success);
-            return success;
+            return result == SignInStatus.Success;
         }
     }
 }

@@ -2,8 +2,8 @@
     "m_SelectedDeviceId": "a9130acf",
     "m_SelectedProcess": {
         "deviceId": "a9130acf",
-        "name": "com.QuackUp.FitMe",
-        "processId": 10359,
+        "name": "com.MadduckGameStudio.FitMe",
+        "processId": 11536,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -11,37 +11,37 @@
         {
             "deviceId": "a9130acf",
             "name": "com.miui.home",
-            "processId": 3291,
+            "processId": 25773,
             "exited": false
         },
         {
             "deviceId": "a9130acf",
-            "name": "com.QuackUp.FitMe",
-            "processId": 17494,
-            "exited": false
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 493,
+            "exited": true
         },
         {
             "deviceId": "a9130acf",
-            "name": "com.QuackUp.FitMe",
-            "processId": 26316,
-            "exited": false
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 3807,
+            "exited": true
         },
         {
             "deviceId": "a9130acf",
-            "name": "com.QuackUp.FitMe",
-            "processId": 32695,
-            "exited": false
+            "name": "com.google.android.gms.ui",
+            "processId": 3327,
+            "exited": true
         },
         {
             "deviceId": "a9130acf",
-            "name": "com.QuackUp.FitMe",
-            "processId": 30706,
-            "exited": false
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 9639,
+            "exited": true
         },
         {
             "deviceId": "a9130acf",
-            "name": "com.QuackUp.FitMe",
-            "processId": 10359,
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 11536,
             "exited": false
         }
     ],

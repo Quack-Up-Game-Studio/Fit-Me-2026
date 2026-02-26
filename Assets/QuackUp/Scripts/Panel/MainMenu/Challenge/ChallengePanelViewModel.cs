@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using FitMe.Achievement;
 using FitMe.GameData;
 using FitMe.Shared;
@@ -18,8 +19,8 @@ namespace FitMe.Panel
         public PlayerRecordSaveData PlayerRecordData { get; private set; }
         public IUserDataProvider UserDataProvider { get; private set; }
         public IAuthenticationService AuthenticationService { get; private set; }
+        public ICloudSaveService CloudSaveService { get; private set; }
         
-        private readonly ICloudSaveService _cloudSaveService;
         private readonly MessagePackSaveManager _saveManager;
         private IDisposable _bindings;
         
@@ -37,7 +38,7 @@ namespace FitMe.Panel
             _saveManager = saveManager;
             UserDataProvider = userDataProvider;
             AuthenticationService = authenticationService;
-            _cloudSaveService = cloudSaveService;
+            CloudSaveService = cloudSaveService;
             Bind();
         }
 
@@ -45,31 +46,30 @@ namespace FitMe.Panel
         {
             var disposableBuilder = Disposable.CreateBuilder();
             SaveButtonClickedCommand
-                .Subscribe(_ => OnSaveButtonClicked())
+                .SubscribeAwait((_,_) => OnSaveButtonClicked(), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
             LoadButtonClickCommand
-                .Subscribe(_ => OnLoadButtonClicked())
+                .SubscribeAwait((_, _) => OnLoadButtonClicked(), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
             AuthenticateButtonClickCommand
-                .Subscribe(_ => OnAuthenticateButtonClicked())
+                .SubscribeAwait((_, _) => OnAuthenticateButtonClicked(), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
-        private void OnSaveButtonClicked()
+        private async UniTask OnSaveButtonClicked()
         {
-            var bytes = _saveManager.GetZipBytes();
-            _cloudSaveService.SaveToService(bytes);
+            await CloudSaveService.SaveToService();
         }
 
-        private void OnLoadButtonClicked()
+        private async UniTask OnLoadButtonClicked()
         {
-            _cloudSaveService.LoadFromService();
+            await CloudSaveService.LoadFromService();
         }
 
-        private void OnAuthenticateButtonClicked()
+        private async UniTask OnAuthenticateButtonClicked()
         {
-            AuthenticationService.Authenticate();
+            await AuthenticationService.Authenticate();
         }
 
         public override void Dispose()
