@@ -1,4 +1,5 @@
 using System;
+using FitMe.Shared;
 using QuackUp.Save;
 using R3;
 using Sirenix.OdinInspector;
@@ -21,6 +22,7 @@ namespace FitMe.GameData
         [ShowInInspector] private int DebugCurrentEnergy => _currentEnergy.Value;
         private readonly MessagePackSaveManager _saveManager;
         private readonly EnergyManagerConfig _config;
+        private readonly ICloudSaveService _cloudSaveService;
         
         public EnergyManagerConfig Config => _config;
 
@@ -30,10 +32,12 @@ namespace FitMe.GameData
         [Inject]
         public EnergyManager(
             EnergyManagerConfig config,
-            MessagePackSaveManager saveManager)
+            MessagePackSaveManager saveManager,
+            ICloudSaveService cloudSaveService)
         {
             _config = config;
             _saveManager = saveManager;
+            _cloudSaveService = cloudSaveService;
         }
 
         public void PostInitialize()
@@ -53,7 +57,6 @@ namespace FitMe.GameData
 
         private void StartEnergyTimer()
         {
-           
             _energyTimer = Observable.Interval(TimeSpan.FromSeconds(1)) //NOTE: Check every second as we do not need that much precision.
                 .Subscribe(_ =>
                 {
@@ -72,9 +75,8 @@ namespace FitMe.GameData
                     _timeUntilNextRecharge.Value = _config.EnergyRechargeTime;
                     var changeAmount = Mathf.FloorToInt((float)(timeDifference / _config.EnergyRechargeTime));
                     var remains = TimeSpan.FromSeconds(timeDifference.TotalSeconds % _config.EnergyRechargeTime.TimeSpan.TotalSeconds);
-                    ChangeEnergy(changeAmount);
                     saveData.LastEnergyUpdateTime = DateTime.UtcNow - remains;
-                    _saveManager.Save(_saveObject);
+                    ChangeEnergy(changeAmount);
                 });
         }
 
@@ -90,6 +92,7 @@ namespace FitMe.GameData
             _currentEnergy.Value = newEnergy;
             saveData.CurrentEnergy = newEnergy;
             _saveManager.Save(_saveObject);
+            _cloudSaveService.SaveToService();
         }
     }
 }

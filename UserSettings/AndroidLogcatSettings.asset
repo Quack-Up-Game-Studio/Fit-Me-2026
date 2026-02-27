@@ -3,7 +3,7 @@
     "m_SelectedProcess": {
         "deviceId": "a9130acf",
         "name": "com.MadduckGameStudio.FitMe",
-        "processId": 16250,
+        "processId": 28066,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -17,55 +17,31 @@
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 493,
+            "processId": 635,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 3807,
-            "exited": true
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.google.android.gms.ui",
-            "processId": 3327,
+            "processId": 16391,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 9639,
+            "processId": 18862,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 11536,
-            "exited": false
+            "processId": 27278,
+            "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 27446,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 3612,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 7434,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 16250,
+            "processId": 28066,
             "exited": false
         }
     ],
@@ -123,7 +99,7 @@
         "AutoCapture": true
     },
     "m_FilterOptions": {
-        "m_Filter": "",
+        "m_Filter": "local",
         "m_UseRegularExpressions": false,
         "m_MatchCase": false
     },

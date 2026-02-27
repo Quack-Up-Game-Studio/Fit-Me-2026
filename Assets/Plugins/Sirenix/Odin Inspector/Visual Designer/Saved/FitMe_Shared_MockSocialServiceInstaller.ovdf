@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.Shared.MockSocialServiceInstaller, FitMe.Shared
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Mock Social Service"
++ [Sirenix.OdinInspector.HideLabelAttribute]

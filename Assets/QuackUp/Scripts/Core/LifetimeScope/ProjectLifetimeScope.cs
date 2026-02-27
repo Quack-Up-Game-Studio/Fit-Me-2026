@@ -15,7 +15,7 @@ namespace QuackUp.Core
         [Title("Installers")]   
         [HideReferenceObjectPicker]
         [OdinSerialize] private List<IInstaller> installers;
-        [OdinSerialize] private Dictionary<RuntimePlatform, List<IInstaller>> platformSpecificInstallers = new();
+        [OdinSerialize] private Dictionary<RuntimePlatform, PlatformSpecificInstallerPreset> platformSpecificInstallers = new();
         
         protected override void Configure(IContainerBuilder builder)
         {
@@ -23,10 +23,16 @@ namespace QuackUp.Core
             {
                 options.InstanceLifetime = InstanceLifetime.Singleton;
             });
-            installers.ForEach(installer => installer.Install(builder));
+            foreach (var installer in installers)
+            {
+                installer.Install(builder);
+            }
             if (platformSpecificInstallers.TryGetValue(Application.platform, out var platformInstallers))
             {
-                platformInstallers.ForEach(installer => installer.Install(builder));
+                foreach (var installer in platformInstallers.PlatformSpecificInstallers)
+                {
+                    installer.Install(builder);
+                }
             }
             builder.RegisterBuildCallback(x => GlobalMessagePipe.SetProvider(x.AsServiceProvider()));
         }

@@ -31,8 +31,8 @@ namespace QuackUp.GPGS
         private readonly GPGSSavedGamesConfig _config;
         private readonly GPGSAuthenticationManager _authenticationManager;
         
-        private readonly Subject<Tuple<bool, byte[]>> _onLoadFromService = new();
-        public Observable<Tuple<bool, byte[]>> OnLoadFromService => _onLoadFromService;
+        private readonly Subject<(bool success, byte[] bytes)> _onLoadFromService = new();
+        public Observable<(bool success, byte[] bytes)> OnLoadFromService => _onLoadFromService;
         
         private IDisposable _subscriptions;
         private bool _throttlingSave;
@@ -75,7 +75,7 @@ namespace QuackUp.GPGS
         
         #region Helpers
         
-        private async UniTask<Tuple<bool, ISavedGameMetadata>> ShowSaveSelectionUI(SaveUIConfig config) 
+        private async UniTask<(bool success, ISavedGameMetadata savedGameMetadata)> ShowSaveSelectionUI(SaveUIConfig config) 
         {
             var tcs = new UniTaskCompletionSource<bool>();
             ISavedGameMetadata result = null;
@@ -89,8 +89,8 @@ namespace QuackUp.GPGS
                 });
             await tcs.Task;
             return tcs.GetResult(0)
-                ? new Tuple<bool, ISavedGameMetadata>(true, result) 
-                : new Tuple<bool, ISavedGameMetadata>(false, null);
+                ? new (true, result) 
+                : new (false, null);
         }
         
         private void OnSavedGameSelected(SelectUIStatus status, UniTaskCompletionSource<bool> tcs)
@@ -106,7 +106,7 @@ namespace QuackUp.GPGS
             }
         }
 
-        private async UniTask<Tuple<bool, IList<ISavedGameMetadata>>> TryFetchSaveGames()
+        private async UniTask<(bool success, List<ISavedGameMetadata> savedGameMetadataList)> TryFetchSaveGames()
         {
             ISavedGameClient savedGameClient = PlayGamesPlatform.Instance.SavedGame;
             // create Task from callback
@@ -119,8 +119,8 @@ namespace QuackUp.GPGS
             });
             await tcs.Task;
             return tcs.GetResult(0)
-                ? new Tuple<bool, IList<ISavedGameMetadata>>(true, result) 
-                : new Tuple<bool, IList<ISavedGameMetadata>>(false, null);
+                ? (true, result) 
+                : (false, null);
         }
         
         private void OnFetchedSavedGames(SavedGameRequestStatus status, UniTaskCompletionSource<bool> tcs)
@@ -136,7 +136,7 @@ namespace QuackUp.GPGS
             }
         }
         
-        private async UniTask<Tuple<bool, ISavedGameMetadata>> TryOpenSavedGame(string filename, bool newSave = false) 
+        private async UniTask<(bool success, ISavedGameMetadata savedGameMetadata)> TryOpenSavedGame(string filename, bool newSave = false) 
         {
             ISavedGameClient savedGameClient = PlayGamesPlatform.Instance.SavedGame;
             // create Task from callback
@@ -145,10 +145,10 @@ namespace QuackUp.GPGS
             if (newSave)
             {
                 var saveGames = await TryFetchSaveGames();
-                if (!saveGames.Item1) return new Tuple<bool, ISavedGameMetadata>(false, null);
-                if (saveGames.Item2 != null)
+                if (!saveGames.success) return new (false, null);
+                if (saveGames.savedGameMetadataList != null)
                 {
-                    var count = saveGames.Item2.Count;
+                    var count = saveGames.savedGameMetadataList.Count;
                     filename = $"save_{count + 1}";
                 }
             }
@@ -162,8 +162,8 @@ namespace QuackUp.GPGS
             await tcs.Task;
             Debug.Log($"result is null: {result == null}, status: {tcs.GetResult(0)}");
             return tcs.GetResult(0)
-                ? new Tuple<bool, ISavedGameMetadata>(true, result) 
-                : new Tuple<bool, ISavedGameMetadata>(false, null);
+                ? new (true, result) 
+                : new (false, null);
         }
         
         private void OnSavedGameOpened(SavedGameRequestStatus status, UniTaskCompletionSource<bool> tcs) 
@@ -180,20 +180,20 @@ namespace QuackUp.GPGS
             }
         }
 
-        private async UniTask<Tuple<bool, ISavedGameMetadata>> TryGetUnopenedSavedGame(bool allowSaveSelection, SaveUIConfig? config = null)
+        private async UniTask<(bool success, ISavedGameMetadata savedGameMetadata)> TryGetUnopenedSavedGame(bool allowSaveSelection, SaveUIConfig? config = null)
         {
             ISavedGameMetadata unopenedSaveGame;
             if (allowSaveSelection && config != null)
             {
                 var selectionResult = await ShowSaveSelectionUI(config.Value);
-                if (!selectionResult.Item1) return new(false, null);
-                unopenedSaveGame = selectionResult.Item2;
+                if (!selectionResult.success) return new(false, null);
+                unopenedSaveGame = selectionResult.savedGameMetadata;
             }
             else
             {
                 var allSaveGamesResult = await TryFetchSaveGames();
-                if (!allSaveGamesResult.Item1) return new(false, null);
-                var firstSave = allSaveGamesResult.Item2.Count > 0 ? allSaveGamesResult.Item2[0] : null;
+                if (!allSaveGamesResult.success) return new(false, null);
+                var firstSave = allSaveGamesResult.savedGameMetadataList.Count > 0 ? allSaveGamesResult.savedGameMetadataList[0] : null;
                 unopenedSaveGame = firstSave;
             }
             return new (true, unopenedSaveGame);
@@ -213,25 +213,25 @@ namespace QuackUp.GPGS
             if (!PlayGamesPlatform.Instance.IsAuthenticated()) return false;
             _throttlingSave = true;
             var unopenedSaveGameResult = await TryGetUnopenedSavedGame(allowSaveSelection, _config.SaveUIConfig);
-            if (!unopenedSaveGameResult.Item1)
+            if (!unopenedSaveGameResult.success)
             {
                 Debug.Log("No save game selected or available to save.");
                 CheckSaveInQueue();
                 return false;
             }
-            var newSave = unopenedSaveGameResult.Item2 == null;
-            var fileName = newSave ? "save_0" : unopenedSaveGameResult.Item2.Filename;
+            var newSave = unopenedSaveGameResult.savedGameMetadata == null;
+            var fileName = newSave ? "save_0" : unopenedSaveGameResult.savedGameMetadata.Filename;
             var openResult = await TryOpenSavedGame(fileName, newSave);
-            if (!openResult.Item1 || openResult.Item2 == null)
+            if (!openResult.success || openResult.savedGameMetadata == null)
             {
                 Debug.LogWarning("Failed to open the selected save game.");
                 CheckSaveInQueue();
                 return false;
             }
-            var openedSavedGame = openResult.Item2;
+            var openedSavedGame = openResult.savedGameMetadata;
             var data = eventData.Data;
             var saveResult = await TrySaveToService(openedSavedGame, data, eventData.TotalPlaytime, eventData.SavedImage);
-            if (!saveResult.Item1 || saveResult.Item2 == null)
+            if (!saveResult.success || saveResult.savedGameMetadata == null)
             {
                 Debug.LogWarning("Failed to save the game to the cloud.");
                 CheckSaveInQueue();
@@ -253,7 +253,7 @@ namespace QuackUp.GPGS
             }
         }
 
-        private async UniTask<Tuple<bool, ISavedGameMetadata>> TrySaveToService(ISavedGameMetadata game, byte[] savedData, 
+        private async UniTask<(bool success, ISavedGameMetadata savedGameMetadata)> TrySaveToService(ISavedGameMetadata game, byte[] savedData, 
             TimeSpan? totalPlaytime = null, Texture2D savedImage = null)
         {
             ISavedGameClient savedGameClient = PlayGamesPlatform.Instance.SavedGame;
@@ -290,8 +290,8 @@ namespace QuackUp.GPGS
                 });
             await tcs.Task;
             return tcs.GetResult(0)
-                ? new Tuple<bool, ISavedGameMetadata>(true, result) 
-                : new Tuple<bool, ISavedGameMetadata>(false, null);
+                ? new (true, result) 
+                : new(false, null);
         }
         
         private void OnSavedGameWritten(SavedGameRequestStatus status, ISavedGameMetadata game, UniTaskCompletionSource<bool> tcs)
@@ -310,43 +310,42 @@ namespace QuackUp.GPGS
         #endregion
         
         #region Load
-        public async UniTask<Tuple<bool, byte[]>> LoadFromService(bool allowLoadSelection = false)
+        public async UniTask<(bool success, byte[] bytes)> LoadFromService(bool allowLoadSelection = false)
         {
             if (!PlayGamesPlatform.Instance.IsAuthenticated())
             {
-                _onLoadFromService.OnNext(new Tuple<bool, byte[]>(false, null));
-                return new Tuple<bool, byte[]>(false, null);
+                _onLoadFromService.OnNext(new (false, null));
+                return (false, null);
             }
             var unopenedSaveGameResult = await TryGetUnopenedSavedGame(allowLoadSelection, _config.LoadUIConfig);
-            if ((!unopenedSaveGameResult.Item1 || unopenedSaveGameResult.Item2 == null) && allowLoadSelection)
+            if ((!unopenedSaveGameResult.success || unopenedSaveGameResult.savedGameMetadata == null) && allowLoadSelection)
             {
                 Debug.Log("No save game selected or available to load.");
-                _onLoadFromService.OnNext(new Tuple<bool, byte[]>(false, null));
-                return new Tuple<bool, byte[]>(false, null);
+                _onLoadFromService.OnNext(new (false, null));
+                return (false, null);
             }
-            var newSave = allowLoadSelection && unopenedSaveGameResult.Item2 == null;
-            var fileName = unopenedSaveGameResult.Item2 == null ? "save_0" : unopenedSaveGameResult.Item2.Filename;
-            var openResult = await TryOpenSavedGame(fileName, newSave);
-            if (!openResult.Item1 || openResult.Item2 == null)
+            var fileName = unopenedSaveGameResult.savedGameMetadata == null ? "save_0" : unopenedSaveGameResult.savedGameMetadata.Filename;
+            var openResult = await TryOpenSavedGame(fileName);
+            if (!openResult.success || openResult.savedGameMetadata == null)
             {
                 Debug.LogWarning("Failed to open the selected save game.");
-                _onLoadFromService.OnNext(new Tuple<bool, byte[]>(false, null));
-                return new Tuple<bool, byte[]>(false, null);
+                _onLoadFromService.OnNext(new (false, null));
+                return (false, null);
             }
-            var openedSavedGame = openResult.Item2;
+            var openedSavedGame = openResult.savedGameMetadata;
             var loadResult = await TryLoadSavedGame(openedSavedGame);
-            if (!loadResult.Item1 || loadResult.Item2 == null)
+            if (!loadResult.success || loadResult.bytes == null)
             {
                 Debug.LogWarning("Failed to load the selected save game.");
-                _onLoadFromService.OnNext(new Tuple<bool, byte[]>(false, null));
-                return new Tuple<bool, byte[]>(false, null);
+                _onLoadFromService.OnNext(new (false, null));
+                return(false, null);
             }
             Debug.Log("Game loaded from cloud successfully.");
             _onLoadFromService.OnNext(loadResult);
             return loadResult;
         }
 
-        private async UniTask<Tuple<bool, byte[]>> TryLoadSavedGame(ISavedGameMetadata savedGame)
+        private async UniTask<(bool success, byte[] bytes)> TryLoadSavedGame(ISavedGameMetadata savedGame)
         {
             ISavedGameClient savedGameClient = PlayGamesPlatform.Instance.SavedGame;
             var tcs = new UniTaskCompletionSource<bool>();
@@ -358,8 +357,8 @@ namespace QuackUp.GPGS
             });
             await tcs.Task;
             return tcs.GetResult(0) 
-                ? new Tuple<bool, byte[]>(true, result) 
-                : new Tuple<bool, byte[]>(false, null);
+                ? new (true, result) 
+                : new (false, null);
         }
         
         private void OnSavedGameDataRead(SavedGameRequestStatus status, byte[] data, UniTaskCompletionSource<bool> tcs)

@@ -16,7 +16,10 @@ namespace FitMe.GameData
     public partial class PlayerRecordSaveData : IMessagePackSaveData
     {
         [Key("Version")]
-        [field: SerializeField] public string Version { get; set; }
+        [field: SerializeField] public string Version { get; set; } = string.Empty;
+
+        [Key("PlayerID")]
+        [field: SerializeField] public string PlayerID { get; set; } = string.Empty;
         
         [Key("IsFirstTimePlayer")]
         [field: SerializeField] public bool IsFirstTimePlayer { get; set; } = true;

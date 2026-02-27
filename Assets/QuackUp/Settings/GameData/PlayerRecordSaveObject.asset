@@ -26,7 +26,10 @@ MonoBehaviour:
       Data: 0|FitMe.GameData.PlayerRecordSaveData, FitMe.GameData
     - Name: <Version>k__BackingField
       Entry: 1
-      Data: 0.5.1-devbuild.1+android
+      Data: 0.6.0-devbuild.1+android
+    - Name: <PlayerID>k__BackingField
+      Entry: 6
+      Data: 
     - Name: <IsFirstTimePlayer>k__BackingField
       Entry: 5
       Data: false
@@ -35,7 +38,7 @@ MonoBehaviour:
       Data: System.TimeSpan, mscorlib
     - Name: 
       Entry: 3
-      Data: 290000000
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -47,16 +50,16 @@ MonoBehaviour:
       Data: System.DateTime, mscorlib
     - Name: 
       Entry: 3
-      Data: 5250751494916052744
+      Data: 4611686018427387904
     - Name: 
       Entry: 8
       Data: 
     - Name: score
       Entry: 4
-      Data: 18300
+      Data: 0
     - Name: fitMe
       Entry: 3
-      Data: 1
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -68,16 +71,16 @@ MonoBehaviour:
       Data: System.DateTime, mscorlib
     - Name: 
       Entry: 3
-      Data: 5250751493456096184
+      Data: 4611686018427387904
     - Name: 
       Entry: 8
       Data: 
     - Name: score
       Entry: 4
-      Data: 11600
+      Data: 0
     - Name: fitMe
       Entry: 3
-      Data: 1
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -87,70 +90,7 @@ MonoBehaviour:
         FitMe.GameData]], mscorlib
     - Name: 
       Entry: 12
-      Data: 3
-    - Name: 
-      Entry: 7
-      Data: 4|FitMe.GameData.PlayerRecordSaveData+RunData, FitMe.GameData
-    - Name: dateTime
-      Entry: 7
-      Data: System.DateTime, mscorlib
-    - Name: 
-      Entry: 3
-      Data: 5250756815265206674
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: score
-      Entry: 4
-      Data: 300
-    - Name: fitMe
-      Entry: 3
       Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 5|FitMe.GameData.PlayerRecordSaveData+RunData, FitMe.GameData
-    - Name: dateTime
-      Entry: 7
-      Data: System.DateTime, mscorlib
-    - Name: 
-      Entry: 3
-      Data: 5250755919635645004
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: score
-      Entry: 4
-      Data: 9000
-    - Name: fitMe
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 6|FitMe.GameData.PlayerRecordSaveData+RunData, FitMe.GameData
-    - Name: dateTime
-      Entry: 7
-      Data: System.DateTime, mscorlib
-    - Name: 
-      Entry: 3
-      Data: 5250755868817353894
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: score
-      Entry: 4
-      Data: 900
-    - Name: fitMe
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
     - Name: 
       Entry: 13
       Data: 
@@ -159,16 +99,16 @@ MonoBehaviour:
       Data: 
     - Name: cumulativeScore
       Entry: 4
-      Data: 282770
+      Data: 460
     - Name: cumulativeFitMe
       Entry: 3
-      Data: 45
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
     - Name: migrationResolvers
       Entry: 7
-      Data: 7|System.Collections.Generic.List`1[[QuackUp.Save.ISaveMigrationResolver`1[[FitMe.GameData.PlayerRecordSaveData,
+      Data: 4|System.Collections.Generic.List`1[[QuackUp.Save.ISaveMigrationResolver`1[[FitMe.GameData.PlayerRecordSaveData,
         FitMe.GameData]], QuackUp.Save]], mscorlib
     - Name: 
       Entry: 12

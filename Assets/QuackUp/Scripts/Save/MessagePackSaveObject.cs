@@ -69,6 +69,10 @@ namespace QuackUp.Save
         
         public abstract void LoadFromBytes(byte[] bytes, [CanBeNull] MessagePackSerializerOptions options = null);
         
+        public abstract void LoadFromDeserializedData(IMessagePackSaveData deserializedData);
+        
+        [CanBeNull] public abstract IMessagePackSaveData TryDeserializeSaveData(byte[] bytes, [CanBeNull] MessagePackSerializerOptions options = null);
+        
         public abstract void WriteToFile(byte[] bytes);
         
         public abstract byte[] ReadByte();
@@ -258,6 +262,31 @@ namespace QuackUp.Save
         
         public override void LoadFromBytes(byte[] bytes, MessagePackSerializerOptions options = null)
         {
+            var deserializedData = TryDeserializeSaveData(bytes, options);
+            if (deserializedData == null)
+            {
+                Debug.LogError("Failed to load save data from bytes.");
+                return;
+            }
+            saveData = (T)deserializedData;
+            OnLoadComplete();
+        }
+
+        public override void LoadFromDeserializedData(IMessagePackSaveData deserializedData)
+        {
+            if (deserializedData is T typedData)
+            {
+                saveData = typedData;
+                OnLoadComplete();
+            }
+            else
+            {
+                Debug.LogError($"Deserialized data is not of expected type {typeof(T)}. Load operation aborted.");
+            }
+        }
+
+        public override IMessagePackSaveData TryDeserializeSaveData(byte[] bytes, MessagePackSerializerOptions options = null)
+        {
             options ??= DefaultSerializerOptions;
             T deserializedSave;
             try
@@ -267,37 +296,28 @@ namespace QuackUp.Save
             catch (Exception ex)
             {
                 Debug.LogError($"Failed to deserialize save data: {ex.Message}");
-                return;
+                return null;
             }
 
             if (string.IsNullOrEmpty(saveData.Version))
             {
                 Debug.LogWarning("No current save version specified. No migration needed.");
-                saveData = deserializedSave;
-                OnLoadComplete();
-                return;
+                return deserializedSave;
             }
             SemVersion.TryParse(saveData.Version, out var currentVersion);
             SemVersion.TryParse(deserializedSave.Version, out var deserializedVersion);
             if (SemVersion.ComparePrecedence(currentVersion, deserializedVersion) == 0)
             {
-                saveData = deserializedSave;
                 Debug.Log("Save version matches current version. No migration needed.");
-                OnLoadComplete();
-                return;
+                return deserializedSave;
             }
             if (TryMigrateSave(deserializedSave.Version, saveData.Version, bytes, out var migratedSave))
             {
-                saveData = migratedSave;
                 Debug.Log("Save data loaded successfully.");
-                OnLoadComplete();
+                return migratedSave;
             }
-            else
-            {
-                saveData = deserializedSave;
-                Debug.LogWarning("Failed to migrate save data. Using deserialized data as fallback.");
-                OnLoadComplete();
-            }
+            Debug.LogWarning("Failed to migrate save data. Using deserialized data as fallback.");
+            return deserializedSave;
         }
 
         /// <summary>

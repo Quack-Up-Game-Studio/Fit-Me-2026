@@ -1112,8 +1112,8 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 5cbae03cbf7cc1145b8c227100061b6c, type: 2}
     - {fileID: 3989526417426172819}
     - {fileID: 11400000, guid: d0abbb28b780bdd968d943ed878c4027, type: 2}
-    - {fileID: 11400000, guid: b79ed33d45e276911a76d5de1745f865, type: 2}
-    - {fileID: 11400000, guid: 64377cb07b4f5f8689694f3f7acc693d, type: 2}
+    - {fileID: 11400000, guid: dbb40b9186271f97daac3e929c22b08e, type: 2}
+    - {fileID: 11400000, guid: a989f0e4e4634b244babfb412b5ebfbc, type: 2}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -1222,8 +1222,8 @@ MonoBehaviour:
     - Name: platformSpecificInstallers
       Entry: 7
       Data: 10|System.Collections.Generic.Dictionary`2[[UnityEngine.RuntimePlatform,
-        UnityEngine.CoreModule],[System.Collections.Generic.List`1[[VContainer.Unity.IInstaller,
-        VContainer]], mscorlib]], mscorlib
+        UnityEngine.CoreModule],[QuackUp.Core.PlatformSpecificInstallerPreset, QuackUp.Core]],
+        mscorlib
     - Name: comparer
       Entry: 7
       Data: 11|System.Collections.Generic.EnumEqualityComparer`1[[UnityEngine.RuntimePlatform,
@@ -1245,63 +1245,10 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 11
+      Data: 0
     - Name: $v
-      Entry: 7
-      Data: 12|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 3
-    - Name: 
-      Entry: 7
-      Data: 13|QuackUp.GPGS.GPGSInstaller, QuackUp.GPGS
-    - Name: config
       Entry: 10
       Data: 8
-    - Name: services
-      Entry: 7
-      Data: 14|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 15|QuackUp.GPGS.GPGSSavedGamesInstaller, QuackUp.GPGS
-    - Name: config
-      Entry: 10
-      Data: 9
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 16|FitMe.SocialService.Android.GPGSAuthenticationHandlerInstaller, FitMe.SocialService.Android
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 17|FitMe.SocialService.Android.GPGSSavedGameHandlerInstaller, FitMe.SocialService.Android
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -1312,24 +1259,8 @@ MonoBehaviour:
       Entry: 3
       Data: 16
     - Name: $v
-      Entry: 7
-      Data: 18|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 19|FitMe.Shared.MockSocialServiceInstaller, FitMe.Shared
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
+      Entry: 10
+      Data: 8
     - Name: 
       Entry: 8
       Data: 
@@ -1340,52 +1271,8 @@ MonoBehaviour:
       Entry: 3
       Data: 7
     - Name: $v
-      Entry: 7
-      Data: 20|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 21|FitMe.Shared.MockSocialServiceInstaller, FitMe.Shared
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 0
-    - Name: $v
-      Entry: 7
-      Data: 22|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 23|FitMe.Shared.MockSocialServiceInstaller, FitMe.Shared
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
+      Entry: 10
+      Data: 8
     - Name: 
       Entry: 8
       Data: 
@@ -1396,24 +1283,20 @@ MonoBehaviour:
       Entry: 3
       Data: 2
     - Name: $v
-      Entry: 7
-      Data: 24|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 25|FitMe.Shared.MockSocialServiceInstaller, FitMe.Shared
+      Entry: 10
+      Data: 8
     - Name: 
       Entry: 8
       Data: 
     - Name: 
-      Entry: 13
+      Entry: 7
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 11
+    - Name: $v
+      Entry: 10
+      Data: 9
     - Name: 
       Entry: 8
       Data: 

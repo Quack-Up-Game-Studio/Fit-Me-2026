@@ -12,7 +12,7 @@ namespace FitMe.GameData
     {
         private readonly MessagePackSaveManager _saveManager;
 
-        private PlayerRecordSaveData _saveData;
+        private PlayerRecordSaveObject _saveObject;
         private IDisposable _playtimeTracker;
         
         [Inject]
@@ -23,8 +23,7 @@ namespace FitMe.GameData
         
         public void PostInitialize()
         {
-            _saveData = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>()
-                .GetSaveData<PlayerRecordSaveData>();
+            _saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             StartTimer();
             Application.focusChanged += OnApplicationFocusChanged;
             Application.quitting += OnApplicationQuitting;
@@ -68,7 +67,8 @@ namespace FitMe.GameData
             _playtimeTracker = Observable.Interval(TimeSpan.FromSeconds(1)) // Update every second to reduce overhead, instead of every frame
                 .Subscribe(_ =>
                 {
-                    _saveData.TotalPlayTime += TimeSpan.FromSeconds(1);
+                    var saveData = _saveObject.GetSaveData<PlayerRecordSaveData>();
+                    saveData.TotalPlayTime += TimeSpan.FromSeconds(1);
                 });
         }
 

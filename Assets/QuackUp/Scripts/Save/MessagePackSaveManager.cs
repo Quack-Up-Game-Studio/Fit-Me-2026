@@ -304,6 +304,29 @@ namespace QuackUp.Save
 
         public void LoadFromZipBytes(byte[] zipBytes)
         {
+            var deserializedData = DeserializeSaveDataFromZipBytes(zipBytes);
+            LoadFromDeserializedData(deserializedData);
+        }
+
+        public void LoadFromDeserializedData(DeserializedSaveData deserializedSaveData)
+        {
+            foreach (var kvp in deserializedSaveData.SaveData)
+            {
+                var entryName = kvp.Key;
+                var saveData = kvp.Value;
+                var saveObject = GetSaveObject(entryName);
+                if (!saveObject)
+                {
+                    Debug.LogWarning($"No save object found for entry {entryName} in deserialized data.");
+                    continue;
+                }
+                saveObject.LoadFromDeserializedData(saveData);
+            }
+        }
+
+        public DeserializedSaveData DeserializeSaveDataFromZipBytes(byte[] zipBytes)
+        {
+            var deserializedData = new DeserializedSaveData();
             try
             {
                 using var memoryStream = new MemoryStream(zipBytes);
@@ -321,15 +344,25 @@ namespace QuackUp.Save
                     using var entryStream = entry.Open();
                     using var reader = new BinaryReader(entryStream);
                     var data = reader.ReadBytes((int)entry.Length);
-                    saveObject.LoadFromBytes(data);
+                    var deserializedSaveData = saveObject.TryDeserializeSaveData(data);
+                    if (deserializedSaveData == null)
+                    {
+                        Debug.LogWarning($"Failed to deserialize save data for entry {entryName} in ZIP.");
+                        continue;
+                    }
+
+                    deserializedData.SaveData[entryName] = deserializedSaveData;
                 }
-                Debug.Log("ZIP bytes loaded successfully.");
+
+                Debug.Log("ZIP bytes deserialized successfully.");
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Error loading from ZIP bytes: {ex.Message}");
+                Debug.LogError($"Error deserializing ZIP bytes: {ex.Message}");
                 throw;
             }
+
+            return deserializedData;
         }
     }
 }
