@@ -3,7 +3,7 @@
     "m_SelectedProcess": {
         "deviceId": "a9130acf",
         "name": "com.MadduckGameStudio.FitMe",
-        "processId": 28066,
+        "processId": 378,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -17,31 +17,37 @@
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 635,
+            "processId": 30831,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 16391,
+            "processId": 2863,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 18862,
+            "processId": 8811,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 27278,
+            "processId": 9509,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 28066,
+            "processId": 10275,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 378,
             "exited": false
         }
     ],
@@ -99,7 +105,7 @@
         "AutoCapture": true
     },
     "m_FilterOptions": {
-        "m_Filter": "local",
+        "m_Filter": "",
         "m_UseRegularExpressions": false,
         "m_MatchCase": false
     },

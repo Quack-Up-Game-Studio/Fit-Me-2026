@@ -2,6 +2,7 @@
     "name": "FitMe.Achievement",
     "rootNamespace": "FitMe.Achievement",
     "references": [
+        "GUID:fea75a3d710f7b4a4be5d2dcc6d1e45a",
         "GUID:1a36bf411a3f1ac7d9572518a65f5ffc",
         "GUID:034c977408447714e91237bd5f97c1ff",
         "GUID:867378844ccc1994885ce7926790233c",

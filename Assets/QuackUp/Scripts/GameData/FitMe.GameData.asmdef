@@ -2,6 +2,7 @@
     "name": "FitMe.GameData",
     "rootNamespace": "FitMe.GameData",
     "references": [
+        "GUID:fea75a3d710f7b4a4be5d2dcc6d1e45a",
         "GUID:867378844ccc1994885ce7926790233c",
         "GUID:034c977408447714e91237bd5f97c1ff",
         "GUID:1726fbb01b8ef92eb9b726e0dbefdbd2",

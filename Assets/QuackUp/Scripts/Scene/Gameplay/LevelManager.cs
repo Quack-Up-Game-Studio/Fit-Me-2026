@@ -21,7 +21,7 @@ namespace FitMe.Scene
     public class LevelManager : ILevelManager, IStartable, IDisposable
     {
         public ReactiveProperty<int> Score { get; } = new(0);
-        public ReactiveProperty<int> FitMeScore { get; } = new(0);
+        public ReactiveProperty<int> FitMe { get; } = new(0);
         public int CurrentObstacleCount { get; private set; }
 
         /// <remarks>
@@ -135,7 +135,7 @@ namespace FitMe.Scene
         {
             int finalScore = 0;
             var previousScore = Score.Value;
-            var previousFitMe = FitMeScore.Value;
+            var previousFitMe = FitMe.Value;
 
             switch (scoreEvent.ScoreType)
             {
@@ -211,7 +211,7 @@ namespace FitMe.Scene
         #region Difficulty level
         private void CurrentDifficultyLevel()
         {
-            int currentFit = FitMeScore.Value;
+            int currentFit = FitMe.Value;
             int difficultyLevel = CalculateDifficultyLevel(_difficultyCurve, currentFit);
             CurrentObstacleCount = difficultyLevel;
         }
@@ -248,7 +248,7 @@ namespace FitMe.Scene
         
         private void ChangeFitMe(int value)
         {
-            FitMeScore.Value += value;
+            FitMe.Value += value;
             if (!_playerRecordSaveObject) return;
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return;

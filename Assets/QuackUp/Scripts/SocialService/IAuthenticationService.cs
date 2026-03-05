@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using R3;
 
-namespace FitMe.Shared
+namespace QuackUp.SocialService
 {
     public interface IAuthenticationService
     {

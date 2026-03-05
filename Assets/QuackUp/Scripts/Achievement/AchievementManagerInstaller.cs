@@ -17,7 +17,7 @@ namespace FitMe.Achievement
         public void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(config);
-            builder.Register<AchievementManager>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<AchievementManager>().AsSelf();
             builder.RegisterBuildCallback(x =>
             {
                 foreach (var preset in config.AchievementPresets)

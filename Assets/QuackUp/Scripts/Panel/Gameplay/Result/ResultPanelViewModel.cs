@@ -5,6 +5,7 @@ using FitMe.Shared;
 using QuackUp.Audio;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
+using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
 using TMPro;
@@ -39,6 +40,7 @@ namespace FitMe.Panel
 
         private readonly LoadSceneManager _loadSceneManager;
         private readonly MessagePackSaveManager _saveManager;
+        private readonly ILeaderboardService _leaderboardService;
         private readonly ICloudSaveService _cloudSaveService;
         private readonly ILevelManager _levelManager;
 
@@ -51,6 +53,7 @@ namespace FitMe.Panel
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
             MessagePackSaveManager saveManager,
+            ILeaderboardService leaderboardService,
             ICloudSaveService cloudSaveService,
             ILevelManager levelManager,
             IAudioManager audioManager) : base(panelManager)
@@ -59,6 +62,7 @@ namespace FitMe.Panel
             _levelManager = levelManager;
             _saveManager = saveManager;
             _cloudSaveService = cloudSaveService;
+            _leaderboardService = leaderboardService;
             AudioManager = audioManager;
             Bind();
         }
@@ -78,10 +82,9 @@ namespace FitMe.Panel
             ScoreText = _levelManager.Score
                 .Select(score => score.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
-            FitText = _levelManager.FitMeScore
+            FitText = _levelManager.FitMe
                 .Select(fit => fit.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
-            
             _bindings = disposableBuilder.Build();
         }
         
@@ -104,14 +107,28 @@ namespace FitMe.Panel
             {
                 dateTime = DateTime.Now,
                 score = _levelManager.Score.Value,
-                fitMe = _levelManager.FitMeScore.Value
+                fitMe = _levelManager.FitMe.Value
             });
             _saveManager.Save(_saveObject);
-            _cloudSaveService.SaveToService();
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default); 
+            ReportToLeaderboard().Forget();
             var isNewHighScore = _levelManager.Score.Value > highScoreBefore;
-            var isNewFitMe = _levelManager.FitMeScore.Value > mostFitMeBefore;
+            var isNewFitMe = _levelManager.FitMe.Value > mostFitMeBefore;
             _displayResultPromise = new Promise<Unit>();
             DisplayResultCommand.Execute(new DisplayResultCommandData(_displayResultPromise, isNewHighScore, isNewFitMe));
+        }
+
+        private async UniTask ReportToLeaderboard()
+        {
+            var reportScore = _leaderboardService.ReportData(LeaderboardReportParameters.Builder
+                .CreateBuilder("Score")
+                .WithData(_levelManager.Score.Value)
+                .Build());
+            var reportFitMe = _leaderboardService.ReportData(LeaderboardReportParameters.Builder
+                .CreateBuilder("FitMe")
+                .WithData(_levelManager.FitMe.Value)
+                .Build());
+            await UniTask.WhenAll(reportScore, reportFitMe);
         }
 
         private async UniTask OnMainMenu()

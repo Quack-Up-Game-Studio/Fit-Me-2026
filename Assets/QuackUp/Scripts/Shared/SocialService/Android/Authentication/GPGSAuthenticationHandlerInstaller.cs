@@ -1,5 +1,6 @@
 using System;
 using FitMe.Shared;
+using QuackUp.SocialService;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using VContainer;

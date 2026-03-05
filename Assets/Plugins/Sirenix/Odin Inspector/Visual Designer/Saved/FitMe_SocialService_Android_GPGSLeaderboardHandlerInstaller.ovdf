@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.SocialService.Android.GPGSLeaderboardHandlerInstaller, FitMe.SocialService.Android
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "GPGS Leaderboard Handler"
++ [Sirenix.OdinInspector.HideLabelAttribute]

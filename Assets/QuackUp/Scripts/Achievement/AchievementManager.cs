@@ -4,9 +4,11 @@ using System.Linq;
 using FitMe.Shared;
 using MessagePipe;
 using QuackUp.Save;
+using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
 using VContainer;
+using VContainer.Unity;
 
 namespace FitMe.Achievement
 {
@@ -21,7 +23,7 @@ namespace FitMe.Achievement
             this.achievement = achievement;
         }
     }
-    public class AchievementManager : IDisposable
+    public class AchievementManager : IStartable, IDisposable
     {
         private readonly MessagePackSaveManager _saveManager;
         private readonly AchievementManagerConfig _config;
@@ -31,6 +33,7 @@ namespace FitMe.Achievement
         private Dictionary<string, AchievementPreset> _presetsById = new();
         
         private AchievementSaveObject _saveObject;
+        private IDisposable _resetSubscription;
         
         public IReadOnlyDictionary<string, AchievementInstance> Achievements => _achievements;
         
@@ -45,11 +48,11 @@ namespace FitMe.Achievement
             _config = config;
             _notificationDisplayPublisher = notificationDisplayPublisher;
             _cloudSaveService = cloudSaveService;
-            Initialize();
         }
 
         public void Dispose()
         {
+            _resetSubscription?.Dispose();
             foreach (var achievement in _achievements.Values)
             {
                 achievement.subscription.Dispose();
@@ -59,13 +62,25 @@ namespace FitMe.Achievement
                 }
             }
         }
-
-        private void Initialize()
+        
+        public void Start()
         {
             _saveObject = _saveManager.GetFirstSaveObjectOfType<AchievementSaveObject>();
-            if (!_saveObject) return;
+            if (!_saveObject)
+            {
+                DebugUtils.LogError($"Save object of type {nameof(AchievementSaveObject)} not found. AchievementManager will not function properly.");
+                return;
+            }
+            _resetSubscription = _saveObject.OnResetEvent
+                .Subscribe(_ => RegisterAchievements());
+            RegisterAchievements();
+        }
+
+        private void RegisterAchievements()
+        {
             var saveData = _saveObject.GetSaveData<AchievementSaveData>();
             if (saveData == null) return;
+            _achievements.Clear();
             _presetsById = _config.AchievementPresets.ToDictionary(x => x.AchievementId, x => x);
             var tempPresetsById = new Dictionary<string, AchievementPreset>(_presetsById);
             foreach (var saveAchievement in saveData.Achievements)
@@ -139,7 +154,7 @@ namespace FitMe.Achievement
         private void OnComplete(IAchievement achievement)
         {
             _notificationDisplayPublisher.Publish(new NotificationDisplayEvent(NotificationType.Challenge, new AchievementNotificationData(achievement)));
-            _cloudSaveService.SaveToService();
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
         }
     }
 }

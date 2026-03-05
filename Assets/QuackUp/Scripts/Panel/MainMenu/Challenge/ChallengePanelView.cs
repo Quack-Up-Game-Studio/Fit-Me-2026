@@ -35,12 +35,13 @@ namespace FitMe.Panel
         public void ForceRebuildLayout()
         {
             OnPlayerDataLoaded().Forget();
-            ForceRebuild().Forget();
+            ScrollContentRectTransform.ForceRebuildLayout().Forget();
         }
 
         private readonly List<ChallengeBlock> _challengeBlocks = new();
         private readonly List<RecordBlock> _recordBlocks = new();
         
+        private RectTransform ScrollContentRectTransform => (RectTransform)scrollContent.transform;
         private ChallengePanelViewModel ViewModel => (ChallengePanelViewModel)BaseViewModel; 
         private IDisposable _bindings;
 
@@ -86,7 +87,7 @@ namespace FitMe.Panel
             DebugUtils.Log($"OnFinishedAuthentication: {success}");
             authenticateButton.gameObject.SetActive(!success);
             if (!success) return;
-            SetPlayerInfo().Forget();
+            SetPlayerInfo();
         }
         
         private void OnSyncResult(bool success)
@@ -96,7 +97,7 @@ namespace FitMe.Panel
             OnPlayerDataLoaded().Forget();
             SetRecords();
             SetChallenges();
-            ForceRebuild().Forget();
+            ScrollContentRectTransform.ForceRebuildLayout().Forget();
         }
 
         protected override void OnVisibilityStateChanged(VisibilityState state)
@@ -106,10 +107,10 @@ namespace FitMe.Panel
             var authenticated = ViewModel.AuthenticationService.IsAuthenticated;
             authenticateButton.gameObject.SetActive(!authenticated);
             OnPlayerDataLoaded().Forget();
-            SetPlayerInfo().Forget();
+            SetPlayerInfo();
             SetRecords();
             SetChallenges();
-            ForceRebuild().Forget();
+            ScrollContentRectTransform.ForceRebuildLayout().Forget();
         }
 
         private async UniTaskVoid OnPlayerDataLoaded()
@@ -141,13 +142,7 @@ namespace FitMe.Panel
                 _challengeBlocks.Add(challengeBlock);
                 challengeBlock.SetData(instance.achievement);
             }
-            await ForceRebuild();
-        }
-
-        private async UniTask ForceRebuild()
-        {
-            await UniTask.WaitForEndOfFrame();
-            LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent.transform as RectTransform);
+            await ScrollContentRectTransform.ForceRebuildLayout();
         }
         
         private void OnBackButtonClicked()
@@ -171,9 +166,14 @@ namespace FitMe.Panel
             ViewModel.SaveButtonClickedCommand.Execute(Unit.Default);
         }
 
-        private async UniTaskVoid SetPlayerInfo()
+        private void SetPlayerInfo()
         {
             usernameText.text = ViewModel.UserDataProvider.DisplayName ?? "Guest";
+            LoadAvatar().Forget();
+        }
+
+        private async UniTaskVoid LoadAvatar()
+        {
             var avatar = await ViewModel.UserDataProvider.GetAvatar();
             if (!avatar) return;
             profileImage.sprite = avatar;

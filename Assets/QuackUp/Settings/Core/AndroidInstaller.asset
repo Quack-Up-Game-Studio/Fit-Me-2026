@@ -19,6 +19,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: b79ed33d45e276911a76d5de1745f865, type: 2}
     - {fileID: 11400000, guid: 64377cb07b4f5f8689694f3f7acc693d, type: 2}
     - {fileID: 11400000, guid: 7ea3f06d12418cf61bc1fc2980fdb0e2, type: 2}
+    - {fileID: 11400000, guid: f165a9a4c99c3bd7ca8e8f96586f0124, type: 2}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -30,7 +31,7 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 3
+      Data: 4
     - Name: 
       Entry: 7
       Data: 1|QuackUp.GPGS.GPGSInstaller, QuackUp.GPGS
@@ -43,13 +44,19 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 2
     - Name: 
       Entry: 7
       Data: 3|QuackUp.GPGS.GPGSSavedGamesInstaller, QuackUp.GPGS
     - Name: config
       Entry: 10
       Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 4|QuackUp.GPGS.GPGSLeaderboardInstaller, QuackUp.GPGS
     - Name: 
       Entry: 8
       Data: 
@@ -64,16 +71,25 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 4|FitMe.SocialService.Android.GPGSAuthenticationHandlerInstaller, FitMe.SocialService.Android
+      Data: 5|FitMe.SocialService.Android.GPGSAuthenticationHandlerInstaller, FitMe.SocialService.Android
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 5|FitMe.SocialService.Android.GPGSSavedGameHandlerInstaller, FitMe.SocialService.Android
+      Data: 6|FitMe.SocialService.Android.GPGSSavedGameHandlerInstaller, FitMe.SocialService.Android
     - Name: remoteSaveResolverConfig
       Entry: 10
       Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 7|FitMe.SocialService.Android.GPGSLeaderboardHandlerInstaller, FitMe.SocialService.Android
+    - Name: leaderboardIdMapping
+      Entry: 10
+      Data: 3
     - Name: 
       Entry: 8
       Data: 

@@ -51,13 +51,6 @@ namespace QuackUp.Save
     [CreateAssetMenu(fileName = "TestMessagePackSaveObject", menuName = "QuackUp/Save/TestMessagePackSaveObject", order = 0)]
     public class TestMessagePackSaveObject : MessagePackSaveObject<TestMessagePackSaveData>
     {
-        public override void Reset()
-        {
-            base.Reset();
-            saveData = new TestMessagePackSaveData
-            {
-                Version = string.Empty
-            };
-        }
+        
     }
 }

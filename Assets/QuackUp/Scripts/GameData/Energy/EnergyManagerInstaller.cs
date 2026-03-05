@@ -17,6 +17,7 @@ namespace FitMe.GameData
             this.manager = manager;
         }
     }
+    
     [Serializable]
     public class EnergyManagerInstaller : DebugableInstaller<EnergyManagerDebugData>
     {
