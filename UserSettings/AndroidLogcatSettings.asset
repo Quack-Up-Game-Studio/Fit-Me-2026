@@ -3,7 +3,7 @@
     "m_SelectedProcess": {
         "deviceId": "a9130acf",
         "name": "com.MadduckGameStudio.FitMe",
-        "processId": 378,
+        "processId": 10930,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -48,6 +48,12 @@
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
             "processId": 378,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 10930,
             "exited": false
         }
     ],

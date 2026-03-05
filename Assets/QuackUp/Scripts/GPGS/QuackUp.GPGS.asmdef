@@ -11,8 +11,7 @@
         "UniTask"
     ],
     "includePlatforms": [
-        "Android",
-        "Editor"
+        "Android"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

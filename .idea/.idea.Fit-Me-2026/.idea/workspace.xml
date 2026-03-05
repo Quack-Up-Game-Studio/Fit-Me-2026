@@ -5,155 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="41d03079-9c3e-4543-9387-fb394932fb26" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Leaderboard.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Leaderboard/GPGSLeaderboard.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Leaderboard/GPGSLeaderboard.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Leaderboard/GPGSLeaderboardInstaller.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Leaderboard/GPGSLeaderboardInstaller.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardBlock.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardBlock.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardPanelLifetimeScope.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardPanelLifetimeScope.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardPanelView.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardPanelView.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardPanelViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardPanelViewModel.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandlerInstaller.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandlerInstaller.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.cmake/api/v1/reply/index-2026-02-27T13-01-39-0904.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.cmake/api/v1/reply/index-2026-02-27T13-01-41-0426.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementManagerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementManagerInstaller.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementSaveObject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementSaveObject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/FitMe.Achievement.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/FitMe.Achievement.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Audio/Save/AudioSaveObject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Audio/Save/AudioSaveObject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/GPGSIds.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/GPGSIds.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/SavedGames/GPGSSavedGamesConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/SavedGames/GPGSSavedGamesConfig.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Energy/EnergyManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Energy/EnergyManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Energy/EnergyManagerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Energy/EnergyManagerInstaller.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/FitMe.GameData.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/FitMe.GameData.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Game/GameRecordSaveObject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Game/GameRecordSaveObject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Player/PlayerRecordSaveObject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Player/PlayerRecordSaveObject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/FitMe.Panel.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/FitMe.Panel.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Score/ScoreViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Score/ScoreViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Challenge/ChallengePanelView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Challenge/ChallengePanelView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Challenge/ChallengePanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Challenge/ChallengePanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/MessagePackSaveManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/MessagePackSaveManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/MessagePackSaveObject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/MessagePackSaveObject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/TestMessagePackSaveObject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/TestMessagePackSaveObject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/ILevelManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/ILevelManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandlerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandlerInstaller.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/FitMe.SocialService.Android.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/FitMe.SocialService.Android.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/SavedGames/GPGSSavedGameHandlerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/SavedGames/GPGSSavedGameHandlerInstaller.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/SavedGames/GPGSSavedGamesHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/SavedGames/GPGSSavedGamesHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/IAuthenticationService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/IAuthenticationService.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/ICloudSaveService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/ICloudSaveService.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/IUserData.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/IUserData.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/MockSocialServiceInstaller.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/MockSocialServiceInstaller.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/Other/RectTransformUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/Other/RectTransformUtils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/1x1.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/1x1.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/1x2.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/1x2.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/1x3.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/1x3.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/2x2.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/2x2.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/J.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/J.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/L.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/L.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/S.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/S.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/T.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/T.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/Z.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockConfig/Z.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockManagerConfig.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockManagerConfig.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/1x1.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/1x1.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/1x2.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/1x2.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/1x3.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/1x3.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/2x2.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/2x2.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/J.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/J.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/L.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/L.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/S.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/S.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/T.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/T.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/Z.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Block/BlockPreset/Z.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Core/AndroidInstaller.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Settings/Core/AndroidInstaller.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/GPGS.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/GPGS/GPGSAuthenticationManagerConfig.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/GPGS/GPGSAuthenticationManagerConfig.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/GPGS/GPGSSavedGamesConfig.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/GPGS/GPGSSavedGamesConfig.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Original_6x6.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Original_6x6.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Original_7x7.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Original_7x7.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_1.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_1.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_10.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_10.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_2.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_2.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_3.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_3.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_4.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_4.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_5.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_5.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_6.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_6.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_7.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_7.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_8.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_8.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_9.asset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/GridPreset/Shape_9.asset.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FitMe.Panel.csproj.DotSettings" beforeDir="false" afterPath="$PROJECT_DIR$/FitMe.Panel.csproj.DotSettings" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FitMe.SocialService.Android.csproj.DotSettings" beforeDir="false" afterPath="$PROJECT_DIR$/FitMe.SocialService.Android.csproj.DotSettings" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/GooglePlayGameSettings.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/GooglePlayGameSettings.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/QuackUp.GPGS.csproj.DotSettings" beforeDir="false" afterPath="$PROJECT_DIR$/QuackUp.GPGS.csproj.DotSettings" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Android/mainTemplate.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Android/mainTemplate.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/QuackUp.GPGS.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/QuackUp.GPGS.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/AndroidResolverDependencies.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/AndroidResolverDependencies.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,7 +38,8 @@
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/RemoteSaveResolver/ISaveConflictResolver.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/RemoteSaveResolver/RemoteSaveResolver.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/RemoteSaveResolver/RemoteSaveResolverConfig.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandlerInstaller.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/jp.hadashikick.vcontainer@0cb993cc4615/Runtime/Container.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/jp.hadashikick.vcontainer@0cb993cc4615/Runtime/Internal/InstanceRegistrationBuilder.cs" root0="SKIP_HIGHLIGHTING" />
@@ -205,7 +62,7 @@
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Dev&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Leaderboard&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -301,7 +158,9 @@
       <workItem from="1772681268263" duration="14958000" />
       <workItem from="1772698817876" duration="160000" />
       <workItem from="1772700778634" duration="1590000" />
-      <workItem from="1772702668788" duration="925000" />
+      <workItem from="1772702668788" duration="2479000" />
+      <workItem from="1772707915374" duration="60000" />
+      <workItem from="1772708147054" duration="88000" />
     </task>
     <servers />
   </component>

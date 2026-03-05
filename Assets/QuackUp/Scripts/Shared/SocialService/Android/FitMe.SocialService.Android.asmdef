@@ -15,8 +15,7 @@
         "GUID:1ed07ff861e5f468287b0baef844706d"
     ],
     "includePlatforms": [
-        "Android",
-        "Editor"
+        "Android"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
