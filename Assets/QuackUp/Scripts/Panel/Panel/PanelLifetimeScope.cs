@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using QuackUp.Input;
 using QuackUp.Utils;
@@ -12,9 +13,10 @@ namespace FitMe.Panel
     [ShowOdinSerializedPropertiesInInspector]
     public abstract class PanelLifetimeScope : SerializedLifetimeScope
     {
-        [SerializeReference] private PanelManagerInstaller panelManagerInstaller;
+        [SerializeField] private bool hasNestedPanelManager;
+        [OdinSerialize, ShowIf(nameof(hasNestedPanelManager))] private PanelManagerInstaller panelManagerInstaller;
         [OdinSerialize] private List<IInstaller> additionalInstallers = new();
-        protected PanelManager ParentPanelManager;
+    
         public abstract IPanelViewModel CreatPanel();
         
         public void Initialize()
@@ -24,14 +26,20 @@ namespace FitMe.Panel
         
         protected override void Configure(IContainerBuilder builder)
         {
-            panelManagerInstaller?.Install(builder);
+            if (hasNestedPanelManager)
+            {
+                panelManagerInstaller.IsNested = true;
+                panelManagerInstaller.Install(builder);
+            }
             foreach (var installer in additionalInstallers)
             {
                 installer.Install(builder);
             }
-            builder.RegisterBuildCallback(x =>
+            builder.RegisterBuildCallback(_ =>
             {
-                ParentPanelManager = x.Resolve<PanelManager>();
+            });
+            builder.RegisterDisposeCallback(_ =>
+            {
             });
         }
     }

@@ -18,11 +18,20 @@ namespace FitMe.Panel
         [OdinSerialize] private Dictionary<string, PanelLifetimeScope> panelLifetimeScopes = new();
         [SerializeField] private string startupPanelId;
         
+        public bool IsNested { get; set; }
+        public const string NestedPanelId = "Nested";
+        
         public void Install(IContainerBuilder builder)
         {
-            builder.RegisterInstance(panelLifetimeScopes).As<IReadOnlyDictionary<string, PanelLifetimeScope>>();
-            builder.RegisterInstance(startupPanelId);
-            builder.Register<PanelManager>(Lifetime.Singleton);
+            if (!IsNested)
+            {
+                builder.Register(_ => new PanelManager(panelLifetimeScopes, startupPanelId), Lifetime.Singleton).AsSelf();
+            }
+            else
+            {
+                builder.Register(_ => new PanelManager(panelLifetimeScopes, startupPanelId), Lifetime.Singleton).AsSelf()
+                    .Keyed(NestedPanelId);
+            }
             builder.RegisterBuildCallback(c =>
             {
                 panelLifetimeScopes.Values.ForEach(x =>
@@ -32,7 +41,8 @@ namespace FitMe.Panel
                     x.Initialize();
                     x.Build();
                 });
-                c.Resolve<PanelManager>().Initialize();
+                var panelManager = !IsNested ? c.Resolve<PanelManager>() : c.Resolve<PanelManager>(NestedPanelId);
+                panelManager.Initialize();
             });
         }
     }

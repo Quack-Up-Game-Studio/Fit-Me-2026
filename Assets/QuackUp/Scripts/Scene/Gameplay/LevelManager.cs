@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using Cysharp.Threading.Tasks;
 using FitMe.Achievement;
 using FitMe.Entity;
 using FitMe.GameData;
@@ -9,6 +11,7 @@ using FitMe.Panel;
 using QuackUp.Audio;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
+using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
 using Redcode.Extensions;
@@ -43,15 +46,17 @@ namespace FitMe.Scene
         private readonly IMessageHub _messageHub;
         private readonly GridManager _gridManager;
         private readonly MessagePackSaveManager _saveManager;
-        private readonly AchievementManager _achievementManager;
         private readonly PopUpScoreFactory _popUpScoreFactory;
         private readonly PanelManager _panelManager;
+        private readonly ILeaderboardService _leaderboardService;
+        private readonly ICloudSaveService _cloudSaveService;
         
         private List<GridPreset> _presets;
         private PlayerRecordSaveObject _playerRecordSaveObject;
         private AudioReference _bgmReference;
         private GameState _previousStateBeforePause;
         private IDisposable _subscriptions;
+        private IDisposable _onResultSubscription;
         
         [Inject]
         public LevelManager(
@@ -61,9 +66,10 @@ namespace FitMe.Scene
             [Key(LevelManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
             GridManager gridManager,
             MessagePackSaveManager saveManager,
-            AchievementManager achievementManager,
             PopUpScoreFactory popUpScoreFactory,
-            PanelManager panelManager)
+            PanelManager panelManager,
+            ILeaderboardService leaderboardService,
+            ICloudSaveService cloudSaveService)
         {
             _config = config;
             _entityManager = entityManager;
@@ -72,8 +78,9 @@ namespace FitMe.Scene
             _gridManager = gridManager;
             _popUpScoreFactory = popUpScoreFactory;
             _saveManager = saveManager;
-            _achievementManager = achievementManager;
             _panelManager = panelManager;
+            _leaderboardService = leaderboardService;
+            _cloudSaveService = cloudSaveService;
             Initialize();
             Subscribe();
         }
@@ -108,11 +115,20 @@ namespace FitMe.Scene
         public void Dispose()
         {
             _subscriptions?.Dispose();
+            _onResultSubscription?.Dispose();
         }
         
         public void Start()
         {
             CheckGameMode();
+
+            if (!_panelManager.TryGetPanel<ResultPanelViewModel>(_config.ResultPanelId, out var resultPanel))
+            {
+                DebugUtils.LogError($"Result panel with ID {_config.ResultPanelId} not found in PanelManager.");
+                return;
+            }
+            _onResultSubscription = resultPanel.OnResultVisible
+                .Subscribe(_ => OnResult());
             
             if (!GridPreset) 
                 _messageHub.Publish(new StartCreateGridEvent());
@@ -134,9 +150,6 @@ namespace FitMe.Scene
         private void OnScoreAdded(ScoreEvent scoreEvent)
         {
             int finalScore = 0;
-            var previousScore = Score.Value;
-            var previousFitMe = FitMe.Value;
-
             switch (scoreEvent.ScoreType)
             {
                 case ScoreTypes.Placement:
@@ -162,7 +175,7 @@ namespace FitMe.Scene
         {
             switch (GameMode)
             {
-                case GameMode.Original:
+                case GameMode.Classic:
                     OriginalMode();
                     break;
                 case GameMode.LevelShape:
@@ -287,24 +300,51 @@ namespace FitMe.Scene
         
         private void GameOver()
         {
-            _panelManager.TryGetPanel(_config.GameOverPanelId, out var panel);
-            if (panel is GameOverPanelViewModel gameOverPanelViewModel)
+            _panelManager.TryGetPanel<GameOverPanelViewModel>(_config.GameOverPanelId, out var gameOverPanelViewModel);
+            if (gameOverPanelViewModel.RemainingContinueCount.CurrentValue <= 0)
             {
-                if (gameOverPanelViewModel.RemainingContinueCount.CurrentValue <= 0)
-                {
-                    _panelManager.Crossfade(_config.GameplayPanelId, _config.ResultPanelId, 
-                        new CrossfadeSettings
-                        {
-                            crossFadeType = CrossfadeType.InOnly
-                        });
-                    return;
-                }
+                _panelManager.Crossfade(_config.GameplayPanelId, _config.ResultPanelId, 
+                    new CrossfadeSettings
+                    {
+                        crossFadeType = CrossfadeType.InOnly
+                    }).Forget();
+                return;
             }
             _panelManager.Crossfade(_config.GameplayPanelId, _config.GameOverPanelId, 
                 new CrossfadeSettings
                 {
                     crossFadeType = CrossfadeType.InOnly
-                });
+                }).Forget();
+        }
+
+        private void OnResult()
+        {
+            _panelManager.TryGetPanel<ResultPanelViewModel>(_config.ResultPanelId, out var resultPanel);
+            var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
+            resultPanel.CacheScoreAndFit((int)saveData.highScore.score, saveData.highScore.fitMe);
+            saveData.AddRunData(new PlayerRecordSaveData.RunData
+            {
+                dateTime = DateTime.Now,
+                score = Score.Value,
+                fitMe = FitMe.Value
+            });
+            _saveManager.Save(saveObject);
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default); 
+            ReportToLeaderboard().Forget();
+        }
+        
+        private async UniTask ReportToLeaderboard()
+        {
+            var reportScore = _leaderboardService.ReportData(LeaderboardReportParameters.Builder
+                .CreateBuilder($"{GameMode}Score")
+                .WithData(Score.Value)
+                .Build());
+            var reportFitMe = _leaderboardService.ReportData(LeaderboardReportParameters.Builder
+                .CreateBuilder($"{GameMode}Fit")
+                .WithData(FitMe.Value)
+                .Build());
+            await UniTask.WhenAll(reportScore, reportFitMe);
         }
     }
 }

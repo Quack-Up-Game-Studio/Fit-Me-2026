@@ -24,7 +24,7 @@ namespace FitMe.Shared
     
     public enum GameMode
     {
-        Original = 0,
+        Classic = 0,
         LevelShape = 1
     }
 }

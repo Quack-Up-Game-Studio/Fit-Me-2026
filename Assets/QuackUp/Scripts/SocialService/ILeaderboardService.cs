@@ -32,9 +32,12 @@ namespace QuackUp.SocialService
                 LeaderboardTitle = "Mock Leaderboard",
                 Entries = new List<(IUserDataProvider UserData, ScoreData scoreData)>
                 {
-                    (new MockUserDataProvider(), new ScoreData { RawValue = 1000, FormattedValue = "1,000", Rank = 1, Timestamp = DateTime.UtcNow }),
-                    (new MockUserDataProvider(), new ScoreData { RawValue = 800, FormattedValue = "800", Rank = 2, Timestamp = DateTime.UtcNow }),
-                    (new MockUserDataProvider(), new ScoreData { RawValue = 600, FormattedValue = "600", Rank = 3, Timestamp = DateTime.UtcNow }),
+                    (new UserData { UserId = "1", DisplayName = "Player1" }, 
+                        new ScoreData { RawValue = 1000, FormattedValue = "1,000", Rank = 1, Timestamp = DateTime.UtcNow }),
+                    (new UserData { UserId = "2", DisplayName = "Player2" }, 
+                        new ScoreData { RawValue = 800, FormattedValue = "800", Rank = 2, Timestamp = DateTime.UtcNow }),
+                    (new UserData { UserId = "3", DisplayName = "Player3" }, 
+                        new ScoreData { RawValue = 600, FormattedValue = "600", Rank = 3, Timestamp = DateTime.UtcNow }),
                 }
             });
         }

@@ -32,6 +32,8 @@ namespace FitMe.Panel
         public ReactiveCommand ToMainMenuCommand { get; } = new();
         public ReactiveCommand ToRetryCommand { get; } = new();
         public ReactiveCommand<DisplayResultCommandData> DisplayResultCommand { get; } = new();
+        public Observable<Unit> OnResultVisible => _onResultVisible;
+        private readonly Subject<Unit> _onResultVisible = new();
         
         public ReadOnlyReactiveProperty<string> ScoreText { get; private set; }
         public ReadOnlyReactiveProperty<string> FitText { get; private set; }
@@ -39,11 +41,11 @@ namespace FitMe.Panel
         public IAudioManager AudioManager { get; private set; }
 
         private readonly LoadSceneManager _loadSceneManager;
-        private readonly MessagePackSaveManager _saveManager;
-        private readonly ILeaderboardService _leaderboardService;
-        private readonly ICloudSaveService _cloudSaveService;
+        
         private readonly ILevelManager _levelManager;
 
+        private int _scoreBeforeSave;
+        private int _fitMeBeforeSave;
         private Promise<Unit> _displayResultPromise;
         private PlayerRecordSaveObject _saveObject;
         private IDisposable _bindings;
@@ -52,17 +54,11 @@ namespace FitMe.Panel
         public ResultPanelViewModel(
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
-            MessagePackSaveManager saveManager,
-            ILeaderboardService leaderboardService,
-            ICloudSaveService cloudSaveService,
             ILevelManager levelManager,
             IAudioManager audioManager) : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
             _levelManager = levelManager;
-            _saveManager = saveManager;
-            _cloudSaveService = cloudSaveService;
-            _leaderboardService = leaderboardService;
             AudioManager = audioManager;
             Bind();
         }
@@ -96,39 +92,20 @@ namespace FitMe.Panel
             FitText?.Dispose();
         }
 
+        public void CacheScoreAndFit(int score, int fitMe)
+        {
+            _scoreBeforeSave = score;
+            _fitMeBeforeSave = fitMe;
+        }
+
         protected override void OnVisible()
         {
             base.OnVisible();
-            _saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
-            var saveData = _saveObject.GetSaveData<PlayerRecordSaveData>();
-            var highScoreBefore = saveData.highScore.score;
-            var mostFitMeBefore = saveData.mostFitMe.fitMe;
-            saveData.AddRunData(new PlayerRecordSaveData.RunData
-            {
-                dateTime = DateTime.Now,
-                score = _levelManager.Score.Value,
-                fitMe = _levelManager.FitMe.Value
-            });
-            _saveManager.Save(_saveObject);
-            _cloudSaveService.SaveToService(SaveToServiceParameters.Default); 
-            ReportToLeaderboard().Forget();
-            var isNewHighScore = _levelManager.Score.Value > highScoreBefore;
-            var isNewFitMe = _levelManager.FitMe.Value > mostFitMeBefore;
+            _onResultVisible.OnNext(Unit.Default);
+            var isNewHighScore = _levelManager.Score.Value > _scoreBeforeSave;
+            var isNewFitMe = _levelManager.FitMe.Value > _fitMeBeforeSave;
             _displayResultPromise = new Promise<Unit>();
             DisplayResultCommand.Execute(new DisplayResultCommandData(_displayResultPromise, isNewHighScore, isNewFitMe));
-        }
-
-        private async UniTask ReportToLeaderboard()
-        {
-            var reportScore = _leaderboardService.ReportData(LeaderboardReportParameters.Builder
-                .CreateBuilder("Score")
-                .WithData(_levelManager.Score.Value)
-                .Build());
-            var reportFitMe = _leaderboardService.ReportData(LeaderboardReportParameters.Builder
-                .CreateBuilder("FitMe")
-                .WithData(_levelManager.FitMe.Value)
-                .Build());
-            await UniTask.WhenAll(reportScore, reportFitMe);
         }
 
         private async UniTask OnMainMenu()

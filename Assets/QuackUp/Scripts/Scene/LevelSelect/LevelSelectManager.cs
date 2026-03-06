@@ -29,17 +29,13 @@ namespace FitMe.Scene
         {
             var disposableBuilder = Disposable.CreateBuilder();
             
-            _panelManager.TryGetPanel("LevelSelect", out var viewModel);
-            if (viewModel is LevelSelectViewModel levelSelectViewModel)
-            {
-                levelSelectViewModel.LevelSelected
-                    .Subscribe(preset =>
-                    {
-                        LevelManager.GridPreset = preset;
-                    })
-                    .AddTo(ref disposableBuilder);
-            }
-            
+            _panelManager.TryGetPanel<LevelSelectViewModel>("LevelSelect", out var levelSelectViewModel);
+            levelSelectViewModel.LevelSelected
+                .Subscribe(preset =>
+                {
+                    LevelManager.GridPreset = preset;
+                })
+                .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
         

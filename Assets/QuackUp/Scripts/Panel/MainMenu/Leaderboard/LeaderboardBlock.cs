@@ -13,26 +13,28 @@ namespace FitMe.Panel
         [SerializeField] private Image avatarImage;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text scoreText;
+        [SerializeField] private TMP_Text fitText;
         [SerializeField] private TMP_Text dateText;
         [SerializeField] private TMP_Text rankText;
         
-        public void SetData(Sprite avatar, string username, string formattedScore, DateTime date, int rank)
+        public void SetData(Sprite avatar, string username, string formattedScore, string formattedFit, DateTime date, int rank)
         {
             if (avatar)
                 avatarImage.sprite = avatar;
-            SetDataInternal(username, formattedScore, date, rank);
+            SetDataInternal(username, formattedScore, formattedFit, date, rank);
         }
         
-        public void SetData(IUserDataProvider userDataProvider, string username, string formattedScore, DateTime date, int rank)
+        public void SetData(IUserDataProvider userDataProvider, string username, string formattedScore, string formattedFit, DateTime date, int rank)
         {
             LoadAvatar(userDataProvider).Forget();
-            SetDataInternal(username, formattedScore, date, rank);
+            SetDataInternal(username, formattedScore, formattedFit, date, rank);
         }
 
-        private void SetDataInternal(string username, string formattedScore, DateTime date, int rank)
+        private void SetDataInternal(string username, string formattedScore, string formattedFit, DateTime date, int rank)
         {
             nameText.text = username;
             scoreText.text = formattedScore;
+            fitText.text = formattedFit;
             dateText.text = date.ToLocalTime().ToString("dd-MM-yyyy HH:mm");
             rankText.text = $"{rank}.";
         }

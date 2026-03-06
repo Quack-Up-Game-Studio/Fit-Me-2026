@@ -12,7 +12,9 @@ namespace FitMe.Panel
         {
             base.Configure(builder);
             builder.RegisterComponent(leaderboardPanelView).AsSelf().As<IPanelView>();
-            builder.Register<LeaderboardPanelViewModel>(Lifetime.Singleton).As<IPanelViewModel>();
+            builder.Register<LeaderboardPanelViewModel>(Lifetime.Singleton)
+                .As<IPanelViewModel>()
+                .AsSelf();
         }
         
         public override IPanelViewModel CreatPanel()

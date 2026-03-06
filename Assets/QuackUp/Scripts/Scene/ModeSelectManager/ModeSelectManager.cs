@@ -45,13 +45,10 @@ namespace FitMe.Scene
         private void Subscribe()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _panelManager.TryGetPanel("ModeSelect", out var viewModel);
-            if (viewModel is ModeSelectViewModel modeSelectViewModel)
-            {
-                modeSelectViewModel.SelectGameModeCommand
-                    .SubscribeAwait((x, _) => OnModeSelected(x), AwaitOperation.Drop)
-                    .AddTo(ref disposableBuilder);
-            }
+            _panelManager.TryGetPanel<ModeSelectViewModel>("ModeSelect", out var modeSelectViewModel);
+            modeSelectViewModel.SelectGameModeCommand
+                .SubscribeAwait((x, _) => OnModeSelected(x), AwaitOperation.Drop)
+                .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
         

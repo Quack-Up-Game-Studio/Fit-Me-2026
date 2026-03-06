@@ -30,7 +30,7 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 7
-      Data: 1|FitMe.Shared.MockSocialServiceInstaller, FitMe.Shared
+      Data: 1|QuackUp.SocialService.MockSocialServiceInstaller, QuackUp.SocialService
     - Name: 
       Entry: 8
       Data: 
