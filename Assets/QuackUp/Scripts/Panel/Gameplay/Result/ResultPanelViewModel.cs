@@ -5,6 +5,7 @@ using FitMe.Shared;
 using QuackUp.Audio;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
+using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
 using TMPro;
@@ -31,6 +32,8 @@ namespace FitMe.Panel
         public ReactiveCommand ToMainMenuCommand { get; } = new();
         public ReactiveCommand ToRetryCommand { get; } = new();
         public ReactiveCommand<DisplayResultCommandData> DisplayResultCommand { get; } = new();
+        public Observable<Unit> OnResultVisible => _onResultVisible;
+        private readonly Subject<Unit> _onResultVisible = new();
         
         public ReadOnlyReactiveProperty<string> ScoreText { get; private set; }
         public ReadOnlyReactiveProperty<string> FitText { get; private set; }
@@ -38,10 +41,11 @@ namespace FitMe.Panel
         public IAudioManager AudioManager { get; private set; }
 
         private readonly LoadSceneManager _loadSceneManager;
-        private readonly MessagePackSaveManager _saveManager;
-        private readonly ICloudSaveService _cloudSaveService;
+        
         private readonly ILevelManager _levelManager;
 
+        private int _scoreBeforeSave;
+        private int _fitMeBeforeSave;
         private Promise<Unit> _displayResultPromise;
         private PlayerRecordSaveObject _saveObject;
         private IDisposable _bindings;
@@ -50,15 +54,11 @@ namespace FitMe.Panel
         public ResultPanelViewModel(
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
-            MessagePackSaveManager saveManager,
-            ICloudSaveService cloudSaveService,
             ILevelManager levelManager,
             IAudioManager audioManager) : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
             _levelManager = levelManager;
-            _saveManager = saveManager;
-            _cloudSaveService = cloudSaveService;
             AudioManager = audioManager;
             Bind();
         }
@@ -78,10 +78,9 @@ namespace FitMe.Panel
             ScoreText = _levelManager.Score
                 .Select(score => score.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
-            FitText = _levelManager.FitMeScore
+            FitText = _levelManager.FitMe
                 .Select(fit => fit.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
-            
             _bindings = disposableBuilder.Build();
         }
         
@@ -93,23 +92,18 @@ namespace FitMe.Panel
             FitText?.Dispose();
         }
 
+        public void CacheScoreAndFit(int score, int fitMe)
+        {
+            _scoreBeforeSave = score;
+            _fitMeBeforeSave = fitMe;
+        }
+
         protected override void OnVisible()
         {
             base.OnVisible();
-            _saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
-            var saveData = _saveObject.GetSaveData<PlayerRecordSaveData>();
-            var highScoreBefore = saveData.highScore.score;
-            var mostFitMeBefore = saveData.mostFitMe.fitMe;
-            saveData.AddRunData(new PlayerRecordSaveData.RunData
-            {
-                dateTime = DateTime.Now,
-                score = _levelManager.Score.Value,
-                fitMe = _levelManager.FitMeScore.Value
-            });
-            _saveManager.Save(_saveObject);
-            _cloudSaveService.SaveToService();
-            var isNewHighScore = _levelManager.Score.Value > highScoreBefore;
-            var isNewFitMe = _levelManager.FitMeScore.Value > mostFitMeBefore;
+            _onResultVisible.OnNext(Unit.Default);
+            var isNewHighScore = _levelManager.Score.Value > _scoreBeforeSave;
+            var isNewFitMe = _levelManager.FitMe.Value > _fitMeBeforeSave;
             _displayResultPromise = new Promise<Unit>();
             DisplayResultCommand.Execute(new DisplayResultCommandData(_displayResultPromise, isNewHighScore, isNewFitMe));
         }

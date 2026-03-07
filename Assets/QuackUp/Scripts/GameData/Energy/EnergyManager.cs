@@ -1,6 +1,7 @@
 using System;
 using FitMe.Shared;
 using QuackUp.Save;
+using QuackUp.SocialService;
 using R3;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -54,7 +55,7 @@ namespace FitMe.GameData
         {
             _energyTimer?.Dispose();
         }
-
+        
         private void StartEnergyTimer()
         {
             _energyTimer = Observable.Interval(TimeSpan.FromSeconds(1)) //NOTE: Check every second as we do not need that much precision.
@@ -92,7 +93,7 @@ namespace FitMe.GameData
             _currentEnergy.Value = newEnergy;
             saveData.CurrentEnergy = newEnergy;
             _saveManager.Save(_saveObject);
-            _cloudSaveService.SaveToService();
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
         }
     }
 }

@@ -23,11 +23,5 @@ namespace FitMe.GameData
             base.OnInitialize();
             saveData.Initialize(MaxRunDataCount);
         }
-
-        public override void Reset()
-        {
-            base.Reset();
-            saveData = new PlayerRecordSaveData();
-        }
     }
 }

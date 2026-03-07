@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using QuackUp.Utils;
 using R3;
+using UnityEngine;
 using VContainer;
 
 namespace FitMe.Panel
@@ -42,6 +43,7 @@ namespace FitMe.Panel
                 panel.PanelId = kvp.Key;
                 _panels.Add(kvp.Key, panel);
             }
+            Debug.Log($"PanelCount: {_panels.Count}");
             Crossfade(_startupPanelId, _startupPanelId, new CrossfadeSettings
             {
                 crossFadeType = CrossfadeType.InOnly,
@@ -52,6 +54,24 @@ namespace FitMe.Panel
         public bool TryGetPanel(string panelId, out IPanelViewModel panel)
         {
             if (_panels.TryGetValue(panelId, out panel)) return true;
+            DebugUtils.LogError($"Panel {panelId} not found");
+            return false;
+        }
+        
+        public bool TryGetPanel<T>(string panelId, out T panelOfType) where T : IPanelViewModel
+        {
+            panelOfType = default;
+            if (_panels.TryGetValue(panelId, out var panel))
+            {
+                if (panel is T typedPanel)
+                {
+                    panelOfType = typedPanel;
+                    return true;
+                }
+                DebugUtils.LogError($"Panel {panelId} is not of type {typeof(T).Name}");
+                panelOfType = default;
+                return false;
+            }
             DebugUtils.LogError($"Panel {panelId} not found");
             return false;
         }

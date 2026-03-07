@@ -242,7 +242,7 @@ namespace QuackUp.Save
         private void ZipAndSave(string entryName, byte[] data)
         {
             var zipPath = Path.ChangeExtension(_config.CurrentSaveSettings.GetFullSavePath(), ".sav");
-
+            
             try
             {
                 if (!Directory.Exists(zipPath))

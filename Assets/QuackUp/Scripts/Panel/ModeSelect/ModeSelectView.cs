@@ -48,7 +48,7 @@ namespace FitMe.Panel
         
         private void OnOriginalMode()
         {
-            _vm.SelectGameModeCommand.Execute(GameMode.Original);
+            _vm.SelectGameModeCommand.Execute(GameMode.Classic);
         }
         
         private void OnLevelShapeMode()

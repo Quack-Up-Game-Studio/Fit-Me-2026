@@ -1,6 +1,7 @@
 using System;
 using FitMe.Shared;
 using QuackUp.Save;
+using QuackUp.SocialService;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;

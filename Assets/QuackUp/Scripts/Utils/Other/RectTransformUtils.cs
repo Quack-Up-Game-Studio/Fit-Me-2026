@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace QuackUp.Utils
 {
@@ -22,5 +24,12 @@ namespace QuackUp.Utils
             // Apply correction
             rectTransform.localPosition += (Vector3)overflow;
         }
+        
+        public static async UniTask ForceRebuildLayout(this RectTransform rectTransform)
+        {
+            await UniTask.WaitForEndOfFrame();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+        }
     }
+    
 }

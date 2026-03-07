@@ -23,13 +23,11 @@ MonoBehaviour:
     SerializationNodes: []
   <LoadAutomaticallyAfterAuthentication>k__BackingField: 1
   <DefaultSavedImage>k__BackingField: {fileID: 21300000, guid: 0903008629ffc2d45a800ef72627f003, type: 3}
-  <AllowSaveSelection>k__BackingField: 0
   <SaveUIConfig>k__BackingField:
-    maxNumToDisplay: 0
+    maxNumToDisplay: 10
     allowCreateNew: 0
-    allowDelete: 0
-  <AllowLoadSelection>k__BackingField: 0
+    allowDelete: 1
   <LoadUIConfig>k__BackingField:
-    maxNumToDisplay: 0
+    maxNumToDisplay: 10
     allowCreateNew: 0
-    allowDelete: 0
+    allowDelete: 1

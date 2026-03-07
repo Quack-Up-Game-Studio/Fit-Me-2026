@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 using VContainer;
 using VContainer.Unity;
 
-namespace FitMe.Shared
+namespace QuackUp.SocialService
 {
     [Serializable]
     public class MockSocialServiceInstaller : IInstaller
@@ -19,6 +19,8 @@ namespace FitMe.Shared
                 .As<IUserDataProvider>();
             builder.Register<MockCloudSaveService>(Lifetime.Singleton)
                 .As<ICloudSaveService>();
+            builder.Register<MockLeaderboardService>(Lifetime.Singleton)
+                .As<ILeaderboardService>();
         }
     }
 }

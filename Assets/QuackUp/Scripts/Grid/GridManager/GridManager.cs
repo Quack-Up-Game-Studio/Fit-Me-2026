@@ -136,6 +136,7 @@ namespace FitMe.Grid
         private readonly CellFactory _cellFactory;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
+        private readonly ILevelManager _levelManager;
         
         private IDisposable _subscriptions;
         
@@ -151,6 +152,8 @@ namespace FitMe.Grid
         private readonly Subject<ScoreEvent> _onScoreAdded = new();
         public Observable<FitTypeEvent> OnFitCheck => _onFitCheck;
         private readonly Subject<FitTypeEvent> _onFitCheck = new();
+        public Observable<Unit> OnAboutToClearGrid => _onAboutToClearGrid;
+        private readonly Subject<Unit> _onAboutToClearGrid = new();
         public Observable<Unit> OnClearGrid => _onClearGrid;
         private readonly Subject<Unit> _onClearGrid = new();
         private int _currentPresetIndex;
@@ -591,6 +594,7 @@ namespace FitMe.Grid
 
         public async UniTask ClearGrid(bool destroyObstacle = true)
         {
+            _onAboutToClearGrid?.OnNext(Unit.Default);
             _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
             if (destroyObstacle)
             {

@@ -1,0 +1,7 @@
+OVDF v1.1
+QuackUp.GPGS.GPGSLeaderboardInstaller, QuackUp.GPGS
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "GPGS Leaderboard"
++ [Sirenix.OdinInspector.HideLabelAttribute]

@@ -9,6 +9,7 @@ namespace FitMe.Shared
         PlaceBlock,
         GameClear,
         GameOver,
+        ClearingGrid,
         Pause,
     }
     
@@ -26,7 +27,7 @@ namespace FitMe.Shared
     {
         ReadOnlyReactiveProperty<GameState> GameState { get; }
         ReactiveProperty<int> Score { get; }
-        ReactiveProperty<int> FitMeScore { get; }
+        ReactiveProperty<int> FitMe { get; }
         int CurrentObstacleCount { get; }
         void SetGameState(GameState newState);
         void Pause();
@@ -37,7 +38,7 @@ namespace FitMe.Shared
     {
         public ReadOnlyReactiveProperty<GameState> GameState => _currentGameState.ToReadOnlyReactiveProperty();
         public ReactiveProperty<int> Score { get; } = new(0);
-        public ReactiveProperty<int> FitMeScore { get; } = new(0);
+        public ReactiveProperty<int> FitMe { get; } = new(0);
         public int CurrentObstacleCount => 0;
         private readonly ReactiveProperty<GameState> _currentGameState = new(Shared.GameState.PlaceBlock);
         public LevelManagerMock(GameState initialState)

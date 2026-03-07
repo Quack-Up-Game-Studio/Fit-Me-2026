@@ -9,6 +9,7 @@
     "com.github-glitchenzo.nugetforunity": "4.5.0",
     "com.github.messagepack-csharp": "https://github.com/MessagePack-CSharp/MessagePack-CSharp.git?path=src/MessagePack.UnityClient/Assets/Scripts/MessagePack",
     "com.google.ads.mobile": "10.7.0",
+    "com.google.external-dependency-manager": "1.2.182",
     "com.kyrylokuzyk.primetween": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
     "com.luca3317.tmpeffects": "0.2.2",
     "com.starasgames.tmpro-dynamic-data-cleaner": "https://github.com/STARasGAMES/tmpro-dynamic-data-cleaner.git#upm",

@@ -14,11 +14,13 @@ namespace FitMe.Panel
         public ReactiveCommand AdsContinueCommand { get; } = new();
         public ReactiveCommand RetryCommand { get; } = new();
         public ReactiveCommand SkipCommand { get; } = new();
-        public Subject<Unit> OnReturnToGameplay { get; } = new();
+        
+        public Observable<Unit> OnReturnToGameplay => _onReturnToGameplay;
         public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
         public ReadOnlyReactiveProperty<int> RemainingContinueCount => _remainingContinueCount;
         public ReadOnlyReactiveProperty<float> CountdownTimePercent => _countdownTimePercent;
         
+        private readonly Subject<Unit> _onReturnToGameplay = new();
         private readonly EnergyManager _energyManager;
         private readonly ReactiveProperty<int> _remainingContinueCount = new();
         private readonly ReactiveProperty<float> _countdownTimePercent = new();
@@ -114,8 +116,8 @@ namespace FitMe.Panel
 
         private void ReturnToGameplay()
         {
+            _onReturnToGameplay.OnNext(Unit.Default);
             _clearGridEventPublisher.Publish(new ClearGridEvent(false));
-            OnReturnToGameplay.OnNext(Unit.Default);
             _countdownTimer.Dispose();
         }
 

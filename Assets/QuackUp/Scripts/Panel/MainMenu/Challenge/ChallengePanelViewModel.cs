@@ -5,6 +5,7 @@ using FitMe.Achievement;
 using FitMe.GameData;
 using FitMe.Shared;
 using QuackUp.Save;
+using QuackUp.SocialService;
 using R3;
 using VContainer;
 
@@ -59,12 +60,16 @@ namespace FitMe.Panel
         
         private async UniTask OnSaveButtonClicked()
         {
-            await CloudSaveService.SaveToService();
+            await CloudSaveService.SaveToService(SaveToServiceParameters.Builder.CreateBuilder()
+                .WithShowSelectionUI(true)
+                .Build());
         }
 
         private async UniTask OnLoadButtonClicked()
         {
-            await CloudSaveService.LoadFromService();
+            await CloudSaveService.LoadFromService(LoadFromServiceParameters.Builder.CreateBuilder()
+                .WithShowSelectionUI(true)
+                .Build());
         }
 
         private async UniTask OnAuthenticateButtonClicked()

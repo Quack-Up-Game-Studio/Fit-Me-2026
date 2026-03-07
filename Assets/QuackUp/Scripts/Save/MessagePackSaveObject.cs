@@ -52,6 +52,7 @@ namespace QuackUp.Save
          SerializeField] protected SaveSettings releaseSaveSettings;
         
         public virtual Observable<Unit> OnLoadCompleteEvent { get; protected set; }
+        public virtual Observable<Unit> OnResetEvent { get; protected set; }
         
         public virtual MessagePackSerializerOptions DefaultSerializerOptions => ContractlessStandardResolver.Options;
 
@@ -91,7 +92,7 @@ namespace QuackUp.Save
     }
     
     public abstract class MessagePackSaveObject<T> : MessagePackSaveObject
-        where T : IMessagePackSaveData
+        where T : IMessagePackSaveData, new()
     {
         [Title("Save Management")]
         [OdinSerialize] protected T saveData;
@@ -99,6 +100,9 @@ namespace QuackUp.Save
 
         public override Observable<Unit> OnLoadCompleteEvent => _onLoadCompleteEvent;
         private readonly Subject<Unit> _onLoadCompleteEvent = new();
+        
+        private readonly Subject<Unit> _onResetEvent = new();
+        public override Observable<Unit> OnResetEvent => _onResetEvent;
 
         public override TDerived GetSaveData<TDerived>()
         {
@@ -257,8 +261,12 @@ namespace QuackUp.Save
             }
             LoadFromBytes(bytes);
         }
-        
-        public override void Reset() { } // Implement reset logic in derived classes if needed
+
+        public override void Reset()
+        {
+            saveData = new T();
+            _onResetEvent.OnNext(Unit.Default);
+        } 
         
         public override void LoadFromBytes(byte[] bytes, MessagePackSerializerOptions options = null)
         {

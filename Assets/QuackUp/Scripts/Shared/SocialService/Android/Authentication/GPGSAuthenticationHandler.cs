@@ -4,6 +4,7 @@ using FitMe.Shared;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using QuackUp.GPGS;
+using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
@@ -15,6 +16,8 @@ namespace FitMe.SocialService.Android
         public Observable<bool> OnAuthenticationResult => _onAuthenticationResult;
         public bool IsAuthenticated => PlayGamesPlatform.Instance.IsAuthenticated();
         public string DisplayName => IsAuthenticated ? PlayGamesPlatform.Instance.GetUserDisplayName() : "Guest";
+        public string UserId => IsAuthenticated ? PlayGamesPlatform.Instance.GetUserId() : "guest";
+        public string AvatarUrl => IsAuthenticated ? PlayGamesPlatform.Instance.GetUserImageUrl() : string.Empty;
         
         
         private readonly Subject<bool> _onAuthenticationResult = new();
