@@ -9,6 +9,7 @@ namespace FitMe.Shared
         PlaceBlock,
         GameClear,
         GameOver,
+        ClearingGrid,
         Pause,
     }
     

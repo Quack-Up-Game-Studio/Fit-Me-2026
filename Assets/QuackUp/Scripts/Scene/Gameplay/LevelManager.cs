@@ -55,8 +55,10 @@ namespace FitMe.Scene
         private PlayerRecordSaveObject _playerRecordSaveObject;
         private AudioReference _bgmReference;
         private GameState _previousStateBeforePause;
+        private GameState _stateBeforeClearGrid;
         private IDisposable _subscriptions;
         private IDisposable _onResultSubscription;
+        private IDisposable _onReturnToGameplaySubscription;
         
         [Inject]
         public LevelManager(
@@ -103,6 +105,12 @@ namespace FitMe.Scene
                 .Where(x => x.ScoreType is ScoreTypes.FitMe)
                 .Subscribe(_ => OnFit())
                 .AddTo(ref disposableBuilder);
+            _gridManager.OnAboutToClearGrid
+                .Subscribe(_ => OnAboutToClearGrid())
+                .AddTo(ref disposableBuilder);
+            _gridManager.OnClearGrid
+                .Subscribe(_ => OnClearGrid())
+                .AddTo(ref disposableBuilder);
             _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage is LoadSceneStage.StartOut)
                 .Subscribe(_ => OnSceneStartOut())
@@ -116,6 +124,7 @@ namespace FitMe.Scene
         {
             _subscriptions?.Dispose();
             _onResultSubscription?.Dispose();
+            _onReturnToGameplaySubscription?.Dispose();
         }
         
         public void Start()
@@ -129,6 +138,14 @@ namespace FitMe.Scene
             }
             _onResultSubscription = resultPanel.OnResultVisible
                 .Subscribe(_ => OnResult());
+            
+            if (!_panelManager.TryGetPanel<GameOverPanelViewModel>(_config.GameOverPanelId, out var gameOverPanel))
+            {
+                DebugUtils.LogError($"Result panel with ID {_config.GameOverPanelId} not found in PanelManager.");
+                return;
+            }
+            _onReturnToGameplaySubscription = gameOverPanel.OnReturnToGameplay
+                .Subscribe(_ => OnReturnToGameplay());
             
             if (!GridPreset) 
                 _messageHub.Publish(new StartCreateGridEvent());
@@ -168,6 +185,17 @@ namespace FitMe.Scene
             DebugUtils.Log($"Score added: {finalScore} (Type: {scoreEvent.ScoreType}, Contacts: {scoreEvent.Contacts.Count})");
             ChangeScore(finalScore);
             _popUpScoreFactory.Create(finalScore, scoreEvent.WorldPosition, "Score");
+        }
+        
+        private void OnAboutToClearGrid()
+        {
+            _stateBeforeClearGrid = _gameState.Value;
+            SetGameState(Shared.GameState.ClearingGrid);
+        }
+
+        private void OnClearGrid()
+        {
+            SetGameState(_stateBeforeClearGrid);
         }
         
         #region GameMode
@@ -300,6 +328,7 @@ namespace FitMe.Scene
         
         private void GameOver()
         {
+            SetGameState(Shared.GameState.GameOver);
             _panelManager.TryGetPanel<GameOverPanelViewModel>(_config.GameOverPanelId, out var gameOverPanelViewModel);
             if (gameOverPanelViewModel.RemainingContinueCount.CurrentValue <= 0)
             {
@@ -317,8 +346,14 @@ namespace FitMe.Scene
                 }).Forget();
         }
 
+        private void OnReturnToGameplay()
+        {
+            SetGameState(Shared.GameState.PlaceBlock);
+        }
+
         private void OnResult()
         {
+            SetGameState(Shared.GameState.GameClear);
             _panelManager.TryGetPanel<ResultPanelViewModel>(_config.ResultPanelId, out var resultPanel);
             var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();

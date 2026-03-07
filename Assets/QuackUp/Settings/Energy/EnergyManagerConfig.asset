@@ -21,6 +21,6 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  <MaxEnergy>k__BackingField: 5
+  <MaxEnergy>k__BackingField: 7
   <EnergyRechargeTime>k__BackingField:
-    _TimeSpan: 00:01:00
+    _TimeSpan: 00:10:00

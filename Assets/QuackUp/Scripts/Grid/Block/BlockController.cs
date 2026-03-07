@@ -86,12 +86,11 @@ namespace FitMe.Grid
         private void OnBeginDrag(PointerEventData eventData)
         {
             if (_dragWhileRotating) return;
-            if (_levelManager.GameState.CurrentValue is GameState.GameOver or GameState.GameClear)
+            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock)
             {
                 OnEndDrag(eventData);
                 return;
             }
-            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
             if (_isRotating)
             {
                 _dragWhileRotating = true;
@@ -111,12 +110,11 @@ namespace FitMe.Grid
         private void OnDrag(PointerEventData eventData)
         {
             if (_dragWhileRotating) return;
-            if (_levelManager.GameState.CurrentValue is GameState.GameOver or GameState.GameClear)
+            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock)
             {
                 OnEndDrag(eventData);
                 return;
             }
-            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
             if (_isRotating)
             {
                 _dragWhileRotating = true;
@@ -142,7 +140,7 @@ namespace FitMe.Grid
                 _dragWhileRotating = false;
                 return;
             }
-            if (_levelManager.GameState.CurrentValue is GameState.CountOff or GameState.Pause) return;
+            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
             if (!_isDragging) return;
             if (_isRotating)
             {
@@ -155,7 +153,6 @@ namespace FitMe.Grid
                 //_model.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
                 _blockInstance.ViewModel.SetSortingLayerCommand.Execute(_config.GridSortingLayer);
                 _audioManager.PlayAudioOneShot(_config.PlaceSucceedSfx, Vector3.zero);
-                _mousePositionDifference = Vector3.zero;
             }
             else
             {
@@ -163,13 +160,14 @@ namespace FitMe.Grid
                 _blockInstance.ViewModel.SetSortingLayerCommand.Execute(_config.SpawnSortingLayer);
                 _blockInstance.ViewModel.BlockInteractionState.Value = BlockInteractionState.PlacedOnSpawn;
             }
+            _mousePositionDifference = Vector3.zero;
             _isDragging = false;
         }
         
         private async UniTask OnClickToRotate(PointerEventData eventData)
         {
             if (!AllowRotation) return;
-            if (_levelManager.GameState.CurrentValue is GameState.CountOff or GameState.Pause or GameState.GameOver) return;
+            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
             if (_isDragging) return;
             if (_blockInstance.ViewModel.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid) return;
             var rotateClockwise = _config.RotateClockwise ? -1f : 1f;

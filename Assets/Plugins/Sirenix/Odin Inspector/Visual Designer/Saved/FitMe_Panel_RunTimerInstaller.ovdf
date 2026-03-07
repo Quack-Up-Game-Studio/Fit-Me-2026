@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.Panel.RunTimerInstaller, FitMe.Panel
+
+# _placeholder
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Run Timer"
++ [Sirenix.OdinInspector.HideLabelAttribute]
