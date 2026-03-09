@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="41d03079-9c3e-4543-9387-fb394932fb26" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/Block/BlockView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/Block/BlockView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/Other/VectorUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/Other/VectorUtils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/GooglePlayGames/com.google.play.games/Editor/m2repository/com/google/games/gpgs-plugin-support/2.1.0/gpgs-plugin-support-2.1.0.aar.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/GooglePlayGames/com.google.play.games/Editor/m2repository/com/google/games/gpgs-plugin-support/2.1.0/gpgs-plugin-support-2.1.0.aar.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -173,7 +170,7 @@
       <workItem from="1772809374128" duration="3599000" />
       <workItem from="1772853843323" duration="4686000" />
       <workItem from="1772862260157" duration="3511000" />
-      <workItem from="1773023028315" duration="4876000" />
+      <workItem from="1773023028315" duration="5253000" />
     </task>
     <servers />
   </component>
