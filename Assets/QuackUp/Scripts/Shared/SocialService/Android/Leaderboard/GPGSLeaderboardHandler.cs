@@ -1,13 +1,12 @@
+#if UNITY_ANDROID
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using FitMe.Shared;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using QuackUp.GPGS;
 using QuackUp.SocialService;
 using QuackUp.Utils;
-using UnityEngine.SocialPlatforms;
 using VContainer;
 
 namespace FitMe.SocialService.Android
@@ -171,3 +170,4 @@ namespace FitMe.SocialService.Android
         }
     }
 }
+#endif

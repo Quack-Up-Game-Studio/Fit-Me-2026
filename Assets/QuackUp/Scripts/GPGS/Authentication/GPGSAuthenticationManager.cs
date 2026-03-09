@@ -1,4 +1,4 @@
-
+#if UNITY_ANDROID
 using Cysharp.Threading.Tasks;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
@@ -10,6 +10,7 @@ namespace QuackUp.GPGS
 {
     public class GPGSAuthenticationManager : IStartable
     {
+
         public Observable<SignInStatus> OnAuthenticationResult => _onAuthenticationResult;
         private readonly Subject<SignInStatus> _onAuthenticationResult = new();
         
@@ -40,3 +41,4 @@ namespace QuackUp.GPGS
         }
     }
 }
+#endif

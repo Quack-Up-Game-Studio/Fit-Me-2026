@@ -1,6 +1,6 @@
+#if UNITY_ANDROID
 using System;
 using Cysharp.Threading.Tasks;
-using FitMe.Shared;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using QuackUp.GPGS;
@@ -72,3 +72,4 @@ namespace FitMe.SocialService.Android
         }
     }
 }
+#endif

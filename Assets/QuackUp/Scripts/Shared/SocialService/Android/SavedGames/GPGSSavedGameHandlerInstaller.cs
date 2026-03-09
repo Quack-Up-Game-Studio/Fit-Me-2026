@@ -1,5 +1,4 @@
 using System;
-using FitMe.Shared;
 using QuackUp.Save;
 using QuackUp.SocialService;
 using QuackUp.Utils;
@@ -18,10 +17,12 @@ namespace FitMe.SocialService.Android
         
         public void Install(IContainerBuilder builder)
         {
+#if UNITY_ANDROID
             builder.RegisterInstance(remoteSaveResolverConfig);
             builder.Register<RemoteSaveResolver>(Lifetime.Singleton).AsSelf();
             builder.Register<GPGSSavedGamesHandler>(Lifetime.Singleton)
                 .As<ICloudSaveService>();
+#endif
         }
     }
 }

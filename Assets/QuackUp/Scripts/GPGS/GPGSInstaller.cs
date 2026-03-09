@@ -19,12 +19,14 @@ namespace QuackUp.GPGS
         
         public void Install(IContainerBuilder builder)
         {
+#if UNITY_ANDROID
             builder.RegisterInstance(config);
             builder.RegisterEntryPoint<GPGSAuthenticationManager>().AsSelf();
             foreach (var installer in services)
             {
                 installer.Install(builder);
             }
+#endif
         }
     }
 }

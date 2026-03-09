@@ -1,3 +1,4 @@
+#if UNITY_ANDROID
 using Cysharp.Threading.Tasks;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
@@ -94,3 +95,4 @@ namespace QuackUp.GPGS
         }
     }
 }
+#endif

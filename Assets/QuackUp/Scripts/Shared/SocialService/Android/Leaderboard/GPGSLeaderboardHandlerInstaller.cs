@@ -1,5 +1,4 @@
 using System;
-using FitMe.Shared;
 using QuackUp.GPGS;
 using QuackUp.SocialService;
 using QuackUp.Utils;
@@ -18,11 +17,13 @@ namespace FitMe.SocialService.Android
         
         public void Install(IContainerBuilder builder)
         {
+#if UNITY_ANDROID
             builder.Register(x =>
             {
                 var leaderboard = x.Resolve<GPGSLeaderboard>();
                 return new GPGSLeaderboardHandler(leaderboard, leaderboardIdMapping);
             }, Lifetime.Singleton).As<ILeaderboardService>();
+#endif
         }
     }
 }

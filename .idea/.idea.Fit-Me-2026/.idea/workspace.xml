@@ -5,33 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="41d03079-9c3e-4543-9387-fb394932fb26" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Floating/IFloatingUIElement.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Floating/IFloatingUIElement.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/RunTimer.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/RunTimer/RunTimerInstaller.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/RunTimer/RunTimerInstaller.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/RunTimer/RunTimerView.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/RunTimer/RunTimerView.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/RunTimer/RunTimerViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/RunTimer/RunTimerViewModel.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/ProjectLifetimeScope.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/ProjectLifetimeScope.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/Block/BlockController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/Block/BlockController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/GridManager/GridManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/GridManager/GridManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/ILevelManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/ILevelManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Energy/EnergyManagerConfig.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Settings/Energy/EnergyManagerConfig.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FitMe.Panel.csproj.DotSettings" beforeDir="false" afterPath="$PROJECT_DIR$/FitMe.Panel.csproj.DotSettings" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/GooglePlayGames/com.google.play.games/Editor/m2repository/com/google/games/gpgs-plugin-support/2.1.0/gpgs-plugin-support-2.1.0.aar.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/GooglePlayGames/com.google.play.games/Editor/m2repository/com/google/games/gpgs-plugin-support/2.1.0/gpgs-plugin-support-2.1.0.aar.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Authentication/GPGSAuthenticationManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Authentication/GPGSAuthenticationManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Authentication/GPGSAuthenticationManagerConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Authentication/GPGSAuthenticationManagerConfig.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/GPGSInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/GPGSInstaller.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Leaderboard/GPGSLeaderboard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Leaderboard/GPGSLeaderboard.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Leaderboard/GPGSLeaderboardInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/Leaderboard/GPGSLeaderboardInstaller.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/SavedGames/GPGSSavedGames.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/SavedGames/GPGSSavedGames.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/SavedGames/GPGSSavedGamesConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/SavedGames/GPGSSavedGamesConfig.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/SavedGames/GPGSSavedGamesInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/SavedGames/GPGSSavedGamesInstaller.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandlerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandlerInstaller.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandlerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandlerInstaller.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/SavedGames/GPGSSavedGameHandlerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/SavedGames/GPGSSavedGameHandlerInstaller.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/SavedGames/GPGSSavedGamesHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/SavedGames/GPGSSavedGamesHandler.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,8 +56,8 @@
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/RemoteSaveResolver/ISaveConflictResolver.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/RemoteSaveResolver/RemoteSaveResolver.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/RemoteSaveResolver/RemoteSaveResolverConfig.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandler.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Authentication/GPGSAuthenticationHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandlerInstaller.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/jp.hadashikick.vcontainer@0cb993cc4615/Runtime/Container.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/jp.hadashikick.vcontainer@0cb993cc4615/Runtime/Internal/InstanceRegistrationBuilder.cs" root0="SKIP_HIGHLIGHTING" />
@@ -83,23 +72,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Leaderboard&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Attach to Unity Editor.Attach to Unity Editor.executor": "Debug",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "Dev",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="$USER_HOME$/Unity/Hub/Editor/6000.3.9f1/Editor/Unity" />
@@ -195,6 +184,7 @@
       <workItem from="1772809374128" duration="3599000" />
       <workItem from="1772853843323" duration="4686000" />
       <workItem from="1772862260157" duration="3511000" />
+      <workItem from="1773023028315" duration="609000" />
     </task>
     <servers />
   </component>

@@ -15,8 +15,10 @@ namespace QuackUp.GPGS
         
         public void Install(IContainerBuilder builder)
         {
+#if UNITY_ANDROID
             builder.RegisterInstance(config);
             builder.Register<GPGSSavedGames>(Lifetime.Singleton);
+#endif
         }
     }
 }

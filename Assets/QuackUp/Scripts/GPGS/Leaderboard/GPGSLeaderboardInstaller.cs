@@ -1,3 +1,4 @@
+
 using System;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
@@ -13,7 +14,9 @@ namespace QuackUp.GPGS
         
         public void Install(IContainerBuilder builder)
         {
+#if UNITY_ANDROID
             builder.Register<GPGSLeaderboard>(Lifetime.Singleton).AsSelf();
+#endif
         }
     }
 }

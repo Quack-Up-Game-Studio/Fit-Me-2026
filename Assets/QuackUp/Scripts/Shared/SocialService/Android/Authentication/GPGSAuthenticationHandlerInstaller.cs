@@ -15,9 +15,11 @@ namespace FitMe.SocialService.Android
         
         public void Install(IContainerBuilder builder)
         {
+#if UNITY_ANDROID
             builder.Register<GPGSAuthenticationHandler>(Lifetime.Singleton)
                 .As<IAuthenticationService>()
                 .As<IUserDataProvider>();
+#endif
         }
     }
 }
