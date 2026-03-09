@@ -165,16 +165,26 @@ namespace FitMe.Grid
         
         private void StartIdleTimer()
         {
-            var randomSwitchTime = _blockManagerConfig.SwitchIdleTimeRange.RandomBetweenRange();
+            var randomSwitchTime = _blockManagerConfig.SwitchIdleTimeRange.RandomWithinRange();
             _switchIdleCts = new CancellationTokenSource();
             _switchIdleTimer = Observable.Timer(TimeSpan.FromSeconds(randomSwitchTime), _switchIdleCts.Token)
                 .Subscribe(_ =>
                 {
-                    skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[1], true);
-                    skeletonAnimation.AnimationState.AddAnimation(0, _blockConfig.IdleAnimations[0], true, 0f);
-                    CancelIdleTimer();
-                    StartIdleTimer();
+                    SwitchIdle(_switchIdleCts.Token).ContinueWith(() =>
+                    {
+                        if (_switchIdleCts.Token.IsCancellationRequested) return;
+                        CancelIdleTimer();
+                        StartIdleTimer();
+                    });
                 });
+        }
+
+        private async UniTask SwitchIdle(CancellationToken cancellationToken)
+        {
+            await skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[1], false)
+                .WaitUntilComplete(cancellationToken: cancellationToken);
+            if (cancellationToken.IsCancellationRequested) return;
+            skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
         }
         
         private void CancelIdleTimer()

@@ -4,12 +4,22 @@ namespace QuackUp.Utils
 {
     public static class VectorUtils
     {
-        public static float RandomBetweenRange(this Vector2 range)
+        /// <summary>
+        /// Returns a random float between the x and y components of the given Vector2.
+        /// </summary>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static float RandomWithinRange(this Vector2 range)
         {
             return Random.Range(range.x, range.y);
         }
         
-        public static int RandomBetweenRange(this Vector2Int range)
+        /// <summary>
+        /// Returns a random int between the x and y components of the given Vector2Int.
+        /// </summary>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static int RandomWithinRange(this Vector2Int range)
         {
             return Random.Range(range.x, range.y);
         }
