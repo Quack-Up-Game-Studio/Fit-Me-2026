@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FitMe.Shared;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
@@ -67,7 +68,8 @@ namespace FitMe.Grid
         [field: SerializeField] public ObstacleMode ObstacleMode {get; private set;} = ObstacleMode.Generated;
         [field: SerializeField, 
                 HideIf(nameof(ObstacleMode), ObstacleMode.Custom)] 
-        public int ObstacleCount { get; private set; } = 2; //TODO: Will be deprecated soon, remove later when difficulty settings are implemented.
+        [Obsolete("The game no longer uses a fixed number of obstacles.")]
+        public int ObstacleCount { get; private set; } = 2;
 #if UNITY_EDITOR
         [field: TableMatrix(SquareCells = true, HorizontalTitle = "Obstacle Data", 
             DrawElementMethod = nameof(DrawObstacleDataMatrix), Transpose = true, IsReadOnly =  true)]
@@ -110,6 +112,13 @@ namespace FitMe.Grid
                 };
             }
         }
+        
+        [ShowInInspector, ReadOnly, DisplayAsString] private int TotalCells => PresetGridType switch
+        {
+            GridType.Rectangle => GridSize.x * GridSize.y,
+            GridType.Custom => customGrid.Cast<int>().Count(cell => cell == 1),
+            _ => 0
+        };
         #endregion
 
 #if UNITY_EDITOR

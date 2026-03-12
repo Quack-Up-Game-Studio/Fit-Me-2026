@@ -25,7 +25,7 @@ MonoBehaviour:
   <ScorePerChain>k__BackingField: 100
   <ScorePerFitMe>k__BackingField: 1000
   <OriginalLevelsPerCycle>k__BackingField: 24
-  <OriginalLevel>k__BackingField: {fileID: 11400000, guid: 2aad68baf83cb5ff29e7395cd725463e, type: 2}
+  <OriginalLevel>k__BackingField: {fileID: 11400000, guid: e6e4b61df806d2e88979d9032ce22de1, type: 2}
   <OriginalLevelCurve>k__BackingField:
     serializedVersion: 2
     m_Curve:
@@ -123,19 +123,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   <ShapeLevelsPerCycle>k__BackingField: 18
-  <ShapeLevel>k__BackingField:
-  - {fileID: 11400000, guid: c4cc692a3f902701ea2edac03e9d526e, type: 2}
-  - {fileID: 11400000, guid: 2aad68baf83cb5ff29e7395cd725463e, type: 2}
-  - {fileID: 11400000, guid: f3a7320f8a559024c99a4c99bbbe31df, type: 2}
-  - {fileID: 11400000, guid: ed93c0cc3bdea0a448c23d4d0c921178, type: 2}
-  - {fileID: 11400000, guid: d1bc2a04f8d8dea4facfc839102ac970, type: 2}
-  - {fileID: 11400000, guid: ac8b9f2ddb88c07408f76461a93ccdd1, type: 2}
-  - {fileID: 11400000, guid: 69a415a0b90ddf44ca164cc5d0275364, type: 2}
-  - {fileID: 11400000, guid: 5b4cb4f612df5b747b4719d4da69eb94, type: 2}
-  - {fileID: 11400000, guid: 9ca8e72be3315c7428466b8ce1368edb, type: 2}
-  - {fileID: 11400000, guid: ccba8797749977049ab0474a4f06ec30, type: 2}
-  - {fileID: 11400000, guid: 694dcad42ddb372499cbdc5f880f0b8f, type: 2}
-  - {fileID: 11400000, guid: c6a5f10b6c60221468f798e4376feb11, type: 2}
+  <ShapeLevelDatabase>k__BackingField: {fileID: 11400000, guid: 8df2f96e2f337c3478f182523fc38029, type: 2}
   <ShapeLevelCurve>k__BackingField:
     serializedVersion: 2
     m_Curve:

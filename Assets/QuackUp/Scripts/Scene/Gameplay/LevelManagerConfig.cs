@@ -1,3 +1,4 @@
+using FitMe.GameData;
 using FitMe.Grid;
 using FMODUnity;
 using Sirenix.OdinInspector;
@@ -17,7 +18,8 @@ namespace FitMe.Scene
         [field: SerializeField] public GridPreset OriginalLevel { get; private set; }
         [field: SerializeField] public AnimationCurve OriginalLevelCurve { get; private set; }
         [field: SerializeField] public int ShapeLevelsPerCycle { get; private set; } = 24;
-        [field: SerializeField] public GridPreset[] ShapeLevel { get; private set; }
+        [field: SerializeField] public LevelDatabase ShapeLevelDatabase { get; private set; }
+        public GridPreset[] ShapeLevel => ShapeLevelDatabase.LevelPresets.ToArray();
         [field: SerializeField] public AnimationCurve ShapeLevelCurve { get; private set; }
         
         [field: Title("Other Setting")]

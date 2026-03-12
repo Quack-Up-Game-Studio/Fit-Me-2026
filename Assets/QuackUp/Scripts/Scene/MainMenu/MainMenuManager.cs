@@ -1,8 +1,11 @@
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using FitMe.Grid;
+using FitMe.Panel;
 using FitMe.Shared;
+using MessagePipe;
 using QuackUp.Audio;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
@@ -23,8 +26,10 @@ namespace FitMe.Scene.MainMenu
         private readonly GridManager _gridManager;
         private readonly LoadSceneManager _loadSceneManager;
         private readonly MessagePackSaveManager _saveManager;
+        private readonly EnergyManager _energyManager;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
+        private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
         
         private IDisposable _subscriptions;
         private AudioReference _bgmReference;
@@ -36,22 +41,29 @@ namespace FitMe.Scene.MainMenu
             GridManager gridManager,
             LoadSceneManager loadSceneManager,
             MessagePackSaveManager saveManager,
+            EnergyManager energyManager,
             IAudioManager audioManager,
-            [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub)
+            [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub,
+            IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher)
         {
             _mainMenuManagerConfig = mainMenuManagerConfig;
             _blockManagerConfig = blockManagerConfig;
             _gridManager = gridManager;
             _loadSceneManager = loadSceneManager;
             _saveManager = saveManager;
+            _energyManager = energyManager;
             _audioManager = audioManager;
             _messageHub = messageHub;
+            _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
             Subscribe();
         }
         
         private void Subscribe()
         {
             var disposableBuilder = Disposable.CreateBuilder();
+            _gridManager.OnAboutToPlaceBlock
+                .SubscribeAwait((x, _) => OnAboutToPlaceBlock(x.cancellation), AwaitOperation.Switch)
+                .AddTo(ref disposableBuilder);
             _gridManager.OnBlockPlaced
                 .Subscribe(_ => OnBlockPlaced())
                 .AddTo(ref disposableBuilder);
@@ -78,10 +90,35 @@ namespace FitMe.Scene.MainMenu
         {
             _subscriptions?.Dispose();
         }
+        
+        private async UniTask OnAboutToPlaceBlock(CancellationTokenSource cancellationTokenSource)
+        {
+            if (_energyManager.CurrentEnergy.CurrentValue < 1)
+            {
+                cancellationTokenSource.Cancel();
+                var promise = new Promise<Unit>();
+                _notificationDisplayEventPublisher.Publish(new NotificationDisplayEvent(
+                    NotificationType.General, 
+                    new GeneralNotificationData 
+                    { 
+                        message = "Not enough energy!"
+                    },
+                    promise));
+                await promise.Task;
+            }
+        }
 
         private void OnBlockPlaced()
         {
-            _loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false).Forget();
+            //_loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false).Forget();
+            ToGameplay().Forget();
+        }
+
+        private async UniTaskVoid ToGameplay()
+        {
+            _energyManager.ChangeEnergy(-1);
+            LevelManager.GameMode = GameMode.Classic;
+            await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
         }
 
         private void OnSceneStartOut()

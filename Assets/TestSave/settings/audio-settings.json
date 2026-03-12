@@ -1,5 +1,5 @@
 {
-  "Version": "0.7.0-devbuild.1+android",
+  "Version": "0.7.1-devbuild.1+android",
   "BusData": {
     "Master": {
       "LinearVolume": 1,
@@ -11,7 +11,7 @@
     },
     "SFX": {
       "LinearVolume": 1,
-      "IsMuted": true
+      "IsMuted": false
     }
   }
 }

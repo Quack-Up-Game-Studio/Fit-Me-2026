@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
 using MessagePipe;
@@ -146,6 +147,8 @@ namespace FitMe.Grid
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
         public Observable<Unit> OnCellsCreated => _onCellsCreated;
         private readonly Subject<Unit> _onCellsCreated = new();
+        public Observable<(BlockInstance instance, CancellationTokenSource cancellation)> OnAboutToPlaceBlock => _onAboutToPlaceBlock;
+        private readonly Subject<(BlockInstance instance, CancellationTokenSource cancellation)> _onAboutToPlaceBlock = new();
         public Observable<BlockInstance> OnBlockPlaced => _onBlockPlaced;
         private readonly Subject<BlockInstance> _onBlockPlaced = new();
         public Observable<ScoreEvent> OnScoreAdded => _onScoreAdded;
@@ -473,6 +476,12 @@ namespace FitMe.Grid
                     return false;
                 }
                 cells.Add(cell);
+            }
+            var cancellationTokenSource = new CancellationTokenSource();
+            _onAboutToPlaceBlock.OnNext((blockInstance, cancellationTokenSource));
+            if (cancellationTokenSource.IsCancellationRequested)
+            {
+                return false;
             }
             for (var i = 0; i < blockInstance.Model.Atoms.Count; i++) 
             {
