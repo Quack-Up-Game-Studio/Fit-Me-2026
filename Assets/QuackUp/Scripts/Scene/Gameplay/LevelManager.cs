@@ -41,13 +41,13 @@ namespace FitMe.Scene
         
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
         private readonly LevelManagerConfig _config;
-        private readonly EntityManager _entityManager;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
         private readonly GridManager _gridManager;
         private readonly MessagePackSaveManager _saveManager;
         private readonly PopUpScoreFactory _popUpScoreFactory;
         private readonly PanelManager _panelManager;
+        private readonly OrthographicCameraManager _orthographicCameraManager;
         private readonly ILeaderboardService _leaderboardService;
         private readonly ICloudSaveService _cloudSaveService;
         
@@ -63,24 +63,24 @@ namespace FitMe.Scene
         [Inject]
         public LevelManager(
             LevelManagerConfig config, 
-            EntityManager entityManager,
             IAudioManager audioManager,
             [Key(LevelManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
             GridManager gridManager,
             MessagePackSaveManager saveManager,
             PopUpScoreFactory popUpScoreFactory,
             PanelManager panelManager,
+            OrthographicCameraManager orthographicCameraManager,
             ILeaderboardService leaderboardService,
             ICloudSaveService cloudSaveService)
         {
             _config = config;
-            _entityManager = entityManager;
             _audioManager = audioManager;
             _messageHub = messageHub;
             _gridManager = gridManager;
             _popUpScoreFactory = popUpScoreFactory;
             _saveManager = saveManager;
             _panelManager = panelManager;
+            _orthographicCameraManager = orthographicCameraManager;
             _leaderboardService = leaderboardService;
             _cloudSaveService = cloudSaveService;
             Initialize();
@@ -152,11 +152,6 @@ namespace FitMe.Scene
             else
                 _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
             _messageHub.Publish(new SpawnWithBlockPresetEvent(null));
-            _entityManager.CreateSceneEntities();
-            _entityManager.TryCreateEntity<PlayerEntity>(EntityType.Player, out _, out _);
-            _entityManager.TryGetEntityOfType<PlayerEntity>(out var player);
-            player.TryGetComponent<HealthComponent>(out var healthComponent);
-            DebugUtils.Log($"Player current health: {healthComponent.CurrentHealth.Value}");
             
             _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
             
@@ -267,6 +262,7 @@ namespace FitMe.Scene
         
         private void OnFit()
         {
+            _orthographicCameraManager.Shake(_config.CameraFitShakeSettings, _config.CameraFitShakeStrengthFactor);
             CurrentDifficultyLevel();
             GridPreset = GameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
             _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));

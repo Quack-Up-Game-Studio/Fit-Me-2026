@@ -1,6 +1,7 @@
 using FitMe.GameData;
 using FitMe.Grid;
 using FMODUnity;
+using PrimeTween;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -26,6 +27,8 @@ namespace FitMe.Scene
         [field: SerializeField] public bool HasCountOff { get; private set; } = true;
         [field: SerializeField] public float CountOffDuration { get; private set; } = 3f;
         [field: SerializeField] public EventReference GameplayBgm { get; private set; }
+        [field: SerializeField] public ShakeSettings CameraFitShakeSettings { get; private set; }
+        [field: SerializeField] public float CameraFitShakeStrengthFactor { get; private set; } = 1f;
         
         [field: Title("Scene Key")]
         [field: SerializeField] public string GameOverPanelId { get; private set; } = "GameOver";
