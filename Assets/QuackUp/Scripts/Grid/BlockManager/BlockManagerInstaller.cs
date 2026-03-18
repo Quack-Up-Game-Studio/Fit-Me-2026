@@ -10,7 +10,17 @@ using VContainer.Unity;
 namespace FitMe.Grid
 {
     [Serializable]
-    public class BlockManagerInstaller : IInstaller
+    public class BlockManagerDebugData : DebugDataBase
+    {
+        [ShowInInspector] private BlockManager blockManager;
+        
+        public BlockManagerDebugData(BlockManager blockManager)
+        {
+            this.blockManager = blockManager;
+        }
+    }
+    [Serializable]
+    public class BlockManagerInstaller : DebugableInstaller<BlockManagerDebugData>
     {
         [ShowInInspector] private InspectorPlaceholder _title;
         [SerializeField] private BlockManagerConfig blockManagerConfig;
@@ -20,7 +30,7 @@ namespace FitMe.Grid
         [SerializeField] private AtomView atomViewPrefab;
         [SerializeField] private BlockView blockViewPrefab;
         
-        public void Install(IContainerBuilder builder)
+        public override void Install(IContainerBuilder builder)
         {
             //Shared
             builder.RegisterInstance(blockManagerConfig);
@@ -44,7 +54,8 @@ namespace FitMe.Grid
             
             builder.RegisterBuildCallback(x =>
             {
-                x.Resolve<BlockManager>();
+                var manager = x.Resolve<BlockManager>();
+                DebugData = new BlockManagerDebugData(manager);
             });
         }
     }

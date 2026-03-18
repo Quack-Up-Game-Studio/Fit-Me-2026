@@ -10,7 +10,6 @@ namespace FitMe.Panel
     public class GameOverPanelView : PanelView
     {
         [SerializeField] private Button adsButton;
-        [SerializeField] private Button retryButton;
         [SerializeField] private Button skipButton;
         [SerializeField] private string gameplayPanelId = "Gameplay";
         [SerializeField] private string resultPanelId = "Result";
@@ -35,17 +34,9 @@ namespace FitMe.Panel
             adsButton.OnClickAsObservable()
                 .Subscribe(_ => OnAdsContinue())
                 .AddTo(ref disposableBuilder);
-            
-            retryButton.OnClickAsObservable()
-                .Subscribe(_ => OnRetry())
-                .AddTo(ref disposableBuilder);
 
             skipButton.OnClickAsObservable()    
                 .Subscribe(_ => OnSkip())
-                .AddTo(ref disposableBuilder);
-            
-            ViewModel.CurrentEnergy
-                .Subscribe(OnEnergyChanged)
                 .AddTo(ref disposableBuilder);
             
             ViewModel.RemainingContinueCount
@@ -82,18 +73,6 @@ namespace FitMe.Panel
         private void OnAdsContinue()
         {
             ViewModel.AdsContinueCommand.Execute(Unit.Default);
-        }
-
-        private void OnRetry()
-        {
-            ViewModel.RetryCommand.Execute(Unit.Default);
-        }
-
-        private void OnEnergyChanged(int current)
-        {
-            var hasEnergy = current > 0;
-            adsButton.gameObject.SetActive(!hasEnergy);
-            retryButton.gameObject.SetActive(hasEnergy);
         }
 
         private void OnAdsCompleted()

@@ -18,6 +18,7 @@ using Random = UnityEngine.Random;
 
 namespace FitMe.Grid
 {
+    [Serializable]
     public class BlockManager : IDisposable
     {
         #region Data Structures
@@ -49,9 +50,9 @@ namespace FitMe.Grid
         private struct BestFitResult
         {
             public readonly int vacantCount;
-            public readonly List<SpawnBlockData> schemaList;
+            public readonly List<BlockSchema> schemaList;
 
-            public BestFitResult(int vacantCount, List<SpawnBlockData> schemaList)
+            public BestFitResult(int vacantCount, List<BlockSchema> schemaList)
             {
                 this.vacantCount = vacantCount;
                 this.schemaList = schemaList;
@@ -59,10 +60,20 @@ namespace FitMe.Grid
         }
         #endregion
         
+        #region Debug
+        [Button("Test Game Over")]
+        private void TestGameOver()
+        {
+            _gridManager.CreateVacantSchema(out _, out var vacantCount);
+            _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));    
+            _messageHub.Publish(new GameOverEvent(true));
+        }
+        #endregion
+        
         #region Fields
         public const string PreviewTransformKey = "PreviewTransform";
         
-        private readonly Queue<SpawnBlockData> _spawnBag = new();
+        private Queue<SpawnBlockData> _spawnBag = new();
         private readonly List<SpawnBlockData> _blockPool = new();
         private BlockInstance _currentPreviewBlock;
         
@@ -72,6 +83,8 @@ namespace FitMe.Grid
         private readonly BlockManagerConfig _config;
         private readonly BlockFactory _blockFactory;
         private readonly IMessageHub _messageHub;
+
+        private int _smartRandomCount;
         
         private IDisposable _subscriptions;
         #endregion
@@ -99,6 +112,9 @@ namespace FitMe.Grid
             var disposableBuilder = Disposable.CreateBuilder();
             _messageHub
                 .Subscribe<SpawnWithBlockPresetEvent>(OnSpawnAtStart)
+                .AddTo(ref disposableBuilder);
+            _messageHub
+                .Subscribe<ContinueEvent>(_ => OnContinue())
                 .AddTo(ref disposableBuilder);
             _gridManager.OnFitCheck
                 .Subscribe(OnFitCheck)
@@ -134,6 +150,11 @@ namespace FitMe.Grid
             SpawnRandomBlock(_config.CanRefill);
             if (eventData.FitType is FitType.None or FitType.Combo) 
                 GameOverCheck().Forget();
+        }
+
+        private void OnContinue()
+        {
+            _smartRandomCount++;
         }
         #endregion
         
@@ -222,7 +243,6 @@ namespace FitMe.Grid
         /// </summary>
         public void SpawnRandomBlock(bool refill)
         {
-            var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();
             if (_spawnBag.Count <= _config.MaxRandomAmount && refill)
             {
                 RefillBag();
@@ -246,6 +266,7 @@ namespace FitMe.Grid
             }
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
+            if (_smartRandomCount > 0) SmartRandom();
             PreviewNextQueue();
             DebugUtils.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
         }
@@ -283,6 +304,40 @@ namespace FitMe.Grid
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
         }
+
+        private void SmartRandom()
+        {
+            _gridManager.CreateVacantSchema(out var vacantSchema, out var vacantCount);
+            if (vacantCount > _config.SmartRandomThreshold) return;
+            var schemasToCheck = _config.BlockPresetDictionary.Values.SelectMany(x => x.BlockSchemas).ToList();
+            List<BestFitResult> bestFitResults = new();
+            var allSchemaOnHand = _spawnPoints
+                .SelectMany(x => x.CurrentBlock.Model.BlockPreset.DistinctBlockSchemas)
+                .Where(x => x != null)
+                .ToList();
+            foreach (var block in allSchemaOnHand)
+            {
+                if (!ArrayHelper.CanBFitInA(vacantSchema, block.schema, out var placedArray, true)) continue;
+                var bestFits = FindBestFit(placedArray, schemasToCheck);
+                bestFitResults.AddRange(bestFits);
+            }
+            if (bestFitResults.Count == 0) return;
+            DebugUtils.Log($"Smart Random: Found {bestFitResults.Count} best fits with vacant count {bestFitResults[0].vacantCount}");
+            var bestFit = bestFitResults.GetRandomElement();
+            if (bestFit.schemaList.Count == 0) return;
+            DebugUtils.Log($"Smart Random: Best fit has {bestFit.schemaList.Count} schemas. Vacant count: {bestFit.vacantCount}");
+            var schema = bestFit.schemaList.GetRandomElement();
+            var shape = _config.BlockPresetDictionary.FirstOrDefault(p => p.Value.BlockSchemas.Contains(schema)).Key;
+            var color = EnumUtils.RandomValue<BlockColor>();
+            var rotation = Quaternion.Euler(0f, 0f, schema.Index * 90f);
+            var spawnData = new SpawnBlockData(shape, rotation, schema, color);
+            //insert the smart random block at the front of the queue
+            var queueList = _spawnBag.ToList();
+            queueList.Insert(0, spawnData);
+            _spawnBag = new Queue<SpawnBlockData>(queueList);
+            DebugUtils.Log($"Smart Random activated! Vacant Count: {vacantCount}, Inserted Shape: {shape}, Rotation: {rotation.eulerAngles.z}");
+            _smartRandomCount--;
+        }
         
         /// <summary>
         /// Finds the best fit for the vacant schema from the list of schemas to check. SORTED.
@@ -291,10 +346,10 @@ namespace FitMe.Grid
         /// <param name="schemasToCheck"></param>
         /// <returns></returns>
         private List<BestFitResult> FindBestFitSorted(int[,] vacantSchema,
-                List<SpawnBlockData> schemasToCheck)
+                List<BlockSchema> schemasToCheck)
         {
             var sortedSchemas = schemasToCheck
-                    .OrderByDescending(x => x.blockSchema.schema.CountMember(y => y == 1))
+                    .OrderByDescending(x => x.schema.CountMember(y => y == 1))
                     .ToList();
             var bestFits = FindBestFit(vacantSchema, sortedSchemas);
             bestFits = bestFits
@@ -325,8 +380,8 @@ namespace FitMe.Grid
         /// <param name="blockCountToBeat"></param>
         /// <returns></returns>
         private List<BestFitResult> FindBestFit(
-            int[,] vacantSchema, List<SpawnBlockData> schemasToCheck,
-            List<SpawnBlockData> previouslyTraversed = null, 
+            int[,] vacantSchema, List<BlockSchema> schemasToCheck,
+            List<BlockSchema> previouslyTraversed = null, 
             int currentDepth = 0,
             int vacantToBeat = int.MaxValue, 
             int blockCountToBeat = int.MaxValue)
@@ -352,28 +407,32 @@ namespace FitMe.Grid
 
             foreach (var schema in schemasToCheck)
             {
-                var traversed = new List<SpawnBlockData>();
+                var traversed = new List<BlockSchema>();
                 if (previouslyTraversed != null)
                 {
                     traversed.AddRange(previouslyTraversed);
                 }
 
-                if (!ArrayHelper.CanBFitInA(vacantSchema, schema.blockSchema.schema, out var placedArray, true))
+                if (!ArrayHelper.CanBFitInA(vacantSchema, schema.schema, out var placedArray, true))
                     continue;
                 traversed.Add(schema);
                 var bestFits = FindBestFit(placedArray, schemasToCheck, traversed, currentDepth + 1, vacantToBeat,
                     blockCountToBeat);
-                var best = bestFits
-                    .OrderBy(x => x.vacantCount)
-                    .ThenBy(x => x.schemaList.Count)
-                    .FirstOrDefault();
-                if (best.vacantCount >= vacantToBeat || best.schemaList.Count >= blockCountToBeat) 
+                if (bestFits.Count == 0) continue;
+                var bestFitResults = bestFits
+                    .GroupBy(x => new { x.vacantCount, x.schemaList.Count })
+                    .OrderBy(x => x.Key.vacantCount)
+                    .ThenBy(x => x.Key.Count)
+                    .First()
+                    .ToList();
+                if (bestFitResults.Count == 0) continue;
+                var bestVacantCount = bestFitResults.First().vacantCount;
+                var bestBlockCount = bestFitResults.First().schemaList.Count;
+                if (bestVacantCount> vacantToBeat || bestBlockCount > blockCountToBeat) 
                     continue;
-                unsorted.Add(best);
-                var bestUnsorted = unsorted.OrderBy(x => x.vacantCount).ThenBy(x => x.schemaList.Count)
-                    .FirstOrDefault();
-                vacantToBeat = bestUnsorted.vacantCount;
-                blockCountToBeat = bestUnsorted.schemaList.Count;
+                unsorted.AddRange(bestFitResults);
+                vacantToBeat = bestVacantCount;
+                blockCountToBeat = bestBlockCount;
             }
 
             if (previouslyTraversed != null && unsorted.Count == 0) 

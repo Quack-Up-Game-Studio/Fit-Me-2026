@@ -198,7 +198,7 @@ namespace FitMe.Grid
                 .Subscribe<SpawnWithGridPresetEvent>(x => OnSpawnGridWithGridPreset(x.GridPreset))
                 .AddTo(ref disposableBuilder);
             _messageHub
-                .Subscribe<ClearGridEvent>(x => ClearGrid(x.ShouldClearGrid).Forget())
+                .Subscribe<ContinueEvent>(OnContinue)
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -238,6 +238,14 @@ namespace FitMe.Grid
             if (CurrentSceneType is SceneType.Gameplay) return;
             SetUpMainMenuGridPreset(preset);
             CreateCells();
+        }
+
+        private void OnContinue(ContinueEvent data)
+        {
+            if (data.ShouldClearGrid)
+            {
+                ClearGrid(data.ShouldDestroyObstacles).Forget();
+            }
         }
         #endregion
         

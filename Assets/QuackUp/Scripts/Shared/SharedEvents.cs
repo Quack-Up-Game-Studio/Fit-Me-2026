@@ -1,12 +1,14 @@
 namespace FitMe.Shared
 {
-    public struct ClearGridEvent
+    public struct ContinueEvent
     {
-        public bool ShouldClearGrid;
+        public readonly bool ShouldClearGrid;
+        public readonly bool ShouldDestroyObstacles;
 
-        public ClearGridEvent(bool shouldClearGrid)
+        public ContinueEvent(bool shouldClearGrid, bool shouldDestroyObstacles)
         {
             ShouldClearGrid = shouldClearGrid;
+            ShouldDestroyObstacles = shouldDestroyObstacles;
         }
     }
 }

@@ -42,7 +42,7 @@ namespace FitMe.Grid
             ISubscriber<SpawnWithBlockPresetEvent> startSpawnSubscriber,
             ISubscriber<SpawnWithGridPresetEvent> startGridSpawnSubscriber,
             ISubscriber<StartCreateGridEvent> startCreateGridSubscriber,
-            ISubscriber<ClearGridEvent> clearGridSubscriber)
+            ISubscriber<ContinueEvent> clearGridSubscriber)
         {
             MessageWrappers[typeof(LoadSceneStageEvent)] = new MessageWrapper<LoadSceneStageEvent>(
                 null,
@@ -56,7 +56,7 @@ namespace FitMe.Grid
             MessageWrappers[typeof(StartCreateGridEvent)] = new MessageWrapper<StartCreateGridEvent>(
                 null,
                 startCreateGridSubscriber);
-            MessageWrappers[typeof(ClearGridEvent)] = new MessageWrapper<ClearGridEvent>(
+            MessageWrappers[typeof(ContinueEvent)] = new MessageWrapper<ContinueEvent>(
                 null,
                 clearGridSubscriber);
         }

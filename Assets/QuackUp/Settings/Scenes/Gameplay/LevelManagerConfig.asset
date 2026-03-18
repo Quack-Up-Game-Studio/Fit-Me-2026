@@ -220,6 +220,27 @@ MonoBehaviour:
       Data3: -480146507
       Data4: -805563045
     Path: event:/BGM/BGM02_Game Play
+  <CameraFitShakeSettings>k__BackingField:
+    strength: {x: 1, y: 1, z: 1}
+    duration: 0.4
+    frequency: 50
+    enableFalloff: 0
+    falloffEase: 0
+    strengthOverTime:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    asymmetry: 0
+    easeBetweenShakes: 0
+    cycles: 1
+    startDelay: 0
+    endDelay: 0
+    useUnscaledTime: 0
+    _useFixedUpdate: 0
+    _updateType: 0
+  <CameraFitShakeStrengthFactor>k__BackingField: 1.5
   <GameOverPanelId>k__BackingField: GameOver
   <GameplayPanelId>k__BackingField: Gameplay
   <ResultPanelId>k__BackingField: Result

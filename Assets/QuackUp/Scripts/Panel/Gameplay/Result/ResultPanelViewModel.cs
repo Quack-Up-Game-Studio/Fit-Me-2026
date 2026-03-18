@@ -2,6 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using FitMe.Shared;
+using MessagePipe;
 using QuackUp.Audio;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
@@ -37,12 +38,14 @@ namespace FitMe.Panel
         
         public ReadOnlyReactiveProperty<string> ScoreText { get; private set; }
         public ReadOnlyReactiveProperty<string> FitText { get; private set; }
+        public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
         
         public IAudioManager AudioManager { get; private set; }
 
         private readonly LoadSceneManager _loadSceneManager;
-        
+        private readonly EnergyManager _energyManager;
         private readonly ILevelManager _levelManager;
+        private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
 
         private int _scoreBeforeSave;
         private int _fitMeBeforeSave;
@@ -54,12 +57,17 @@ namespace FitMe.Panel
         public ResultPanelViewModel(
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
+            EnergyManager energyManager,
             ILevelManager levelManager,
-            IAudioManager audioManager) : base(panelManager)
+            IAudioManager audioManager,
+            IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher)
+            : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
             _levelManager = levelManager;
+            _energyManager = energyManager;
             AudioManager = audioManager;
+            _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
             Bind();
         }
         
@@ -116,6 +124,20 @@ namespace FitMe.Panel
         
         private async UniTask OnRetry()
         {
+            if (_energyManager.CurrentEnergy.CurrentValue < 1)
+            {
+                var promise = new Promise<Unit>();
+                _notificationDisplayEventPublisher.Publish(new NotificationDisplayEvent(
+                    NotificationType.General, 
+                    new GeneralNotificationData 
+                    { 
+                        message = "Not enough energy!"
+                    },
+                    promise));
+                await promise.Task;
+                return;
+            }
+            _energyManager.ChangeEnergy(-1);
             _displayResultPromise.Cancel();
             await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
         }

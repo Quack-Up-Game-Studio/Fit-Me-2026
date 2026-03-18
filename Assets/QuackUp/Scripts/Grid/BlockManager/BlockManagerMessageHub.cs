@@ -16,7 +16,7 @@ namespace FitMe.Grid
             IPublisher<BlockSpawnedEvent> blockSpawnedPublisher,
             IPublisher<NoPlaceableBlockEvent> noPlaceableBlockPublisher,
             IPublisher<GameOverEvent> gameOverPublisher,
-            ISubscriber<ClearGridEvent> clearGridSubscriber)
+            ISubscriber<ContinueEvent> clearGridSubscriber)
         {
             MessageWrappers[typeof(SpawnWithBlockPresetEvent)] = new MessageWrapper<SpawnWithBlockPresetEvent>(
                 null,
@@ -30,7 +30,7 @@ namespace FitMe.Grid
             MessageWrappers[typeof(GameOverEvent)] = new MessageWrapper<GameOverEvent>(
                 gameOverPublisher,
                 null);
-            MessageWrappers[typeof(ClearGridEvent)] = new MessageWrapper<ClearGridEvent>(
+            MessageWrappers[typeof(ContinueEvent)] = new MessageWrapper<ContinueEvent>(
                 null,
                 clearGridSubscriber);
         }

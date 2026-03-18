@@ -12,22 +12,19 @@ namespace FitMe.Panel
     public class GameOverPanelViewModel : PanelViewModel
     {
         public ReactiveCommand AdsContinueCommand { get; } = new();
-        public ReactiveCommand RetryCommand { get; } = new();
         public ReactiveCommand SkipCommand { get; } = new();
         
         public Observable<Unit> OnReturnToGameplay => _onReturnToGameplay;
-        public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
         public ReadOnlyReactiveProperty<int> RemainingContinueCount => _remainingContinueCount;
         public ReadOnlyReactiveProperty<float> CountdownTimePercent => _countdownTimePercent;
         
         private readonly Subject<Unit> _onReturnToGameplay = new();
-        private readonly EnergyManager _energyManager;
         private readonly ReactiveProperty<int> _remainingContinueCount = new();
         private readonly ReactiveProperty<float> _countdownTimePercent = new();
         private readonly AdsService _adsService;
         private readonly int _maxContinueCount;
         private readonly bool _enableAds = true;
-        private readonly IPublisher<ClearGridEvent> _clearGridEventPublisher;
+        private readonly IPublisher<ContinueEvent> _clearGridEventPublisher;
         
         private float _maxCountdownTime;
         private float _countdownTime;
@@ -40,14 +37,11 @@ namespace FitMe.Panel
         [Inject]
         public GameOverPanelViewModel(
             PanelManager panelManager,
-            EnergyManager energyManager,
-            EnergyBarViewModel energyBarViewModel,
             AdsService adsService,
             [Key(MaxContinueCountId)] int maxContinueCount,
             [Key(CountdownTimeId)] float maxCountdownTime,
-            IPublisher<ClearGridEvent> clearGridEventPublisher) : base(panelManager)
+            IPublisher<ContinueEvent> clearGridEventPublisher) : base(panelManager)
         {
-            _energyManager = energyManager;
             _adsService = adsService;
             
             _maxContinueCount = maxContinueCount;
@@ -58,8 +52,6 @@ namespace FitMe.Panel
             _countdownTimePercent.Value = _maxCountdownTime;
             
             _clearGridEventPublisher = clearGridEventPublisher;
-
-            energyBarViewModel.AllowWatchAd.Value = false;
             
             Bind();
         }
@@ -69,10 +61,6 @@ namespace FitMe.Panel
             var disposableBuilder = Disposable.CreateBuilder();
             AdsContinueCommand
                 .Subscribe(_ => OnAdsButtonClicked())
-                .AddTo(ref disposableBuilder);
-            
-            RetryCommand
-                .Subscribe(_ => OnRetry())
                 .AddTo(ref disposableBuilder);
 
             SkipCommand
@@ -101,13 +89,7 @@ namespace FitMe.Panel
             _remainingContinueCount.Value--;
             ReturnToGameplay();
         }
-
-        private void OnRetry()
-        {
-            _energyManager.ChangeEnergy(-1);
-            ReturnToGameplay();
-        }
-
+        
         protected override void OnVisible()
         {
             base.OnVisible();
@@ -117,7 +99,7 @@ namespace FitMe.Panel
         private void ReturnToGameplay()
         {
             _onReturnToGameplay.OnNext(Unit.Default);
-            _clearGridEventPublisher.Publish(new ClearGridEvent(false));
+            _clearGridEventPublisher.Publish(new ContinueEvent(shouldClearGrid: true, shouldDestroyObstacles: false));
             _countdownTimer.Dispose();
         }
 
