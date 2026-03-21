@@ -4,38 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="41d03079-9c3e-4543-9387-fb394932fb26" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.cmake/api/v1/reply/index-2026-03-09T04-09-27-0950.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.cmake/api/v1/reply/index-2026-03-09T04-09-29-0726.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/GooglePlayGames/com.google.play.games/Editor/m2repository/com/google/games/gpgs-plugin-support/2.1.0/gpgs-plugin-support-2.1.0.aar.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/GooglePlayGames/com.google.play.games/Editor/m2repository/com/google/games/gpgs-plugin-support/2.1.0/gpgs-plugin-support-2.1.0.aar.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManagerConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManagerConfig.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManagerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManagerInstaller.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManagerMessageHub.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManagerMessageHub.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/GridManager/GridManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/GridManager/GridManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/GridManager/GridManagerMessageHub.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/GridManager/GridManagerMessageHub.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SharedEvents.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SharedEvents.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/Block/BlockManagerConfig.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/Block/BlockManagerConfig.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Scenes/Gameplay/LevelManagerConfig.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Settings/Scenes/Gameplay/LevelManagerConfig.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
-    </list>
+    <list default="true" id="41d03079-9c3e-4543-9387-fb394932fb26" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
