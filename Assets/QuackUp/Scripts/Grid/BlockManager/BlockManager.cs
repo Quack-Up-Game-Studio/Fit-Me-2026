@@ -72,6 +72,10 @@ namespace FitMe.Grid
         
         #region Fields
         public const string PreviewTransformKey = "PreviewTransform";
+        public IReadOnlyList<BlockInstance> BlockOnHand => _spawnPoints
+            .Where(x => !x.IsFree)
+            .Select(x => x.CurrentBlock)
+            .ToList();
         
         private Queue<SpawnBlockData> _spawnBag = new();
         private readonly List<SpawnBlockData> _blockPool = new();
@@ -144,7 +148,7 @@ namespace FitMe.Grid
 
         private void OnFitCheck(FitTypeEvent eventData)
         {
-            if (_gridManager.CurrentSceneType != SceneType.Gameplay) return;
+            if (!_gridManager.IsGameplay) return;
             FreeSpawnPoint(eventData.Block.Model.SpawnIndex);
             //ResetSpawnPoint();
             SpawnRandomBlock(_config.CanRefill);
@@ -311,8 +315,8 @@ namespace FitMe.Grid
             if (vacantCount > _config.SmartRandomThreshold) return;
             var schemasToCheck = _config.BlockPresetDictionary.Values.SelectMany(x => x.BlockSchemas).ToList();
             List<BestFitResult> bestFitResults = new();
-            var allSchemaOnHand = _spawnPoints
-                .SelectMany(x => x.CurrentBlock.Model.BlockPreset.DistinctBlockSchemas)
+            var allSchemaOnHand = BlockOnHand
+                .SelectMany(x => x.Model.BlockPreset.DistinctBlockSchemas)
                 .Where(x => x != null)
                 .ToList();
             foreach (var block in allSchemaOnHand)

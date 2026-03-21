@@ -160,7 +160,7 @@ namespace FitMe.Grid
         public Observable<Unit> OnClearGrid => _onClearGrid;
         private readonly Subject<Unit> _onClearGrid = new();
         private int _currentPresetIndex;
-        public SceneType CurrentSceneType { get; private set; }
+        public bool IsGameplay { get; private set; }
         #endregion
         
         [Inject]
@@ -216,26 +216,26 @@ namespace FitMe.Grid
         private void OnFinishedLoading(SceneType sceneType)
         {
             DebugUtils.Log("GridManager: OnFinishedLoading " + sceneType);
-            CurrentSceneType = sceneType;
+            IsGameplay = sceneType is SceneType.Gameplay or SceneType.Tutorial;
         }
 
         private void OnSpawnGridWithGridPreset(GridPreset preset)
         {
-            if (CurrentSceneType is not SceneType.Gameplay) return;
+            if (!IsGameplay) return;
             CurrentGridPreset = preset;
             CreateCells();
         }
         
         private void StartGameplay()
         {
-            if (CurrentSceneType is not SceneType.Gameplay) return;
+            if (!IsGameplay) return;
             SetUpGameplayGridPreset();
             CreateCells();
         }
 
         private void OnSpawnGridWithBlockPreset(BlockPreset preset)
         {
-            if (CurrentSceneType is SceneType.Gameplay) return;
+            if (IsGameplay) return;
             SetUpMainMenuGridPreset(preset);
             CreateCells();
         }
@@ -546,7 +546,7 @@ namespace FitMe.Grid
 
         private async UniTask FitMe(List<BlockInstance> contacts)
         {
-            if (CurrentSceneType is not SceneType.Gameplay) return;
+            if (!IsGameplay) return;
             await ClearGrid(true);
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
             RegenerateGrid();
@@ -589,7 +589,7 @@ namespace FitMe.Grid
             _allContacts.RemoveAll(x => x.Contains(gridBlockData.BlockInstance));
             //OnBlockDestroyed?.Invoke(gridBlockData.Block);
             var atoms = new List<AtomInstance>(gridBlockData.BlockInstance.Model.Atoms);
-            if (CurrentSceneType is SceneType.Gameplay)
+            if (IsGameplay)
             {
                 gridBlockData.BlockInstance.Model.BlockState.Value = BlockState.Exploding;
                 var promise = new Promise<Unit>();
