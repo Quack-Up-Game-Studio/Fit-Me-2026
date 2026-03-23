@@ -5071,10 +5071,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 979920850}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 300}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 362, y: -175}
+  m_SizeDelta: {x: 674, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &731271594
 MonoBehaviour:
@@ -5402,9 +5402,6 @@ MonoBehaviour:
     - {fileID: 134032701}
     - {fileID: 1787313454}
     - {fileID: 347676324}
-    - {fileID: -2223707385294825117, guid: 3faed8b5430914a40a0a895360c58d75, type: 3}
-    - {fileID: 4726877405658250286, guid: 43472e6d165c26442bce3e2274d9be71, type: 3}
-    - {fileID: 5210632094180661567, guid: 907b35516b3fe2846b21eaf309aef7ff, type: 3}
     - {fileID: 30430317}
     - {fileID: 1149360084}
     - {fileID: 1067048283}
@@ -5674,31 +5671,31 @@ MonoBehaviour:
       Data: 16|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
-      Data: Hekkkkkoioio
+      Data: afafafafaffa
     - Name: usePreviousSize
       Entry: 5
-      Data: false
+      Data: true
     - Name: panelInset
       Entry: 7
       Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
     - Name: left
       Entry: 4
-      Data: 200
+      Data: 0
     - Name: top
       Entry: 4
-      Data: 700
+      Data: 0
     - Name: right
       Entry: 4
-      Data: 200
+      Data: 0
     - Name: bottom
       Entry: 4
-      Data: 500
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
     - Name: image
-      Entry: 10
-      Data: 23
+      Entry: 6
+      Data: 
     - Name: hideWhenExit
       Entry: 5
       Data: false
@@ -5725,31 +5722,31 @@ MonoBehaviour:
       Data: 17|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
-      Data: agaagagagagagagggaga
+      Data: ghgsdgsdgsdg
     - Name: usePreviousSize
       Entry: 5
-      Data: false
+      Data: true
     - Name: panelInset
       Entry: 7
       Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
     - Name: left
       Entry: 4
-      Data: 200
+      Data: 0
     - Name: top
       Entry: 4
-      Data: 700
+      Data: 0
     - Name: right
       Entry: 4
-      Data: 200
+      Data: 0
     - Name: bottom
       Entry: 4
-      Data: 1000
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
     - Name: image
-      Entry: 10
-      Data: 24
+      Entry: 6
+      Data: 
     - Name: hideWhenExit
       Entry: 5
       Data: false
@@ -5779,34 +5776,34 @@ MonoBehaviour:
       Data: PLACE DA BLOCK
     - Name: usePreviousSize
       Entry: 5
-      Data: false
+      Data: true
     - Name: panelInset
       Entry: 7
       Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
     - Name: left
       Entry: 4
-      Data: 200
+      Data: 0
     - Name: top
       Entry: 4
-      Data: 700
+      Data: 0
     - Name: right
       Entry: 4
-      Data: 200
+      Data: 0
     - Name: bottom
       Entry: 4
-      Data: 700
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
     - Name: image
-      Entry: 10
-      Data: 25
+      Entry: 6
+      Data: 
     - Name: hideWhenExit
       Entry: 5
-      Data: true
+      Data: false
     - Name: hasNextButton
       Entry: 5
-      Data: false
+      Data: true
     - Name: blockInput
       Entry: 5
       Data: true
@@ -5858,19 +5855,19 @@ MonoBehaviour:
       Data: 21|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
     - Name: scoreView
       Entry: 10
-      Data: 26
+      Data: 23
     - Name: scoreTransform
       Entry: 10
-      Data: 27
+      Data: 24
     - Name: fitmeTransform
       Entry: 10
-      Data: 28
+      Data: 25
     - Name: popUpScoreViewPrefab
       Entry: 10
-      Data: 29
+      Data: 26
     - Name: popUpScoreParent
       Entry: 10
-      Data: 30
+      Data: 27
     - Name: 
       Entry: 8
       Data: 
@@ -5885,7 +5882,7 @@ MonoBehaviour:
       Data: 23|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
     - Name: energyBarView
       Entry: 10
-      Data: 31
+      Data: 28
     - Name: 
       Entry: 8
       Data: 
@@ -5894,7 +5891,7 @@ MonoBehaviour:
       Data: 24|FitMe.Panel.RunTimerInstaller, FitMe.Panel
     - Name: view
       Entry: 10
-      Data: 32
+      Data: 29
     - Name: 
       Entry: 8
       Data: 
@@ -5912,7 +5909,7 @@ MonoBehaviour:
       Data: 26|FitMe.Panel.Tutorial.TextTutorialInstaller, FitMe.Panel
     - Name: view
       Entry: 10
-      Data: 33
+      Data: 30
     - Name: 
       Entry: 8
       Data: 
@@ -6211,10 +6208,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 979920850}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 300}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 362, y: -500}
+  m_SizeDelta: {x: 674, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &950032926
 MonoBehaviour:
@@ -10406,7 +10403,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1756790805
 RectTransform:
   m_ObjectHideFlags: 0
