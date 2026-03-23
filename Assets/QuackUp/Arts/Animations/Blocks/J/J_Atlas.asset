@@ -10,8 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6b194f808b1af6499c93410e504af42, type: 3}
-  m_Name: LMirror_Atlas
-  m_EditorClassIdentifier: 
-  atlasFile: {fileID: 4900000, guid: 0ced9192b512e0d42a85485c1b5dc9f0, type: 3}
+  m_Name: J_Atlas
+  m_EditorClassIdentifier: spine-unity::Spine.Unity.SpineAtlasAsset
+  textureLoadingMode: 0
+  onDemandTextureLoader: {fileID: 0}
+  atlasFile: {fileID: 4900000, guid: 14d17a2e8199c62499406cff4e0b7a1f, type: 3}
   materials:
-  - {fileID: 2100000, guid: 3b07b9504425da7459bbcf0826386254, type: 2}
+  - {fileID: 2100000, guid: 448e12c1648abdf499899151594a4426, type: 2}

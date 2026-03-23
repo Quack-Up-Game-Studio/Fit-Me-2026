@@ -1,461 +1,210 @@
-
 S.png
-size: 1801,396
-format: RGBA8888
-filter: Linear,Linear
-repeat: none
+	size: 1873, 459
+	filter: Linear, Linear
+	pma: true
 Blue/Body
-  rotate: false
-  xy: 777, 10
-  size: 256, 384
-  orig: 256, 384
-  offset: 0, 0
-  index: -1
+	bounds: 1037, 73, 256, 384
 Blue/L_Eye
-  rotate: false
-  xy: 1641, 213
-  size: 51, 51
-  orig: 51, 51
-  offset: 0, 0
-  index: -1
+	bounds: 1665, 27, 51, 51
 Blue/L_Eye_Outline
-  rotate: false
-  xy: 1469, 9
-  size: 56, 54
-  orig: 56, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1609, 76, 56, 54
+	rotate: 90
 Blue/L_Eyeball
-  rotate: false
-  xy: 1293, 2
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 646, 3, 7, 7
 Blue/L_Eyelid
-  rotate: false
-  xy: 1527, 2
-  size: 52, 48
-  orig: 52, 48
-  offset: 0, 0
-  index: -1
+	bounds: 1665, 351, 52, 48
 Blue/L_Hand
-  rotate: false
-  xy: 1341, 162
-  size: 62, 64
-  orig: 62, 64
-  offset: 0, 0
-  index: -1
+	bounds: 134, 5, 62, 64
+Blue/L_Hand2
+	bounds: 646, 12, 58, 58
 Blue/Mouth
-  rotate: false
-  xy: 1293, 340
-  size: 124, 54
-  orig: 124, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1426, 199, 124, 54
+	rotate: 90
+Blue/Mouth2
+	bounds: 1326, 185, 132, 48
+	rotate: 90
+Blue/Mouth_Upper2
+	bounds: 1295, 319, 138, 29
+	rotate: 90
 Blue/R_Eye
-  rotate: false
-  xy: 1641, 162
-  size: 51, 49
-  orig: 51, 49
-  offset: 0, 0
-  index: -1
+	bounds: 1710, 134, 51, 49
 Blue/R_Eye_Outline
-  rotate: true
-  xy: 1527, 226
-  size: 56, 54
-  orig: 56, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1609, 18, 56, 54
+	rotate: 90
 Blue/R_Eyeball
-  rotate: false
-  xy: 1302, 2
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 655, 3, 7, 7
 Blue/R_Eyelid
-  rotate: false
-  xy: 1636, 58
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 1656, 134, 52, 49
 Blue/R_Hand
-  rotate: false
-  xy: 1641, 330
-  size: 62, 64
-  orig: 62, 64
-  offset: 0, 0
-  index: -1
+	bounds: 198, 5, 62, 64
+Blue/R_Hand2
+	bounds: 706, 12, 58, 58
 Blue/Tougne
-  rotate: true
-  xy: 1419, 236
-  size: 46, 106
-  orig: 46, 106
-  offset: 0, 0
-  index: -1
+	bounds: 1561, 23, 46, 106
+Blue/Tougne_Smear2
+	bounds: 1554, 131, 52, 106
 Green/Body
-  rotate: false
-  xy: 261, 9
-  size: 256, 385
-  orig: 256, 385
-  offset: 0, 0
-  index: -1
+	bounds: 521, 72, 256, 385
 Green/L_Eye
-  rotate: false
-  xy: 1583, 121
-  size: 51, 51
-  orig: 51, 51
-  offset: 0, 0
-  index: -1
+	bounds: 1716, 81, 51, 51
 Green/L_Eye_Outline
-  rotate: true
-  xy: 1527, 168
-  size: 56, 54
-  orig: 56, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1656, 185, 56, 54
+	rotate: 90
 Green/L_Eyeball
-  rotate: false
-  xy: 1311, 2
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 664, 3, 7, 7
 Green/L_Eyelid
-  rotate: false
-  xy: 1581, 2
-  size: 52, 48
-  orig: 52, 48
-  offset: 0, 0
-  index: -1
+	bounds: 1719, 351, 52, 48
 Green/L_Hand
-  rotate: false
-  xy: 1341, 96
-  size: 62, 64
-  orig: 62, 64
-  offset: 0, 0
-  index: -1
+	bounds: 262, 6, 62, 64
+Green/L_Hand2
+	bounds: 766, 12, 58, 58
 Green/Mouth
-  rotate: false
-  xy: 1293, 284
-  size: 124, 54
-  orig: 124, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1457, 333, 124, 54
+	rotate: 90
+Green/Mouth2
+	bounds: 1357, 325, 132, 48
+	rotate: 90
+Green/Mouth_Upper2
+	bounds: 1295, 179, 138, 29
+	rotate: 90
 Green/R_Eye
-  rotate: true
-  xy: 1689, 109
-  size: 51, 49
-  orig: 51, 49
-  offset: 0, 0
-  index: -1
+	bounds: 1718, 28, 51, 49
+	rotate: 90
 Green/R_Eye_Outline
-  rotate: true
-  xy: 1527, 110
-  size: 56, 54
-  orig: 56, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1694, 293, 56, 54
+	rotate: 90
 Green/R_Eyeball
-  rotate: false
-  xy: 1320, 2
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 673, 3, 7, 7
 Green/R_Eyelid
-  rotate: false
-  xy: 1635, 7
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 1805, 244, 52, 49
 Green/R_Hand
-  rotate: false
-  xy: 1705, 330
-  size: 62, 64
-  orig: 62, 64
-  offset: 0, 0
-  index: -1
+	bounds: 326, 6, 62, 64
+Green/R_Hand2
+	bounds: 826, 12, 58, 58
 Green/Tougne
-  rotate: false
-  xy: 1593, 288
-  size: 46, 106
-  orig: 46, 106
-  offset: 0, 0
-  index: -1
+	bounds: 1608, 134, 46, 106
+Green/Tougne_Smear2
+	bounds: 1592, 242, 52, 106
 Purple/Body
-  rotate: false
-  xy: 2, 9
-  size: 257, 385
-  orig: 257, 385
-  offset: 0, 0
-  index: -1
+	bounds: 262, 72, 257, 385
 Purple/L_Eye
-  rotate: false
-  xy: 1583, 68
-  size: 51, 51
-  orig: 51, 51
-  offset: 0, 0
-  index: -1
+	bounds: 1763, 140, 51, 51
 Purple/L_Eye_Outline
-  rotate: true
-  xy: 1527, 52
-  size: 56, 54
-  orig: 56, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1722, 401, 56, 54
+	rotate: 90
 Purple/L_Eyeball
-  rotate: false
-  xy: 1329, 2
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 682, 3, 7, 7
 Purple/L_Eyelid
-  rotate: true
-  xy: 1690, 55
-  size: 52, 48
-  orig: 52, 48
-  offset: 0, 0
-  index: -1
+	bounds: 1694, 243, 52, 48
 Purple/L_Hand
-  rotate: false
-  xy: 1341, 30
-  size: 62, 64
-  orig: 62, 64
-  offset: 0, 0
-  index: -1
+	bounds: 390, 6, 62, 64
+Purple/L_Hand2
+	bounds: 886, 12, 58, 58
 Purple/Mouth
-  rotate: false
-  xy: 1419, 340
-  size: 124, 54
-  orig: 124, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1444, 73, 124, 54
+	rotate: 90
+Purple/Mouth2
+	bounds: 1336, 51, 132, 48
+	rotate: 90
+Purple/Mouth_Upper2
+	bounds: 1305, 39, 138, 29
+	rotate: 90
 Purple/R_Eye
-  rotate: true
-  xy: 1689, 2
-  size: 51, 49
-  orig: 51, 49
-  offset: 0, 0
-  index: -1
+	bounds: 1769, 89, 51, 49
 Purple/R_Eye_Outline
-  rotate: false
-  xy: 1583, 174
-  size: 56, 54
-  orig: 56, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1778, 403, 56, 54
 Purple/R_Eyeball
-  rotate: false
-  xy: 1338, 2
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 691, 3, 7, 7
 Purple/R_Eyelid
-  rotate: false
-  xy: 1694, 213
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 1748, 193, 52, 49
 Purple/R_Hand
-  rotate: true
-  xy: 1641, 266
-  size: 62, 64
-  orig: 62, 64
-  offset: 0, 0
-  index: -1
+	bounds: 454, 6, 62, 64
+Purple/R_Hand2
+	bounds: 946, 12, 58, 58
 Purple/Tougne
-  rotate: false
-  xy: 1293, 11
-  size: 46, 106
-  orig: 46, 106
-  offset: 0, 0
-  index: -1
+	bounds: 1646, 243, 46, 106
+Purple/Tougne_Smear2
+	bounds: 1611, 351, 52, 106
 Red/Body
-  rotate: false
-  xy: 1035, 10
-  size: 256, 384
-  orig: 258, 386
-  offset: 1, 1
-  index: -1
+	bounds: 2, 71, 258, 386
 Red/L_Eye
-  rotate: false
-  xy: 1636, 109
-  size: 51, 51
-  orig: 53, 53
-  offset: 1, 1
-  index: -1
-Yellow/L_Eye
-  rotate: false
-  xy: 1636, 109
-  size: 51, 51
-  orig: 51, 51
-  offset: 0, 0
-  index: -1
+	bounds: 1806, 295, 53, 53
 Red/L_Eye_Outline
-  rotate: false
-  xy: 1469, 179
-  size: 56, 55
-  orig: 58, 57
-  offset: 1, 1
-  index: -1
+	bounds: 1246, 13, 58, 57
+	rotate: 90
 Red/L_Eyeball
-  rotate: false
-  xy: 1769, 387
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1066, 2, 9, 9
 Red/L_Eyelid
-  rotate: false
-  xy: 1694, 162
-  size: 52, 49
-  orig: 54, 51
-  offset: 1, 1
-  index: -1
+	bounds: 1778, 350, 54, 51
 Red/L_Hand
-  rotate: false
-  xy: 1707, 264
-  size: 62, 64
-  orig: 64, 66
-  offset: 1, 1
-  index: -1
+	bounds: 2, 3, 64, 66
+Red/L_Hand2
+	bounds: 1006, 12, 58, 58
 Red/Mouth
-  rotate: false
-  xy: 1293, 228
-  size: 124, 54
-  orig: 126, 56
-  offset: 1, 1
-  index: -1
+	bounds: 1386, 63, 126, 56
+	rotate: 90
+Red/Mouth2
+	bounds: 1376, 191, 132, 48
+	rotate: 90
+Red/Mouth_Upper2
+	bounds: 1305, 8, 138, 29
 Red/R_Eye
-  rotate: false
-  xy: 1748, 159
-  size: 51, 49
-  orig: 53, 51
-  offset: 1, 1
-  index: -1
-Yellow/R_Eye
-  rotate: false
-  xy: 1748, 159
-  size: 51, 49
-  orig: 51, 49
-  offset: 0, 0
-  index: -1
+	bounds: 1750, 244, 53, 51
 Red/R_Eye_Outline
-  rotate: false
-  xy: 1469, 122
-  size: 56, 55
-  orig: 58, 57
-  offset: 1, 1
-  index: -1
+	bounds: 1445, 13, 58, 57
+	rotate: 90
 Red/R_Eyeball
-  rotate: false
-  xy: 1583, 59
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1077, 2, 9, 9
 Red/R_Eyelid
-  rotate: true
-  xy: 1748, 210
-  size: 52, 49
-  orig: 54, 51
-  offset: 1, 1
-  index: -1
+	bounds: 1750, 297, 54, 51
 Red/R_Hand
-  rotate: false
-  xy: 1405, 162
-  size: 62, 64
-  orig: 64, 66
-  offset: 1, 1
-  index: -1
+	bounds: 68, 3, 64, 66
+Red/R_Hand2
+	bounds: 1066, 13, 58, 58
 Red/Tougne
-  rotate: false
-  xy: 1545, 287
-  size: 46, 107
-  orig: 48, 109
-  offset: 1, 1
-  index: -1
+	bounds: 1513, 348, 48, 109
+Red/Tougne_Smear2
+	bounds: 1500, 98, 52, 107
 Yellow/Body
-  rotate: false
-  xy: 519, 9
-  size: 256, 385
-  orig: 256, 385
-  offset: 0, 0
-  index: -1
+	bounds: 779, 72, 256, 385
+Yellow/L_Eye
+	bounds: 1816, 140, 51, 51
 Yellow/L_Eye_Outline
-  rotate: false
-  xy: 1469, 65
-  size: 56, 55
-  orig: 56, 55
-  offset: 0, 0
-  index: -1
+	bounds: 1504, 40, 56, 55
+	rotate: 90
 Yellow/L_Eyeball
-  rotate: false
-  xy: 1740, 48
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 700, 3, 7, 7
 Yellow/L_Eyelid
-  rotate: false
-  xy: 1740, 108
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 1802, 193, 52, 49
 Yellow/L_Hand
-  rotate: false
-  xy: 1405, 96
-  size: 62, 64
-  orig: 62, 64
-  offset: 0, 0
-  index: -1
+	bounds: 518, 6, 62, 64
+Yellow/L_Hand2
+	bounds: 1126, 13, 58, 58
 Yellow/Mouth
-  rotate: false
-  xy: 1419, 284
-  size: 124, 54
-  orig: 124, 54
-  offset: 0, 0
-  index: -1
+	bounds: 1482, 207, 124, 54
+	rotate: 90
+Yellow/Mouth2
+	bounds: 1407, 325, 132, 48
+	rotate: 90
+Yellow/Mouth_Upper2
+	bounds: 1326, 319, 138, 29
+	rotate: 90
+Yellow/R_Eye
+	bounds: 1822, 87, 51, 49
+	rotate: 90
 Yellow/R_Eye_Outline
-  rotate: false
-  xy: 1583, 230
-  size: 56, 55
-  orig: 56, 55
-  offset: 0, 0
-  index: -1
+	bounds: 1665, 401, 56, 55
+	rotate: 90
 Yellow/R_Eyeball
-  rotate: false
-  xy: 1341, 21
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 709, 3, 7, 7
 Yellow/R_Eyelid
-  rotate: false
-  xy: 1740, 57
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 1665, 80, 52, 49
+	rotate: 90
 Yellow/R_Hand
-  rotate: false
-  xy: 1405, 30
-  size: 62, 64
-  orig: 62, 64
-  offset: 0, 0
-  index: -1
+	bounds: 582, 6, 62, 64
+Yellow/R_Hand2
+	bounds: 1186, 13, 58, 58
 Yellow/Tougne
-  rotate: false
-  xy: 1293, 119
-  size: 46, 107
-  orig: 46, 107
-  offset: 0, 0
-  index: -1
+	bounds: 1563, 350, 46, 107
+Yellow/Tougne_Smear2
+	bounds: 1538, 239, 52, 107

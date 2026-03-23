@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: spine-unity::Spine.Unity.SkeletonDataAsset
   atlasAssets:
   - {fileID: 11400000, guid: f10607946f023524d9fd71dc1cd7191e, type: 2}
-  scale: 0.0078125
+  scale: 0.01
   skeletonJSON: {fileID: 4900000, guid: 41f55bc3b507f8740bcf98601e899139, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 0
-    applyAdditiveMaterial: 1
+    applyAdditiveMaterial: 0
     additiveMaterials: []
     multiplyMaterials: []
     screenMaterials: []

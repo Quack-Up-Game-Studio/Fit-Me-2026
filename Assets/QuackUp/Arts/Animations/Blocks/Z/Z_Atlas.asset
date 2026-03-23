@@ -10,8 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6b194f808b1af6499c93410e504af42, type: 3}
-  m_Name: SMirror_Atlas
-  m_EditorClassIdentifier: 
-  atlasFile: {fileID: 4900000, guid: 514e03f1d6e81744f9512c050b34137a, type: 3}
+  m_Name: Z_Atlas
+  m_EditorClassIdentifier: spine-unity::Spine.Unity.SpineAtlasAsset
+  textureLoadingMode: 0
+  onDemandTextureLoader: {fileID: 0}
+  atlasFile: {fileID: 4900000, guid: d6db90275198eb64a97636a8fe0b9c90, type: 3}
   materials:
-  - {fileID: 2100000, guid: 3cf99a4d5da24d54ca2a47d88e822f7e, type: 2}
+  - {fileID: 2100000, guid: d6fba4420b935ba48a2571792cc79510, type: 2}

@@ -1,531 +1,209 @@
-
 2x2.png
-size: 968,523
-format: RGBA8888
-filter: Linear,Linear
-repeat: none
+	size: 984, 523
+	filter: Linear, Linear
+	pma: true
 Blue/Body
-  rotate: false
-  xy: 519, 265
-  size: 256, 256
-  orig: 258, 258
-  offset: 1, 1
-  index: -1
+	bounds: 2, 2, 258, 258
 Blue/L_Arm
-  rotate: true
-  xy: 851, 392
-  size: 41, 65
-  orig: 43, 67
-  offset: 1, 1
-  index: -1
+	bounds: 520, 2, 42, 65
+	offsets: 0, 0, 43, 67
+	rotate: 90
 Blue/L_Eye
-  rotate: false
-  xy: 915, 274
-  size: 51, 51
-  orig: 53, 53
-  offset: 1, 1
-  index: -1
+	bounds: 587, 2, 53, 53
 Blue/L_Eye_Outline
-  rotate: false
-  xy: 530, 66
-  size: 56, 54
-  orig: 58, 56
-  offset: 1, 1
-  index: -1
+	bounds: 520, 103, 58, 56
 Blue/L_Eyeball
-  rotate: false
-  xy: 853, 46
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 741, 198, 9, 9
 Blue/L_Eyelid
-  rotate: true
-  xy: 918, 381
-  size: 52, 48
-  orig: 54, 50
-  offset: 1, 1
-  index: -1
+	bounds: 846, 253, 54, 50
 Blue/L_Horn
-  rotate: true
-  xy: 926, 487
-  size: 34, 40
-  orig: 36, 42
-  offset: 1, 1
-  index: -1
+	bounds: 711, 94, 36, 42
+	rotate: 90
 Blue/Mouth
-  rotate: true
-  xy: 836, 319
-  size: 70, 10
-  orig: 72, 12
-  offset: 1, 1
-  index: -1
+	bounds: 596, 207, 72, 12
+Blue/Mouth2
+	bounds: 948, 406, 13, 13
+	offsets: 1, 0, 14, 13
 Blue/Nose
-  rotate: false
-  xy: 777, 479
-  size: 73, 42
-  orig: 75, 44
-  offset: 1, 1
-  index: -1
+	bounds: 520, 219, 74, 43
+	offsets: 0, 0, 75, 44
 Blue/R_Arm
-  rotate: true
-  xy: 851, 349
-  size: 41, 65
-  orig: 43, 67
-  offset: 1, 1
-  index: -1
+	bounds: 779, 262, 41, 65
+	offsets: 1, 1, 43, 67
+	rotate: 90
 Blue/R_Eye
-  rotate: false
-  xy: 731, 157
-  size: 51, 49
-  orig: 53, 51
-  offset: 1, 1
-  index: -1
+	bounds: 709, 41, 53, 51
 Blue/R_Eye_Outline
-  rotate: false
-  xy: 588, 66
-  size: 56, 54
-  orig: 58, 56
-  offset: 1, 1
-  index: -1
+	bounds: 779, 362, 58, 56
 Blue/R_Eyeball
-  rotate: false
-  xy: 959, 212
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 808, 167, 9, 9
 Blue/R_Eyelid
-  rotate: false
-  xy: 646, 58
-  size: 52, 49
-  orig: 54, 51
-  offset: 1, 1
-  index: -1
+	bounds: 844, 200, 54, 51
 Blue/R_Horn
-  rotate: true
-  xy: 926, 451
-  size: 34, 40
-  orig: 36, 42
-  offset: 1, 1
-  index: -1
+	bounds: 697, 3, 36, 42
+	rotate: 90
 Green/Body
-  rotate: false
-  xy: 2, 5
-  size: 256, 257
-  orig: 256, 257
-  offset: 0, 0
-  index: -1
+	bounds: 262, 5, 256, 257
 Green/L_Arm
-  rotate: true
-  xy: 848, 306
-  size: 41, 65
-  orig: 41, 65
-  offset: 0, 0
-  index: -1
+	bounds: 779, 220, 40, 63
+	offsets: 0, 0, 41, 65
+	rotate: 90
 Green/L_Eye
-  rotate: false
-  xy: 915, 221
-  size: 51, 51
-  orig: 51, 51
-  offset: 0, 0
-  index: -1
+	bounds: 855, 95, 51, 51
 Green/L_Eye_Outline
-  rotate: false
-  xy: 777, 334
-  size: 57, 55
-  orig: 57, 55
-  offset: 0, 0
-  index: -1
+	bounds: 520, 46, 57, 55
 Green/L_Eyeball
-  rotate: false
-  xy: 853, 37
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 908, 96, 7, 7
 Green/L_Eyelid
-  rotate: false
-  xy: 723, 106
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 764, 41, 52, 49
+	rotate: 90
 Green/L_Horn
-  rotate: false
-  xy: 888, 178
-  size: 33, 40
-  orig: 33, 40
-  offset: 0, 0
-  index: -1
+	bounds: 752, 132, 33, 40
+	rotate: 90
 Green/Mouth
-  rotate: true
-  xy: 903, 235
-  size: 69, 10
-  orig: 69, 10
-  offset: 0, 0
-  index: -1
+	bounds: 670, 197, 69, 10
+Green/Mouth2
+	bounds: 948, 391, 13, 13
+	offsets: 1, 0, 14, 13
 Green/Nose
-  rotate: false
-  xy: 852, 479
-  size: 72, 42
-  orig: 72, 42
-  offset: 0, 0
-  index: -1
+	bounds: 854, 480, 71, 41
+	offsets: 0, 0, 72, 42
 Green/R_Arm
-  rotate: true
-  xy: 836, 263
-  size: 41, 65
-  orig: 41, 65
-  offset: 0, 0
-  index: -1
+	bounds: 646, 156, 39, 63
+	offsets: 1, 1, 41, 65
+	rotate: 90
 Green/R_Eye
-  rotate: true
-  xy: 784, 167
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 815, 41, 52, 49
+	rotate: 90
 Green/R_Eye_Outline
-  rotate: false
-  xy: 777, 277
-  size: 57, 55
-  orig: 57, 55
-  offset: 0, 0
-  index: -1
+	bounds: 927, 464, 57, 55
+	rotate: 90
 Green/R_Eyeball
-  rotate: false
-  xy: 959, 203
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 839, 362, 7, 7
 Green/R_Eyelid
-  rotate: false
-  xy: 700, 55
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 866, 41, 52, 49
+	rotate: 90
 Green/R_Horn
-  rotate: false
-  xy: 862, 72
-  size: 33, 40
-  orig: 33, 40
-  offset: 0, 0
-  index: -1
+	bounds: 785, 6, 33, 40
+	rotate: 90
 Purple/Body
-  rotate: false
-  xy: 2, 264
-  size: 257, 257
-  orig: 257, 257
-  offset: 0, 0
-  index: -1
+	bounds: 262, 264, 257, 257
 Purple/L_Arm
-  rotate: true
-  xy: 836, 220
-  size: 41, 65
-  orig: 41, 65
-  offset: 0, 0
-  index: -1
+	bounds: 581, 165, 40, 63
+	offsets: 0, 0, 41, 65
+	rotate: 90
 Purple/L_Eye
-  rotate: false
-  xy: 835, 167
-  size: 51, 51
-  orig: 51, 51
-  offset: 0, 0
-  index: -1
+	bounds: 896, 317, 51, 51
 Purple/L_Eye_Outline
-  rotate: false
-  xy: 648, 208
-  size: 56, 55
-  orig: 56, 55
-  offset: 0, 0
-  index: -1
+	bounds: 639, 57, 56, 55
 Purple/L_Eyeball
-  rotate: false
-  xy: 959, 194
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 848, 362, 7, 7
 Purple/L_Eyelid
-  rotate: false
-  xy: 754, 55
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 840, 371, 52, 49
 Purple/L_Horn
-  rotate: false
-  xy: 923, 179
-  size: 34, 40
-  orig: 34, 40
-  offset: 0, 0
-  index: -1
+	bounds: 743, 222, 34, 40
 Purple/Mouth
-  rotate: true
-  xy: 518, 192
-  size: 70, 10
-  orig: 70, 10
-  offset: 0, 0
-  index: -1
+	bounds: 670, 209, 70, 10
+Purple/Mouth2
+	bounds: 948, 376, 13, 13
+	offsets: 1, 0, 14, 13
 Purple/Nose
-  rotate: false
-  xy: 777, 435
-  size: 73, 42
-  orig: 73, 42
-  offset: 0, 0
-  index: -1
+	bounds: 596, 221, 72, 41
+	offsets: 0, 0, 73, 42
 Purple/R_Arm
-  rotate: true
-  xy: 530, 165
-  size: 41, 65
-  orig: 41, 65
-  offset: 0, 0
-  index: -1
+	bounds: 581, 124, 39, 63
+	offsets: 1, 1, 41, 65
+	rotate: 90
 Purple/R_Eye
-  rotate: false
-  xy: 777, 106
-  size: 51, 49
-  orig: 51, 49
-  offset: 0, 0
-  index: -1
+	bounds: 902, 212, 51, 49
 Purple/R_Eye_Outline
-  rotate: false
-  xy: 706, 208
-  size: 56, 55
-  orig: 56, 55
-  offset: 0, 0
-  index: -1
+	bounds: 838, 305, 56, 55
 Purple/R_Eyeball
-  rotate: false
-  xy: 959, 185
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 857, 362, 7, 7
 Purple/R_Eyelid
-  rotate: false
-  xy: 808, 55
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 894, 370, 52, 49
 Purple/R_Horn
-  rotate: false
-  xy: 862, 30
-  size: 34, 40
-  orig: 34, 40
-  offset: 0, 0
-  index: -1
+	bounds: 808, 178, 34, 40
 Red/Body
-  rotate: false
-  xy: 261, 264
-  size: 256, 257
-  orig: 258, 259
-  offset: 1, 1
-  index: -1
+	bounds: 2, 262, 258, 259
 Red/L_Arm
-  rotate: true
-  xy: 597, 165
-  size: 41, 65
-  orig: 43, 67
-  offset: 1, 1
-  index: -1
+	bounds: 840, 422, 42, 65
+	offsets: 0, 0, 43, 67
+	rotate: 90
 Red/L_Eye
-  rotate: false
-  xy: 830, 114
-  size: 51, 51
-  orig: 53, 53
-  offset: 1, 1
-  index: -1
+	bounds: 642, 2, 53, 53
 Red/L_Eye_Outline
-  rotate: false
-  xy: 777, 221
-  size: 57, 54
-  orig: 59, 56
-  offset: 1, 1
-  index: -1
+	bounds: 520, 161, 59, 56
 Red/L_Eyeball
-  rotate: false
-  xy: 853, 28
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 840, 467, 9, 9
 Red/L_Eyelid
-  rotate: true
-  xy: 918, 327
-  size: 52, 48
-  orig: 54, 50
-  offset: 1, 1
-  index: -1
+	bounds: 844, 148, 54, 50
 Red/L_Horn
-  rotate: false
-  xy: 883, 125
-  size: 33, 40
-  orig: 35, 42
-  offset: 1, 1
-  index: -1
+	bounds: 741, 4, 35, 42
+	rotate: 90
 Red/Mouth
-  rotate: true
-  xy: 518, 121
-  size: 69, 10
-  orig: 71, 12
-  offset: 1, 1
-  index: -1
+	bounds: 854, 466, 71, 12
+Red/Mouth2
+	bounds: 794, 152, 13, 13
+	offsets: 1, 0, 14, 13
 Red/Nose
-  rotate: false
-  xy: 777, 391
-  size: 72, 42
-  orig: 74, 44
-  offset: 1, 1
-  index: -1
+	bounds: 779, 478, 73, 43
+	offsets: 0, 0, 74, 44
 Red/R_Arm
-  rotate: true
-  xy: 664, 165
-  size: 41, 65
-  orig: 43, 67
-  offset: 1, 1
-  index: -1
+	bounds: 907, 421, 41, 65
+	offsets: 1, 1, 43, 67
+	rotate: 90
 Red/R_Eye
-  rotate: false
-  xy: 530, 15
-  size: 52, 49
-  orig: 54, 51
-  offset: 1, 1
-  index: -1
+	bounds: 752, 167, 54, 51
 Red/R_Eye_Outline
-  rotate: false
-  xy: 664, 109
-  size: 57, 54
-  orig: 59, 56
-  offset: 1, 1
-  index: -1
+	bounds: 779, 420, 59, 56
 Red/R_Eyeball
-  rotate: false
-  xy: 926, 442
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 581, 208, 9, 9
 Red/R_Eyelid
-  rotate: false
-  xy: 584, 15
-  size: 52, 49
-  orig: 54, 51
-  offset: 1, 1
-  index: -1
+	bounds: 799, 95, 54, 51
 Red/R_Horn
-  rotate: false
-  xy: 897, 83
-  size: 33, 40
-  orig: 35, 42
-  offset: 1, 1
-  index: -1
+	bounds: 755, 95, 35, 42
+	rotate: 90
 Yellow/Body
-  rotate: false
-  xy: 260, 5
-  size: 256, 257
-  orig: 256, 257
-  offset: 0, 0
-  index: -1
+	bounds: 521, 264, 256, 257
 Yellow/L_Arm
-  rotate: true
-  xy: 530, 122
-  size: 41, 65
-  orig: 41, 65
-  offset: 0, 0
-  index: -1
+	bounds: 646, 114, 40, 63
+	offsets: 0, 0, 41, 65
+	rotate: 90
 Yellow/L_Eye
-  rotate: false
-  xy: 638, 2
-  size: 51, 51
-  orig: 51, 51
-  offset: 0, 0
-  index: -1
+	bounds: 900, 159, 51, 51
 Yellow/L_Eye_Outline
-  rotate: false
-  xy: 530, 208
-  size: 57, 55
-  orig: 57, 55
-  offset: 0, 0
-  index: -1
+	bounds: 779, 305, 57, 55
 Yellow/L_Eyeball
-  rotate: false
-  xy: 836, 310
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 866, 362, 7, 7
 Yellow/L_Eyelid
-  rotate: false
-  xy: 691, 4
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 902, 263, 52, 49
+	rotate: 90
 Yellow/L_Horn
-  rotate: false
-  xy: 898, 41
-  size: 33, 40
-  orig: 33, 40
-  offset: 0, 0
-  index: -1
+	bounds: 827, 6, 33, 40
+	rotate: 90
 Yellow/Mouth
-  rotate: true
-  xy: 518, 50
-  size: 69, 10
-  orig: 69, 10
-  offset: 0, 0
-  index: -1
+	bounds: 697, 43, 69, 10
+	rotate: 90
+Yellow/Mouth2
+	bounds: 963, 406, 13, 13
+	offsets: 1, 0, 14, 13
 Yellow/Nose
-  rotate: false
-  xy: 852, 435
-  size: 72, 42
-  orig: 72, 42
-  offset: 0, 0
-  index: -1
+	bounds: 670, 221, 71, 41
+	offsets: 0, 0, 72, 42
 Yellow/R_Arm
-  rotate: true
-  xy: 597, 122
-  size: 41, 65
-  orig: 41, 65
-  offset: 0, 0
-  index: -1
+	bounds: 711, 132, 39, 63
+	offsets: 1, 1, 41, 65
 Yellow/R_Eye
-  rotate: false
-  xy: 745, 4
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 908, 105, 52, 49
+	rotate: 90
 Yellow/R_Eye_Outline
-  rotate: false
-  xy: 589, 208
-  size: 57, 55
-  orig: 57, 55
-  offset: 0, 0
-  index: -1
+	bounds: 580, 67, 57, 55
 Yellow/R_Eyeball
-  rotate: false
-  xy: 646, 113
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 875, 362, 7, 7
 Yellow/R_Eyelid
-  rotate: false
-  xy: 799, 4
-  size: 52, 49
-  orig: 52, 49
-  offset: 0, 0
-  index: -1
+	bounds: 917, 51, 52, 49
+	rotate: 90
 Yellow/R_Horn
-  rotate: false
-  xy: 933, 137
-  size: 33, 40
-  orig: 33, 40
-  offset: 0, 0
-  index: -1
+	bounds: 869, 6, 33, 40
+	rotate: 90
