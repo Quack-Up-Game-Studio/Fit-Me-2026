@@ -582,7 +582,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-  <MaxRandomAmount>k__BackingField: 3
+  <MaxRandomAmount>k__BackingField: 1
   <MinRandomAmount>k__BackingField: 1
   <UseSmartRandom>k__BackingField: 1
   <SmartRandomThreshold>k__BackingField: 9
