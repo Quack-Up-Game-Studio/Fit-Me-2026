@@ -27,6 +27,14 @@ namespace QuackUp.Utils
         public void Start()
         {
             //MobileAds.RaiseAdEventsOnUnityMainThread = true;
+            var requestConfiguration = new RequestConfiguration
+            {
+                TagForChildDirectedTreatment = TagForChildDirectedTreatment.True,
+                MaxAdContentRating = MaxAdContentRating.G
+            };
+            
+            MobileAds.SetRequestConfiguration(requestConfiguration);
+            
 #if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             MobileAds.Initialize(status => 
             {
