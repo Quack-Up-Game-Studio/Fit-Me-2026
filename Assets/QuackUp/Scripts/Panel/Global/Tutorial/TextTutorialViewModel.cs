@@ -12,6 +12,7 @@ namespace FitMe.Panel.Tutorial
         public Sprite TutorialImage { get; private set; }
         public bool HasNextButton { get; private set; }
         public bool UsePreviousSize { get; private set; }
+        public VisibilityState PreviousVisibilityState { get; private set; }
         public RectTransformInset PanelInset { get; private set; }
         public ReadOnlyReactiveProperty<VisibilityState> VisibilityState => _visibilityState;
         public ReadOnlyReactiveProperty<InputState> UIInputState => _uiInputState;
@@ -48,11 +49,13 @@ namespace FitMe.Panel.Tutorial
                 _uiInputState.Value = InputState.Active;
                 return;
             }
+            PreviousVisibilityState = _visibilityState.Value;
             _visibilityState.Value = Panel.VisibilityState.Hidden;
         }
 
         public async UniTask Show()
         {
+            PreviousVisibilityState = _visibilityState.Value;
             _visibilityState.Value = Panel.VisibilityState.Visible;
             var showPromise = new Promise<bool>();
             _onTransition?.OnNext((showPromise, true));

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using PrimeTween;
 using QuackUp.Utils;
 using UnityEngine;
@@ -21,7 +22,7 @@ namespace FitMe.Panel
             provider.TryGetTransitionObject(objectKey, out _transitionObject);
         }
 
-        public Sequence? Transition()
+        public Sequence? Transition(CancellationToken cancellationToken = default, CancelBehavior cancelBehavior = CancelBehavior.Stop)
         {
             if (!_transitionObject) return null;
             TweenSettings<float> settings;
@@ -59,12 +60,23 @@ namespace FitMe.Panel
                     Debug.LogWarning("AlphaTransition: Unsupported component type for alpha transition.");
                     break;
             }
+            cancellationToken.Register(() => CancelTransition(cancelBehavior));
             return _transitionSequence;
         }
 
-        public void CancelTransition()
+        private void CancelTransition(CancelBehavior cancelBehavior)
         {
-            _transitionSequence.Stop();
+            switch (cancelBehavior)
+            {
+                case CancelBehavior.Stop:
+                    _transitionSequence.Stop();
+                    break;
+                case CancelBehavior.Complete:
+                    _transitionSequence.Complete();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(cancelBehavior), cancelBehavior, null);
+            }
         }
     }
 }

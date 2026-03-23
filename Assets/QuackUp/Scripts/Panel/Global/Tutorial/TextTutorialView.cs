@@ -115,7 +115,8 @@ namespace FitMe.Panel.Tutorial
         private async UniTask OnDisplayData(Promise<bool> promise)
         {
             if (!_viewModel.HasNextButton) nextButton.gameObject.SetActive(false);
-            await SetInset(_cancellationTokenSource.Token);
+            if (_viewModel.PreviousVisibilityState is VisibilityState.Visible) 
+                await SetInset(_cancellationTokenSource.Token);
             tutorialText.text = _viewModel.TutorialText;
             tutorialImage.sprite = _viewModel.TutorialImage;
             tutorialImage.gameObject.SetActive(_viewModel.TutorialImage);
@@ -125,6 +126,13 @@ namespace FitMe.Panel.Tutorial
         
         private async UniTask Transition(bool direction, CancellationToken cancellationToken)
         {
+            if (direction && 
+                _viewModel.PreviousVisibilityState is VisibilityState.Hidden && 
+                !_viewModel.UsePreviousSize)
+            {
+                panelRect.offsetMax = _viewModel.PanelInset.OffsetMax;
+                panelRect.offsetMin = _viewModel.PanelInset.OffsetMin;
+            }
             cancellationToken.Register(() =>
             {
                 _showSequence.Stop();
