@@ -1,0 +1,300 @@
+J.png
+	size: 1667, 650
+	filter: Linear, Linear
+	pma: true
+Blue/Body
+	bounds: 263, 249, 256, 399
+Blue/L_Eye
+	bounds: 1296, 399, 51, 51
+Blue/L_Eyeball
+	bounds: 382, 10, 7, 7
+Blue/L_Eyebrow
+	bounds: 1296, 577, 52, 19
+Blue/L_Eyebrow2
+	bounds: 1627, 268, 55, 27
+	rotate: 90
+Blue/L_Eyelid
+	bounds: 1568, 217, 56, 55
+Blue/L_Eyelid_B
+	bounds: 1625, 167, 42, 26
+	rotate: 90
+Blue/Lower_Hand
+	bounds: 148, 6, 95, 69
+	rotate: 90
+Blue/Lower_Hand2
+	bounds: 757, 118, 130, 56
+	offsets: 6, 0, 136, 56
+	rotate: 90
+Blue/Middle_Hand
+	bounds: 1071, 136, 124, 77
+	rotate: 90
+Blue/Middle_Hand2
+	bounds: 361, 19, 118, 86
+Blue/Mouth
+	bounds: 1265, 15, 121, 83
+	rotate: 90
+Blue/Mouth2
+	bounds: 2, 103, 140, 84
+	rotate: 90
+Blue/Mouth_B
+	bounds: 1296, 263, 104, 81
+Blue/R_Eye
+	bounds: 1350, 93, 45, 43
+Blue/R_Eyeball
+	bounds: 382, 2, 6, 7
+	rotate: 90
+Blue/R_Eyebrow
+	bounds: 1315, 244, 45, 17
+Blue/R_Eyebrow2
+	bounds: 1623, 72, 49, 25
+	rotate: 90
+Blue/R_Eyelid
+	bounds: 1397, 85, 49, 48
+Blue/R_Eyelid_B
+	bounds: 1350, 4, 42, 26
+	rotate: 90
+Blue/Tounge
+	bounds: 1402, 244, 49, 57
+	rotate: 90
+Blue/Tounge2
+	bounds: 1350, 434, 111, 42
+Blue/Upper_Hand
+	bounds: 481, 3, 65, 108
+Blue/Upper_Hand2
+	bounds: 432, 113, 63, 134
+Green/Body
+	bounds: 521, 250, 256, 398
+Green/L_Eye
+	bounds: 1296, 346, 51, 51
+Green/L_Eyeball
+	bounds: 391, 10, 7, 7
+Green/L_Eyebrow
+	bounds: 1296, 556, 52, 19
+Green/L_Eyebrow2
+	bounds: 1626, 211, 55, 27
+	rotate: 90
+Green/L_Eyelid
+	bounds: 1519, 161, 56, 54
+Green/L_Eyelid_B
+	bounds: 1378, 4, 42, 26
+	rotate: 90
+Green/Lower_Hand
+	bounds: 76, 6, 95, 70
+	rotate: 90
+Green/Lower_Hand2
+	bounds: 815, 124, 130, 56
+	offsets: 6, 0, 136, 56
+	rotate: 90
+Green/Middle_Hand
+	bounds: 1049, 3, 124, 78
+	rotate: 90
+Green/Middle_Hand2
+	bounds: 1472, 562, 118, 86
+Green/Mouth
+	bounds: 965, 2, 120, 82
+	rotate: 90
+Green/Mouth2
+	bounds: 88, 103, 140, 84
+	rotate: 90
+Green/Mouth_B
+	bounds: 1576, 325, 104, 81
+	rotate: 90
+Green/R_Eye
+	bounds: 1577, 151, 45, 43
+Green/R_Eyeball
+	bounds: 409, 2, 6, 6
+Green/R_Eyebrow
+	bounds: 1573, 88, 45, 17
+Green/R_Eyebrow2
+	bounds: 1556, 2, 49, 25
+	rotate: 90
+Green/R_Eyelid
+	bounds: 1406, 6, 49, 48
+	rotate: 90
+Green/R_Eyelid_B
+	bounds: 1397, 57, 42, 26
+Green/Tounge
+	bounds: 1590, 431, 49, 58
+	rotate: 90
+Green/Tounge2
+	bounds: 1463, 430, 111, 42
+Green/Upper_Hand
+	bounds: 548, 3, 65, 108
+Green/Upper_Hand2
+	bounds: 497, 113, 63, 134
+Purple/Body
+	bounds: 1037, 262, 257, 386
+Purple/L_Eye
+	bounds: 1454, 96, 51, 51
+Yellow/L_Eye
+	bounds: 1454, 96, 51, 51
+Purple/L_Eyeball
+	bounds: 400, 10, 7, 7
+Purple/L_Eyebrow
+	bounds: 1296, 535, 52, 19
+Purple/L_Eyebrow2
+	bounds: 1456, 178, 55, 27
+Purple/L_Eyelid
+	bounds: 1461, 207, 56, 55
+Purple/L_Eyelid_B
+	bounds: 1441, 57, 42, 26
+Purple/Lower_Hand
+	bounds: 219, 6, 95, 69
+	rotate: 90
+Purple/Lower_Hand2
+	bounds: 873, 124, 130, 56
+	offsets: 6, 0, 136, 56
+	rotate: 90
+Purple/Middle_Hand
+	bounds: 1129, 10, 124, 77
+	rotate: 90
+Purple/Middle_Hand2
+	bounds: 1350, 478, 118, 86
+Purple/Mouth
+	bounds: 880, 2, 120, 83
+	rotate: 90
+Purple/Mouth2
+	bounds: 174, 103, 140, 84
+	rotate: 90
+Purple/Mouth_B
+	bounds: 1463, 347, 104, 81
+Purple/R_Eye
+	bounds: 1350, 48, 45, 43
+Yellow/R_Eye
+	bounds: 1350, 48, 45, 43
+Purple/R_Eyeball
+	bounds: 391, 2, 6, 7
+	rotate: 90
+Purple/R_Eyebrow
+	bounds: 1573, 69, 45, 17
+Purple/R_Eyebrow2
+	bounds: 1583, 2, 49, 25
+	rotate: 90
+Purple/R_Eyelid
+	bounds: 1456, 6, 49, 48
+	rotate: 90
+Purple/R_Eyelid_B
+	bounds: 1485, 68, 42, 26
+Purple/Tounge
+	bounds: 1568, 274, 49, 57
+	rotate: 90
+Purple/Tounge2
+	bounds: 1350, 390, 111, 42
+Purple/Upper_Hand
+	bounds: 727, 4, 65, 108
+Purple/Upper_Hand2
+	bounds: 562, 114, 63, 134
+Red/Body
+	bounds: 2, 245, 259, 403
+Red/L_Eye
+	bounds: 1512, 106, 53, 53
+Red/L_Eyeball
+	bounds: 361, 8, 9, 9
+Red/L_Eyebrow
+	bounds: 1398, 135, 54, 21
+Red/L_Eyebrow2
+	bounds: 1398, 158, 55, 27
+Red/L_Eyelid
+	bounds: 1590, 482, 59, 56
+Red/L_Eyelid_B
+	bounds: 1529, 78, 42, 26
+Red/Lower_Hand
+	bounds: 2, 3, 98, 72
+	rotate: 90
+Red/Lower_Hand2
+	bounds: 1208, 10, 124, 55
+	offsets: 5, 0, 129, 55
+	rotate: 90
+Red/Middle_Hand
+	bounds: 989, 129, 125, 80
+	rotate: 90
+Red/Middle_Hand2
+	bounds: 794, 2, 114, 84
+	rotate: 90
+Red/Mouth
+	bounds: 1229, 138, 122, 84
+	rotate: 90
+Red/Mouth2
+	bounds: 260, 103, 140, 84
+	rotate: 90
+Red/Mouth_B
+	bounds: 1462, 264, 104, 81
+Red/R_Eye
+	bounds: 1519, 217, 47, 45
+Red/R_Eyeball
+	bounds: 372, 9, 8, 8
+Red/R_Eyebrow
+	bounds: 1577, 196, 46, 19
+Red/R_Eyebrow2
+	bounds: 1610, 2, 49, 25
+	rotate: 90
+Red/R_Eyelid
+	bounds: 1296, 598, 52, 50
+Red/R_Eyelid_B
+	bounds: 1567, 107, 42, 26
+	rotate: 90
+Red/Tounge
+	bounds: 1296, 452, 51, 60
+Red/Tounge2
+	bounds: 683, 2, 110, 42
+	rotate: 90
+Red/Upper_Hand
+	bounds: 615, 2, 66, 110
+Red/Upper_Hand2
+	bounds: 627, 114, 63, 134
+Yellow/Body
+	bounds: 779, 256, 256, 392
+Yellow/L_Eyeball
+	bounds: 409, 10, 7, 7
+Yellow/L_Eyebrow
+	bounds: 1296, 514, 52, 19
+Yellow/L_Eyebrow2
+	bounds: 1455, 149, 55, 27
+Yellow/L_Eyelid
+	bounds: 1398, 187, 56, 55
+Yellow/L_Eyelid_B
+	bounds: 1624, 123, 42, 26
+	rotate: 90
+Yellow/Lower_Hand
+	bounds: 290, 6, 95, 69
+	rotate: 90
+Yellow/Lower_Hand2
+	bounds: 931, 124, 130, 56
+	offsets: 6, 0, 136, 56
+	rotate: 90
+Yellow/Middle_Hand
+	bounds: 1150, 136, 124, 77
+	rotate: 90
+Yellow/Middle_Hand2
+	bounds: 1470, 474, 118, 86
+Yellow/Mouth
+	bounds: 1350, 566, 120, 82
+Yellow/Mouth2
+	bounds: 346, 107, 140, 84
+	rotate: 90
+Yellow/Mouth_B
+	bounds: 1315, 138, 104, 81
+	rotate: 90
+Yellow/R_Eyeball
+	bounds: 400, 2, 6, 7
+	rotate: 90
+Yellow/R_Eyebrow
+	bounds: 1620, 53, 45, 17
+Yellow/R_Eyebrow2
+	bounds: 1637, 2, 49, 25
+	rotate: 90
+Yellow/R_Eyelid
+	bounds: 1506, 17, 49, 48
+	rotate: 90
+Yellow/R_Eyelid_B
+	bounds: 1595, 107, 42, 26
+	rotate: 90
+Yellow/Tounge
+	bounds: 1402, 295, 49, 58
+	rotate: 90
+Yellow/Tounge2
+	bounds: 1349, 346, 111, 42
+Yellow/Upper_Hand
+	bounds: 1592, 540, 65, 108
+Yellow/Upper_Hand2
+	bounds: 692, 114, 63, 134

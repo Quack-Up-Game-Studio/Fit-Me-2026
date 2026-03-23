@@ -1,916 +1,315 @@
-
 I3.png
-size: 1985,237
-format: RGBA8888
-filter: Linear,Linear
-repeat: none
+	size: 1840, 269
+	filter: Linear, Linear
+	pma: true
 Blue/1_Body
-  rotate: false
-  xy: 1694, 105
-  size: 127, 130
-  orig: 129, 132
-  offset: 1, 1
-  index: -1
+	bounds: 2, 2, 129, 132
+	rotate: 90
 Blue/1_Eye
-  rotate: true
-  xy: 1735, 12
-  size: 36, 34
-  orig: 38, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1693, 187, 38, 36
+	rotate: 90
 Blue/3_Eye
-  rotate: true
-  xy: 1735, 12
-  size: 36, 34
-  orig: 38, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1693, 187, 38, 36
+	rotate: 90
 Blue/1_Eyeball
-  rotate: false
-  xy: 2, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1073, 50, 9, 9
 Blue/3_Eyeball
-  rotate: false
-  xy: 2, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1073, 50, 9, 9
 Blue/1_Eyelid
-  rotate: true
-  xy: 1409, 45
-  size: 58, 46
-  orig: 60, 48
-  offset: 1, 1
-  index: -1
+	bounds: 1356, 2, 60, 48
+	rotate: 90
 Blue/1_L_Arm
-  rotate: false
-  xy: 1953, 75
-  size: 29, 52
-  orig: 31, 54
-  offset: 1, 1
-  index: -1
+	bounds: 1606, 213, 31, 54
 Blue/1_L_Ear
-  rotate: false
-  xy: 1070, 3
-  size: 54, 34
-  orig: 56, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1243, 138, 55, 36
+	offsets: 0, 0, 56, 36
+	rotate: 90
 Blue/1_R_Arm
-  rotate: false
-  xy: 1850, 52
-  size: 29, 52
-  orig: 31, 54
-  offset: 1, 1
-  index: -1
+	bounds: 1609, 34, 31, 54
 Blue/1_R_Ear
-  rotate: false
-  xy: 1238, 3
-  size: 50, 39
-  orig: 53, 41
-  offset: 1, 1
-  index: -1
+	bounds: 1112, 136, 53, 41
 Blue/2_Body
-  rotate: false
-  xy: 523, 104
-  size: 128, 131
-  orig: 130, 133
-  offset: 1, 1
-  index: -1
+	bounds: 266, 134, 130, 133
 Blue/2_Eye
-  rotate: false
-  xy: 1609, 47
-  size: 36, 56
-  orig: 38, 58
-  offset: 1, 1
-  index: -1
+	bounds: 1145, 2, 38, 58
 Blue/2_Eye_Outline
-  rotate: false
-  xy: 2, 12
-  size: 42, 88
-  orig: 44, 90
-  offset: 1, 1
-  index: -1
+	bounds: 935, 43, 44, 90
 Blue/2_Eyeball
-  rotate: false
-  xy: 11, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1084, 50, 9, 9
 Blue/2_Eyelid
-  rotate: true
-  xy: 1619, 9
-  size: 36, 56
-  orig: 38, 58
-  offset: 1, 1
-  index: -1
+	bounds: 1185, 2, 38, 58
 Blue/2_L_Arm
-  rotate: false
-  xy: 222, 31
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 997, 3, 38, 72
+	rotate: 90
 Blue/2_L_Ear
-  rotate: false
-  xy: 534, 2
-  size: 36, 28
-  orig: 38, 30
-  offset: 1, 1
-  index: -1
+	bounds: 1782, 208, 38, 28
+	offsets: 0, 1, 38, 30
 Blue/2_R_Arm
-  rotate: false
-  xy: 260, 31
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1071, 3, 38, 72
+	rotate: 90
 Blue/2_R_Ear
-  rotate: false
-  xy: 342, 2
-  size: 37, 27
-  orig: 39, 29
-  offset: 1, 1
-  index: -1
+	bounds: 935, 2, 39, 29
+	rotate: 90
 Blue/3_Body
-  rotate: false
-  xy: 783, 105
-  size: 129, 130
-  orig: 131, 132
-  offset: 1, 1
-  index: -1
+	bounds: 528, 135, 131, 132
 Blue/3_Eye_Outline
-  rotate: false
-  xy: 944, 39
-  size: 52, 64
-  orig: 54, 66
-  offset: 1, 1
-  index: -1
+	bounds: 1431, 72, 54, 66
 Blue/3_Eyelid
-  rotate: true
-  xy: 1771, 12
-  size: 36, 34
-  orig: 38, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1713, 229, 38, 36
+	rotate: 90
 Blue/3_L_Arm
-  rotate: false
-  xy: 298, 31
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1073, 61, 38, 72
 Blue/3_L_Ear
-  rotate: false
-  xy: 765, 5
-  size: 30, 25
-  orig: 32, 27
-  offset: 1, 1
-  index: -1
+	bounds: 1722, 48, 32, 27
+	rotate: 90
 Blue/3_R_Arm
-  rotate: false
-  xy: 336, 31
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1113, 62, 38, 72
 Blue/3_R_Ear
-  rotate: false
-  xy: 610, 3
-  size: 29, 27
-  orig: 31, 29
-  offset: 1, 1
-  index: -1
+	bounds: 1809, 175, 31, 28
+	offsets: 0, 0, 31, 29
+	rotate: 90
 Green/1_Body
-  rotate: false
-  xy: 914, 105
-  size: 128, 130
-  orig: 130, 132
-  offset: 1, 1
-  index: -1
+	bounds: 270, 2, 130, 132
+	rotate: 90
 Green/1_Eye
-  rotate: true
-  xy: 962, 2
-  size: 35, 34
-  orig: 37, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1789, 137, 37, 36
 Green/3_Eye
-  rotate: true
-  xy: 962, 2
-  size: 35, 34
-  orig: 37, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1789, 137, 37, 36
 Green/1_Eyeball
-  rotate: false
-  xy: 20, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1095, 50, 9, 9
 Green/3_Eyeball
-  rotate: false
-  xy: 20, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1095, 50, 9, 9
 Green/1_Eyelid
-  rotate: true
-  xy: 1214, 44
-  size: 59, 47
-  orig: 61, 49
-  offset: 1, 1
-  index: -1
+	bounds: 1406, 3, 61, 49
+	rotate: 90
 Green/1_L_Arm
-  rotate: true
-  xy: 797, 2
-  size: 29, 53
-  orig: 31, 55
-  offset: 1, 1
-  index: -1
+	bounds: 1395, 140, 31, 55
 Green/1_L_Ear
-  rotate: false
-  xy: 1126, 3
-  size: 54, 34
-  orig: 56, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1281, 138, 55, 36
+	offsets: 0, 0, 56, 36
+	rotate: 90
 Green/1_R_Arm
-  rotate: true
-  xy: 852, 2
-  size: 29, 53
-  orig: 31, 55
-  offset: 1, 1
-  index: -1
+	bounds: 1428, 140, 31, 55
 Green/1_R_Ear
-  rotate: false
-  xy: 1342, 4
-  size: 51, 38
-  orig: 53, 40
-  offset: 1, 1
-  index: -1
+	bounds: 1057, 135, 53, 40
 Green/2_Body
-  rotate: false
-  xy: 1044, 105
-  size: 128, 130
-  orig: 130, 132
-  offset: 1, 1
-  index: -1
+	bounds: 404, 2, 130, 132
+	rotate: 90
 Green/2_Eye
-  rotate: false
-  xy: 1457, 46
-  size: 36, 57
-  orig: 38, 59
-  offset: 1, 1
-  index: -1
+	bounds: 1543, 79, 38, 59
 Green/2_Eye_Outline
-  rotate: false
-  xy: 46, 12
-  size: 42, 88
-  orig: 44, 90
-  offset: 1, 1
-  index: -1
+	bounds: 981, 43, 44, 90
 Green/2_Eyeball
-  rotate: false
-  xy: 29, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1106, 50, 9, 9
 Green/2_Eyelid
-  rotate: false
-  xy: 1495, 46
-  size: 36, 57
-  orig: 38, 59
-  offset: 1, 1
-  index: -1
+	bounds: 1544, 147, 38, 59
 Green/2_L_Arm
-  rotate: false
-  xy: 374, 31
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1153, 62, 38, 72
 Green/2_L_Ear
-  rotate: false
-  xy: 420, 2
-  size: 36, 27
-  orig: 38, 29
-  offset: 1, 1
-  index: -1
+	bounds: 1751, 229, 38, 29
+	rotate: 90
 Green/2_R_Arm
-  rotate: false
-  xy: 412, 31
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1147, 195, 38, 72
 Green/2_R_Ear
-  rotate: false
-  xy: 222, 2
-  size: 38, 27
-  orig: 40, 29
-  offset: 1, 1
-  index: -1
+	bounds: 1682, 227, 40, 29
+	rotate: 90
 Green/3_Body
-  rotate: false
-  xy: 1174, 105
-  size: 128, 130
-  orig: 130, 132
-  offset: 1, 1
-  index: -1
+	bounds: 661, 135, 130, 132
 Green/3_Eye_Outline
-  rotate: false
-  xy: 998, 39
-  size: 52, 64
-  orig: 54, 66
-  offset: 1, 1
-  index: -1
+	bounds: 1457, 4, 54, 66
 Green/3_Eyelid
-  rotate: true
-  xy: 1807, 12
-  size: 36, 34
-  orig: 38, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1684, 79, 38, 36
+	rotate: 90
 Green/3_L_Arm
-  rotate: false
-  xy: 450, 31
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1193, 62, 38, 72
 Green/3_L_Ear
-  rotate: false
-  xy: 1953, 210
-  size: 30, 25
-  orig: 32, 27
-  offset: 1, 1
-  index: -1
+	bounds: 1727, 14, 32, 27
+	rotate: 90
 Green/3_R_Arm
-  rotate: false
-  xy: 488, 31
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1187, 195, 38, 72
 Green/3_R_Ear
-  rotate: false
-  xy: 672, 4
-  size: 29, 26
-  orig: 31, 28
-  offset: 1, 1
-  index: -1
+	bounds: 1780, 68, 31, 28
+	rotate: 90
 Purple/1_Body
-  rotate: false
-  xy: 2, 102
-  size: 128, 133
-  orig: 128, 133
-  offset: 0, 0
-  index: -1
+	bounds: 398, 134, 128, 133
 Purple/1_Eye
-  rotate: true
-  xy: 998, 2
-  size: 35, 34
-  orig: 35, 34
-  offset: 0, 0
-  index: -1
+	bounds: 1691, 2, 35, 34
+	rotate: 90
 Purple/3_Eye
-  rotate: true
-  xy: 998, 2
-  size: 35, 34
-  orig: 35, 34
-  offset: 0, 0
-  index: -1
+	bounds: 1691, 2, 35, 34
+	rotate: 90
 Purple/1_Eyeball
-  rotate: false
-  xy: 38, 3
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 1158, 186, 7, 7
 Purple/3_Eyeball
-  rotate: false
-  xy: 38, 3
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 1158, 186, 7, 7
 Purple/1_Eyelid
-  rotate: true
-  xy: 1263, 44
-  size: 59, 47
-  orig: 59, 47
-  offset: 0, 0
-  index: -1
+	bounds: 1517, 208, 59, 47
+	rotate: 90
 Purple/1_L_Arm
-  rotate: true
-  xy: 907, 2
-  size: 29, 53
-  orig: 29, 53
-  offset: 0, 0
-  index: -1
+	bounds: 1636, 3, 29, 53
+	rotate: 90
 Purple/1_L_Ear
-  rotate: false
-  xy: 1182, 3
-  size: 54, 34
-  orig: 54, 34
-  offset: 0, 0
-  index: -1
+	bounds: 1584, 152, 54, 34
+	rotate: 90
 Purple/1_R_Arm
-  rotate: false
-  xy: 1757, 50
-  size: 29, 53
-  orig: 29, 53
-  offset: 0, 0
-  index: -1
+	bounds: 1649, 102, 29, 53
 Purple/1_R_Ear
-  rotate: false
-  xy: 1395, 5
-  size: 51, 38
-  orig: 51, 38
-  offset: 0, 0
-  index: -1
+	bounds: 1653, 161, 51, 38
+	rotate: 90
 Purple/2_Body
-  rotate: false
-  xy: 653, 104
-  size: 128, 131
-  orig: 129, 131
-  offset: 0, 0
-  index: -1
+	bounds: 670, 2, 129, 131
 Purple/2_Eye
-  rotate: true
-  xy: 1501, 8
-  size: 36, 57
-  orig: 36, 57
-  offset: 0, 0
-  index: -1
+	bounds: 1167, 136, 36, 57
 Purple/2_Eye_Outline
-  rotate: false
-  xy: 90, 12
-  size: 42, 88
-  orig: 42, 88
-  offset: 0, 0
-  index: -1
+	bounds: 1103, 179, 42, 88
 Purple/2_Eyeball
-  rotate: false
-  xy: 47, 3
-  size: 7, 7
-  orig: 7, 7
-  offset: 0, 0
-  index: -1
+	bounds: 1580, 9, 7, 7
 Purple/2_Eyelid
-  rotate: false
-  xy: 1533, 46
-  size: 36, 57
-  orig: 36, 57
-  offset: 0, 0
-  index: -1
+	bounds: 1205, 136, 36, 57
 Purple/2_L_Arm
-  rotate: false
-  xy: 526, 32
-  size: 36, 70
-  orig: 36, 70
-  offset: 0, 0
-  index: -1
+	bounds: 1393, 66, 36, 70
 Purple/3_L_Arm
-  rotate: false
-  xy: 526, 32
-  size: 36, 70
-  orig: 36, 70
-  offset: 0, 0
-  index: -1
+	bounds: 1393, 66, 36, 70
 Purple/2_L_Ear
-  rotate: false
-  xy: 458, 2
-  size: 36, 27
-  orig: 36, 27
-  offset: 0, 0
-  index: -1
+	bounds: 1727, 82, 36, 27
 Purple/2_R_Arm
-  rotate: false
-  xy: 564, 32
-  size: 36, 70
-  orig: 36, 70
-  offset: 0, 0
-  index: -1
+	bounds: 1387, 197, 36, 70
 Purple/2_R_Ear
-  rotate: false
-  xy: 262, 2
-  size: 38, 27
-  orig: 38, 27
-  offset: 0, 0
-  index: -1
+	bounds: 1749, 149, 38, 27
 Purple/3_Body
-  rotate: false
-  xy: 132, 103
-  size: 129, 132
-  orig: 129, 132
-  offset: 0, 0
-  index: -1
+	bounds: 136, 2, 129, 132
+	rotate: 90
 Purple/3_Eye_Outline
-  rotate: false
-  xy: 1052, 39
-  size: 52, 64
-  orig: 52, 64
-  offset: 0, 0
-  index: -1
+	bounds: 1463, 203, 52, 64
 Purple/3_Eyelid
-  rotate: true
-  xy: 1843, 12
-  size: 36, 34
-  orig: 36, 34
-  offset: 0, 0
-  index: -1
+	bounds: 1788, 101, 36, 34
 Purple/3_L_Ear
-  rotate: false
-  xy: 1953, 183
-  size: 30, 25
-  orig: 30, 25
-  offset: 0, 0
-  index: -1
+	bounds: 1609, 2, 30, 25
+	rotate: 90
 Purple/3_R_Arm
-  rotate: false
-  xy: 602, 32
-  size: 36, 70
-  orig: 36, 70
-  offset: 0, 0
-  index: -1
+	bounds: 1425, 197, 36, 70
 Purple/3_R_Ear
-  rotate: false
-  xy: 703, 4
-  size: 29, 26
-  orig: 29, 26
-  offset: 0, 0
-  index: -1
+	bounds: 1711, 119, 29, 26
 Red/1_Body
-  rotate: false
-  xy: 1304, 105
-  size: 128, 130
-  orig: 130, 132
-  offset: 1, 1
-  index: -1
+	bounds: 793, 135, 130, 132
 Red/1_Eye
-  rotate: true
-  xy: 1879, 14
-  size: 36, 34
-  orig: 38, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1684, 39, 38, 36
+	rotate: 90
 Red/3_Eye
-  rotate: true
-  xy: 1879, 14
-  size: 36, 34
-  orig: 38, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1684, 39, 38, 36
+	rotate: 90
 Red/1_Eyeball
-  rotate: false
-  xy: 56, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1117, 51, 9, 9
 Red/3_Eyeball
-  rotate: false
-  xy: 56, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1117, 51, 9, 9
 Red/1_Eyelid
-  rotate: true
-  xy: 1360, 45
-  size: 58, 47
-  orig: 60, 49
-  offset: 1, 1
-  index: -1
+	bounds: 1305, 2, 60, 49
+	rotate: 90
 Red/1_L_Arm
-  rotate: false
-  xy: 1788, 50
-  size: 29, 53
-  orig: 31, 55
-  offset: 1, 1
-  index: -1
+	bounds: 1461, 140, 31, 55
 Red/1_L_Ear
-  rotate: true
-  xy: 1721, 50
-  size: 53, 34
-  orig: 55, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1319, 138, 55, 36
+	rotate: 90
 Red/1_R_Arm
-  rotate: false
-  xy: 1819, 50
-  size: 29, 53
-  orig: 31, 55
-  offset: 1, 1
-  index: -1
+	bounds: 1583, 90, 31, 55
 Red/1_R_Ear
-  rotate: false
-  xy: 1448, 5
-  size: 51, 38
-  orig: 53, 40
-  offset: 1, 1
-  index: -1
+	bounds: 1642, 41, 53, 40
+	rotate: 90
 Red/2_Body
-  rotate: false
-  xy: 1434, 105
-  size: 128, 130
-  orig: 130, 132
-  offset: 1, 1
-  index: -1
+	bounds: 801, 3, 130, 132
+	rotate: 90
 Red/2_Eye
-  rotate: true
-  xy: 1560, 8
-  size: 36, 57
-  orig: 38, 59
-  offset: 1, 1
-  index: -1
+	bounds: 1566, 208, 38, 59
 Red/2_Eye_Outline
-  rotate: false
-  xy: 134, 13
-  size: 42, 88
-  orig: 44, 90
-  offset: 1, 1
-  index: -1
+	bounds: 1027, 43, 44, 90
 Red/2_Eyeball
-  rotate: false
-  xy: 65, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1128, 51, 9, 9
 Red/2_Eyelid
-  rotate: false
-  xy: 1571, 46
-  size: 36, 57
-  orig: 38, 59
-  offset: 1, 1
-  index: -1
+	bounds: 1569, 18, 38, 59
 Red/2_L_Arm
-  rotate: false
-  xy: 640, 32
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1233, 62, 38, 72
 Red/2_L_Ear
-  rotate: false
-  xy: 496, 2
-  size: 36, 27
-  orig: 38, 29
-  offset: 1, 1
-  index: -1
+	bounds: 1782, 238, 38, 29
 Red/2_R_Arm
-  rotate: false
-  xy: 678, 32
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1227, 195, 38, 72
 Red/2_R_Ear
-  rotate: false
-  xy: 381, 2
-  size: 37, 27
-  orig: 39, 29
-  offset: 1, 1
-  index: -1
+	bounds: 966, 2, 39, 29
+	rotate: 90
 Red/3_Body
-  rotate: false
-  xy: 1564, 105
-  size: 128, 130
-  orig: 130, 132
-  offset: 1, 1
-  index: -1
+	bounds: 925, 135, 130, 132
 Red/3_Eye_Outline
-  rotate: false
-  xy: 1106, 39
-  size: 52, 64
-  orig: 54, 66
-  offset: 1, 1
-  index: -1
+	bounds: 1487, 72, 54, 66
 Red/3_Eyelid
-  rotate: false
-  xy: 1943, 39
-  size: 36, 34
-  orig: 38, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1711, 147, 38, 36
+	rotate: 90
 Red/3_L_Arm
-  rotate: false
-  xy: 716, 32
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1267, 195, 38, 72
 Red/3_L_Ear
-  rotate: false
-  xy: 1953, 156
-  size: 30, 25
-  orig: 32, 27
-  offset: 1, 1
-  index: -1
+	bounds: 1751, 48, 32, 27
+	rotate: 90
 Red/3_R_Arm
-  rotate: false
-  xy: 754, 32
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1273, 64, 38, 72
 Red/3_R_Ear
-  rotate: false
-  xy: 734, 4
-  size: 29, 26
-  orig: 31, 28
-  offset: 1, 1
-  index: -1
+	bounds: 1810, 68, 31, 28
+	rotate: 90
 Yellow/1_Body
-  rotate: false
-  xy: 1823, 106
-  size: 128, 129
-  orig: 130, 131
-  offset: 1, 1
-  index: -1
+	bounds: 538, 2, 130, 131
 Yellow/1_Eye
-  rotate: true
-  xy: 1034, 2
-  size: 35, 34
-  orig: 37, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1749, 111, 37, 36
 Yellow/3_Eye
-  rotate: true
-  xy: 1034, 2
-  size: 35, 34
-  orig: 37, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1749, 111, 37, 36
 Yellow/1_Eyeball
-  rotate: false
-  xy: 74, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1147, 184, 9, 9
 Yellow/3_Eyeball
-  rotate: false
-  xy: 74, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1147, 184, 9, 9
 Yellow/1_Eyelid
-  rotate: true
-  xy: 1312, 44
-  size: 59, 46
-  orig: 61, 48
-  offset: 1, 1
-  index: -1
+	bounds: 1494, 140, 61, 48
+	rotate: 90
 Yellow/1_L_Arm
-  rotate: false
-  xy: 1881, 52
-  size: 29, 52
-  orig: 31, 54
-  offset: 1, 1
-  index: -1
+	bounds: 1616, 96, 31, 54
 Yellow/1_L_Ear
-  rotate: true
-  xy: 1685, 49
-  size: 54, 34
-  orig: 56, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1357, 138, 55, 36
+	offsets: 0, 0, 56, 36
+	rotate: 90
 Yellow/1_R_Arm
-  rotate: false
-  xy: 1912, 52
-  size: 29, 52
-  orig: 31, 54
-  offset: 1, 1
-  index: -1
+	bounds: 1620, 157, 31, 54
 Yellow/1_R_Ear
-  rotate: false
-  xy: 1290, 3
-  size: 50, 39
-  orig: 53, 41
-  offset: 1, 1
-  index: -1
+	bounds: 1639, 214, 53, 41
+	rotate: 90
 Yellow/2_Body
-  rotate: false
-  xy: 263, 103
-  size: 128, 132
-  orig: 130, 134
-  offset: 1, 1
-  index: -1
+	bounds: 2, 133, 130, 134
 Yellow/2_Eye
-  rotate: false
-  xy: 1647, 47
-  size: 36, 56
-  orig: 38, 58
-  offset: 1, 1
-  index: -1
+	bounds: 1225, 2, 38, 58
 Yellow/2_Eye_Outline
-  rotate: false
-  xy: 178, 13
-  size: 42, 88
-  orig: 44, 90
-  offset: 1, 1
-  index: -1
+	bounds: 1057, 177, 44, 90
 Yellow/2_Eyeball
-  rotate: false
-  xy: 83, 3
-  size: 7, 7
-  orig: 9, 9
-  offset: 1, 1
-  index: -1
+	bounds: 1569, 7, 9, 9
 Yellow/2_Eyelid
-  rotate: true
-  xy: 1677, 9
-  size: 36, 56
-  orig: 38, 58
-  offset: 1, 1
-  index: -1
+	bounds: 1265, 2, 38, 58
 Yellow/2_L_Arm
-  rotate: false
-  xy: 792, 33
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1313, 64, 38, 72
 Yellow/2_L_Ear
-  rotate: false
-  xy: 572, 2
-  size: 36, 28
-  orig: 38, 30
-  offset: 1, 1
-  index: -1
+	bounds: 1769, 178, 38, 28
+	offsets: 0, 1, 38, 30
 Yellow/2_R_Arm
-  rotate: false
-  xy: 830, 33
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1307, 195, 38, 72
 Yellow/2_R_Ear
-  rotate: false
-  xy: 302, 2
-  size: 38, 27
-  orig: 40, 29
-  offset: 1, 1
-  index: -1
+	bounds: 1680, 119, 40, 29
+	rotate: 90
 Yellow/3_Body
-  rotate: false
-  xy: 393, 103
-  size: 128, 132
-  orig: 130, 134
-  offset: 1, 1
-  index: -1
+	bounds: 134, 133, 130, 134
 Yellow/3_Eye_Outline
-  rotate: false
-  xy: 1160, 39
-  size: 52, 64
-  orig: 54, 66
-  offset: 1, 1
-  index: -1
+	bounds: 1513, 4, 54, 66
 Yellow/3_Eyelid
-  rotate: false
-  xy: 1915, 3
-  size: 36, 34
-  orig: 38, 36
-  offset: 1, 1
-  index: -1
+	bounds: 1731, 189, 38, 36
+	rotate: 90
 Yellow/3_L_Arm
-  rotate: false
-  xy: 868, 33
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1353, 64, 38, 72
 Yellow/3_L_Ear
-  rotate: false
-  xy: 1953, 129
-  size: 30, 25
-  orig: 32, 27
-  offset: 1, 1
-  index: -1
+	bounds: 1756, 14, 32, 27
+	rotate: 90
 Yellow/3_R_Arm
-  rotate: false
-  xy: 906, 33
-  size: 36, 70
-  orig: 38, 72
-  offset: 1, 1
-  index: -1
+	bounds: 1347, 195, 38, 72
 Yellow/3_R_Ear
-  rotate: false
-  xy: 641, 3
-  size: 29, 27
-  orig: 31, 29
-  offset: 1, 1
-  index: -1
+	bounds: 1785, 38, 31, 28
+	offsets: 0, 0, 31, 29
