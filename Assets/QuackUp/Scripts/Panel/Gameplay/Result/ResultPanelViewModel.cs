@@ -4,12 +4,9 @@ using FitMe.GameData;
 using FitMe.Shared;
 using MessagePipe;
 using QuackUp.Audio;
-using QuackUp.Save;
 using QuackUp.SceneManagement;
-using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
-using TMPro;
 using UnityEngine.SceneManagement;
 using VContainer;
 
@@ -44,30 +41,39 @@ namespace FitMe.Panel
 
         private readonly LoadSceneManager _loadSceneManager;
         private readonly EnergyManager _energyManager;
+        private readonly AdsService _adsService;
         private readonly ILevelManager _levelManager;
         private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
+        private int _forceAdsThreshold;
 
         private int _scoreBeforeSave;
         private int _fitMeBeforeSave;
         private Promise<Unit> _displayResultPromise;
         private PlayerRecordSaveObject _saveObject;
         private IDisposable _bindings;
+        private IDisposable _adSubscription;
+        
+        public const string ForceAdsThresholdKey = "ForceAdsThresholdKey";
         
         [Inject]
         public ResultPanelViewModel(
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
             EnergyManager energyManager,
+            AdsService adsService,
             ILevelManager levelManager,
             IAudioManager audioManager,
-            IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher)
+            IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher,
+            [Key(ForceAdsThresholdKey)] int forceAdsThreshold)
             : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
             _levelManager = levelManager;
             _energyManager = energyManager;
+            _adsService = adsService;
             AudioManager = audioManager;
             _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
+            _forceAdsThreshold = forceAdsThreshold;
             Bind();
         }
         
@@ -96,6 +102,7 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
+            _adSubscription?.Dispose();
             ScoreText?.Dispose();
             FitText?.Dispose();
         }
@@ -139,7 +146,23 @@ namespace FitMe.Panel
             }
             _energyManager.ChangeEnergy(-1);
             _displayResultPromise.Cancel();
-            await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
+            if (_levelManager.FitMe.CurrentValue >= _forceAdsThreshold && 
+                _adsService.TryGetAdsInstance<InterstitialAdInstance>(out var interstitialAdInstance))
+            {
+                _adSubscription = interstitialAdInstance.OnAdClosed
+                    .Subscribe(_ => OnAdsClosed());
+                interstitialAdInstance.TryShow();
+            }
+            else
+            {
+                await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
+            }
+        }
+
+        private void OnAdsClosed()
+        {
+            _adSubscription?.Dispose();
+            _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false).Forget();
         }
     }
 }

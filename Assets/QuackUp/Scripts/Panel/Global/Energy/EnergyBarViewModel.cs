@@ -18,6 +18,7 @@ namespace FitMe.Panel
         private readonly AdsService _adsService;
 
         private IDisposable _bindings;
+        private IDisposable _adSubscription;
 
         [Inject]
         public EnergyBarViewModel(
@@ -43,17 +44,22 @@ namespace FitMe.Panel
         public void Dispose()
         {
             _bindings?.Dispose();
+            _adSubscription?.Dispose();
         }
         
         private void OnWatchAd()
         {
             if (!AllowWatchAd.Value) return;
-            _adsService.TryShowRewardedAd(earnRewardCallback: OnAdSuccess);
+            if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAd)) return;
+            _adSubscription = rewardedAd.OnUserEarnedReward
+                .Subscribe(_ => OnAdSuccess());
+            rewardedAd.TryShow();
         }
         
         private void OnAdSuccess()
         {
             _energyManager.ChangeEnergy(1);
+            _adSubscription?.Dispose();
         }
     }
 }
