@@ -76,10 +76,13 @@ namespace FitMe.Grid
         private Queue<SpawnBlockData> _spawnBag = new();
         private readonly List<SpawnBlockData> _blockPool = new();
         private BlockInstance _currentPreviewBlock;
-        
+        private List<BlockInstance> _previewBlocks = new List<BlockInstance>();
+         
         private readonly GridManager _gridManager;
         private readonly SpawnPointData[] _spawnPoints;
+        private readonly List<Transform> _previewTransforms = new List<Transform>();
         private readonly Transform _previewTransform;
+        private readonly GameObject _previewParent;
         private readonly BlockManagerConfig _config;
         private readonly BlockFactory _blockFactory;
         private readonly IMessageHub _messageHub;
@@ -96,6 +99,7 @@ namespace FitMe.Grid
             [Key(PreviewTransformKey)] Transform previewTransform,
             SpawnPointData[] spawnPoints,
             BlockFactory blockFactory,
+            GameObject previewParent,
             [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub)
         {
             _gridManager = gridManager;
@@ -103,6 +107,7 @@ namespace FitMe.Grid
             _spawnPoints = spawnPoints;
             _previewTransform = previewTransform;
             _blockFactory = blockFactory;
+            _previewParent = previewParent;
             _messageHub = messageHub;
             Subscribe();
         }
@@ -267,7 +272,8 @@ namespace FitMe.Grid
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
             if (_smartRandomCount > 0) SmartRandom();
-            PreviewNextQueue();
+            //PreviewNextQueue();
+            PreviewMultiNextQueue(_config.PreviewCount);
             DebugUtils.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
         }
 
@@ -363,10 +369,70 @@ namespace FitMe.Grid
         {
             if (_spawnBag.Count == 0) return;
             _currentPreviewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
-
+            
             var nextBlock = _spawnBag.Peek(); 
             _currentPreviewBlock = InstantiateBlock(_previewTransform, nextBlock.rotation, nextBlock.blockShape, nextBlock.blockColor, _config.PreviewScale);
             _currentPreviewBlock.Controller.SetActive(false);
+        }
+
+        private void CheckAndExpandPositions(int requiredCount)
+        {
+
+            while (_previewTransforms.Count < requiredCount)
+            {
+                int i = _previewTransforms.Count;
+                GameObject newPoint = new GameObject($"PreviewPoint_{i}");
+        
+                if (_previewParent != null) 
+                {
+                    newPoint.transform.SetParent(_previewParent.transform, false);
+                    float spacing = _config.SpawnSpace;
+                    newPoint.transform.localPosition = new Vector3(spacing * i, 0, 0);
+                    
+                    float scaleFactor = Mathf.Pow(0.8f, i);
+                    newPoint.transform.localScale = Vector3.one * scaleFactor;
+
+                    Debug.Log($"<color=cyan>Lily:</color> จัดวางจุดที่ {i} เรียบร้อย! (ตำแหน่งซ้าย, ขนาดเล็กลง)");
+                }
+                _previewTransforms.Add(newPoint.transform);
+            }
+        }
+        
+        private void PreviewMultiNextQueue(int previewCount)
+        {
+            CheckAndExpandPositions(previewCount);
+            
+            if (_spawnBag.Count == 0) return;
+            
+            for (int i = 0; i < _previewBlocks.Count; i++)
+            {
+                if (_previewBlocks[i] != null)
+                {
+                    _previewBlocks[i].ViewModel.DestroyCommand.Execute(Unit.Default);
+                    _previewBlocks[i] = null;
+                }
+            }
+            
+            var bagList = _spawnBag.ToList();
+            
+            Debug.Log(_previewTransforms.Count);
+            for (int i = 0; i < _previewTransforms.Count; i++)
+            {
+                if (i >= _previewTransforms.Count || i >= bagList.Count) break;
+
+                var nextBlocks = bagList[i];
+        
+                var block = InstantiateBlock(
+                    _previewTransforms[i], 
+                    nextBlocks.rotation, 
+                    nextBlocks.blockShape, 
+                    nextBlocks.blockColor, 
+                    _config.PreviewScale
+                );
+        
+                block.Controller.SetActive(false);
+                _previewBlocks.Add(block);
+            }
         }
         
         /// <summary>

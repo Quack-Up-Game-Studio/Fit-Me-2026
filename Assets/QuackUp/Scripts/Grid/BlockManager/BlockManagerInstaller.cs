@@ -27,6 +27,7 @@ namespace FitMe.Grid
         [SerializeField] private BlockConfig blockConfig;
         [SerializeField] private BlockManager.SpawnPointData[] spawnPoints;
         [SerializeField] private Transform previewSpawnPoint;
+        [SerializeField] private GameObject previewsParent;
         [SerializeField] private AtomView atomViewPrefab;
         [SerializeField] private BlockView blockViewPrefab;
         
@@ -48,6 +49,7 @@ namespace FitMe.Grid
             //BlockManager
             builder.RegisterInstance(previewSpawnPoint).Keyed(BlockManager.PreviewTransformKey);
             builder.RegisterInstance(spawnPoints);
+            builder.RegisterInstance(previewsParent);
             builder.RegisterEntryPoint<BlockManager>(Lifetime.Singleton).As<BlockManager>();
             builder.Register<IMessageHub, BlockManagerMessageHub>(Lifetime.Singleton)
                 .Keyed(BlockManagerMessageHub.MessageHubKey);

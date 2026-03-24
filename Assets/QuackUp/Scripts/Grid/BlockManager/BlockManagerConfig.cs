@@ -26,6 +26,9 @@ namespace FitMe.Grid
         [field: SerializeField] public bool CanRefill { get; private set; } = true;
         [field: OdinSerialize] private Dictionary<BlockShape, int> _bagSettings = new();
         public IReadOnlyDictionary<BlockShape, int> BagSettings => _bagSettings;
+        [field: SerializeField] public int PreviewCount;
+        [field: SerializeField] public float SpawnSpace = 1f;
+        
         
         [Title("Block Settings")]
         [field: SerializeField, SortingLayer] public int SpawnSortingLayer { get; private set; }
