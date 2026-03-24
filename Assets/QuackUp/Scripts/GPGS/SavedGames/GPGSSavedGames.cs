@@ -12,14 +12,6 @@ using VContainer;
 
 namespace QuackUp.GPGS
 {
-    [Serializable]
-    public struct SaveUIConfig
-    {
-        public uint maxNumToDisplay;
-        public bool allowCreateNew;
-        public bool allowDelete;
-    }
-
     public struct GPGSSaveData
     {
         public TimeSpan? TotalPlaytime;

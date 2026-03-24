@@ -18,8 +18,7 @@ namespace FitMe.Panel
     public interface IUITransition
     {
         void Initialize(ITransitionObjectProvider provider);
-        Sequence? Transition();
-        void CancelTransition();
+        Sequence? Transition(CancellationToken cancellationToken = default, CancelBehavior cancelBehavior = CancelBehavior.Stop);
     }
     
     [Serializable]
@@ -93,14 +92,14 @@ namespace FitMe.Panel
         private Sequence _transitionSequence;
         private bool _isInitialized;
         
-        public void Initialize(ITransitionObjectProvider panel)
+        public void Initialize(ITransitionObjectProvider provider)
         {
             _isInitialized = true;
             if (transition == null || transition.Count == 0) return;
 
             foreach (var data in transition)
             {
-                data.transition?.Initialize(panel);
+                data.transition?.Initialize(provider);
             }
         }
 
@@ -115,6 +114,7 @@ namespace FitMe.Panel
             {
                 return;
             }
+            cancellationToken.Register(CancelTransition);
             _transitionSequence = !overrideDefaultCycles ? Sequence.Create() : Sequence.Create(cycles, cycleMode);
             foreach (var data in transition)
             {
@@ -136,7 +136,7 @@ namespace FitMe.Panel
             await _transitionSequence.ToUniTask();
         }
 
-        public void CancelTransition()
+        private void CancelTransition()
         {
             switch (cancelBehavior)
             {

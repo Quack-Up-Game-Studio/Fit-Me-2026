@@ -5,6 +5,6 @@ namespace FitMe.Panel
 {
     public class FloatingUIManager
     {
-        private readonly IReadOnlyDictionary<string, IFloatingUIElement> _floatingUIElementsPrefabs;
+        private readonly IReadOnlyDictionary<string, FloatingUIElement> _floatingUIElementsPrefabs;
     }
 }

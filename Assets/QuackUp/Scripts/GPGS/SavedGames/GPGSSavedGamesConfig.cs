@@ -1,8 +1,17 @@
+using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace QuackUp.GPGS
 {
+    [Serializable]
+    public struct SaveUIConfig
+    {
+        public uint maxNumToDisplay;
+        public bool allowCreateNew;
+        public bool allowDelete;
+    }
+    
     [CreateAssetMenu(fileName = "GPGSSavedGamesConfig", menuName = "QuackUp/GPGS/SavedGames")]
     public class GPGSSavedGamesConfig : SerializedScriptableObject
     {

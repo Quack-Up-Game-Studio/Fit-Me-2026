@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using PrimeTween;
 using UnityEngine;
 
@@ -16,14 +17,14 @@ namespace FitMe.Panel
             provider.TryGetTransitionObject(objectKey, out _transitionObject);
         }
 
-        public Sequence? Transition()
+        public Sequence? Transition(CancellationToken cancellationToken = default, CancelBehavior cancelBehavior = CancelBehavior.Stop)
         {
             if (!_transitionObject) return null;
             _transitionObject.gameObject.SetActive(active);
             return null;
         }
 
-        public void CancelTransition()
+        private void CancelTransition(CancelBehavior cancelBehavior)
         {
             // No ongoing transition to cancel since this is an instant activation/deactivation.
         }

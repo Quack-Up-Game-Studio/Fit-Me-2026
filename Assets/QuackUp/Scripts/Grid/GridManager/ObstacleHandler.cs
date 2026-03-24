@@ -54,7 +54,7 @@ namespace FitMe.Grid
 
         private void CreateObstacles(ObstacleMode obstacleMode)
         {
-            if (_gridManager.CurrentSceneType is not SceneType.Gameplay) return;
+            if (!_gridManager.IsGameplay) return;
             switch (obstacleMode)
             {
                 case ObstacleMode.Generated:

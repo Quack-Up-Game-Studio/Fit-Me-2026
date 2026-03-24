@@ -35,6 +35,7 @@ namespace FitMe.Scene
         
         public static GameMode GameMode { get; set; }
         public static GridPreset GridPreset { get; set; }
+        public bool IsTutorial { get; set; }
 
         private AnimationCurve _difficultyCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
         private int _levelCycle;
@@ -276,6 +277,7 @@ namespace FitMe.Scene
         private void ChangeScore(int value)
         {
             Score.Value += value;
+            if (IsTutorial) return;
             if (!_playerRecordSaveObject) return;
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return;
@@ -286,6 +288,7 @@ namespace FitMe.Scene
         private void ChangeFitMe(int value)
         {
             FitMe.Value += value;
+            if (IsTutorial) return;
             if (!_playerRecordSaveObject) return;
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return;
@@ -325,6 +328,7 @@ namespace FitMe.Scene
         private void GameOver()
         {
             SetGameState(Shared.GameState.GameOver);
+            if (IsTutorial) return;
             _panelManager.TryGetPanel<GameOverPanelViewModel>(_config.GameOverPanelId, out var gameOverPanelViewModel);
             if (gameOverPanelViewModel.RemainingContinueCount.CurrentValue <= 0)
             {
