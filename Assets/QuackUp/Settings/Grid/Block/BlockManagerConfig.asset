@@ -590,8 +590,8 @@ MonoBehaviour:
   <PreviewScale>k__BackingField: 0.3
   <ObjectScale>k__BackingField: 0.4
   <CanRefill>k__BackingField: 1
-  PreviewCount: 2
-  SpawnSpace: 0.5
+  PreviewCount: 4
+  SpawnSpace: 1
   <SpawnSortingLayer>k__BackingField: -382830213
   <PickUpSortingLayer>k__BackingField: -1842356849
   <GridSortingLayer>k__BackingField: 133995437
