@@ -251,7 +251,7 @@ namespace FitMe.Grid
             _spawnBag.Clear();
             ResetBlockInSlot();
             SpawnBlocksFromBag(true);
-            Debug.Log("Yuirin: Bag Reset!");
+            Debug.LogWarning("Yuirin: Bag Reset!");
         }
         
         /// <summary>
@@ -285,7 +285,7 @@ namespace FitMe.Grid
             if (_smartRandomCount > 0) SmartRandom();
             //PreviewNextQueue();
             PreviewMultiNextQueue(_config.PreviewCount);
-            DebugUtils.Log($"Yuirin: Refilled Bag! Now has {_spawnBag.Count} items.");
+            DebugUtils.Log($"Yuirin: Now has {_spawnBag.Count} items in bag.");
         }
 
         private BlockInstance InstantiateBlock(Transform spawnTransform, Quaternion rotation, BlockShape shape, BlockColor color, float objectScale)
@@ -431,8 +431,6 @@ namespace FitMe.Grid
                     
                     var scaleFactor = Mathf.Pow(0.8f, i);
                     newPoint.transform.localScale = Vector3.one * scaleFactor;
-
-                    Debug.Log($"<color=cyan>Lily:</color> จัดวางจุดที่ {i} เรียบร้อย! (ตำแหน่งซ้าย, ขนาดเล็กลง)");
                 }
                 _previewTransforms.Add(newPoint.transform);
             }

@@ -327,7 +327,7 @@ MonoBehaviour:
       Data: 1
     - Name: $v
       Entry: 3
-      Data: 4
+      Data: 5
     - Name: 
       Entry: 8
       Data: 
@@ -589,7 +589,7 @@ MonoBehaviour:
   <SmartRandomDepth>k__BackingField: 3
   <PreviewScale>k__BackingField: 0.3
   <ObjectScale>k__BackingField: 0.4
-  <CanRefill>k__BackingField: 1
+  <CanRefill>k__BackingField: 0
   PreviewCount: 4
   SpawnSpace: 1
   <SpawnSortingLayer>k__BackingField: -382830213
