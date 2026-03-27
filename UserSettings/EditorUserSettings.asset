@@ -6,77 +6,10 @@ EditorUserSettings:
   serializedVersion: 4
   m_ConfigSettings:
     RecentlyUsedSceneGuid-0:
-<<<<<<< HEAD
-      value: 05500357550d5a5f0e5b547045220c404e164c7a7e2b2461757e4e32b7b16c6c
-      flags: 0
-    RecentlyUsedSceneGuid-1:
-      value: 0257070755075b0c5408547344220f1313164072292925367e714832e4b4666f
-      flags: 0
-    RecentlyUsedSceneGuid-2:
       value: 050606005401595958575b2048200c4442164d7e2a7122347a7a4f65e0b9316b
       flags: 0
-    RecentlyUsedSceneGuid-3:
-      value: 5152075057515d0b0f580f734127071143164c29747d76327a2d1c62e0e56668
-      flags: 0
-    RecentlyUsedSceneGuid-4:
-      value: 000304565203595f5b5f5f2348755a44434f1d7a792d75627d7b1836bbb8326a
-      flags: 0
-    RecentlyUsedSceneGuid-5:
-      value: 5b520d0503545b0d0c0c0a2715770748154f4d2c7d7d7e627a7d4a35b4e1646a
-      flags: 0
-    RecentlyUsedSceneGuid-6:
-      value: 0650035353530a5f0b5e0e271471074444151c7a29797663797f1e37e0b36361
-      flags: 0
-    RecentlyUsedSceneGuid-7:
-      value: 50090c0456040c595c080e2141750c4145154f282d7073317b2b4935b4b7666c
-      flags: 0
-    RecentlyUsedSceneGuid-8:
-      value: 0000565657075e085d0d0e7043720c11141648297d7e746028784b62b5b3656a
-      flags: 0
-    RecentlyUsedSceneGuid-9:
-      value: 0252565450505b595b5c092745770647124e1a292f2b73362f7b4f31b5b76d69
-=======
-      value: 0257070755075b0c5408547344220f1313164072292925367e714832e4b4666f
-      flags: 0
     RecentlyUsedSceneGuid-1:
-      value: 050606005401595958575b2048200c4442164d7e2a7122347a7a4f65e0b9316b
-      flags: 0
-    RecentlyUsedSceneGuid-2:
-      value: 5152075057515d0b0f580f734127071143164c29747d76327a2d1c62e0e56668
-      flags: 0
-    RecentlyUsedSceneGuid-3:
-      value: 000304565203595f5b5f5f2348755a44434f1d7a792d75627d7b1836bbb8326a
-      flags: 0
-    RecentlyUsedSceneGuid-4:
-      value: 0650035353530a5f0b5e0e271471074444151c7a29797663797f1e37e0b36361
-      flags: 0
-    RecentlyUsedSceneGuid-5:
-      value: 50090c0456040c595c080e2141750c4145154f282d7073317b2b4935b4b7666c
-      flags: 0
-    RecentlyUsedSceneGuid-6:
-      value: 0000565657075e085d0d0e7043720c11141648297d7e746028784b62b5b3656a
-      flags: 0
-    RecentlyUsedSceneGuid-7:
-      value: 0252565450505b595b5c092745770647124e1a292f2b73362f7b4f31b5b76d69
-      flags: 0
-    RecentlyUsedSceneGuid-8:
-      value: 5354000450000f0f5a08587a41250b11474f417a752c20317f2d4530b3e6606e
-      flags: 0
-    RecentlyUsedSceneGuid-9:
       value: 5b520d0503545b0d0c0c0a2715770748154f4d2c7d7d7e627a7d4a35b4e1646a
->>>>>>> WaveTest
-      flags: 0
-    UnityEditor.ShaderGraph.Blackboard:
-      value: 18135939215a0a5004000b0e15254b524c030a3f2964643d120d1230e9e93a3fd6e826abbd3c3e302a07a37e0901373ae01e0008f707250d171df81a53a5405d41895ac825e0100ec20313c0d91cddccd3d0c7efcca9bd80908fecb0f9cfddf1eff4e7a1b1eae482f0fcace9e1928b86d888ed909c968797a7cf
-      flags: 0
-    UnityEditor.ShaderGraph.FloatingWindowsLayout2:
-      value: 181344140043005e1a220d3b1f364b524c0c5a27130c293326201334cee5322ca0bd30e8eb293a707b0fd0180b3d0a36fc0d3d04e649500d1002ee0b5dbd1d2c27c00ad113cb1e10e41f1addc80993b98d9884a69ae6d8f0d1cda9e8fbfefaf9f9dea3fdb9ade882f0f7b0e1e380cafbf2c3adc18e9cd285a2908b82ec869c8395949c9483d68a8e97ddbd90bf
-      flags: 0
-    UnityEditor.ShaderGraph.InspectorWindow:
-      value: 18135939215a0a5004000b0e15254b524c1119263f2d6a722016393ce1eb3d36e5d339f9a5602b2e2c07a37e0901373ae01e0008f707250d171df81a53a541475f95548717f73713d91006c1c309d0effad0d2f9ddffa5828e91f0beb6fdd1cbfceba0b9f0b3bed8e8f5aae0f98c978883d3f59e9e919c89eacfcc
-      flags: 0
-    UnityEditor.ShaderGraph.ToggleSettings:
-      value: 18135d1527590858060c032302276919051e1a26296a7c243f3c187fa0e92708f0e220e0e22d09352a0bed30017c5b2be01f0c47b40219221f1ded0b12eb1f0127cc0bcc18c41a5e910d0edbc85193e0dadadbf8e8f9e8ced7dba5e0b6aaaca4dbfeabfef4eae1
       flags: 0
     vcSharedLogLevel:
       value: 0d5e400f0650
@@ -86,7 +19,7 @@ EditorUserSettings:
   m_VCDebugCmd: 0
   m_VCDebugOut: 0
   m_SemanticMergeMode: 2
-  m_DesiredImportWorkerCount: 3
+  m_DesiredImportWorkerCount: 4
   m_StandbyImportWorkerCount: 2
   m_IdleImportWorkerShutdownDelay: 60000
   m_VCShowFailedCheckout: 1

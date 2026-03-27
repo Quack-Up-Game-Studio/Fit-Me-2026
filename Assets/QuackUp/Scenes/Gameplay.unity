@@ -381,9 +381,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.GridPreview
   grid: {fileID: 63600349}
-  preset: {fileID: 11400000, guid: 2aad68baf83cb5ff29e7395cd725463e, type: 2}
+  preset: {fileID: 11400000, guid: e6e4b61df806d2e88979d9032ce22de1, type: 2}
   drawAllCustomGridCells: 0
-  config: {fileID: 11400000, guid: 2901fce5d49fc09e2a88bd486db8a887, type: 2}
+  config: {fileID: 11400000, guid: 12c3eb1b2a67ef312879e63dad620906, type: 2}
 --- !u!1 &79860171
 GameObject:
   m_ObjectHideFlags: 0
@@ -5222,12 +5222,11 @@ MonoBehaviour:
     - {fileID: 1775199596}
     - {fileID: 1440182162}
     - {fileID: 886192881}
-    - {fileID: 2090506140}
+    - {fileID: 1081198250}
     - {fileID: 1081198249}
     - {fileID: 3250103234959496707, guid: 3af28059722596ef59c7c7148103f476, type: 3}
     - {fileID: 7436585757268251111, guid: 2ecba2ad996a9b9678ae48b0bd59b3c5, type: 3}
     - {fileID: 11400000, guid: 435618e78deacc0efb1c066bcac25454, type: 2}
-    - {fileID: 0}
     - {fileID: 11400000, guid: ed3e169d3c6dfe879aaab6b115a799d4, type: 2}
     - {fileID: 839055164}
     - {fileID: 463976295}
@@ -5384,8 +5383,8 @@ MonoBehaviour:
       Entry: 12
       Data: 1
     - Name: 
-      Entry: 10
-      Data: 18
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 13
       Data: 
@@ -5400,7 +5399,7 @@ MonoBehaviour:
       Data: 10|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
     - Name: levelManagerConfig
       Entry: 10
-      Data: 19
+      Data: 18
     - Name: 
       Entry: 8
       Data: 
@@ -5409,7 +5408,7 @@ MonoBehaviour:
       Data: 11|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
     - Name: parentLifetimeScope
       Entry: 10
-      Data: 20
+      Data: 19
     - Name: panelLifetimeScopes
       Entry: 7
       Data: 12|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
@@ -5432,7 +5431,7 @@ MonoBehaviour:
       Data: Gameplay
     - Name: $v
       Entry: 10
-      Data: 21
+      Data: 20
     - Name: 
       Entry: 8
       Data: 
@@ -5444,7 +5443,7 @@ MonoBehaviour:
       Data: Pause
     - Name: $v
       Entry: 10
-      Data: 22
+      Data: 21
     - Name: 
       Entry: 8
       Data: 
@@ -5456,7 +5455,7 @@ MonoBehaviour:
       Data: Result
     - Name: $v
       Entry: 10
-      Data: 23
+      Data: 22
     - Name: 
       Entry: 8
       Data: 
@@ -5468,7 +5467,7 @@ MonoBehaviour:
       Data: GameOver
     - Name: $v
       Entry: 10
-      Data: 24
+      Data: 23
     - Name: 
       Entry: 8
       Data: 
@@ -5502,19 +5501,19 @@ MonoBehaviour:
       Data: 15|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
     - Name: scoreView
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: scoreTransform
       Entry: 10
-      Data: 26
+      Data: 25
     - Name: fitmeTransform
       Entry: 10
-      Data: 27
+      Data: 26
     - Name: popUpScoreViewPrefab
       Entry: 10
-      Data: 28
+      Data: 27
     - Name: popUpScoreParent
       Entry: 10
-      Data: 29
+      Data: 28
     - Name: 
       Entry: 8
       Data: 
@@ -5529,7 +5528,7 @@ MonoBehaviour:
       Data: 17|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
     - Name: energyBarView
       Entry: 10
-      Data: 30
+      Data: 29
     - Name: 
       Entry: 8
       Data: 
@@ -5538,7 +5537,7 @@ MonoBehaviour:
       Data: 18|FitMe.Panel.RunTimerInstaller, FitMe.Panel
     - Name: view
       Entry: 10
-      Data: 31
+      Data: 30
     - Name: 
       Entry: 8
       Data: 
@@ -10485,6 +10484,7 @@ MonoBehaviour:
       Data: 
   hasNestedPanelManager: 0
   _resultPanelView: {fileID: 1787313453}
+  forcedAdsFitMeThreshold: 13
 --- !u!1 &1795960112
 GameObject:
   m_ObjectHideFlags: 0
@@ -11164,37 +11164,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2079313775}
   m_CullTransparentMesh: 1
---- !u!1 &2090506139
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2090506140}
-  m_Layer: 0
-  m_Name: SpawnPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &2090506140
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2090506139}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.81, z: 90}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2109256054
 GameObject:
   m_ObjectHideFlags: 0
@@ -11434,5 +11403,3 @@ SceneRoots:
   - {fileID: 103073015}
   - {fileID: 1949753171}
   - {fileID: 1081198250}
-  - {fileID: 2090506140}
-  - {fileID: 593285031}

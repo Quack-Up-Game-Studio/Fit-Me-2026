@@ -268,7 +268,7 @@ namespace FitMe.Grid
             var randomAmount = _config.MaxRandomAmount;
             for (int i = 0; i < randomAmount; i++)
             {
-                if (!_spawnPoints[i].IsFree)
+                if (!_spawnPoints[i].IsFree || _spawnBag.Count == 0)
                 {
                     continue;
                 }
@@ -325,7 +325,7 @@ namespace FitMe.Grid
         //Temporary method for testing swap mechanic
         public void Swap()
         {
-            var blockToSwap = BlocksOnHand[0];
+            var blockToSwap = BlockOnHand[0];
             if (blockToSwap == null) return;
             var previewBlock = _previewBlocks[0];
             if (previewBlock == null) return;
@@ -572,7 +572,7 @@ namespace FitMe.Grid
         
         public async UniTask GameOverCheck()
         {
-            var blockToCheck = BlocksOnHand.Select(x => x.Model).ToList();
+            var blockToCheck = BlockOnHand.Select(x => x.Model).ToList();
             if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
             {
                 _gridManager.CreateVacantSchema(out _, out var vacantCount);

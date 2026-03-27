@@ -34,7 +34,7 @@ MonoBehaviour:
   <CustomOffsetY>k__BackingField: 6
   <ComboThreshold>k__BackingField: 2
   gridPresets:
-  - {fileID: 11400000, guid: 2aad68baf83cb5ff29e7395cd725463e, type: 2}
+  - {fileID: 11400000, guid: e6e4b61df806d2e88979d9032ce22de1, type: 2}
   <FitExplodeSfx>k__BackingField:
     Guid:
       Data1: 845146018
