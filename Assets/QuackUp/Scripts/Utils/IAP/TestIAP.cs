@@ -19,13 +19,13 @@ namespace QuackUp.Utils
         private void OnGoldButtonClicked()
         {
             Debug.Log("Gold button clicked - simulate purchasing gold.");
-            _inAppPurchaseManager.BuyProductID("gold_100");
+            _inAppPurchaseManager.BuyProductID("gold.100");
         }
         
         private void OnRemoveAdsButtonClicked()
         {
             Debug.Log("Remove Ads button clicked - simulate purchasing ad removal.");
-            _inAppPurchaseManager.BuyProductID("no_ads");
+            _inAppPurchaseManager.BuyProductID("no.ads");
         }
     }
 }
