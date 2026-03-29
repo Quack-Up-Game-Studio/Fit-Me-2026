@@ -759,7 +759,8 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Purchasing: 1
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -781,11 +782,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 342fd5f0-f2e9-4ddd-8d5e-4176b9b08d41
+  cloudProjectId: f819f57a-f6c3-40e9-80bc-1713643d48d5
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: Fit Me 2026
-  organizationId: mafia_th
+  organizationId: yuirin
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
