@@ -733,13 +733,25 @@ MonoBehaviour:
       Data: 10
     - Name: previewsPoint
       Entry: 7
-      Data: 6|UnityEngine.Transform[], UnityEngine.CoreModule
+      Data: 6|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
     - Name: 
       Entry: 12
       Data: 1
     - Name: 
+      Entry: 7
+      Data: 7|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
+    - Name: <Transform>k__BackingField
       Entry: 10
       Data: 10
+    - Name: <IsFree>k__BackingField
+      Entry: 5
+      Data: true
+    - Name: <CurrentBlock>k__BackingField
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 13
       Data: 
@@ -757,17 +769,17 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 7|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
+      Data: 8|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
     - Name: parentLifetimeScope
       Entry: 10
       Data: 13
     - Name: panelLifetimeScopes
       Entry: 7
-      Data: 8|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
+      Data: 9|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
         FitMe.Panel]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 9|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+      Data: 10|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -837,7 +849,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 10|FitMe.Scene.MainMenu.MainMenuManagerInstaller, FitMe.Scene
+      Data: 11|FitMe.Scene.MainMenu.MainMenuManagerInstaller, FitMe.Scene
     - Name: mainMenuManagerConfig
       Entry: 10
       Data: 18
@@ -852,20 +864,20 @@ MonoBehaviour:
       Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 11|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 12|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12
       Data: 2
     - Name: 
       Entry: 7
-      Data: 12|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
+      Data: 13|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 13|FitMe.Panel.DragMeToPlayInstaller, FitMe.Panel
+      Data: 14|FitMe.Panel.DragMeToPlayInstaller, FitMe.Panel
     - Name: dragMeToPlayView
       Entry: 10
       Data: 19
@@ -4584,7 +4596,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.TestIAP
   _goldButton: {fileID: 314259935}
-  _goldText: {fileID: 872424148}
+  goldText: {fileID: 872424148}
 --- !u!1 &316539382
 GameObject:
   m_ObjectHideFlags: 0
