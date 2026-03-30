@@ -85,9 +85,8 @@ namespace FitMe.Grid
          
         private readonly GridManager _gridManager;
         private readonly SpawnPointData[] _spawnPoints;
-        private readonly List<Transform> _previewTransforms = new List<Transform>();
         private readonly Transform _previewTransform;
-        private readonly GameObject _previewParent;
+        private readonly SpawnPointData[] _spawnPreviews;
         private readonly BlockManagerConfig _config;
         private readonly BlockFactory _blockFactory;
         private readonly IMessageHub _messageHub;
@@ -104,7 +103,7 @@ namespace FitMe.Grid
             [Key(PreviewTransformKey)] Transform previewTransform,
             SpawnPointData[] spawnPoints,
             BlockFactory blockFactory,
-            GameObject previewParent,
+            [Key(PreviewTransformKey)] SpawnPointData[] spawnPreviews,
             [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub)
         {
             _gridManager = gridManager;
@@ -112,7 +111,7 @@ namespace FitMe.Grid
             _spawnPoints = spawnPoints;
             _previewTransform = previewTransform;
             _blockFactory = blockFactory;
-            _previewParent = previewParent;
+            _spawnPreviews = spawnPreviews;
             _messageHub = messageHub;
             Subscribe();
         }
@@ -341,7 +340,7 @@ namespace FitMe.Grid
             spawnPoint.CurrentBlock = newBlock;
             _messageHub.Publish(new BlockSpawnedEvent(new List<BlockInstance>{newBlock}));
             previewBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
-            var newPreviewBlock = InstantiateBlock(_previewTransforms[0], swapBlockData.rotation, swapBlockData.blockShape, swapBlockData.blockColor, _config.PreviewScale);
+            var newPreviewBlock = InstantiateBlock(_spawnPreviews[0].Transform, swapBlockData.rotation, swapBlockData.blockShape, swapBlockData.blockColor, _config.PreviewScale);
             newPreviewBlock.Controller.SetActive(false);
             _previewBlocks[0] = newPreviewBlock;
             //PreviewMultiNextQueue(_config.PreviewCount);
@@ -410,31 +409,9 @@ namespace FitMe.Grid
             _currentPreviewBlock = InstantiateBlock(_previewTransform, nextBlock.rotation, nextBlock.blockShape, nextBlock.blockColor, _config.PreviewScale);
             _currentPreviewBlock.Controller.SetActive(false);
         }
-
-        private void CheckAndExpandPositions(int requiredCount)
-        {
-            for (var i = _previewTransforms.Count; i < requiredCount; i++)
-            {
-                var newPoint = new GameObject($"PreviewPoint_{i}");
-        
-                if (_previewParent) 
-                {
-                    newPoint.transform.SetParent(_previewParent.transform, false);
-                    var spacing = _config.SpawnSpace;
-                    newPoint.transform.localPosition = new Vector3(spacing * i, 0, 0);
-                    
-                    var scaleFactor = Mathf.Pow(0.8f, i);
-                    newPoint.transform.localScale = Vector3.one * scaleFactor;
-                }
-                _previewTransforms.Add(newPoint.transform);
-            }
-        }
         
         private void PreviewMultiNextQueue(int previewCount)
         {
-            CheckAndExpandPositions(previewCount);
-            
-            if (_spawnBag.Count == 0) return;
             
             for (var i = 0; i < _previewBlocks.Count; i++)
             {
@@ -444,18 +421,20 @@ namespace FitMe.Grid
                 _previewBlocks[i] = null;
             }
             
+            if (_spawnBag.Count == 0) return;
+            
             var bagList = _spawnBag.ToList();
             
-            Debug.Log(_previewTransforms.Count);
+            Debug.Log(_spawnPreviews.Length);
             _previewBlocks.Clear();
-            for (int i = 0; i < _previewTransforms.Count; i++)
+            for (int i = 0; i < _spawnPreviews.Length; i++)
             {
-                if (i >= _previewTransforms.Count || i >= bagList.Count) break;
+                if (i >= _spawnPreviews.Length || i >= bagList.Count) break;
 
                 var nextBlocks = bagList[i];
         
                 var block = InstantiateBlock(
-                    _previewTransforms[i], 
+                    _spawnPreviews[i].Transform, 
                     nextBlocks.rotation, 
                     nextBlocks.blockShape, 
                     nextBlocks.blockColor, 
@@ -566,8 +545,15 @@ namespace FitMe.Grid
         
         public async UniTask GameOverCheck()
         {
-            var blockToCheck = BlockOnHand.Select(x => x.Model).ToList();
-            if (!_gridManager.CheckAvailableBlock(blockToCheck, out _))
+            var blocksToCheck = BlockOnHand.Select(x => x.Model).ToList();
+            
+            var blockOnSwap =_spawnPreviews[0].CurrentBlock?.Model;
+            if (blockOnSwap != null)
+            {
+                blocksToCheck.Add(blockOnSwap);
+            }
+            
+            if (!_gridManager.CheckAvailableBlock(blocksToCheck, out _))
             {
                 _gridManager.CreateVacantSchema(out _, out var vacantCount);
                 _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));    
