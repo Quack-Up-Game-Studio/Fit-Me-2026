@@ -1,320 +1,292 @@
 I2.png
-	size: 1867, 189
+	size: 1885, 189
 	filter: Linear, Linear
 	pma: true
 Blue/Body
-	bounds: 782, 59, 128, 256
+	bounds: 1041, 59, 128, 256
 	rotate: 90
 Blue/Chin
-	bounds: 1711, 40, 24, 12
+	bounds: 1446, 2, 24, 12
 	offsets: 0, 0, 24, 13
-	rotate: 90
 Blue/L_Arm
-	bounds: 1224, 24, 32, 65
-	offsets: 1, 0, 33, 65
-	rotate: 90
+	bounds: 1537, 2, 33, 65
 Blue/L_Eye
-	bounds: 1703, 149, 38, 38
+	bounds: 1739, 80, 38, 38
 Blue/L_Eye2
-	bounds: 1535, 136, 40, 51
+	bounds: 204, 4, 40, 51
 Blue/L_Eyeball
-	bounds: 1630, 2, 9, 6
-	offsets: 0, 1, 9, 8
+	bounds: 1753, 2, 9, 8
+	rotate: 90
 Blue/L_Eyelid
-	bounds: 1443, 138, 49, 44
-	offsets: 0, 1, 49, 46
+	bounds: 1302, 8, 49, 46
 	rotate: 90
 Blue/L_Eyelid_B
-	bounds: 1630, 10, 41, 26
+	bounds: 1459, 68, 41, 26
 	offsets: 0, 0, 42, 26
+	rotate: 90
 Blue/L_Hand2
-	bounds: 2, 7, 50, 56
+	bounds: 624, 6, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
 Blue/Mouth
-	bounds: 732, 22, 71, 35
-	offsets: 1, 0, 73, 35
+	bounds: 1576, 114, 73, 35
+	rotate: 90
 Blue/Mouth2
-	bounds: 926, 2, 76, 19
+	bounds: 1416, 111, 76, 19
 	offsets: 0, 1, 77, 21
+	rotate: 90
 Blue/Mouth_B
-	bounds: 582, 2, 84, 17
+	bounds: 1299, 103, 84, 17
+	rotate: 90
 Blue/Mouth_Crease_B
-	bounds: 1346, 63, 68, 22
+	bounds: 1645, 2, 68, 22
+	rotate: 90
 Blue/R_Arm
-	bounds: 1490, 31, 30, 65
-	offsets: 1, 0, 32, 65
-	rotate: 90
+	bounds: 1753, 13, 32, 65
 Blue/R_Eye
-	bounds: 1743, 149, 38, 38
+	bounds: 1779, 82, 38, 38
 Blue/R_Eye2
-	bounds: 1535, 94, 40, 51
-	rotate: 90
+	bounds: 246, 4, 40, 51
 Blue/R_Eyeball
-	bounds: 1641, 2, 9, 6
-	offsets: 0, 1, 9, 8
+	bounds: 1763, 2, 9, 8
+	rotate: 90
 Blue/R_Eyelid
-	bounds: 1443, 87, 49, 44
-	offsets: 0, 1, 49, 46
+	bounds: 1350, 8, 49, 46
 	rotate: 90
 Blue/R_Eyelid_B
-	bounds: 1542, 3, 42, 26
+	bounds: 1299, 59, 42, 26
+	rotate: 90
 Blue/R_Hand2
-	bounds: 60, 7, 50, 56
+	bounds: 682, 6, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
 Green/Body
-	bounds: 523, 59, 128, 257
+	bounds: 782, 59, 128, 257
 	rotate: 90
 Green/Chin
-	bounds: 1040, 59, 24, 13
+	bounds: 1859, 174, 24, 13
 	offsets: 0, 0, 24, 14
-	rotate: 90
 Green/L_Arm
-	bounds: 1291, 24, 32, 65
-	offsets: 1, 0, 33, 65
-	rotate: 90
+	bounds: 1771, 122, 33, 65
 Green/L_Eye
-	bounds: 1747, 109, 38, 38
+	bounds: 1819, 82, 38, 38
 Green/L_Eye2
-	bounds: 1577, 136, 40, 51
+	bounds: 288, 4, 40, 51
 Green/L_Eyeball
-	bounds: 1652, 2, 9, 6
-	offsets: 0, 1, 9, 8
+	bounds: 1773, 2, 9, 8
+	rotate: 90
 Green/L_Eyelid
-	bounds: 1489, 138, 49, 44
-	offsets: 0, 1, 49, 46
+	bounds: 1398, 8, 49, 46
 	rotate: 90
 Green/L_Eyelid_B
-	bounds: 1644, 66, 41, 26
+	bounds: 1474, 25, 41, 26
 	offsets: 0, 0, 42, 26
+	rotate: 90
 Green/L_Hand2
-	bounds: 118, 7, 50, 56
+	bounds: 740, 6, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
 Green/Mouth
-	bounds: 805, 22, 71, 35
-	offsets: 1, 0, 73, 35
+	bounds: 1613, 114, 73, 35
+	rotate: 90
 Green/Mouth2
-	bounds: 1082, 3, 76, 19
+	bounds: 1437, 111, 76, 19
 	offsets: 0, 1, 77, 21
+	rotate: 90
 Green/Mouth_B
-	bounds: 668, 2, 84, 17
+	bounds: 1318, 103, 84, 17
+	rotate: 90
 Green/Mouth_Crease_B
-	bounds: 1402, 6, 68, 22
+	bounds: 1669, 3, 68, 22
+	rotate: 90
 Green/R_Arm
-	bounds: 1557, 34, 30, 65
-	offsets: 1, 0, 32, 65
-	rotate: 90
+	bounds: 1806, 122, 32, 65
 Green/R_Eye
-	bounds: 1783, 149, 38, 38
+	bounds: 1840, 123, 38, 38
 Green/R_Eye2
-	bounds: 1588, 94, 40, 51
-	rotate: 90
+	bounds: 330, 4, 40, 51
 Green/R_Eyeball
-	bounds: 1663, 2, 9, 6
-	offsets: 0, 1, 9, 8
+	bounds: 1783, 2, 9, 8
+	rotate: 90
 Green/R_Eyelid
-	bounds: 1489, 87, 49, 44
-	offsets: 0, 1, 49, 46
+	bounds: 1411, 60, 49, 46
 	rotate: 90
 Green/R_Eyelid_B
-	bounds: 1556, 66, 42, 26
+	bounds: 1327, 59, 42, 26
+	rotate: 90
 Green/R_Hand2
-	bounds: 176, 7, 50, 56
+	bounds: 798, 7, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
 Purple/Body
-	bounds: 1087, 58, 129, 257
+	bounds: 523, 58, 129, 257
 	rotate: 90
 Purple/Chin
-	bounds: 1055, 59, 24, 13
+	bounds: 1840, 163, 24, 13
 	offsets: 0, 0, 24, 14
 	rotate: 90
 Purple/L_Arm
-	bounds: 1358, 30, 31, 64
-	offsets: 1, 0, 32, 64
-	rotate: 90
+	bounds: 1787, 16, 32, 64
 Purple/L_Eye
-	bounds: 1792, 29, 37, 38
-Purple/L_Eye2
-	bounds: 1619, 136, 40, 51
-Purple/L_Eyeball
-	bounds: 1730, 34, 8, 7
-	offsets: 0, 1, 8, 9
+	bounds: 1831, 43, 37, 38
 	rotate: 90
+Purple/L_Eye2
+	bounds: 372, 4, 40, 51
+Purple/L_Eyeball
+	bounds: 1855, 163, 8, 9
 Purple/L_Eyelid
-	bounds: 1040, 137, 50, 45
-	offsets: 0, 1, 50, 47
+	bounds: 1204, 7, 50, 47
 	rotate: 90
 Purple/L_Eyelid_B
-	bounds: 1668, 38, 41, 26
+	bounds: 1487, 68, 41, 26
 	offsets: 0, 0, 42, 26
+	rotate: 90
 Purple/L_Hand2
-	bounds: 234, 7, 50, 56
+	bounds: 856, 7, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
 Purple/Mouth
-	bounds: 878, 23, 70, 34
-	offsets: 1, 0, 72, 34
+	bounds: 1650, 115, 72, 34
+	rotate: 90
 Purple/Mouth2
-	bounds: 1160, 3, 76, 19
+	bounds: 1458, 111, 76, 19
 	offsets: 0, 1, 77, 21
+	rotate: 90
 Purple/Mouth_B
-	bounds: 754, 3, 84, 17
+	bounds: 1337, 103, 84, 17
+	rotate: 90
 Purple/Mouth_Crease_B
-	bounds: 1416, 63, 68, 22
+	bounds: 1693, 3, 68, 22
+	rotate: 90
 Purple/R_Arm
-	bounds: 1424, 30, 31, 64
-	offsets: 1, 0, 33, 64
-	rotate: 90
+	bounds: 1502, 2, 33, 64
 Purple/R_Eye
-	bounds: 1828, 69, 37, 38
+	bounds: 1831, 3, 37, 38
 Purple/R_Eye2
-	bounds: 1641, 94, 40, 51
-	rotate: 90
+	bounds: 414, 4, 40, 51
 Purple/R_Eyeball
-	bounds: 1730, 24, 8, 7
-	offsets: 0, 1, 8, 9
-	rotate: 90
+	bounds: 1865, 163, 8, 9
 Purple/R_Eyelid
-	bounds: 1040, 85, 50, 45
-	offsets: 0, 1, 50, 47
+	bounds: 1253, 7, 50, 47
 	rotate: 90
 Purple/R_Eyelid_B
-	bounds: 1586, 6, 42, 26
+	bounds: 1355, 59, 42, 26
+	rotate: 90
 Purple/R_Hand2
-	bounds: 292, 7, 50, 56
+	bounds: 914, 7, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
 Red/Body
-	bounds: 263, 59, 128, 258
-	offsets: 1, 0, 130, 258
+	bounds: 263, 57, 130, 258
 	rotate: 90
 Red/Chin
-	bounds: 1070, 59, 24, 13
+	bounds: 1859, 108, 24, 13
 	offsets: 0, 0, 24, 14
-	rotate: 90
 Red/L_Arm
-	bounds: 1019, 24, 33, 66
-	offsets: 1, 0, 35, 66
-	rotate: 90
+	bounds: 1572, 2, 35, 66
 Red/L_Eye
-	bounds: 1787, 109, 38, 38
-	offsets: 1, 1, 40, 40
+	bounds: 1571, 70, 40, 40
 Red/L_Eye2
-	bounds: 1661, 136, 40, 51
+	bounds: 456, 4, 40, 51
 Red/L_Eyeball
-	bounds: 1716, 3, 9, 9
-	offsets: 1, 1, 11, 11
+	bounds: 1793, 3, 11, 11
 Red/L_Eyelid
-	bounds: 1346, 138, 49, 47
-	offsets: 1, 1, 51, 49
+	bounds: 2, 4, 51, 49
 	rotate: 90
 Red/L_Eyelid_B
-	bounds: 1687, 66, 41, 26
+	bounds: 1515, 69, 41, 26
 	offsets: 0, 0, 42, 26
+	rotate: 90
 Red/L_Hand2
-	bounds: 350, 7, 50, 56
+	bounds: 972, 7, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
 Red/Mouth
-	bounds: 582, 21, 73, 36
-	offsets: 1, 0, 75, 36
+	bounds: 1500, 112, 75, 36
+	rotate: 90
 Red/Mouth2
-	bounds: 1004, 2, 76, 20
+	bounds: 1394, 111, 76, 20
 	offsets: 0, 1, 77, 22
+	rotate: 90
 Red/Mouth_B
-	bounds: 840, 3, 84, 17
+	bounds: 1356, 103, 84, 17
+	rotate: 90
 Red/Mouth_Crease_B
-	bounds: 1472, 6, 68, 22
+	bounds: 1686, 119, 68, 22
+	rotate: 90
 Red/R_Arm
-	bounds: 1156, 24, 32, 66
-	offsets: 1, 0, 34, 66
-	rotate: 90
+	bounds: 1609, 2, 34, 66
 Red/R_Eye
-	bounds: 1823, 149, 38, 38
-	offsets: 1, 1, 40, 40
+	bounds: 1613, 72, 40, 40
 Red/R_Eye2
-	bounds: 1694, 94, 40, 51
-	rotate: 90
+	bounds: 498, 4, 40, 51
 Red/R_Eyeball
-	bounds: 1727, 3, 9, 9
-	offsets: 1, 1, 11, 11
+	bounds: 1806, 3, 11, 11
 Red/R_Eyelid
-	bounds: 1346, 87, 49, 47
-	offsets: 1, 1, 51, 49
+	bounds: 53, 4, 51, 49
 	rotate: 90
 Red/R_Eyelid_B
-	bounds: 1600, 66, 42, 26
+	bounds: 1383, 59, 42, 26
+	rotate: 90
 Red/R_Hand2
-	bounds: 408, 7, 50, 56
+	bounds: 1030, 7, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
 Yellow/Body
-	bounds: 2, 59, 128, 259
-	offsets: 1, 0, 130, 259
+	bounds: 2, 57, 130, 259
 	rotate: 90
 Yellow/Chin
-	bounds: 1716, 14, 24, 12
+	bounds: 1472, 2, 24, 12
 	offsets: 0, 0, 24, 13
-	rotate: 90
 Yellow/L_Arm
-	bounds: 950, 24, 33, 67
-	offsets: 1, 0, 35, 67
-	rotate: 90
+	bounds: 1734, 120, 35, 67
 Yellow/L_Eye
-	bounds: 1788, 69, 38, 38
-	offsets: 1, 1, 40, 40
+	bounds: 1655, 73, 40, 40
 Yellow/L_Eye2
-	bounds: 1735, 52, 40, 51
-	rotate: 90
+	bounds: 540, 5, 40, 51
 Yellow/L_Eyeball
-	bounds: 1725, 55, 9, 8
-	offsets: 1, 1, 11, 10
+	bounds: 1819, 3, 11, 10
 	rotate: 90
 Yellow/L_Eyelid
-	bounds: 1395, 138, 49, 46
-	offsets: 1, 1, 51, 48
+	bounds: 104, 4, 51, 48
 	rotate: 90
 Yellow/L_Eyelid_B
-	bounds: 1673, 10, 41, 26
+	bounds: 1543, 69, 41, 26
 	offsets: 0, 0, 42, 26
+	rotate: 90
 Yellow/L_Hand2
-	bounds: 466, 7, 50, 56
+	bounds: 1088, 7, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
 Yellow/Mouth
-	bounds: 657, 21, 73, 36
-	offsets: 1, 0, 75, 37
+	bounds: 1538, 112, 75, 36
+	offsets: 0, 0, 75, 37
+	rotate: 90
 Yellow/Mouth2
-	bounds: 1238, 3, 76, 19
+	bounds: 1479, 111, 76, 19
 	offsets: 0, 1, 77, 21
+	rotate: 90
 Yellow/Mouth_B
-	bounds: 1316, 5, 84, 17
+	bounds: 1375, 103, 84, 17
+	rotate: 90
 Yellow/Mouth_Crease_B
-	bounds: 1486, 63, 68, 22
+	bounds: 1710, 119, 68, 22
+	rotate: 90
 Yellow/R_Arm
-	bounds: 1087, 24, 32, 67
-	offsets: 1, 0, 34, 67
-	rotate: 90
+	bounds: 1717, 8, 34, 67
 Yellow/R_Eye
-	bounds: 1827, 109, 38, 38
-	offsets: 1, 1, 40, 40
+	bounds: 1697, 77, 40, 40
 Yellow/R_Eye2
-	bounds: 1739, 10, 40, 51
-	rotate: 90
+	bounds: 582, 5, 40, 51
 Yellow/R_Eyeball
-	bounds: 1725, 44, 9, 8
-	offsets: 1, 1, 11, 10
-	rotate: 90
+	bounds: 1859, 96, 11, 10
 Yellow/R_Eyelid
-	bounds: 1395, 87, 49, 46
-	offsets: 1, 1, 51, 48
+	bounds: 154, 4, 51, 48
 	rotate: 90
 Yellow/R_Eyelid_B
-	bounds: 1624, 38, 42, 26
+	bounds: 1446, 16, 42, 26
+	rotate: 90
 Yellow/R_Hand2
-	bounds: 524, 7, 50, 56
+	bounds: 1146, 7, 50, 56
 	offsets: 0, 1, 50, 57
 	rotate: 90
