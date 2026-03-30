@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Purchasing;
 using VContainer.Unity;
+using Object = UnityEngine.Object;
 
 namespace QuackUp.Utils
 {
@@ -58,6 +59,7 @@ namespace QuackUp.Utils
             if (string.Equals(args.purchasedProduct.definition.id, "gold_100", StringComparison.Ordinal))
             {
                 Debug.Log("Have 100 gold now! Enjoy shopping, master!");
+                Object.FindAnyObjectByType<TestIAP>().goldText.text = "Gold: 100";
             }
             else if (string.Equals(args.purchasedProduct.definition.id, "no_ads", StringComparison.Ordinal))
             {

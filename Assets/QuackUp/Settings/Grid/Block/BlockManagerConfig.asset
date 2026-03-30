@@ -588,7 +588,7 @@ MonoBehaviour:
   <SmartRandomThreshold>k__BackingField: 9
   <SmartRandomDepth>k__BackingField: 3
   <PreviewScale>k__BackingField: 0.3
-  <ObjectScale>k__BackingField: 0.4
+  <ObjectScale>k__BackingField: 0.5
   <CanRefill>k__BackingField: 0
   PreviewCount: 4
   SpawnSpace: 1

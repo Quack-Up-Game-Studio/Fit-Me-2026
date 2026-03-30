@@ -21,7 +21,7 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  <CellSize>k__BackingField: {x: 0.5, y: 0.5}
+  <CellSize>k__BackingField: {x: 0.55, y: 0.55}
   <EndlessType>k__BackingField: 1
   <GeneratedGridType>k__BackingField: 1
   <PresetRandomType>k__BackingField: 0
