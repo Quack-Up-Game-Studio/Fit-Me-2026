@@ -21,10 +21,10 @@ namespace QuackUp.Utils
             if (IsInitialized()) return;
 
             var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-            builder.AddProduct("gold_100", ProductType.Consumable,
+            builder.AddProduct("gold.100", ProductType.Consumable,
                 new StoreSpecificIds()
                 {
-                    {"gold_100", GooglePlay.Name}
+                    {"gold.100", GooglePlay.Name}
                 });
             builder.AddProduct("no_ads", ProductType.NonConsumable,
                 new StoreSpecificIds()
@@ -56,7 +56,7 @@ namespace QuackUp.Utils
 
         public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
         {
-            if (string.Equals(args.purchasedProduct.definition.id, "gold_100", StringComparison.Ordinal))
+            if (string.Equals(args.purchasedProduct.definition.id, "gold.100", StringComparison.Ordinal))
             {
                 Debug.Log("Have 100 gold now! Enjoy shopping, master!");
                 Object.FindAnyObjectByType<TestIAP>().goldText.text = "Gold: 100";
