@@ -153,6 +153,7 @@ namespace FitMe.Scene
             else
                 _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
             _messageHub.Publish(new SpawnWithBlockPresetEvent(null));
+            _messageHub.Publish(new DifficultyChangeEvent(0));
             
             _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
             
@@ -251,6 +252,7 @@ namespace FitMe.Scene
             int currentFit = FitMe.Value;
             int difficultyLevel = CalculateDifficultyLevel(_difficultyCurve, currentFit);
             CurrentObstacleCount = difficultyLevel;
+            _messageHub.Publish(new DifficultyChangeEvent(difficultyLevel));
         }
         
         private int CalculateDifficultyLevel(AnimationCurve curve, int currentFit)
