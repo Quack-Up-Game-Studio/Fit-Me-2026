@@ -1,0 +1,494 @@
+fileFormatVersion: 2
+guid: 76da7376e50b95d03a2a4fcd3999b988
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2517067484089293576
+    second: BG_Pattern_Green_0
+  - first:
+      213: -1042522021793518934
+    second: BG_Pattern_Green_1
+  - first:
+      213: 8475561439056080601
+    second: BG_Pattern_Green_2
+  - first:
+      213: -2874922809904320143
+    second: BG_Pattern_Green_3
+  - first:
+      213: 7404957669317134990
+    second: BG_Pattern_Green_4
+  - first:
+      213: 538518786058177925
+    second: BG_Pattern_Green_5
+  - first:
+      213: 6908434532164176256
+    second: BG_Pattern_Green_6
+  - first:
+      213: -5528006528109067702
+    second: BG_Pattern_Green_7
+  - first:
+      213: 5517095285486568705
+    second: BG_Pattern_Green_8
+  - first:
+      213: 9026317698030617755
+    second: BG_Pattern_Green_9
+  - first:
+      213: 4333115981606936646
+    second: BG_Pattern_Green_10
+  - first:
+      213: 5669948065656051052
+    second: BG_Pattern_Green_11
+  - first:
+      213: -4804040773698104109
+    second: BG_Pattern_Green_12
+  - first:
+      213: -4823950409925391154
+    second: BG_Pattern_Green_13
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: BG_Pattern_Green_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 826
+        width: 258
+        height: 299
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f4eb2f8574911dd0800000000000000
+      internalID: -2517067484089293576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_1
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 772
+        width: 410
+        height: 330
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aaaa974aeb73881f0800000000000000
+      internalID: -1042522021793518934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_2
+      rect:
+        serializedVersion: 2
+        x: 627
+        y: 990
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9deafee293e3f9570800000000000000
+      internalID: 8475561439056080601
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_3
+      rect:
+        serializedVersion: 2
+        x: 631
+        y: 993
+        width: 334
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1713cf6bfe83a18d0800000000000000
+      internalID: -2874922809904320143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_4
+      rect:
+        serializedVersion: 2
+        x: 989
+        y: 868
+        width: 136
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8ac37064c1b3c660800000000000000
+      internalID: 7404957669317134990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_5
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 366
+        width: 166
+        height: 398
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58d4fd39bf3397700800000000000000
+      internalID: 538518786058177925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_6
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 188
+        width: 279
+        height: 405
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 08900b3ca90bfdf50800000000000000
+      internalID: 6908434532164176256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_7
+      rect:
+        serializedVersion: 2
+        x: 517
+        y: 578
+        width: 331
+        height: 319
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a42c400f9539843b0800000000000000
+      internalID: -5528006528109067702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_8
+      rect:
+        serializedVersion: 2
+        x: 797
+        y: 192
+        width: 277
+        height: 473
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 105c86b6ee8a09c40800000000000000
+      internalID: 5517095285486568705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 16
+        width: 104
+        height: 275
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b94cfe47f1ce34d70800000000000000
+      internalID: 9026317698030617755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_10
+      rect:
+        serializedVersion: 2
+        x: 178
+        y: 145
+        width: 193
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 640ef360702522c30800000000000000
+      internalID: 4333115981606936646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_11
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 0
+        width: 304
+        height: 256
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c65975c99b3bfae40800000000000000
+      internalID: 5669948065656051052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_12
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 23
+        width: 83
+        height: 269
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d45b358e5e945db0800000000000000
+      internalID: -4804040773698104109
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Green_13
+      rect:
+        serializedVersion: 2
+        x: 109
+        y: 0
+        width: 161
+        height: 90
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecc0c4a19a2ed0db0800000000000000
+      internalID: -4823950409925391154
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      BG_Pattern_Green_0: -2517067484089293576
+      BG_Pattern_Green_1: -1042522021793518934
+      BG_Pattern_Green_10: 4333115981606936646
+      BG_Pattern_Green_11: 5669948065656051052
+      BG_Pattern_Green_12: -4804040773698104109
+      BG_Pattern_Green_13: -4823950409925391154
+      BG_Pattern_Green_2: 8475561439056080601
+      BG_Pattern_Green_3: -2874922809904320143
+      BG_Pattern_Green_4: 7404957669317134990
+      BG_Pattern_Green_5: 538518786058177925
+      BG_Pattern_Green_6: 6908434532164176256
+      BG_Pattern_Green_7: -5528006528109067702
+      BG_Pattern_Green_8: 5517095285486568705
+      BG_Pattern_Green_9: 9026317698030617755
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,494 @@
+fileFormatVersion: 2
+guid: c73205f4ccd133ebf9e580c4c271a188
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4647546849872671573
+    second: BG_Pattern_Yellow_0
+  - first:
+      213: 6035239014605043429
+    second: BG_Pattern_Yellow_1
+  - first:
+      213: 3502242848383467318
+    second: BG_Pattern_Yellow_2
+  - first:
+      213: -4343693923227211197
+    second: BG_Pattern_Yellow_3
+  - first:
+      213: 2588660678512722030
+    second: BG_Pattern_Yellow_4
+  - first:
+      213: -7699733663932052920
+    second: BG_Pattern_Yellow_5
+  - first:
+      213: -3299481510080344757
+    second: BG_Pattern_Yellow_6
+  - first:
+      213: -5607122986364999169
+    second: BG_Pattern_Yellow_7
+  - first:
+      213: 64132943371945950
+    second: BG_Pattern_Yellow_8
+  - first:
+      213: 4086518880624196808
+    second: BG_Pattern_Yellow_9
+  - first:
+      213: -8022339035984396811
+    second: BG_Pattern_Yellow_10
+  - first:
+      213: -4254179700887804853
+    second: BG_Pattern_Yellow_11
+  - first:
+      213: -6028870093926993080
+    second: BG_Pattern_Yellow_12
+  - first:
+      213: -5333185265422685210
+    second: BG_Pattern_Yellow_13
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 826
+        width: 258
+        height: 299
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bac8a5883c8908fb0800000000000000
+      internalID: -4647546849872671573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_1
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 772
+        width: 410
+        height: 330
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e6bc1068e971c350800000000000000
+      internalID: 6035239014605043429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_2
+      rect:
+        serializedVersion: 2
+        x: 627
+        y: 990
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63f7c0f90577a9030800000000000000
+      internalID: 3502242848383467318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_3
+      rect:
+        serializedVersion: 2
+        x: 631
+        y: 993
+        width: 334
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34ae405046918b3c0800000000000000
+      internalID: -4343693923227211197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_4
+      rect:
+        serializedVersion: 2
+        x: 989
+        y: 868
+        width: 136
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e60c5cafb25cce320800000000000000
+      internalID: 2588660678512722030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_5
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 366
+        width: 166
+        height: 398
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84a8630170d052590800000000000000
+      internalID: -7699733663932052920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_6
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 188
+        width: 279
+        height: 405
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4d01b84c03e532d0800000000000000
+      internalID: -3299481510080344757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_7
+      rect:
+        serializedVersion: 2
+        x: 517
+        y: 578
+        width: 331
+        height: 319
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff969c90a5f7f22b0800000000000000
+      internalID: -5607122986364999169
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_8
+      rect:
+        serializedVersion: 2
+        x: 797
+        y: 192
+        width: 277
+        height: 473
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed7c51c7298d3e000800000000000000
+      internalID: 64132943371945950
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 16
+        width: 104
+        height: 275
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8cc3887454b36b830800000000000000
+      internalID: 4086518880624196808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_10
+      rect:
+        serializedVersion: 2
+        x: 178
+        y: 145
+        width: 193
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fd7664a62deaa090800000000000000
+      internalID: -8022339035984396811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_11
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 0
+        width: 304
+        height: 256
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b44a7e50a1e16f4c0800000000000000
+      internalID: -4254179700887804853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_12
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 23
+        width: 83
+        height: 269
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84371868796255ca0800000000000000
+      internalID: -6028870093926993080
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_Pattern_Yellow_13
+      rect:
+        serializedVersion: 2
+        x: 109
+        y: 0
+        width: 161
+        height: 90
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6eb222de148bcf5b0800000000000000
+      internalID: -5333185265422685210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      BG_Pattern_Yellow_0: -4647546849872671573
+      BG_Pattern_Yellow_1: 6035239014605043429
+      BG_Pattern_Yellow_10: -8022339035984396811
+      BG_Pattern_Yellow_11: -4254179700887804853
+      BG_Pattern_Yellow_12: -6028870093926993080
+      BG_Pattern_Yellow_13: -5333185265422685210
+      BG_Pattern_Yellow_2: 3502242848383467318
+      BG_Pattern_Yellow_3: -4343693923227211197
+      BG_Pattern_Yellow_4: 2588660678512722030
+      BG_Pattern_Yellow_5: -7699733663932052920
+      BG_Pattern_Yellow_6: -3299481510080344757
+      BG_Pattern_Yellow_7: -5607122986364999169
+      BG_Pattern_Yellow_8: 64132943371945950
+      BG_Pattern_Yellow_9: 4086518880624196808
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
