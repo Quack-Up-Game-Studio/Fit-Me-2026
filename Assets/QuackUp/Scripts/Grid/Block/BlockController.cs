@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
+using PrimeTween;
 using QuackUp.Audio;
 using QuackUp.Input;
 using QuackUp.Utils;
@@ -32,7 +33,10 @@ namespace FitMe.Grid
         private bool _dragWhileRotating;
         private bool _isRotating;
         private bool _isDragging;
+        private bool _dragSequencePlayed;
         private Vector2 _mousePositionDifference;
+        private Sequence _blockDragSequence;
+        private TimeSpan _blockDragTimeStamp;
 
         [Inject]
         public BlockController(
@@ -105,6 +109,8 @@ namespace FitMe.Grid
             //ChangeSortingOrder(1);
             _audioManager.PlayAudioOneShot(_blockInstance.Model.BlockPreset.PickupSfx, _blockInstance.GameObject.transform.position);
             _blockInstance.ViewModel.SetSortingLayerCommand.Execute(_config.PickUpSortingLayer);
+            _dragSequencePlayed = false;
+            _blockDragTimeStamp = TimeSpan.FromSeconds(Time.timeSinceLevelLoad);
         }
 
         private void OnDrag(PointerEventData eventData)
@@ -124,8 +130,38 @@ namespace FitMe.Grid
                 && !_config.AllowPickUpAfterPlacement) return;
             _gridManager.ValidatePlacement(_blockInstance.Model);
             var mousePosition = _pointerHandler.MouseWorldPosition;
-            var position = mousePosition - _mousePositionDifference;
-            _blockInstance.GameObject.transform.position = position;
+            var position = (mousePosition - _mousePositionDifference) + _config.BlockDragOffset;
+            _blockDragSequence.Stop();
+            if (!_dragSequencePlayed)
+            {
+                var elapsed = TimeSpan.FromSeconds(Time.timeSinceLevelLoad) - _blockDragTimeStamp;
+                if (elapsed.TotalSeconds < _config.BlockDragTweenSettings.duration)
+                {
+                    var settings = _config.BlockDragTweenSettings;
+                    settings.duration -= (float)elapsed.TotalSeconds;
+                    _blockDragSequence = Sequence.Create()
+                        .Group(Tween.Position(_blockInstance.GameObject.transform, new (position, settings)));
+                    _blockDragSequence.OnComplete(() => _dragSequencePlayed = true);
+                }
+                else
+                {
+                    _dragSequencePlayed = true;
+                }
+            }
+            else
+            {
+                if (_config.BlockDragInertia <= 0)
+                {
+                    _blockInstance.GameObject.transform.position = position;
+                }
+                else
+                {
+                    var settings = _config.BlockDragTweenSettings;
+                    settings.duration = _config.BlockDragInertia;
+                    _blockDragSequence = Sequence.Create()
+                        .Group(Tween.Position(_blockInstance.GameObject.transform, new (position, settings)));
+                }
+            }
             if (_isDragging) return; //Prevent unnecessary calculations
             if (_blockInstance.ViewModel.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid)
                 _gridManager.RemoveBlock(_blockInstance, FitType.None, false).Forget();
@@ -147,6 +183,7 @@ namespace FitMe.Grid
                 _dragWhileRotating = true;
                 return;
             }
+            _blockDragSequence.Stop();
             var placed = _gridManager.TryPlaceBlock(_blockInstance);
             if (placed)
             {

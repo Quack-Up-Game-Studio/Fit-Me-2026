@@ -23,11 +23,11 @@ MonoBehaviour:
     SerializationNodes: []
   <UseDedicatedSprite>k__BackingField: 1
   <WhitePatterns>k__BackingField:
-  - {fileID: 8725702500742632526, guid: 47f99f7529c8b11498001e232985bfc2, type: 3}
-  - {fileID: 1475666350, guid: 47f99f7529c8b11498001e232985bfc2, type: 3}
+  - {fileID: 8725702500742632526, guid: 3eea87dbf57595df2a7e366a03ec7f54, type: 3}
+  - {fileID: -518489931, guid: 3eea87dbf57595df2a7e366a03ec7f54, type: 3}
   <BlackPatterns>k__BackingField:
-  - {fileID: 1588289180, guid: 47f99f7529c8b11498001e232985bfc2, type: 3}
-  - {fileID: 2126957313, guid: 47f99f7529c8b11498001e232985bfc2, type: 3}
+  - {fileID: 2117668154, guid: 3eea87dbf57595df2a7e366a03ec7f54, type: 3}
+  - {fileID: 1712725020, guid: 3eea87dbf57595df2a7e366a03ec7f54, type: 3}
   <WhiteColor>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
   <BlackColor>k__BackingField: {r: 0, g: 0, b: 0, a: 1}
   <CanBePlacedColor>k__BackingField: {r: 0, g: 1, b: 0, a: 1}

@@ -3,7 +3,7 @@ FitMe.Grid.BlockManagerConfig, FitMe.Grid
 MetaGuid:127afa20aae140f3b0535eb07164f42c
 
 # $FMUtCLk4MMKHZkTY2mpyJt
-Position: $EZTbQq4nNfhry5RcXRpaX4:3
+Position: $EZTbQq4nNfhry5RcXRpaX4:6
 + [Sirenix.OdinInspector.BoxGroupAttribute]
 	GroupName = "Player Assist"
 	ShowLabel = True
@@ -20,7 +20,7 @@ Position: $root:2
 	GroupName = "References"
 
 # $DGvRVyDJQGz3EWecgErbzP
-Position: $root:59
+Position: $root:51
 + [Sirenix.OdinInspector.FoldoutGroupAttribute]
 	GroupName = "Audio"
 
@@ -102,3 +102,27 @@ Position: $DGvRVyDJQGz3EWecgErbzP:1
 
 # <GridSortingLayer>k__BackingField
 Position: $7h7pX9KLWqGdjJMMjxYgWD:1
+
+# <BlockDragOffset>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:7
+
+# <SwitchIdleTimeRange>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:10
+
+# <PickUpScaleMultiplier>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:11
+
+# <CanRefill>k__BackingField
+Position: $EZTbQq4nNfhry5RcXRpaX4:3
+
+# PreviewCount
+Position: $EZTbQq4nNfhry5RcXRpaX4:4
+
+# SpawnSpace
+Position: $EZTbQq4nNfhry5RcXRpaX4:5
+
+# <BlockDragTweenSettings>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:8
+
+# <BlockDragInertia>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:9

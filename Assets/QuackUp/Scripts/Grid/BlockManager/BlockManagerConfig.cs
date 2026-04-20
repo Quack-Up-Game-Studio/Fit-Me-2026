@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FitMe.Shared;
 using FMODUnity;
+using PrimeTween;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
@@ -40,6 +41,9 @@ namespace FitMe.Grid
         [field: SerializeField] public bool RotateClockwise { get; private set; } = true;
         [field: SerializeField] public float PickUpScaleMultiplier { get; private set; } = 1.2f;
         [field: SerializeField] public Vector2 SwitchIdleTimeRange { get; private set; } = new(30f, 60f);
+        [field: SerializeField] public TweenSettings BlockDragTweenSettings { get; private set; }
+        [field: SerializeField] public float BlockDragInertia { get; private set; } = 0.1f;
+        [field: SerializeField] public Vector2 BlockDragOffset { get; private set; }
         
         [Title("Audios")] 
         [field: SerializeField] public EventReference PlaceSucceedSfx { get; private set; }
