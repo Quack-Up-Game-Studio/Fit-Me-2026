@@ -170,6 +170,7 @@ namespace FitMe.Grid
             _switchIdleTimer = Observable.Timer(TimeSpan.FromSeconds(randomSwitchTime), _switchIdleCts.Token)
                 .Subscribe(_ =>
                 {
+                    if (_switchIdleCts == null || _switchIdleCts.Token.IsCancellationRequested) return;
                     SwitchIdle(_switchIdleCts.Token).ContinueWith(() =>
                     {
                         if (_switchIdleCts.Token.IsCancellationRequested) return;
