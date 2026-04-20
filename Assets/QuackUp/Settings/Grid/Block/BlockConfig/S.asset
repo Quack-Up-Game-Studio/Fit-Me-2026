@@ -192,8 +192,8 @@ MonoBehaviour:
   <ObstacleSprite>k__BackingField: {fileID: 21300000, guid: 32e635f3cfc29284b9cc31dcff9474ef, type: 3}
   idleAnimations:
   - Idle1
-  - Idle1
+  - Idle2
   <PickUpAnimation>k__BackingField: Idle1
-  <ExplodeAnimation>k__BackingField: Idle1
+  <ExplodeAnimation>k__BackingField: Explode
   skeletonDataAsset: {fileID: 11400000, guid: 0b1eacd64b934e94bae5c536e515d468, type: 2}
   deconstructed: []
