@@ -2,9 +2,11 @@ using System;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using MessagePipe;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
 
 namespace QuackUp.Utils
 {
@@ -22,37 +24,35 @@ namespace QuackUp.Utils
     public class BackGroundSettings
     {
         public Sprite BgSprite;
+        public Material BgScrollMaterial;
         public float DifficultyThreshold;
     }
     
     public class BackGroundEffectView : MonoBehaviour, IDisposable
     {
         [SerializeField] private Image mainBg;
+        [SerializeField] private Image mainScroll;
         [SerializeField] private Image fadeBg;
+        [SerializeField] private Image fadeScroll;
         [SerializeField] private float _fadeSpeed = 1f;
 
         [SerializeField] private BackGroundSettings[] backGroundSettings = Array.Empty<BackGroundSettings>();
         private CancellationTokenSource _fadeCts;
         private IDisposable _subscriptions;
-        private readonly IMessageHub _messageHub;
         
-        private void Start()
+        [Inject]
+        private void Construct(ISubscriber<DifficultyChangeEvent> difficultySubscriber)
         {
-            Subscribe();
+            var disposableBuilder = Disposable.CreateBuilder();
+            difficultySubscriber.Subscribe(evt => UpdateBackGround(evt.Difficulty))
+                .AddTo(ref disposableBuilder);
+            _subscriptions = disposableBuilder.Build();
         }
         
         public void Dispose()
         {
             CancelCurrentFade();
             _subscriptions?.Dispose();
-        }
-
-        private void Subscribe()
-        {
-            var disposableBuilder = Disposable.CreateBuilder();
-            _messageHub.Subscribe<DifficultyChangeEvent>(evt => UpdateBackGround(evt.Difficulty))
-                .AddTo(ref disposableBuilder);
-            _subscriptions = disposableBuilder.Build();
         }
         
         public void UpdateBackGround(float difficulty)
@@ -65,7 +65,7 @@ namespace QuackUp.Utils
             {
                 CancelCurrentFade();
                 _fadeCts = new CancellationTokenSource();
-                FadeToNextBackground(config.BgSprite, _fadeCts.Token).Forget();
+                FadeToNextBackground(config.BgSprite, config.BgScrollMaterial, _fadeCts.Token).Forget();
             }
         }
         
@@ -79,17 +79,20 @@ namespace QuackUp.Utils
             }
         }
         
-        private async UniTaskVoid FadeToNextBackground(Sprite nextSprite, CancellationToken token)
+        private async UniTaskVoid FadeToNextBackground(Sprite nextSprite, Material nextScroll, CancellationToken token)
         {
             fadeBg.sprite = nextSprite;
+            fadeScroll.material = nextScroll;
             fadeBg.color = new Color(1, 1, 1, 0);
-
+            fadeScroll.color = new Color(1, 1, 1, 0);
+            
             float alpha = 0;
         
             while (alpha < 1f && !token.IsCancellationRequested)
             {
                 alpha += Time.deltaTime * _fadeSpeed;
                 fadeBg.color = new Color(1, 1, 1, alpha);
+                fadeScroll.color = new Color(1, 1, 1, alpha);
             
                 await UniTask.Yield(PlayerLoopTiming.Update, token); 
             }
@@ -97,7 +100,9 @@ namespace QuackUp.Utils
             if (!token.IsCancellationRequested)
             {
                 mainBg.sprite = nextSprite;
+                mainScroll.material = nextScroll;
                 fadeBg.color = new Color(1, 1, 1, 0);
+                fadeScroll.color = new Color(1, 1, 1, 0);
             }
         }
     }

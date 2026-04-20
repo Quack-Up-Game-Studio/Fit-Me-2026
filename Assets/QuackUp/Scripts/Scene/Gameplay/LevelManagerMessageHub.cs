@@ -30,7 +30,7 @@ namespace FitMe.Scene
             MessageWrappers[typeof(StartCreateGridEvent)] = new MessageWrapper<StartCreateGridEvent>(
                 startCreateGridPublisher,
                 null);
-                MessageWrappers[typeof(DifficultyChangeEvent)] = new MessageWrapper<DifficultyChangeEvent>(
+            MessageWrappers[typeof(DifficultyChangeEvent)] = new MessageWrapper<DifficultyChangeEvent>(
                 difficultyChangePublisher,
                 null);
             MessageWrappers[typeof(LoadSceneStageEvent)] = new MessageWrapper<LoadSceneStageEvent>(
