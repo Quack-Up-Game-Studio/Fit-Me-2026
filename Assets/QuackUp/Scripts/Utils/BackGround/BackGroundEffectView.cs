@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using Coffee.UIExtensions;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
 using R3;
@@ -24,17 +25,17 @@ namespace QuackUp.Utils
     public class BackGroundSettings
     {
         public Sprite BgSprite;
-        public Material BgScrollMaterial;
+        public Image BgScrollMaterial;
         public float DifficultyThreshold;
     }
     
     public class BackGroundEffectView : MonoBehaviour, IDisposable
     {
         [SerializeField] private Image mainBg;
-        [SerializeField] private Image mainScroll;
+        [SerializeField] private UIMaterialPropertyInjector mainScroll;
         [SerializeField] private Image fadeBg;
-        [SerializeField] private Image fadeScroll;
-        [SerializeField] private float _fadeSpeed = 1f;
+        [SerializeField] private UIMaterialPropertyInjector fadeScroll;
+        [SerializeField] private float fadeSpeed = 1f;
 
         [SerializeField] private BackGroundSettings[] backGroundSettings = Array.Empty<BackGroundSettings>();
         private CancellationTokenSource _fadeCts;
@@ -79,20 +80,20 @@ namespace QuackUp.Utils
             }
         }
         
-        private async UniTaskVoid FadeToNextBackground(Sprite nextSprite, Material nextScroll, CancellationToken token)
+        private async UniTaskVoid FadeToNextBackground(Sprite nextSprite, Image nextScroll, CancellationToken token)
         {
             fadeBg.sprite = nextSprite;
-            fadeScroll.material = nextScroll;
+            fadeScroll.SetTexture("_MainTexTexture", nextScroll.mainTexture);
             fadeBg.color = new Color(1, 1, 1, 0);
-            fadeScroll.color = new Color(1, 1, 1, 0);
+            fadeScroll.SetFloat("_Alpha", 0);
             
             float alpha = 0;
         
             while (alpha < 1f && !token.IsCancellationRequested)
             {
-                alpha += Time.deltaTime * _fadeSpeed;
+                alpha += Time.deltaTime * fadeSpeed;
                 fadeBg.color = new Color(1, 1, 1, alpha);
-                fadeScroll.color = new Color(1, 1, 1, alpha);
+                fadeScroll.SetFloat("_Alpha",alpha);
             
                 await UniTask.Yield(PlayerLoopTiming.Update, token); 
             }
@@ -100,9 +101,9 @@ namespace QuackUp.Utils
             if (!token.IsCancellationRequested)
             {
                 mainBg.sprite = nextSprite;
-                mainScroll.material = nextScroll;
+                mainScroll.SetTexture("_MainTexTexture", nextScroll.mainTexture);
                 fadeBg.color = new Color(1, 1, 1, 0);
-                fadeScroll.color = new Color(1, 1, 1, 0);
+                fadeScroll.SetFloat("_Alpha", 0);
             }
         }
     }
