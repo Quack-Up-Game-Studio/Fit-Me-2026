@@ -9,8 +9,8 @@ namespace FitMe.Panel
     public class LeaderboardPanelView : PanelView
     {
         [SerializeField] private Button closeButton;
-        [SerializeField] private Button classicTabButton;
-        [SerializeField] private Button levelShapeTabButton;
+        // [SerializeField] private Button classicTabButton;
+        // [SerializeField] private Button levelShapeTabButton;
         
         private LeaderboardPanelViewModel ViewModel => (LeaderboardPanelViewModel)BaseViewModel;
         
@@ -28,15 +28,15 @@ namespace FitMe.Panel
             closeButton.OnClickAsObservable()
                 .Subscribe(_ => OnCloseButtonClicked())
                 .AddTo(ref disposableBuilder);
-            classicTabButton.OnClickAsObservable()
-                .Subscribe(_ => ChangeGameModeTab(GameMode.Classic))
-                .AddTo(ref disposableBuilder);
-            levelShapeTabButton.OnClickAsObservable()
-                .Subscribe(_ => ChangeGameModeTab(GameMode.LevelShape))
-                .AddTo(ref disposableBuilder);
-            ViewModel.CurrentGameMode
-                .Subscribe(OnGameModeChanged)
-                .AddTo(ref disposableBuilder);
+            // classicTabButton.OnClickAsObservable()
+            //     .Subscribe(_ => ChangeGameModeTab(GameMode.Classic))
+            //     .AddTo(ref disposableBuilder);
+            // levelShapeTabButton.OnClickAsObservable()
+            //     .Subscribe(_ => ChangeGameModeTab(GameMode.LevelShape))
+            //     .AddTo(ref disposableBuilder);
+            // ViewModel.CurrentGameMode
+            //     .Subscribe(OnGameModeChanged)
+            //     .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
@@ -52,15 +52,15 @@ namespace FitMe.Panel
             ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData("MainMenu", rule.crossfadeSettings));
         }
 
-        private void OnGameModeChanged(GameMode gameMode)
-        {
-            classicTabButton.interactable = gameMode == GameMode.LevelShape;
-            levelShapeTabButton.interactable = gameMode == GameMode.Classic;
-        }
+        // private void OnGameModeChanged(GameMode gameMode)
+        // {
+        //     classicTabButton.interactable = gameMode == GameMode.LevelShape;
+        //     levelShapeTabButton.interactable = gameMode == GameMode.Classic;
+        // }
         
-        private void ChangeGameModeTab(GameMode gameMode)
-        {
-            ViewModel.ChangeTabCommand.Execute(gameMode);
-        }
+        // private void ChangeGameModeTab(GameMode gameMode)
+        // {
+        //     ViewModel.ChangeTabCommand.Execute(gameMode);
+        // }
     }
 }

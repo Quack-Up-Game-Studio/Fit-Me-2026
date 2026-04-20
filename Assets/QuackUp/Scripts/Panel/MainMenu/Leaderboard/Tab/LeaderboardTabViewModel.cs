@@ -82,8 +82,8 @@ namespace FitMe.Panel
         
         private async UniTask LoadLeaderboardData(CancellationToken ct)
         {
-            var scoreLeaderboardId = $"{CurrentGameMode.CurrentValue}Score";
-            var fitLeaderboardId = $"{CurrentGameMode.CurrentValue}Fit";
+            var scoreLeaderboardId = "Score";
+            var fitLeaderboardId = "Fit";
             var focus = FocusOn.Value == FocusOnMode.Top
                 ? LeaderboardDataRequestParameters.LeaderboardStart.TopScores
                 : LeaderboardDataRequestParameters.LeaderboardStart.PlayerCentered;
@@ -109,7 +109,7 @@ namespace FitMe.Panel
             DebugUtils.Log($"Entries count: {entries.Count}");
             var leaderboardData = new LeaderboardData
             {
-                LeaderboardTitle = $"{CurrentGameMode.CurrentValue} Leaderboard",
+                LeaderboardTitle = "Leaderboard",
                 Entries = entries
             };
             _onDataLoaded.OnNext(leaderboardData);

@@ -372,11 +372,11 @@ namespace FitMe.Scene
         private async UniTask ReportToLeaderboard()
         {
             var reportScore = _leaderboardService.ReportData(LeaderboardReportParameters.Builder
-                .CreateBuilder($"{GameMode}Score")
+                .CreateBuilder("Score")
                 .WithData(Score.Value)
                 .Build());
             var reportFitMe = _leaderboardService.ReportData(LeaderboardReportParameters.Builder
-                .CreateBuilder($"{GameMode}Fit")
+                .CreateBuilder("Fit")
                 .WithData(FitMe.Value)
                 .Build());
             await UniTask.WhenAll(reportScore, reportFitMe);

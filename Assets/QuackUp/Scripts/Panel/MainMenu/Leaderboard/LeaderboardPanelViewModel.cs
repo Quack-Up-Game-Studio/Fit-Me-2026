@@ -6,7 +6,7 @@ namespace FitMe.Panel
 {
     public class LeaderboardPanelViewModel : PanelViewModel
     {
-        public ReactiveCommand<GameMode> ChangeTabCommand { get; } = new();
+        // public ReactiveCommand<GameMode> ChangeTabCommand { get; } = new();
         public ReadOnlyReactiveProperty<GameMode> CurrentGameMode => _currentGameMode.ToReadOnlyReactiveProperty();
         
         private readonly ReactiveProperty<GameMode> _currentGameMode = new(GameMode.Classic);
@@ -21,9 +21,9 @@ namespace FitMe.Panel
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            ChangeTabCommand
-                .Subscribe(OnChangeTabCommandExecuted)
-                .AddTo(ref disposableBuilder);
+            // ChangeTabCommand
+            //     .Subscribe(OnChangeTabCommandExecuted)
+            //     .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
@@ -39,11 +39,10 @@ namespace FitMe.Panel
             _currentGameMode.OnNext(_currentGameMode.Value); // Force notify, so the data is loaded when the panel is opened
         }
 
-        private void OnChangeTabCommandExecuted(GameMode gameMode)
-        {
-            if (_currentGameMode.Value == gameMode) return;
-            _currentGameMode.Value = gameMode;
-        }
-
+        // private void OnChangeTabCommandExecuted(GameMode gameMode)
+        // {
+        //     if (_currentGameMode.Value == gameMode) return;
+        //     _currentGameMode.Value = gameMode;
+        // }
     }
 }
