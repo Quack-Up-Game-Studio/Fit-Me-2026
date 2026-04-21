@@ -22,6 +22,8 @@ namespace FitMe.Panel
     
     public class PanelManager
     {
+        public Observable<Unit> OnFinishedInitialize => _onFinishedInitialize;
+        private readonly Subject<Unit> _onFinishedInitialize = new Subject<Unit>();
         private readonly IReadOnlyDictionary<string, PanelLifetimeScope> _lifetimeScopes;
         private readonly Dictionary<string, IPanelViewModel> _panels = new();
         private readonly string _startupPanelId;
@@ -49,6 +51,7 @@ namespace FitMe.Panel
                 crossFadeType = CrossfadeType.InOnly,
                 customOffset = 0f
             }).Forget();
+            _onFinishedInitialize.OnNext(Unit.Default);
         }
 
         public bool TryGetPanel(string panelId, out IPanelViewModel panel)
@@ -74,6 +77,19 @@ namespace FitMe.Panel
             }
             DebugUtils.LogError($"Panel {panelId} not found");
             return false;
+        }
+
+        public List<T> GetPanelsOfType<T>() where T : IPanelViewModel
+        { 
+            var panelsOfType = new List<T>();
+            foreach (var panel in _panels.Values)
+            {
+                if (panel is T typedPanel)
+                {
+                    panelsOfType.Add(typedPanel);
+                }
+            }
+            return panelsOfType;
         }
         
         public async UniTask Crossfade([CanBeNull] string fromPanelId, string toPanelId, CrossfadeSettings crossfadeSettings,

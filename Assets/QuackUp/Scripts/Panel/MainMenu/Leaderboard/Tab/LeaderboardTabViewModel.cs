@@ -23,6 +23,14 @@ namespace FitMe.Panel
         Player
     }
 
+    public enum LeaderboardStatus
+    {
+        Loading,
+        Loaded,
+        Error,
+        Cancelled
+    }
+
     public class LeaderboardEntryData
     {
         public int Rank { get; set; }
@@ -42,9 +50,11 @@ namespace FitMe.Panel
     {
         public ReactiveProperty<SortByMode> SortBy { get; } = new();
         public ReactiveProperty<FocusOnMode> FocusOn { get; } = new();
+        public ReadOnlyReactiveProperty<LeaderboardStatus> Status => _status.ToReadOnlyReactiveProperty();
         public ReactiveCommand LoadCommand { get; } = new();
         public ReadOnlyReactiveProperty<GameMode> CurrentGameMode => _panelViewModel.CurrentGameMode;
         public ILeaderboardService LeaderboardService { get; }
+        private readonly ReactiveProperty<LeaderboardStatus> _status = new(LeaderboardStatus.Loading);
         private readonly LeaderboardPanelViewModel _panelViewModel;
         
         public Observable<LeaderboardData> OnDataLoaded => _onDataLoaded;
@@ -82,6 +92,7 @@ namespace FitMe.Panel
         
         private async UniTask LoadLeaderboardData(CancellationToken ct)
         {
+            _status.Value = LeaderboardStatus.Loading;
             var scoreLeaderboardId = "Score";
             var fitLeaderboardId = "Fit";
             var focus = FocusOn.Value == FocusOnMode.Top
@@ -100,9 +111,17 @@ namespace FitMe.Panel
                 .WithTimeSpan(LeaderboardDataRequestParameters.LeaderboardTimeSpan.AllTime)
                 .Build());
             var results = await UniTask.WhenAll(scoreTask, fitTask);
-            if (ct.IsCancellationRequested) return;
+            if (ct.IsCancellationRequested)
+            {
+                _status.Value = LeaderboardStatus.Cancelled;
+                return;
+            }
             if (results.Item1 is not CommonLeaderboardDataRequestResults scoreResult ||
-                results.Item2 is not CommonLeaderboardDataRequestResults fitResult) return;
+                results.Item2 is not CommonLeaderboardDataRequestResults fitResult)
+            {
+                _status.Value = LeaderboardStatus.Error;
+                return;
+            }
             DebugUtils.Log($"Score entries count: {scoreResult.Entries.Count}");
             DebugUtils.Log($"Fit entries count: {fitResult.Entries.Count}");
             var entries = HandleSorting(scoreResult, fitResult, SortBy.Value);
@@ -113,6 +132,7 @@ namespace FitMe.Panel
                 Entries = entries
             };
             _onDataLoaded.OnNext(leaderboardData);
+            _status.Value = LeaderboardStatus.Loaded;
         }
 
         private List<LeaderboardEntryData> HandleSorting(CommonLeaderboardDataRequestResults score,

@@ -1,6 +1,7 @@
 using System;
 using FitMe.Shared;
 using R3;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ namespace FitMe.Panel
     public class LeaderboardPanelView : PanelView
     {
         [SerializeField] private Button closeButton;
+        [SerializeField] private TMP_Text statusText;
         // [SerializeField] private Button classicTabButton;
         // [SerializeField] private Button levelShapeTabButton;
         
@@ -27,6 +29,9 @@ namespace FitMe.Panel
             var disposableBuilder = Disposable.CreateBuilder();
             closeButton.OnClickAsObservable()
                 .Subscribe(_ => OnCloseButtonClicked())
+                .AddTo(ref disposableBuilder);
+            ViewModel.Status
+                .Subscribe(OnStatusChanged)
                 .AddTo(ref disposableBuilder);
             // classicTabButton.OnClickAsObservable()
             //     .Subscribe(_ => ChangeGameModeTab(GameMode.Classic))
@@ -50,6 +55,26 @@ namespace FitMe.Panel
         {
             if (!TryGetCrossfadeRule("MainMenu", out var rule)) return;
             ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData("MainMenu", rule.crossfadeSettings));
+        }
+        
+        private void OnStatusChanged(LeaderboardStatus status)
+        {
+            statusText.gameObject.SetActive(status != LeaderboardStatus.Loaded);
+            switch (status)
+            {
+                case LeaderboardStatus.Loading:
+                    statusText.text = "Loading...";
+                    break;
+                case LeaderboardStatus.Loaded:
+                    statusText.text = string.Empty;
+                    break;
+                case LeaderboardStatus.Error:
+                    statusText.text = "Error loading leaderboard. Please try again later.";
+                    break;
+                case LeaderboardStatus.Cancelled:
+                    statusText.text = "Loading cancelled.";
+                    break;
+            }
         }
 
         // private void OnGameModeChanged(GameMode gameMode)

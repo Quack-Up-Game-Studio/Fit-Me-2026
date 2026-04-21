@@ -175,7 +175,7 @@ namespace FitMe.Grid
                         if (_switchIdleCts.Token.IsCancellationRequested) return;
                         CancelIdleTimer();
                         StartIdleTimer();
-                    });
+                    });  
                 });
         }
 
