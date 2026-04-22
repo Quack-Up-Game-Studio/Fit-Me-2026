@@ -21,15 +21,46 @@ namespace QuackUp.Utils
             if (IsInitialized()) return;
 
             var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+             
+            // test products
             builder.AddProduct("gold.100", ProductType.Consumable,
                 new StoreSpecificIds()
                 {
                     {"gold.100", GooglePlay.Name}
                 });
-            builder.AddProduct("no_ads", ProductType.NonConsumable,
+            
+            // Consumable products
+            builder.AddProduct("2_1energy", ProductType.Consumable,
                 new StoreSpecificIds()
                 {
-                    {"no_ads", GooglePlay.Name}
+                    {"2_1energy", GooglePlay.Name}
+                });
+            builder.AddProduct("3_2energy", ProductType.Consumable,
+                new StoreSpecificIds()
+                {
+                    {"3_2energy", GooglePlay.Name}
+                });
+            builder.AddProduct("max_energy", ProductType.Consumable,
+                new StoreSpecificIds()
+                {
+                    {"max_energy", GooglePlay.Name}
+                });
+            
+            // Subscription products
+            builder.AddProduct("monthlypass", ProductType.Subscription,
+                new StoreSpecificIds()
+                {
+                    {"monthlypass", GooglePlay.Name}
+                }); 
+            builder.AddProduct("quarterltypass", ProductType.Subscription,
+                new StoreSpecificIds()
+                {
+                    {"quarterltypass", GooglePlay.Name}
+                }); 
+            builder.AddProduct("annuallypass", ProductType.Subscription,
+                new StoreSpecificIds()
+                {
+                    {"annuallypass", GooglePlay.Name}
                 }); 
 
             UnityPurchasing.Initialize(this, builder);
@@ -56,16 +87,35 @@ namespace QuackUp.Utils
 
         public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
         {
-            if (string.Equals(args.purchasedProduct.definition.id, "gold.100", StringComparison.Ordinal))
+            switch (args.purchasedProduct.definition.id)
             {
-                Debug.Log("Have 100 gold now! Enjoy shopping, master!");
-                Object.FindAnyObjectByType<TestIAP>().goldText.text = "Gold: 100";
+                //test products
+                case "gold.100":
+                    Debug.Log("Have 100 gold now! Enjoy shopping, master!");
+                    break;
+                
+                // Consumable products
+                case "2_1energy":
+                    Debug.Log("Have 2 energy now! Enjoy shopping, master!");
+                    break;
+                case "3_2energy":
+                    Debug.Log("Have 3 energy now! Enjoy shopping, master!");
+                    break;
+                case "max_energy":
+                    Debug.Log("Have max energy now! Enjoy shopping, master!");
+                    break;
+                
+                // Subscription products
+                case "monthlypass":
+                    Debug.Log("Monthly pass activated! Enjoy shopping, master!");
+                    break;
+                case "quarterltypass":
+                    Debug.Log("Quarterly pass activated! Enjoy shopping, master!");
+                    break;
+                case "annuallypass":
+                    Debug.Log("Annual pass activated! Enjoy shopping, master!");
+                    break;
             }
-            else if (string.Equals(args.purchasedProduct.definition.id, "no_ads", StringComparison.Ordinal))
-            {
-                Debug.Log("No more ads! Enjoy shopping, master!");
-            }
-
             return PurchaseProcessingResult.Complete;
         }
 
