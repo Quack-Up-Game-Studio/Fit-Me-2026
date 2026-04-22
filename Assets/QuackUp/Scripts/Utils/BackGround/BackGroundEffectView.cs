@@ -25,7 +25,7 @@ namespace QuackUp.Utils
     public class BackGroundSettings
     {
         public Sprite BgSprite;
-        public Image BgScrollMaterial;
+        public Sprite BgScrollMaterial;
         public float DifficultyThreshold;
     }
     
@@ -80,10 +80,10 @@ namespace QuackUp.Utils
             }
         }
         
-        private async UniTaskVoid FadeToNextBackground(Sprite nextSprite, Image nextScroll, CancellationToken token)
+        private async UniTaskVoid FadeToNextBackground(Sprite nextSprite, Sprite nextScroll, CancellationToken token)
         {
             fadeBg.sprite = nextSprite;
-            fadeScroll.SetTexture("_MainTexTexture", nextScroll.mainTexture);
+            fadeScroll.SetTexture("_MainTexture", nextScroll.texture);
             fadeBg.color = new Color(1, 1, 1, 0);
             fadeScroll.SetFloat("_Alpha", 0);
             
@@ -101,7 +101,7 @@ namespace QuackUp.Utils
             if (!token.IsCancellationRequested)
             {
                 mainBg.sprite = nextSprite;
-                mainScroll.SetTexture("_MainTexTexture", nextScroll.mainTexture);
+                mainScroll.SetTexture("_MainTexture", nextScroll.texture);
                 fadeBg.color = new Color(1, 1, 1, 0);
                 fadeScroll.SetFloat("_Alpha", 0);
             }
