@@ -102,7 +102,12 @@ namespace FitMe.Grid
                     .Where(x => ArrayMemberComparer<int>.Default
                         .Equals(x.schema, randomSchemaData.blockSchema.schema))
                     .ToList();
-                InstantiateBlock(topLeftCellArrayIndex, allMatchingSchema.GetRandomElement(), randomSchemaData.shape);
+                InstantiateBlock(
+                    topLeftCellArrayIndex, 
+                    allMatchingSchema.GetRandomElement(), 
+                    randomSchemaData.shape, 
+                    null,
+                    true);
             }
         }
 
@@ -132,6 +137,26 @@ namespace FitMe.Grid
                 var schemas = blockPreset.BlockSchemas;
                 foreach (var ids in groupedById)
                 {
+                    if (!ids.Any())
+                    {
+                        DebugUtils.LogWarning($"No valid cells found for obstacle id {ids.Key} and shape {shapes.Key}. Skipping this group.");
+                        continue;
+                    }
+                    // Check petrified state consistency
+                    var firstPetrifiedState = ids.First().Item.petrified;
+                    if (ids.Any(x => x.Item.petrified != firstPetrifiedState))
+                    {
+                        DebugUtils.LogWarning($"Inconsistent petrification state for obstacle id {ids.Key} and shape {shapes.Key}. Skipping this group.");
+                        continue;
+                    }
+                    // Check for color consistency
+                    var firstRandomColorState = ids.First().Item.randomColor;
+                    var firstColor = ids.First().Item.color;
+                    if (ids.Any(x => x.Item.randomColor != firstRandomColorState || x.Item.color != firstColor))
+                    {
+                        DebugUtils.LogWarning($"Inconsistent color settings for obstacle id {ids.Key} and shape {shapes.Key}. Skipping this group.");
+                        continue;
+                    }
                     var matchedSchema = 
                     (
                         from schema in schemas
@@ -154,12 +179,17 @@ namespace FitMe.Grid
                         .First();
                     var shape = shapes.Key;
                     var topLeftCellArrayIndex = topLeftObstacleCell.ArrayIndex;
-                    InstantiateBlock(topLeftCellArrayIndex, randomSchema, shape);
+                    InstantiateBlock(
+                        topLeftCellArrayIndex, 
+                        randomSchema, 
+                        shape, 
+                        firstRandomColorState ? null : firstColor,
+                        firstPetrifiedState);
                 }
             }
         }
 
-        private void InstantiateBlock(Vector2Int topLeftCellArrayIndex, BlockSchema randomSchema, BlockShape shape)
+        private void InstantiateBlock(Vector2Int topLeftCellArrayIndex, BlockSchema randomSchema, BlockShape shape, BlockColor? color, bool petrified)
         {
             var destinationCell = _gridManager.GetCellByArrayIndex(topLeftCellArrayIndex);
             var rotation = Quaternion.Euler(0, 0, randomSchema.Index * 90f);
@@ -180,10 +210,10 @@ namespace FitMe.Grid
                 .First();
             var distance = destinationCell.GameObject.transform.position - topLeftBlockAtom.GameObject.transform.position;
             block.GameObject.transform.position += distance;
-            var randomColor = EnumUtils.RandomValue<BlockColor>();
+            var finalColor = color ?? EnumUtils.RandomValue<BlockColor>();
             block.GameObject.name = $"Block_{shape}";
-            block.Model.ChangeType(randomColor, false);
-            block.Model.BlockState.Value = BlockState.Obstacle;
+            block.Model.ChangeColor(finalColor, false);
+            if (petrified) block.Model.BlockState.Value = BlockState.Obstacle;
             block.ViewModel.ScaleInCommand.Execute(new ScaleInCommandData(new Promise<Unit>(), scale));
             _gridManager.TryPlaceBlock(block, false);
             block.ViewModel.SetSortingLayerCommand.Execute(_blockManagerConfig.GridSortingLayer);

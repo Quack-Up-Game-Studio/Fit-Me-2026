@@ -124,6 +124,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   <ShapeLevelsPerCycle>k__BackingField: 18
   <ShapeLevelDatabase>k__BackingField: {fileID: 11400000, guid: 8df2f96e2f337c3478f182523fc38029, type: 2}
+  <TutorialLevelDatabase>k__BackingField: {fileID: 11400000, guid: b4d1a69d5c6f5d6a3b9f0e4cc37b052e, type: 2}
   <ShapeLevelCurve>k__BackingField:
     serializedVersion: 2
     m_Curve:

@@ -20,7 +20,7 @@ namespace FitMe.Scene
         [field: SerializeField] public AnimationCurve OriginalLevelCurve { get; private set; }
         [field: SerializeField] public int ShapeLevelsPerCycle { get; private set; } = 24;
         [field: SerializeField] public LevelDatabase ShapeLevelDatabase { get; private set; }
-        public GridPreset[] ShapeLevel => ShapeLevelDatabase.LevelPresets.ToArray();
+        [field: SerializeField] public LevelDatabase TutorialLevelDatabase { get; private set; }
         [field: SerializeField] public AnimationCurve ShapeLevelCurve { get; private set; }
         
         [field: Title("Other Setting")]

@@ -290,7 +290,7 @@ namespace FitMe.Grid
                 worldSpace = true,
             });
             block.GameObject.name = $"Block_{shape}";
-            block.Model.ChangeType(color, false);
+            block.Model.ChangeColor(color, false);
             block.GameObject.transform.localScale = Vector3.zero;
             Vector3 scale = new Vector3(objectScale, objectScale, 1f);
             var promise = new Promise<Unit>();

@@ -44,6 +44,7 @@ MonoBehaviour:
     - com.esotericsoftware.spine.urp-shaders
     - com.coffee.ui-material-property-injector
     - com.google
+    - com.coffee.unmask
     m_IsDefault: 0
     m_Capabilities: 0
     m_ConfigSource: 4
@@ -55,6 +56,6 @@ MonoBehaviour:
   m_RegistryInfoDraft:
     m_Modified: 0
     m_ErrorMessage: 
-    m_UserModificationsInstanceId: -896
-    m_OriginalInstanceId: -900
+    m_UserModificationsInstanceId: -902
+    m_OriginalInstanceId: -906
   m_LoadAssets: 0

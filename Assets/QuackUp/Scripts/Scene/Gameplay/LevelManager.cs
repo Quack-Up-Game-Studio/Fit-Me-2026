@@ -53,6 +53,7 @@ namespace FitMe.Scene
         private readonly ICloudSaveService _cloudSaveService;
         
         private List<GridPreset> _presets;
+        private Queue<GridPreset> _tutorialPresets;
         private PlayerRecordSaveObject _playerRecordSaveObject;
         private AudioReference _bgmReference;
         private GameState _previousStateBeforePause;
@@ -210,7 +211,7 @@ namespace FitMe.Scene
         
         private void OriginalMode()
         {
-            GridPreset = _config.OriginalLevel;
+            GridPreset = IsTutorial ? GetTutorialLevel() : _config.OriginalLevel;
             _difficultyCurve = _config.OriginalLevelCurve;
             _levelCycle = _config.OriginalLevelsPerCycle;
         }
@@ -221,21 +222,24 @@ namespace FitMe.Scene
             _difficultyCurve = _config.ShapeLevelCurve;
             _levelCycle = _config.ShapeLevelsPerCycle;
         }
+
+        private GridPreset GetTutorialLevel()
+        {
+            _tutorialPresets ??= new Queue<GridPreset>(_config.TutorialLevelDatabase.LevelPresets);
+            if (_tutorialPresets.Count != 0) return _tutorialPresets.Dequeue();
+            DebugUtils.LogError("Tutorial presets exhausted. No more tutorial levels available. Fallback to default level");
+            return _config.OriginalLevel;
+        }
         
         private GridPreset GetLevelFromPool()
         {
             if (_presets == null || _presets.Count == 0)
             {
-                CreateLevelPool();
+                _presets = new List<GridPreset>(_config.ShapeLevelDatabase.LevelPresets);
             }
             var preset = _presets.GetRandomElement();
             _presets?.Remove(preset);
             return preset;
-        }
-
-        private void CreateLevelPool()
-        {
-            _presets = new List<GridPreset>(_config.ShapeLevel);
         }
         
         public void ResetLevelPool()

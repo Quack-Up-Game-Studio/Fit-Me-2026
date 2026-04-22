@@ -1,0 +1,102 @@
+OVDF v1.1
+FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+
+# $Mic7VAzS4WqZxai7iWeQfz
+Position: $root:18
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Debug"
+
+# $K5jtbPfBniaY6zLFYYF83z
+Position: $root:7
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Other Settings"
+
+# $A6ULEbCeEoYvd9zyfAJVeg
+Position: $root:1
++ [Sirenix.OdinInspector.TabGroupAttribute]
+
+# $3VFiKkXPeV2iorYbhLEB2z
+Position: $A6ULEbCeEoYvd9zyfAJVeg:0
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Panel"
+	Name = "Panel"
+
+# $HQQ9WxvzvZ4NN5kPKYvKVA
+Position: $A6ULEbCeEoYvd9zyfAJVeg:1
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Character"
+	Name = "Character"
+
+# $UcjMX4dAYRjwtWh59LHbuP
+Position: $A6ULEbCeEoYvd9zyfAJVeg:2
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Carve Window"
+	Name = "Carve Window"
+
+# CopyCarveWindowTransformData()
+Position: $Mic7VAzS4WqZxai7iWeQfz:5
+
+# CopyCharacterTransformData()
+Position: $Mic7VAzS4WqZxai7iWeQfz:3
+
+# CopyPanelTransformData()
+Position: $Mic7VAzS4WqZxai7iWeQfz:1
+
+# carveWindowRectTransform
+Position: $Mic7VAzS4WqZxai7iWeQfz:4
+
+# characterRectTransform
+Position: $Mic7VAzS4WqZxai7iWeQfz:2
+
+# panelRectTransform
+Position: $Mic7VAzS4WqZxai7iWeQfz:0
+
+# usePreviousPanelSize
+Position: $3VFiKkXPeV2iorYbhLEB2z:2
+
+# panelInset
+Position: $3VFiKkXPeV2iorYbhLEB2z:3
++ [Sirenix.OdinInspector.InlinePropertyAttribute]
+
+# usePreviousCharacterSize
+Position: $HQQ9WxvzvZ4NN5kPKYvKVA:0
+
+# characterSize
+Position: $HQQ9WxvzvZ4NN5kPKYvKVA:1
+
+# usePreviousCharacterPosition
+Position: $HQQ9WxvzvZ4NN5kPKYvKVA:2
+
+# characterPosition
+Position: $HQQ9WxvzvZ4NN5kPKYvKVA:3
+
+# usePreviousCharacterRotation
+Position: $HQQ9WxvzvZ4NN5kPKYvKVA:4
+
+# characterRotation
+Position: $HQQ9WxvzvZ4NN5kPKYvKVA:5
+
+# hasCarveWindow
+Position: $UcjMX4dAYRjwtWh59LHbuP:0
+
+# usePreviousCarveWindowInset
+Position: $UcjMX4dAYRjwtWh59LHbuP:1
+
+# carveWindowInset
+Position: $UcjMX4dAYRjwtWh59LHbuP:2
++ [Sirenix.OdinInspector.InlinePropertyAttribute]
+
+# image
+Position: $3VFiKkXPeV2iorYbhLEB2z:1
+
+# hideWhenExit
+Position: $K5jtbPfBniaY6zLFYYF83z:2
+
+# hasNextButton
+Position: $K5jtbPfBniaY6zLFYYF83z:0
+
+# blockInput
+Position: $K5jtbPfBniaY6zLFYYF83z:1
+
+# text
+Position: $3VFiKkXPeV2iorYbhLEB2z:0

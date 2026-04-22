@@ -17,19 +17,28 @@ namespace FitMe.Panel.Tutorial
     {
         [SerializeField, Required] private CanvasGroup canvasGroup;
         [SerializeField, Required] private Image background;
+        [SerializeField] private Image character;
         [SerializeField] private TMP_Text tutorialText;
         [SerializeField] private Image tutorialImage;
         [SerializeField] private RectTransform panelRect;
+        [SerializeField] private RectTransform carveWindowRect;
         [SerializeField] private Button nextButton;
+        [SerializeField] private TMP_Text touchAnywhereText;
         [SerializeField] private TweenSettings<float> backgroundAlphaTweenSettings;
         [SerializeField] private TweenSettings<Vector3> scaleTweenSettings;
         [SerializeField] private TweenSettings insetTweenSettings;
+        [SerializeField] private TweenSettings carveWindowTweenSettings;
+        [SerializeField] private TweenSettings characterSizeTweenSettings;
+        [SerializeField] private TweenSettings characterRotationTweenSettings;
+        [SerializeField] private TweenSettings characterPositionTweenSettings;
         
         private TextTutorialViewModel _viewModel;
         private CancellationTokenSource _cancellationTokenSource = new();
         private Sequence _backgroundSequence;
         private Sequence _showSequence;
+        private Sequence _carveWindowSequence;
         private Sequence _panelInsetSequence;
+        private Sequence _characterSequence;
         private IDisposable _bindings;
 
         [Inject]
@@ -37,9 +46,13 @@ namespace FitMe.Panel.Tutorial
         {
             _viewModel = viewModel;
             panelRect.localScale = Vector3.zero;
+            carveWindowRect.offsetMax = Vector2.zero;
+            carveWindowRect.offsetMin = Vector2.zero;
+            carveWindowRect.gameObject.SetActive(false);
             tutorialImage.gameObject.SetActive(false);
             tutorialText.text = string.Empty;
             nextButton.gameObject.SetActive(false);
+            touchAnywhereText.gameObject.SetActive(false);
             Bind();
         }
 
@@ -114,31 +127,59 @@ namespace FitMe.Panel.Tutorial
 
         private async UniTask OnDisplayData(Promise<bool> promise)
         {
-            if (!_viewModel.HasNextButton) nextButton.gameObject.SetActive(false);
-            if (_viewModel.PreviousVisibilityState is VisibilityState.Visible) 
-                await SetInset(_cancellationTokenSource.Token);
-            tutorialText.text = _viewModel.TutorialText;
-            tutorialImage.sprite = _viewModel.TutorialImage;
-            tutorialImage.gameObject.SetActive(_viewModel.TutorialImage);
-            nextButton.gameObject.SetActive(_viewModel.HasNextButton);
+            nextButton.gameObject.SetActive(_viewModel.TutorialData.HasNextButton);
+            carveWindowRect.gameObject.SetActive(_viewModel.TutorialData.HasCarveWindow);
+            touchAnywhereText.gameObject.SetActive(_viewModel.TutorialData.HasNextButton);
+            await UniTask.WhenAll(
+                TweenPanelInset(_cancellationTokenSource.Token), 
+                TweenCharacter(_cancellationTokenSource.Token),
+                TweenCarveWindowInset(_cancellationTokenSource.Token));
+            tutorialText.text = _viewModel.TutorialData.Text;
+            tutorialImage.sprite = _viewModel.TutorialData.Image;
+            tutorialImage.gameObject.SetActive(_viewModel.TutorialData.Image);
+            nextButton.gameObject.SetActive(_viewModel.TutorialData.HasNextButton);
             promise.TrySetResult(true);
         }
         
         private async UniTask Transition(bool direction, CancellationToken cancellationToken)
         {
             if (direction && 
-                _viewModel.PreviousVisibilityState is VisibilityState.Hidden && 
-                !_viewModel.UsePreviousSize)
+                _viewModel.PreviousVisibilityState is VisibilityState.Hidden)
             {
-                panelRect.offsetMax = _viewModel.PanelInset.OffsetMax;
-                panelRect.offsetMin = _viewModel.PanelInset.OffsetMin;
+                var inset = _viewModel.TutorialData.PanelInset;
+                if (inset != null)
+                {
+                    panelRect.offsetMax = inset.Value.OffsetMax;
+                    panelRect.offsetMin = inset.Value.OffsetMin;
+                }
+                var characterRectTransform = (RectTransform)character.transform;
+                var characterSize = _viewModel.TutorialData.CharacterSize;
+                if (characterSize != null)
+                {
+                    characterRectTransform.sizeDelta = characterSize.Value;
+                }
+                var characterPosition = _viewModel.TutorialData.CharacterPosition;
+                if (characterPosition != null)
+                {
+                    characterRectTransform.anchoredPosition = characterPosition.Value;
+                }
+                var characterRotation = _viewModel.TutorialData.CharacterRotation;
+                if (characterRotation != null)
+                {
+                    characterRectTransform.localEulerAngles = characterRotation.Value;
+                }
+                carveWindowRect.offsetMax = Vector2.zero;
+                carveWindowRect.offsetMin = Vector2.zero;
             }
+            carveWindowRect.gameObject.SetActive(_viewModel.TutorialData.HasCarveWindow);
+            touchAnywhereText.gameObject.SetActive(_viewModel.TutorialData.HasNextButton);
             cancellationToken.Register(() =>
             {
                 _showSequence.Stop();
             });
             _showSequence = Sequence.Create()
-                .Group(Tween.Scale(panelRect.transform, scaleTweenSettings.WithDirection(direction)));
+                .Group(Tween.Scale(panelRect.transform, scaleTweenSettings.WithDirection(direction)))
+                .Group(Tween.Scale(character.transform, scaleTweenSettings.WithDirection(direction)));
             await _showSequence.ToUniTask();
         }
 
@@ -155,15 +196,53 @@ namespace FitMe.Panel.Tutorial
             _viewModel.OnNextCommand.Execute(Unit.Default);
         }
         
-        private async UniTask SetInset(CancellationToken cancellationToken)
+        private async UniTask TweenPanelInset(CancellationToken cancellationToken)
         {
-            if (_viewModel.UsePreviousSize) return;
+            if (_viewModel.TutorialData.PanelInset == null) return;
             cancellationToken.Register(() => _panelInsetSequence.Complete());
-            var inset = _viewModel.PanelInset;
+            var inset = _viewModel.TutorialData.PanelInset;
             _panelInsetSequence = Sequence.Create()
-                .Group(Tween.UIOffsetMax(panelRect, new(inset.OffsetMax, insetTweenSettings)))
-                .Group(Tween.UIOffsetMin(panelRect, new(inset.OffsetMin, insetTweenSettings)));
+                .Group(Tween.UIOffsetMax(panelRect, new(inset.Value.OffsetMax, insetTweenSettings)))
+                .Group(Tween.UIOffsetMin(panelRect, new(inset.Value.OffsetMin, insetTweenSettings)));
             await _panelInsetSequence.ToUniTask();
+        }
+
+        private async UniTask TweenCarveWindowInset(CancellationToken cancellationToken)
+        {
+            if (!_viewModel.TutorialData.HasCarveWindow || _viewModel.TutorialData.CarveWindowInset == null) return;
+            cancellationToken.Register(() => _carveWindowSequence.Complete());
+            var inset = _viewModel.TutorialData.CarveWindowInset;
+            _carveWindowSequence = Sequence.Create()
+                .Group(Tween.UIOffsetMax(carveWindowRect, new(inset.Value.OffsetMax, carveWindowTweenSettings)))
+                .Group(Tween.UIOffsetMin(carveWindowRect, new(inset.Value.OffsetMin, carveWindowTweenSettings)));
+            await _carveWindowSequence.ToUniTask();
+        }
+
+        private async UniTask TweenCharacter(CancellationToken cancellationToken)
+        {
+            var size = _viewModel.TutorialData.CharacterSize;
+            var position = _viewModel.TutorialData.CharacterPosition;
+            var rotation = _viewModel.TutorialData.CharacterRotation;
+            if (size == null && 
+                position == null &&
+                rotation == null) return;
+            var sequence = Sequence.Create();
+            cancellationToken.Register(() => _characterSequence.Complete());
+            var rectTransform = (RectTransform)character.transform;
+            if (size != null)
+            {
+                _ = sequence.Group(Tween.UISizeDelta(rectTransform, new TweenSettings<Vector2>(size.Value, characterSizeTweenSettings)));
+            }
+            if (position != null)
+            {
+                _ = sequence.Group(Tween.UIAnchoredPosition(rectTransform, new TweenSettings<Vector2>(position.Value, characterPositionTweenSettings)));
+            }
+            if (rotation != null)
+            {
+                _ = sequence.Group(Tween.Rotation(rectTransform, new TweenSettings<Vector3>(rotation.Value, characterRotationTweenSettings)));
+            }
+            _characterSequence = sequence;
+            await sequence.ToUniTask();
         }
     }
 }
