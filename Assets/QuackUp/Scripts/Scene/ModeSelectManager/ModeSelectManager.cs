@@ -59,7 +59,7 @@ namespace FitMe.Scene
         
         private async UniTask OnModeSelected(GameMode mode)
         {
-            if (_energyManager.CurrentEnergy.CurrentValue < 1)
+            if (!_energyManager.HasEnoughEnergy(1))
             {
                 var promise = new Promise<Unit>();
                 _notificationDisplayEventPublisher.Publish(new NotificationDisplayEvent(

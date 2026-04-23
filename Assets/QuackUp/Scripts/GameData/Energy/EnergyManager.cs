@@ -16,10 +16,15 @@ namespace FitMe.GameData
         /// <remarks>
         /// Use <see cref="ChangeEnergy"/> to change the energy value.
         /// </remarks>
-        public ReadOnlyReactiveProperty<int> CurrentEnergy => _currentEnergy;
+        public ReadOnlyReactiveProperty<int> CurrentEnergy => _currentEnergy.ToReadOnlyReactiveProperty();
+        /// <remarks>
+        /// Use <see cref="SetInfiniteEnergy"/> to change the infinite energy state.
+        /// </remarks>
+        public ReadOnlyReactiveProperty<bool> InfiniteEnergy => _infiniteEnergy.ToReadOnlyReactiveProperty();
         public ReadOnlyReactiveProperty<TimeSpan> TimeUntilNextRecharge => _timeUntilNextRecharge;
         private readonly ReactiveProperty<TimeSpan> _timeUntilNextRecharge = new(TimeSpan.Zero);
         private readonly ReactiveProperty<int> _currentEnergy = new(0);
+        private readonly ReactiveProperty<bool> _infiniteEnergy = new(false);
         [ShowInInspector] private int DebugCurrentEnergy => _currentEnergy.Value;
         private readonly MessagePackSaveManager _saveManager;
         private readonly EnergyManagerConfig _config;
@@ -84,6 +89,10 @@ namespace FitMe.GameData
         [Button("Change Energy")]
         public void ChangeEnergy(int amount)
         {
+            if (amount < 0 && _infiniteEnergy.Value)
+            {
+                return;
+            }
             var newEnergy = Mathf.Clamp(_currentEnergy.Value + amount, 0, _config.MaxEnergy);
             var saveData = _saveObject.GetSaveData<EnergyManagerSaveData>();
             if (_currentEnergy.Value >= _config.MaxEnergy && newEnergy < _config.MaxEnergy)
@@ -94,6 +103,18 @@ namespace FitMe.GameData
             saveData.CurrentEnergy = newEnergy;
             _saveManager.Save(_saveObject);
             _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
+        }
+        
+        public bool HasEnoughEnergy(uint amount)
+        {
+            if (_infiniteEnergy.Value) return true;
+            return amount <= _currentEnergy.Value;
+        }
+        
+        [Button("Set Infinite Energy")]
+        public void SetInfiniteEnergy(bool value)
+        {
+            _infiniteEnergy.Value = value;
         }
     }
 }

@@ -37,6 +37,10 @@ namespace FitMe.Panel
                 .Subscribe(OnEnergyChanged)
                 .AddTo(ref disposableBuilder);
             
+            _viewModel.InfiniteEnergy
+                .Subscribe(OnInfiniteEnergyChanged)
+                .AddTo(ref disposableBuilder);
+            
             _viewModel.AllowWatchAd
                 .Subscribe(OnAllowWatchAdChanged)
                 .AddTo(ref disposableBuilder);
@@ -63,6 +67,22 @@ namespace FitMe.Panel
             _viewModel.WatchAdCommand.Execute(Unit.Default);
         }
 
+        private void OnInfiniteEnergyChanged(bool infinite)
+        {
+            if (infinite)
+            {
+                untilNextRechargeText.text = string.Empty;
+                energyText.text = "Infinite";
+                energyBar.value = 1f;
+                OnAllowWatchAdChanged(false);
+            }
+            else
+            {
+                OnEnergyChanged(_viewModel.CurrentEnergy.CurrentValue);
+                OnAllowWatchAdChanged(_viewModel.AllowWatchAd.CurrentValue);
+            }
+        }
+
         private void OnEnergyChanged(int currentEnergy)
         {
             var maxEnergy = _viewModel.Config.MaxEnergy;
@@ -77,11 +97,16 @@ namespace FitMe.Panel
         
         private void OnAllowWatchAdChanged(bool allow)
         {
-            watchAdButton.gameObject.SetActive(allow);
+            watchAdButton.gameObject.SetActive(!_viewModel.InfiniteEnergy.CurrentValue && allow);
         }
         
         private void OnTimeUntilNextRechargeChanged(TimeSpan time)
         {
+            if (_viewModel.InfiniteEnergy.CurrentValue)
+            {
+                untilNextRechargeText.text = string.Empty;
+                return;
+            }
             if (_viewModel.CurrentEnergy.CurrentValue >= _viewModel.Config.MaxEnergy)
             {
                 untilNextRechargeText.text = "Full";

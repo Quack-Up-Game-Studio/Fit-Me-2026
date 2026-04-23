@@ -93,7 +93,7 @@ namespace FitMe.Scene.MainMenu
         
         private async UniTask OnAboutToPlaceBlock(CancellationTokenSource cancellationTokenSource)
         {
-            if (_energyManager.CurrentEnergy.CurrentValue < 1)
+            if (!_energyManager.HasEnoughEnergy(1))
             {
                 cancellationTokenSource.Cancel();
                 var promise = new Promise<Unit>();

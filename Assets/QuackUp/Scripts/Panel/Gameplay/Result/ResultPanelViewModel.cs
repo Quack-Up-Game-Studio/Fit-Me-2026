@@ -131,7 +131,7 @@ namespace FitMe.Panel
         
         private async UniTask OnRetry()
         {
-            if (_energyManager.CurrentEnergy.CurrentValue < 1)
+            if (!_energyManager.HasEnoughEnergy(1))
             {
                 var promise = new Promise<Unit>();
                 _notificationDisplayEventPublisher.Publish(new NotificationDisplayEvent(
