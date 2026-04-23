@@ -11,7 +11,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6b56d439-7a07-4179-aa79-8cf05c29cf13" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/IAP/InAppPurchaseManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/IAP/InAppPurchaseManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Fonts/Bungee-Regular Outline.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Fonts/Bungee-Regular Outline.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/FitMe.Panel.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/FitMe.Panel.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/IAP.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/IAP/InAppPurchaseManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/IAP/InAppPurchaseManager.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/IAP/TestIAP.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/IAP/TestIAP.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/Block/BlockManagerConfig.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/Block/BlockManagerConfig.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/UnityConnectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/UnityConnectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,6 +63,7 @@
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardPanelLifetimeScope.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardPanelView.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardPanelViewModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Shop/ShopPanelViewModel.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Transition/ActivationTransition.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/RemoteSaveResolver/ISaveConflictResolver.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/RemoteSaveResolver/RemoteSaveResolver.cs" root0="FORCE_HIGHLIGHTING" />
@@ -165,6 +183,7 @@
       <workItem from="1776682821562" duration="942000" />
       <workItem from="1776691802822" duration="2886000" />
       <workItem from="1776834462677" duration="6556000" />
+      <workItem from="1776918091904" duration="12631000" />
     </task>
     <servers />
   </component>
