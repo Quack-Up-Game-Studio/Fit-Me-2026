@@ -14,6 +14,23 @@ using Random = UnityEngine.Random;
 namespace FitMe.Grid
 {
     [Serializable]
+    public struct SpawnBlockData
+    {
+        [SerializeField] public BlockShape blockShape;
+        [SerializeField] public Quaternion rotation;
+        [HideInInspector] public BlockSchema blockSchema;
+        [SerializeField] public BlockColor blockColor;
+            
+        public SpawnBlockData(BlockShape blockShape, Quaternion rotation, BlockSchema blockSchema, BlockColor blockColor)
+        {
+            this.blockShape = blockShape;
+            this.rotation = rotation;
+            this.blockSchema = blockSchema;
+            this.blockColor = blockColor;
+        }
+    }
+    
+    [Serializable]
     public class BlockManager : IDisposable
     {
         #region Data Structures
@@ -24,22 +41,6 @@ namespace FitMe.Grid
 
             [field: SerializeField, DisplayAsString] public bool IsFree { get; set; } = true;
             [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public BlockInstance CurrentBlock { get; set; }
-        }
-        
-        private struct SpawnBlockData
-        {
-            public readonly BlockShape blockShape;
-            public readonly Quaternion rotation;
-            public readonly BlockSchema blockSchema;
-            public readonly BlockColor blockColor;
-            
-            public SpawnBlockData(BlockShape blockShape, Quaternion rotation, BlockSchema blockSchema, BlockColor blockColor)
-            {
-                this.blockShape = blockShape;
-                this.rotation = rotation;
-                this.blockSchema = blockSchema;
-                this.blockColor = blockColor;
-            }
         }
         
         private struct BestFitResult
@@ -131,6 +132,9 @@ namespace FitMe.Grid
             _gridManager.OnClearGrid
                 .Subscribe(_ => ResetBag())
                 .AddTo(ref disposableBuilder);
+            _gridManager.OnCellsCreated
+                .Subscribe(_ => OnCellsCreated())
+                .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
 
@@ -144,11 +148,15 @@ namespace FitMe.Grid
         private void OnSpawnAtStart(SpawnWithBlockPresetEvent withBlockPresetEventData)
         {
             CreatePool();
-            _spawnPoints.ForEach(FreeSpawnPoint);
-            if (!withBlockPresetEventData.BlockPreset)
-                SpawnBlocksFromBag(true);
-            else
+           // _spawnPoints.ForEach(FreeSpawnPoint);
+            if (withBlockPresetEventData.BlockPreset)
                 SpawnBlock(withBlockPresetEventData);
+        }
+
+        private void OnCellsCreated()
+        {
+            if (!_gridManager.IsGameplay) return;
+            SpawnBlocksFromBag(true);
         }
 
         private void OnFitCheck(FitTypeEvent eventData)
@@ -183,6 +191,16 @@ namespace FitMe.Grid
         
         private void RefillBag()
         {
+            if (!_gridManager.CurrentGridPreset)
+            {
+                return;
+            }
+            if (_gridManager.CurrentGridPreset.OverrideBag)
+            {
+                _spawnBag = new Queue<SpawnBlockData>(_gridManager.CurrentGridPreset.SpawnBlockData);
+                DebugUtils.Log($"Yuirin: Bag Refilled from Grid Preset! Total {_spawnBag.Count} items.");
+                return;
+            }
             if (_blockPool == null || _blockPool.Count == 0)  CreatePool();
             
             var tempBag = new List<SpawnBlockData>();

@@ -20,7 +20,7 @@ namespace FitMe.Panel
 
         private readonly IAudioBusManager _audioBusManager;
         private readonly LoadSceneManager _loadSceneManager;
-        private readonly ILevelManager _levelManager;
+        private readonly IGameStateManager _gameStateManager;
         private IDisposable _bindings;
         
         [Inject]
@@ -28,10 +28,10 @@ namespace FitMe.Panel
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
             IAudioBusManager audioBusManager,
-            ILevelManager levelManager) : base(panelManager)
+            IGameStateManager gameStateManager) : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
-            _levelManager = levelManager;
+            _gameStateManager = gameStateManager;
             _audioBusManager = audioBusManager;
             Bind();
         }
@@ -87,7 +87,7 @@ namespace FitMe.Panel
         
         private void Resume()
         {
-            _levelManager.Unpause();
+            _gameStateManager.Unpause();
         }
 
         private void OnMusicToggled(bool isOn)

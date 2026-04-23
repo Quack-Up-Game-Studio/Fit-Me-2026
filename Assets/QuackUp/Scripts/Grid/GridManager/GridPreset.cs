@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FitMe.Shared;
 using Sirenix.OdinInspector;
@@ -123,6 +124,10 @@ namespace FitMe.Grid
             _ => 0
         };
         #endregion
+        
+        [field: SerializeField] public bool OverrideBag {get; private set;}
+        [field: ShowIf(nameof(OverrideBag))]
+        [field: SerializeField] public List<SpawnBlockData> SpawnBlockData { get; private set; } = new();
 
 #if UNITY_EDITOR
         

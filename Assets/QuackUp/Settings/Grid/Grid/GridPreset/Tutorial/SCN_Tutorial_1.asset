@@ -877,3 +877,11 @@ MonoBehaviour:
   <GridSize>k__BackingField: {x: 5, y: 5}
   <ObstacleMode>k__BackingField: 1
   <ObstacleCount>k__BackingField: 2
+  <OverrideBag>k__BackingField: 1
+  <SpawnBlockData>k__BackingField:
+  - blockShape: 0
+    rotation: {x: 0, y: 0, z: 0, w: 0}
+    blockColor: 0
+  - blockShape: 2
+    rotation: {x: 0, y: 0, z: 0, w: 0}
+    blockColor: 1

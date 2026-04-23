@@ -609,10 +609,10 @@ namespace FitMe.Grid
             gridBlockData.Subscription.Dispose();
         }
 
-        public async UniTask ClearGrid(bool destroyObstacle = true)
+        public async UniTask ClearGrid(bool destroyObstacle = true, bool playSound = true)
         {
             _onAboutToClearGrid?.OnNext(Unit.Default);
-            _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
+            if (playSound) _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
             if (destroyObstacle)
             {
                 await RemoveAllBlocks(true);

@@ -25,6 +25,7 @@ namespace FitMe.Grid
         
         [Title("Tween")] 
         [SerializeField] private TweenSettings scaleTweenSettings;
+        [SerializeField] private TweenSettings rotateTweenSettings;
         #endregion
 
         #region Fields and Properties
@@ -42,6 +43,7 @@ namespace FitMe.Grid
         private Tween _pickUpTween;
         private IDisposable _switchIdleTimer;
         private CancellationTokenSource _switchIdleCts;
+        //private Sequence _rotationSequence;
         
         private BlockConfig _blockConfig;
         private BlockManagerConfig _blockManagerConfig;
@@ -82,7 +84,9 @@ namespace FitMe.Grid
                 .AddTo(ref disposableBuilder);
             _viewModel.BlockState
                 .DistinctUntilChanged()
-                .Subscribe(OnBlockStateChanged)
+                .Prepend(BlockState.Normal)
+                .Pairwise()
+                .Subscribe(x => OnBlockStateChanged(x.Previous, x.Current))
                 .AddTo(ref disposableBuilder); 
             _viewModel.BlockColor
                 .IgnoreFirstValueWhenSubscribe()
@@ -138,9 +142,13 @@ namespace FitMe.Grid
             }
         }
 
-        private void OnBlockStateChanged(BlockState state)
+        private void OnBlockStateChanged(BlockState previous, BlockState current)
         {
-            if (state is BlockState.Obstacle)
+            if (previous is BlockState.Obstacle && current is BlockState.Exploding)
+            {
+                return;
+            }
+            if (current is BlockState.Obstacle)
             {
                 obstacleSpriteRenderer.enabled = true;
                 obstacleSpriteRenderer.sprite = _blockConfig.ObstacleSprite;
@@ -293,8 +301,12 @@ namespace FitMe.Grid
         private async UniTask Rotate(RotateCommandData data)
         {
             _originalEulerAngles = data.Rotation.eulerAngles;
-            var tween = Tween.Rotation(transform, data.Rotation, 0.5f);
-            await tween.ToUniTask();
+            var gridSize = _gridConfig.CellSize;
+            var scaleSettings = new TweenSettings<Vector3>(transform.localScale, gridSize, 0.25f);
+            var sequence = Sequence.Create(Tween.Rotation(transform, new TweenSettings<Quaternion>(data.Rotation, rotateTweenSettings)))
+                .Group(Tween.Scale(transform, scaleSettings))
+                .Chain(Tween.Scale(transform, scaleSettings.WithDirection(false)));
+            await sequence.ToUniTask();
             data.Promise.TrySetResult(Unit.Default);
         }
 

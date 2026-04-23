@@ -196,6 +196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: spine-unity::Spine.Unity.SkeletonAnimation
   skeletonDataAsset: {fileID: 11400000, guid: cc0356793a366de4aab726f9887fd936, type: 2}
   initialSkinName: Blue
+  fixPrefabOverrideViaMeshFilter: 2
   initialFlipX: 0
   initialFlipY: 0
   updateWhenInvisible: 3
@@ -216,6 +217,11 @@ MonoBehaviour:
     materialsInsideMask: []
     materialsOutsideMask: []
   disableRenderingOnOverride: 1
+  physicsPositionInheritanceFactor: {x: 1, y: 1}
+  physicsRotationInheritanceFactor: 1
+  physicsMovementRelativeTo: {fileID: 0}
+  updateTiming: 1
+  unscaledTime: 0
   _animationName: 
   loop: 0
   timeScale: 1
@@ -280,6 +286,22 @@ MonoBehaviour:
   obstacleSpriteRenderer: {fileID: 4775901797917017567}
   scaleTweenSettings:
     duration: 0.5
+    ease: 0
+    customEase:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    cycles: 1
+    cycleMode: 0
+    startDelay: 0
+    endDelay: 0
+    useUnscaledTime: 0
+    _useFixedUpdate: 0
+    _updateType: 0
+  rotateTweenSettings:
+    duration: 0.25
     ease: 0
     customEase:
       serializedVersion: 2

@@ -89,7 +89,7 @@ namespace FitMe.Grid
         
         private readonly BlockManagerConfig _blockManagerConfig;
         private readonly GridManager _gridManager;
-        private readonly ILevelManager _levelManager;
+        private readonly IGameStateManager _gameStateManager;
         private readonly IAudioManager _audioManager;
         private readonly IPointerHandler _pointerHandler;
 
@@ -97,13 +97,13 @@ namespace FitMe.Grid
         public BlockControllerFactory(
             BlockManagerConfig blockManagerConfig,
             GridManager gridManager,
-            ILevelManager levelManager,
+            IGameStateManager gameStateManager,
             IAudioManager audioManager,
             IPointerHandler pointerHandler)
         {
             _blockManagerConfig = blockManagerConfig;
             _gridManager = gridManager;
-            _levelManager = levelManager;
+            _gameStateManager = gameStateManager;
             _audioManager = audioManager;
             _pointerHandler = pointerHandler;
         }
@@ -113,7 +113,7 @@ namespace FitMe.Grid
             var controller = new BlockController(
                 _blockManagerConfig,
                 _gridManager,
-                _levelManager,
+                _gameStateManager,
                 _audioManager,
                 _pointerHandler);
             Current = controller;

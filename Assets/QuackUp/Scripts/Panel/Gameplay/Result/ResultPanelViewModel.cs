@@ -42,7 +42,7 @@ namespace FitMe.Panel
         private readonly LoadSceneManager _loadSceneManager;
         private readonly EnergyManager _energyManager;
         private readonly AdsService _adsService;
-        private readonly ILevelManager _levelManager;
+        private readonly IScoreManager _scoreManager;
         private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
         private int _forceAdsThreshold;
 
@@ -61,14 +61,14 @@ namespace FitMe.Panel
             LoadSceneManager loadSceneManager,
             EnergyManager energyManager,
             AdsService adsService,
-            ILevelManager levelManager,
+            IScoreManager scoreManager,
             IAudioManager audioManager,
             IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher,
             [Key(ForceAdsThresholdKey)] int forceAdsThreshold)
             : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
-            _levelManager = levelManager;
+            _scoreManager = scoreManager;
             _energyManager = energyManager;
             _adsService = adsService;
             AudioManager = audioManager;
@@ -89,10 +89,10 @@ namespace FitMe.Panel
                 .SubscribeAwait((_, _) => OnRetry(), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
             
-            ScoreText = _levelManager.Score
+            ScoreText = _scoreManager.Score
                 .Select(score => score.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
-            FitText = _levelManager.FitMe
+            FitText = _scoreManager.FitMe
                 .Select(fit => fit.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
             _bindings = disposableBuilder.Build();
@@ -117,8 +117,8 @@ namespace FitMe.Panel
         {
             base.OnVisible();
             _onResultVisible.OnNext(Unit.Default);
-            var isNewHighScore = _levelManager.Score.Value > _scoreBeforeSave;
-            var isNewFitMe = _levelManager.FitMe.Value > _fitMeBeforeSave;
+            var isNewHighScore = _scoreManager.Score.Value > _scoreBeforeSave;
+            var isNewFitMe = _scoreManager.FitMe.Value > _fitMeBeforeSave;
             _displayResultPromise = new Promise<Unit>();
             DisplayResultCommand.Execute(new DisplayResultCommandData(_displayResultPromise, isNewHighScore, isNewFitMe));
         }
@@ -146,7 +146,7 @@ namespace FitMe.Panel
             }
             _energyManager.ChangeEnergy(-1);
             _displayResultPromise.Cancel();
-            if (_levelManager.FitMe.CurrentValue >= _forceAdsThreshold && 
+            if (_scoreManager.FitMe.CurrentValue >= _forceAdsThreshold && 
                 _adsService.TryGetAdsInstance<InterstitialAdInstance>(out var interstitialAdInstance))
             {
                 _adSubscription = interstitialAdInstance.OnAdClosed

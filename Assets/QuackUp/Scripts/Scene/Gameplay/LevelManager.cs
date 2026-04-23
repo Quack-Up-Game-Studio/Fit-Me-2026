@@ -21,7 +21,7 @@ using VContainer.Unity;
 
 namespace FitMe.Scene
 {
-    public class LevelManager : ILevelManager, IStartable, IDisposable
+    public class LevelManager : ILevelManager, IGameStateManager, IScoreManager, IStartable, IDisposable
     {
         public ReactiveProperty<int> Score { get; } = new(0);
         public ReactiveProperty<int> FitMe { get; } = new(0);
@@ -148,17 +148,16 @@ namespace FitMe.Scene
             }
             _onReturnToGameplaySubscription = gameOverPanel.OnReturnToGameplay
                 .Subscribe(_ => OnReturnToGameplay());
+            _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
             
+            _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            DebugUtils.Log($"PlayerRecordSaveObject found: {_playerRecordSaveObject}");
+            if (IsTutorial) return;
             if (!GridPreset) 
                 _messageHub.Publish(new StartCreateGridEvent());
             else
                 _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
             _messageHub.Publish(new SpawnWithBlockPresetEvent(null));
-            
-            _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
-            
-            _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
-            DebugUtils.Log($"PlayerRecordSaveObject found: {_playerRecordSaveObject}");
         }
         
         private void OnScoreAdded(ScoreEvent scoreEvent)
@@ -211,7 +210,7 @@ namespace FitMe.Scene
         
         private void OriginalMode()
         {
-            GridPreset = IsTutorial ? GetTutorialLevel() : _config.OriginalLevel;
+            GridPreset = _config.OriginalLevel;
             _difficultyCurve = _config.OriginalLevelCurve;
             _levelCycle = _config.OriginalLevelsPerCycle;
         }
@@ -247,10 +246,19 @@ namespace FitMe.Scene
             _presets = null;
             GridPreset = null;
         }
+
+        public async UniTask NextTutorialPreset(bool playSound)
+        {
+            if (!IsTutorial) return;
+            await _gridManager.ClearGrid(playSound: false);
+            GridPreset = GetTutorialLevel();
+            _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
+        }
+
         #endregion
 
         #region Difficulty level
-        private void CurrentDifficultyLevel()
+        private void ChangeDifficultyLevel()
         {
             int currentFit = FitMe.Value;
             int difficultyLevel = CalculateDifficultyLevel(_difficultyCurve, currentFit);
@@ -268,7 +276,8 @@ namespace FitMe.Scene
         private void OnFit()
         {
             _orthographicCameraManager.Shake(_config.CameraFitShakeSettings, _config.CameraFitShakeStrengthFactor);
-            CurrentDifficultyLevel();
+            if (IsTutorial) return;
+            ChangeDifficultyLevel();
             GridPreset = GameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
             _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
         }
@@ -278,25 +287,23 @@ namespace FitMe.Scene
             _audioManager.StopAudio(_bgmReference);
         }
         
-        private void ChangeScore(int value)
+        public void ChangeScore(int amount)
         {
-            Score.Value += value;
-            if (IsTutorial) return;
+            Score.Value += amount;
             if (!_playerRecordSaveObject) return;
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return;
-            saveData.cumulativeScore += value;
+            saveData.cumulativeScore += amount;
             _saveManager.Save(_playerRecordSaveObject);
         }
         
-        private void ChangeFitMe(int value)
+        public void ChangeFitMe(int amount)
         {
-            FitMe.Value += value;
-            if (IsTutorial) return;
+            FitMe.Value += amount;
             if (!_playerRecordSaveObject) return;
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return;
-            saveData.cumulativeFitMe += value;
+            saveData.cumulativeFitMe += amount;
             _saveManager.Save(_playerRecordSaveObject);
         }
         

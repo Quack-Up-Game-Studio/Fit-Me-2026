@@ -10,21 +10,21 @@ namespace FitMe.Panel
     {
         public ReadOnlyReactiveProperty<TimeSpan> ElapsedTime => _elapsedTime.ToReadOnlyReactiveProperty();
         private readonly ReactiveProperty<TimeSpan> _elapsedTime = new(TimeSpan.Zero);
-        private readonly ILevelManager _levelManager;
+        private readonly IGameStateManager _gameStateManager;
         private IDisposable _bindings;
         private IDisposable _timer;
         
         [Inject]
-        public RunTimerViewModel(ILevelManager levelManager)
+        public RunTimerViewModel(IGameStateManager gameStateManager)
         {
-            _levelManager = levelManager;
+            _gameStateManager = gameStateManager;
              Bind();
         }
         
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _levelManager.GameState
+            _gameStateManager.GameState
                 .Subscribe(OnGameStateChanged)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();

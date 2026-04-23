@@ -10,12 +10,12 @@ namespace FitMe.Panel
         public ReadOnlyReactiveProperty<string> FitText { get; }
 
         [Inject]
-        public ScoreViewModel(ILevelManager levelManager)
+        public ScoreViewModel(IScoreManager scoreManager)
         {
-            ScoreText = levelManager.Score
+            ScoreText = scoreManager.Score
                 .Select(score => score.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
-            FitText = levelManager.FitMe
+            FitText = scoreManager.FitMe
                 .Select(fit => fit.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
         }

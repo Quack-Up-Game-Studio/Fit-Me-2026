@@ -588,7 +588,7 @@ MonoBehaviour:
   <SmartRandomThreshold>k__BackingField: 9
   <SmartRandomDepth>k__BackingField: 3
   <PreviewScale>k__BackingField: 0.3
-  <ObjectScale>k__BackingField: 0.5
+  <ObjectScale>k__BackingField: 0.4
   <CanRefill>k__BackingField: 0
   PreviewCount: 4
   SpawnSpace: 1
@@ -615,6 +615,7 @@ MonoBehaviour:
     useUnscaledTime: 0
     _useFixedUpdate: 0
     _updateType: 0
+  <BlockDragInertia>k__BackingField: 0.1
   <BlockDragOffset>k__BackingField: {x: 0, y: 1}
   <PlaceSucceedSfx>k__BackingField:
     Guid:

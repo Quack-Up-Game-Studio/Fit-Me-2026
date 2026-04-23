@@ -6461,7 +6461,7 @@ MonoBehaviour:
         FitMe.Scene]], mscorlib
     - Name: 
       Entry: 12
-      Data: 6
+      Data: 5
     - Name: 
       Entry: 7
       Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
@@ -6755,25 +6755,10 @@ MonoBehaviour:
       Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
     - Name: Name
       Entry: 1
-      Data: NextPreset2
-    - Name: State
-      Entry: 7
-      Data: 23|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
-    - Name: Name
-      Entry: 1
       Data: Test2
     - Name: State
       Entry: 7
-      Data: 24|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 23|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: ghgsdgsdgsdg
@@ -6908,7 +6893,7 @@ MonoBehaviour:
       Data: Complete
     - Name: State
       Entry: 7
-      Data: 25|FitMe.Tutorial.CompleteTutorialState, FitMe.Tutorial
+      Data: 24|FitMe.Tutorial.CompleteTutorialState, FitMe.Tutorial
     - Name: 
       Entry: 8
       Data: 
@@ -6932,14 +6917,14 @@ MonoBehaviour:
       Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 26|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 25|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12
       Data: 6
     - Name: 
       Entry: 7
-      Data: 27|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
+      Data: 26|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
     - Name: scoreView
       Entry: 10
       Data: 27
@@ -6960,13 +6945,13 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 28|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
+      Data: 27|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 29|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
+      Data: 28|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
     - Name: energyBarView
       Entry: 10
       Data: 32
@@ -6975,7 +6960,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 30|FitMe.Panel.RunTimerInstaller, FitMe.Panel
+      Data: 29|FitMe.Panel.RunTimerInstaller, FitMe.Panel
     - Name: view
       Entry: 10
       Data: 33
@@ -6984,7 +6969,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 31|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
+      Data: 30|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
     - Name: mainCamera
       Entry: 10
       Data: 0
@@ -6993,7 +6978,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 32|FitMe.Panel.Tutorial.TextTutorialInstaller, FitMe.Panel
+      Data: 31|FitMe.Panel.Tutorial.TextTutorialInstaller, FitMe.Panel
     - Name: view
       Entry: 10
       Data: 34
