@@ -1,7 +1,8 @@
 using System;
-using QuackUp.Utils;
+using QuackUp.IAP;
 using R3;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -10,9 +11,9 @@ namespace FitMe.Panel
 {
     public struct ButtonInfo
     {
-        public string ButtonName;
+        public ProductId ProductId;
         public Button Button;
-        public string ProductId;
+        public TMP_Text PriceText;
     }
     
     public class ShopPanelView : PanelView
@@ -25,9 +26,9 @@ namespace FitMe.Panel
         [Title("Subscription Buttons")]
         [SerializeField] private ButtonInfo[] _subscriptionButton;
         
-        private IDisposable _bindings;
-        private ShopPanelViewModel ViewModel => (ShopPanelViewModel)BaseViewModel;
         [SerializeField] private string mainMenuPanelId = "MainMenu";
+        private ShopPanelViewModel ViewModel => (ShopPanelViewModel)BaseViewModel;
+        private IDisposable _bindings;
         
         [Inject]
         public override void Construct(IPanelViewModel viewModel)
@@ -44,7 +45,9 @@ namespace FitMe.Panel
                 .AddTo(ref disposableBuilder);
             foreach (var button in _consumableItemButton)
             {
-                var productId = button.ProductId;
+                var productId = button.ProductId.ToProductString();
+                if (button.PriceText != null)
+                    button.PriceText.text = ViewModel.GetPrice(productId);
                 button.Button
                     .OnClickAsObservable()
                     .Subscribe(_ => OnBuyButtonClicked(productId))
@@ -52,7 +55,9 @@ namespace FitMe.Panel
             }
             foreach (var button in _subscriptionButton)
             {
-                var productId = button.ProductId;
+                var productId = button.ProductId.ToProductString();
+                if (button.PriceText != null)
+                    button.PriceText.text = ViewModel.GetPrice(productId);
                 button.Button
                     .OnClickAsObservable()
                     .Subscribe(_ => OnBuyButtonClicked(productId))

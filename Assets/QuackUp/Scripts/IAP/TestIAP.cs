@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace QuackUp.Utils
+namespace QuackUp.IAP
 {
     public class TestIAP : MonoBehaviour
     {

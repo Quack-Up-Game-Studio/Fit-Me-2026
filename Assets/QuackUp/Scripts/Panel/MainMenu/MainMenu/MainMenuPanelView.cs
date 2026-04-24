@@ -44,7 +44,7 @@ namespace FitMe.Panel
             leaderboardButton.OnClickAsObservable()
                 .Subscribe(_ => OnLeaderboardButtonClicked())
                 .AddTo(ref disposableBuilder);
-            settingsButton.OnClickAsObservable()
+            shopButton.OnClickAsObservable()
                 .Subscribe(_ => OnShopButtonClicked())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();

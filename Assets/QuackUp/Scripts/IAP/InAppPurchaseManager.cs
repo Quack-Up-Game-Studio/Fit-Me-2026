@@ -3,9 +3,8 @@ using UnityEngine.Purchasing;
 using VContainer;
 using VContainer.Unity;
 
-namespace QuackUp.Utils
+namespace QuackUp.IAP
 {
-    // Fix 4: Product IDs รวมไว้ที่เดียว ไม่มี magic string กระจาย
     public static class ProductIds
     {
         public const string MonthlyPass   = "monthlypass";
@@ -177,6 +176,13 @@ namespace QuackUp.Utils
                 return false;
             }
 #endif
+        }
+        
+        public string GetLocalizedPrice(string productId)
+        {
+            if (!IsInitialized()) return "";
+            var product = m_StoreController.products.WithID(productId);
+            return product?.metadata.localizedPriceString ?? "";
         }
     }
 }
