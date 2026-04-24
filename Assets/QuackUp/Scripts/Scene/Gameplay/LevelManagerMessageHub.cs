@@ -3,6 +3,7 @@ using FitMe.Shared;
 using MessagePipe;
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
+using Sirenix.OdinInspector.Editor.GettingStarted;
 using VContainer;
 
 namespace FitMe.Scene
@@ -16,6 +17,7 @@ namespace FitMe.Scene
             IPublisher<SpawnWithBlockPresetEvent> startSpawnBlockPublisher,
             IPublisher<SpawnWithGridPresetEvent> startSpawnPublisher,
             IPublisher<StartCreateGridEvent> startCreateGridPublisher,
+            IPublisher<DifficultyChangeEvent> difficultyChangePublisher,
             ISubscriber<LoadSceneStageEvent> loadSceneStageSubscriber,
             ISubscriber<GameOverEvent> gameOverSubscriber)
         {
@@ -27,6 +29,9 @@ namespace FitMe.Scene
                 null);
             MessageWrappers[typeof(StartCreateGridEvent)] = new MessageWrapper<StartCreateGridEvent>(
                 startCreateGridPublisher,
+                null);
+            MessageWrappers[typeof(DifficultyChangeEvent)] = new MessageWrapper<DifficultyChangeEvent>(
+                difficultyChangePublisher,
                 null);
             MessageWrappers[typeof(LoadSceneStageEvent)] = new MessageWrapper<LoadSceneStageEvent>(
                 null,

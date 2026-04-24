@@ -13,9 +13,11 @@ namespace FitMe.Panel
         [SerializeField] private Button challengeButton;
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button leaderboardButton;
+        [SerializeField] private Button shopButton;
         [SerializeField] private string challengePanelId = "Challenge";
         [SerializeField] private string settingsPanelId = "Settings";
         [SerializeField] private string leaderboardPanelId = "Leaderboard";
+        [SerializeField] private string shopPanelId = "Shop";
         
         private MainMenuPanelViewModel ViewModel => (MainMenuPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
@@ -41,6 +43,9 @@ namespace FitMe.Panel
                 .AddTo(ref disposableBuilder);
             leaderboardButton.OnClickAsObservable()
                 .Subscribe(_ => OnLeaderboardButtonClicked())
+                .AddTo(ref disposableBuilder);
+            shopButton.OnClickAsObservable()
+                .Subscribe(_ => OnShopButtonClicked())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -72,6 +77,12 @@ namespace FitMe.Panel
         {
             if (!TryGetCrossfadeRule(leaderboardPanelId, out var rule)) return;
             ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData(leaderboardPanelId, rule.crossfadeSettings));
+        }
+
+        private void OnShopButtonClicked()
+        {
+            if (!TryGetCrossfadeRule(shopPanelId, out var rule)) return;
+            ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData(shopPanelId, rule.crossfadeSettings));
         }
     }
 }

@@ -443,6 +443,7 @@ namespace FitMe.Grid
         
                 block.Controller.SetActive(false);
                 _previewBlocks.Add(block);
+                _spawnPreviews[i].CurrentBlock = block;
             }
         }
         
@@ -540,17 +541,17 @@ namespace FitMe.Grid
                 spawnPoint.CurrentBlock = null;
             }
         }
-
-        
         
         public async UniTask GameOverCheck()
         {
             var blocksToCheck = BlockOnHand.Select(x => x.Model).ToList();
             
             var blockOnSwap =_spawnPreviews[0].CurrentBlock?.Model;
-            if (blockOnSwap != null)
+            foreach (var preview in _spawnPreviews)
             {
-                blocksToCheck.Add(blockOnSwap);
+                var model = preview.CurrentBlock?.Model;
+                if (model != null)
+                    blocksToCheck.Add(model);
             }
             
             if (!_gridManager.CheckAvailableBlock(blocksToCheck, out _))
