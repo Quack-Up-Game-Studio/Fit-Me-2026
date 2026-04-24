@@ -879,9 +879,12 @@ MonoBehaviour:
   <ObstacleCount>k__BackingField: 2
   <OverrideBag>k__BackingField: 1
   <SpawnBlockData>k__BackingField:
-  - blockShape: 0
+  - blockShape: 1
     rotation: {x: 0, y: 0, z: 0, w: 0}
     blockColor: 0
-  - blockShape: 2
+  - blockShape: 7
     rotation: {x: 0, y: 0, z: 0, w: 0}
     blockColor: 1
+  - blockShape: 8
+    rotation: {x: 0, y: 0, z: 0, w: 0}
+    blockColor: 3

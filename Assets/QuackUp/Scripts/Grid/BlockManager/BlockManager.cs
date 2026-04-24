@@ -78,7 +78,11 @@ namespace FitMe.Grid
             .Where(x => !x.IsFree)
             .Select(x => x.CurrentBlock)
             .ToList();
-        
+
+        public bool AllowSwapping { get; set; } = true;
+
+        public Observable<Unit> OnSwap => _onSwap;
+        private readonly Subject<Unit> _onSwap = new();
         private Queue<SpawnBlockData> _spawnBag = new();
         private readonly List<SpawnBlockData> _blockPool = new();
         private BlockInstance _currentPreviewBlock;
@@ -261,7 +265,7 @@ namespace FitMe.Grid
         {
             _spawnBag.Clear();
             ResetBlockInSlot();
-            SpawnBlocksFromBag(true);
+            //SpawnBlocksFromBag(true);
             Debug.LogWarning("Yuirin: Bag Reset!");
         }
         
@@ -332,10 +336,10 @@ namespace FitMe.Grid
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
         }
-
-        //Temporary method for testing swap mechanic
+        
         public void Swap()
         {
+            if (!AllowSwapping) return;
             var blockToSwap = BlockOnHand[0];
             if (blockToSwap == null) return;
             var previewBlock = _previewBlocks[0];
@@ -361,6 +365,7 @@ namespace FitMe.Grid
             var newPreviewBlock = InstantiateBlock(_spawnPreviews[0].Transform, swapBlockData.rotation, swapBlockData.blockShape, swapBlockData.blockColor, _config.PreviewScale);
             newPreviewBlock.Controller.SetActive(false);
             _previewBlocks[0] = newPreviewBlock;
+            _onSwap?.OnNext(Unit.Default);
             //PreviewMultiNextQueue(_config.PreviewCount);
         }
 

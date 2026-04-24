@@ -296,6 +296,11 @@ namespace FitMe.Scene
             saveData.cumulativeScore += amount;
             _saveManager.Save(_playerRecordSaveObject);
         }
+
+        public void SetScore(int amount)
+        {
+            Score.Value = amount;
+        }
         
         public void ChangeFitMe(int amount)
         {
@@ -305,6 +310,11 @@ namespace FitMe.Scene
             if (saveData == null) return;
             saveData.cumulativeFitMe += amount;
             _saveManager.Save(_playerRecordSaveObject);
+        }
+
+        public void SetFitMe(int amount)
+        {
+            FitMe.Value = amount;
         }
         
         public void SetGameState(GameState newState)

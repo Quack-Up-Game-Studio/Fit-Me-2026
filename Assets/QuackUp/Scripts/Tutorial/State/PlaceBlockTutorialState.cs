@@ -1,50 +1,59 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using FitMe.Grid;
 using FitMe.Panel;
+using MessagePipe;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
 using VContainer;
+using DisposableBag = R3.DisposableBag;
 
 namespace FitMe.Tutorial
 {
     [Serializable]
-    public class PlaceBlockTutorialState : TextTutorialState, IDisposable
+    public class PlaceBlockTutorialState : TutorialState, IDisposable
     {
         [SerializeField] private GeneralFloatingUIElement placeBlockHint;
-        
+
         private BlockManager _blockManager;
+        private ISubscriber<BlockSpawnedEvent> _blockSpawnedEvent;
+        private IDisposable _blockSpawnedSubscription;
         private DisposableBag _blockPlacedSubscription;
+        
         private CancellationTokenSource _hintCts = new();
         
         [Inject]
-        public void SetBlockManager(BlockManager blockManager)
+        public void SetBlockSubscription(BlockManager blockManager, ISubscriber<BlockSpawnedEvent> blockSpawnedEvent)
         {
-            _blockManager = blockManager;
+            _blockManager  = blockManager;
+            _blockSpawnedEvent = blockSpawnedEvent;
             placeBlockHint.Initialize();
             placeBlockHint.gameObject.SetActive(false);
         }
 
         public override async UniTask Enter()
         {
-            if (_blockManager == null)
-            {
-                DebugUtils.LogError($"{GetType().Name}: BlockManager is not set.");
-                return;
-            }
+            _blockSpawnedSubscription = _blockSpawnedEvent
+                .Subscribe(x => OnBlockSpawned(x.BlockInstances));
+            OnBlockSpawned(_blockManager.BlockOnHand);
+            await base.Enter();
+            ShowHint().Forget();
+        }
+
+        private void OnBlockSpawned(IEnumerable<BlockInstance> data)
+        {
+            _blockPlacedSubscription.Dispose();
             _blockPlacedSubscription = new DisposableBag();
-            foreach (var block in _blockManager.BlockOnHand)
+            foreach (var block in data)
             {
                 block.ViewModel.BlockInteractionState
                     .IgnoreFirstValueWhenSubscribe()
                     .Subscribe(OnBlockInteractionStateChanged)
                     .AddTo(ref _blockPlacedSubscription);
             }
-            await base.Enter();
-            await ViewModel.ChangeInputBlockState(false);
-            ShowHint().Forget();
         }
 
         private async UniTask ShowHint()
@@ -76,11 +85,9 @@ namespace FitMe.Tutorial
             {
                 case BlockInteractionState.PlacedOnSpawn:
                     ShowHint().Forget();
-                    ViewModel.Show().Forget();
                     break;
                 case BlockInteractionState.PickUp:
                     HideHint().Forget();
-                    ViewModel.Hide().Forget();
                     break;
                 case BlockInteractionState.PlacedOnGrid:
                     StateMachine.Next().Forget();
@@ -98,6 +105,7 @@ namespace FitMe.Tutorial
 
         public void Dispose()
         {
+            _blockSpawnedSubscription?.Dispose();
             _blockPlacedSubscription.Dispose();
         }
     }

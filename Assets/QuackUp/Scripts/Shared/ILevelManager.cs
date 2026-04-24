@@ -34,8 +34,10 @@ namespace FitMe.Shared
     {
         ReactiveProperty<int> Score { get; }
         ReactiveProperty<int> FitMe { get; }
+        void SetScore(int score);
         void ChangeScore(int amount);
         void ChangeFitMe(int amount);
+        void SetFitMe(int fitMe);
     }
 
     public interface IGameStateManager
@@ -52,7 +54,9 @@ namespace FitMe.Shared
         public ReactiveProperty<int> Score { get; } = new(0);
         public ReactiveProperty<int> FitMe { get; } = new(0);
         public void ChangeScore(int amount){}
+        public void SetScore(int amount){}
         public void ChangeFitMe(int amount){}
+        public  void SetFitMe(int amount){}
 
         public int CurrentObstacleCount => 0;
         public UniTask NextTutorialPreset(bool playSound) => UniTask.CompletedTask;

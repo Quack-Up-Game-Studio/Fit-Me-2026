@@ -12,7 +12,7 @@ using VContainer;
 namespace FitMe.Tutorial
 {
     [Serializable]
-    public class TextTutorialState : TutorialState
+    public class TextTutorialState : TutorialState, IDisposable
     {
         [SerializeField, TextArea] private string text;
         [FormerlySerializedAs("usePreviousSize")] [SerializeField] private bool usePreviousPanelSize;
@@ -46,7 +46,7 @@ namespace FitMe.Tutorial
         [ShowIf(nameof(characterRectTransform))]
         private void CopyCharacterTransformData()
         {
-            characterSize = characterRectTransform.sizeDelta;
+            characterSize = characterRectTransform.localScale;
             characterPosition = characterRectTransform.localPosition;
             characterRotation = characterRectTransform.localEulerAngles;
         }
@@ -110,6 +110,11 @@ namespace FitMe.Tutorial
             _subscription.Dispose();
             if (hideWhenExit)
                 await UniTask.WhenAll(ViewModel.Hide(), ViewModel.ChangeInputBlockState(false));
+        }
+
+        public void Dispose()
+        {
+            _subscription?.Dispose();
         }
     }
 }

@@ -20,7 +20,10 @@ namespace FitMe.Grid
         public ReactiveCommand<PointerEventData> ClickCommand { get; } = new();
         
         public bool AllowRotation { get; set; } = true;
+        public bool AllowDrag { get; set; } = true;
+        public Observable<Unit> OnRotate => _onRotate;
         
+        private readonly Subject<Unit> _onRotate = new();
         private readonly BlockManagerConfig _config;
         private readonly GridManager _gridManager;
         private readonly IGameStateManager _gameStateManager;
@@ -89,6 +92,7 @@ namespace FitMe.Grid
         #region Interactions
         private void OnBeginDrag(PointerEventData eventData)
         {
+            if (!AllowDrag) return;
             if (_dragWhileRotating) return;
             if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock)
             {
@@ -115,6 +119,7 @@ namespace FitMe.Grid
 
         private void OnDrag(PointerEventData eventData)
         {
+            if (!AllowDrag) return;
             if (_dragWhileRotating) return;
             if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock)
             {
@@ -171,6 +176,7 @@ namespace FitMe.Grid
 
         private void OnEndDrag(PointerEventData eventData)
         {
+            if (!AllowDrag) return;
             if (_dragWhileRotating)
             {
                 _dragWhileRotating = false;
@@ -215,6 +221,7 @@ namespace FitMe.Grid
             _blockInstance.ViewModel.RotateCommand.Execute(new(promise, rotation));
             await promise.Task;
             _isRotating = false;
+            _onRotate?.OnNext(Unit.Default);
         }
         #endregion
 

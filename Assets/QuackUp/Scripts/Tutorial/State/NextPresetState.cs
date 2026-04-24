@@ -8,12 +8,11 @@ using VContainer;
 namespace FitMe.Tutorial
 {
     [Serializable]
-    public class NextPresetState : TutorialState, IDisposable
+    public class NextPresetState : TutorialState
     {
         [SerializeField] private bool playFitMeSound;
         
-        private ILevelManager  _levelManager;
-        private IDisposable _delayTimer;
+        private ILevelManager _levelManager;
         
         [Inject]
         public void SetLevelManager(ILevelManager levelManager)
@@ -25,13 +24,7 @@ namespace FitMe.Tutorial
         {
             await base.Enter();
             await _levelManager.NextTutorialPreset(playFitMeSound);
-            _delayTimer = Observable.TimerFrame(1)
-                .Subscribe(_ => StateMachine.Next().Forget());
-        }
-
-        public void Dispose()
-        {
-            _delayTimer?.Dispose();
+            StateMachine.Next().Forget();
         }
     }
 }

@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: FitMe.Scene::FitMe.Scene.LevelDatabase
   LevelPresets:
   - {fileID: 11400000, guid: 8ea71633db6f30256861cccab33d97c9, type: 2}
+  - {fileID: 11400000, guid: d21fbcae7a81f058eb290d009ed6ee9c, type: 2}
+  - {fileID: 11400000, guid: d93e2a23cec16d83e89fabfc10e332be, type: 2}
