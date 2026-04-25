@@ -14,6 +14,7 @@ namespace FitMe.Panel
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button leaderboardButton;
         [SerializeField] private Button shopButton;
+        [SerializeField] private Button tutorialButton;
         [SerializeField] private string challengePanelId = "Challenge";
         [SerializeField] private string settingsPanelId = "Settings";
         [SerializeField] private string leaderboardPanelId = "Leaderboard";
@@ -35,6 +36,9 @@ namespace FitMe.Panel
             ViewModel.GameVersion
                 .Subscribe(OnGameVersionChanged)
                 .AddTo(ref disposableBuilder);
+            ViewModel.CompletedTutorial
+                .Subscribe(OnTutorialCompletionChanged)
+                .AddTo(ref disposableBuilder);
             challengeButton.OnClickAsObservable()
                 .Subscribe(_ => OnChallengeButtonClicked())
                 .AddTo(ref disposableBuilder);
@@ -46,6 +50,9 @@ namespace FitMe.Panel
                 .AddTo(ref disposableBuilder);
             shopButton.OnClickAsObservable()
                 .Subscribe(_ => OnShopButtonClicked())
+                .AddTo(ref disposableBuilder);
+            tutorialButton.OnClickAsObservable()
+                .Subscribe(_ => OnTutorialButtonClicked())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -59,6 +66,11 @@ namespace FitMe.Panel
         private void OnGameVersionChanged(string version)
         {
             gameVersionText.text = version;
+        }
+        
+        private void OnTutorialCompletionChanged(bool completed)
+        {
+            tutorialButton.gameObject.SetActive(completed);
         }
 
         private void OnChallengeButtonClicked()
@@ -83,6 +95,11 @@ namespace FitMe.Panel
         {
             if (!TryGetCrossfadeRule(shopPanelId, out var rule)) return;
             ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData(shopPanelId, rule.crossfadeSettings));
+        }
+
+        private void OnTutorialButtonClicked()
+        {
+            ViewModel.ToTutorial.Execute(Unit.Default);
         }
     }
 }

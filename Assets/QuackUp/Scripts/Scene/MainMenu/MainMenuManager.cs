@@ -27,11 +27,13 @@ namespace FitMe.Scene.MainMenu
         private readonly LoadSceneManager _loadSceneManager;
         private readonly MessagePackSaveManager _saveManager;
         private readonly EnergyManager _energyManager;
+        private readonly PanelManager _panelManager;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
         private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
         
         private IDisposable _subscriptions;
+        private IDisposable _panelSubscriptions;
         private AudioReference _bgmReference;
         
         [Inject]
@@ -42,6 +44,7 @@ namespace FitMe.Scene.MainMenu
             LoadSceneManager loadSceneManager,
             MessagePackSaveManager saveManager,
             EnergyManager energyManager,
+            PanelManager panelManager,
             IAudioManager audioManager,
             [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub,
             IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher)
@@ -52,6 +55,7 @@ namespace FitMe.Scene.MainMenu
             _loadSceneManager = loadSceneManager;
             _saveManager = saveManager;
             _energyManager = energyManager;
+            _panelManager = panelManager;
             _audioManager = audioManager;
             _messageHub = messageHub;
             _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
@@ -71,6 +75,7 @@ namespace FitMe.Scene.MainMenu
                 .Where(x => x.Stage is LoadSceneStage.StartOut)
                 .Subscribe(_ => OnSceneStartOut())
                 .AddTo(ref disposableBuilder);
+            
             _subscriptions = disposableBuilder.Build();
         }
         
@@ -80,7 +85,12 @@ namespace FitMe.Scene.MainMenu
             var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
             saveData.IsFirstTimePlayer = false;
             _saveManager.Save(saveObjects);
-            
+            if (!_panelManager.GetFirstPanelOfType<MainMenuPanelViewModel>(out var mainMenuPanel))
+            {
+                DebugUtils.LogError("MainMenu panel not found!");
+            }
+            _panelSubscriptions = mainMenuPanel.ToTutorial
+                .SubscribeAwait((_, _) => ToTutorial(), AwaitOperation.Switch);
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
@@ -89,10 +99,14 @@ namespace FitMe.Scene.MainMenu
         public void Dispose()
         {
             _subscriptions?.Dispose();
+            _panelSubscriptions?.Dispose();
         }
         
         private async UniTask OnAboutToPlaceBlock(CancellationTokenSource cancellationTokenSource)
         {
+            var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
+            if (!saveData.CompletedTutorial) return;
             if (_energyManager.CurrentEnergy.CurrentValue < 1)
             {
                 cancellationTokenSource.Cancel();
@@ -111,7 +125,22 @@ namespace FitMe.Scene.MainMenu
         private void OnBlockPlaced()
         {
             //_loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false).Forget();
-            ToGameplay().Forget();
+            var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
+            if (saveData.CompletedTutorial)
+            {
+                ToGameplay().Forget();
+            }
+            else
+            {
+                ToTutorial().Forget();
+            }
+        }
+
+        private async UniTask ToTutorial()
+        {
+            LevelManager.GameMode = GameMode.Classic;
+            await _loadSceneManager.LoadScene(SceneType.Tutorial, LoadSceneMode.Single, false);
         }
 
         private async UniTaskVoid ToGameplay()

@@ -12663,6 +12663,7 @@ MonoBehaviour:
   settingsButton: {fileID: 1356761732}
   leaderboardButton: {fileID: 1139677892}
   shopButton: {fileID: 1020492278}
+  tutorialButton: {fileID: 962096675}
   challengePanelId: Challenge
   settingsPanelId: Settings
   leaderboardPanelId: Leaderboard

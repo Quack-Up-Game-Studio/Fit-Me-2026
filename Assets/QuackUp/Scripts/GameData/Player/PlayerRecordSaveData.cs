@@ -24,6 +24,9 @@ namespace FitMe.GameData
         [Key("IsFirstTimePlayer")]
         [field: SerializeField] public bool IsFirstTimePlayer { get; set; } = true;
         
+        [Key("CompletedTutorial")]
+        [field: SerializeField] public bool CompletedTutorial { get; set; }
+        
         [Key("TotalPlayTime")]
         [field: OdinSerialize] public TimeSpan TotalPlayTime { get; set; } = TimeSpan.Zero;
         

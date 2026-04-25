@@ -1,6 +1,8 @@
 using System;
 using Cysharp.Threading.Tasks;
+using FitMe.GameData;
 using FitMe.Tutorial;
+using QuackUp.Save;
 using QuackUp.SceneManagement;
 using R3;
 using UnityEngine.SceneManagement;
@@ -13,6 +15,7 @@ namespace FitMe.Scene
     {
         private readonly TutorialStateMachine _stateMachine;
         private readonly LoadSceneManager _loadSceneManager;
+        private readonly MessagePackSaveManager  _saveManager;
         private readonly string _overrideStart;
         private IDisposable _subscriptions;
         
@@ -23,11 +26,13 @@ namespace FitMe.Scene
             LevelManager levelManager,
             TutorialStateMachine stateMachine,
             LoadSceneManager loadSceneManager,
+            MessagePackSaveManager saveManager,
             [Key(OverrideStartKey)] string startKey)
         {
             levelManager.IsTutorial = true;
             _stateMachine = stateMachine;
             _loadSceneManager = loadSceneManager;
+            _saveManager = saveManager;
             _overrideStart = startKey;
             Subscribe();
         }
@@ -48,6 +53,10 @@ namespace FitMe.Scene
         
         private void OnTutorialCompleted()
         {
+            var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
+            saveData.CompletedTutorial = true;
+            _saveManager.Save(saveObject);
             _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false).Forget();
         }
 

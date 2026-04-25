@@ -79,6 +79,19 @@ namespace FitMe.Panel
             return false;
         }
 
+        public bool GetFirstPanelOfType<T>(out T panel) where T : class, IPanelViewModel
+        {
+            foreach (var p in _panels.Values)
+            {
+                if (p is not T typedPanel) continue;
+                panel = typedPanel;
+                return true;
+            }
+            DebugUtils.LogError($"No panel of type {typeof(T).Name} found");
+            panel = null;
+            return false;
+        }
+
         public List<T> GetPanelsOfType<T>() where T : IPanelViewModel
         { 
             var panelsOfType = new List<T>();
