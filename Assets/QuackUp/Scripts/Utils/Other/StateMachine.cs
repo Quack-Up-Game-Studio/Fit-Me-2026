@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -62,7 +63,8 @@ namespace QuackUp.Utils
         [ShowInInspector] public new TState CurrentState => (TState)base.CurrentState;
         [field: ShowInInspector] public string CurrentStateKey { get; protected set; }
         [field: ShowInInspector] public int CurrentStateIndex { get; protected set; } = 0;
-
+        
+        private TState _previousState;
         private Action _pendingTransition;
         private bool _isTransitioning;
         
@@ -74,6 +76,17 @@ namespace QuackUp.Utils
         public virtual void RemoveState(string key)
         {
             states.Remove(key);
+        }
+
+        protected virtual async UniTask ChangeStateInternal(TState targetState, int? index = null, [CanBeNull] string key = null)
+        {
+            _isTransitioning = true;
+            var currentState = CurrentState;
+            await ChangeState(targetState);
+            _previousState = currentState;
+            CurrentStateIndex = index ?? states.Values.ToList().IndexOf(targetState);
+            CurrentStateKey = key ?? states.Keys.ElementAt(CurrentStateIndex);
+            _isTransitioning = false;
         }
         
         /// <summary>
@@ -87,15 +100,11 @@ namespace QuackUp.Utils
                 _pendingTransition = () => Next().Forget();
                 return;
             }
-            _isTransitioning = true;
             if (CurrentStateIndex < states.Count - 1)
             {
                 var nextState = states[CurrentStateIndex + 1];
-                await ChangeState(nextState);
-                CurrentStateIndex++;
-                CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
+                await ChangeStateInternal(nextState, CurrentStateIndex + 1);
             }
-            _isTransitioning = false;
             _pendingTransition?.Invoke();
         }
 
@@ -116,17 +125,13 @@ namespace QuackUp.Utils
                 _pendingTransition = () => NextTo(key).Forget();
                 return;
             }
-            _isTransitioning = true;
             var startIndex = CurrentStateIndex + 1;
             var targetIndex = states.Keys.ToList().IndexOf(key);
             for (var i = startIndex; i <= targetIndex; i++)
             {
                 var nextState = states[targetIndex];
-                await ChangeState(nextState);
-                CurrentStateIndex = targetIndex;
-                CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
+                await ChangeStateInternal(nextState, targetIndex, key);
             }
-            _isTransitioning = false;
             _pendingTransition?.Invoke();
         }
 
@@ -142,17 +147,13 @@ namespace QuackUp.Utils
                 _pendingTransition = () => NextTo(index).Forget();
                 return;
             }
-            _isTransitioning = true;
             var startIndex = CurrentStateIndex + 1;
             var targetIndex = Mathf.Clamp(index, 0, states.Count - 1);
             for (var i = startIndex; i <= targetIndex; i++)
             {
                 var nextState = states[i];
-                await ChangeState(nextState);
-                CurrentStateIndex = i;
-                CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
+                await ChangeStateInternal(nextState, i);
             }
-            _isTransitioning = false;
             _pendingTransition?.Invoke();
         }
 
@@ -168,18 +169,14 @@ namespace QuackUp.Utils
                 _pendingTransition = () => NextBy(offset).Forget();
                 return;
             }
-            _isTransitioning = true;
             var startIndex = CurrentStateIndex + 1;
             var targetIndex = (int)(CurrentStateIndex + offset);
             targetIndex = Mathf.Clamp(targetIndex, 0, states.Count - 1);
             for (var i = startIndex; i <= targetIndex; i++)
             {
                 var nextState = states[targetIndex];
-                await ChangeState(nextState);
-                CurrentStateIndex = targetIndex;
-                CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
+                await ChangeStateInternal(nextState, i);
             }
-            _isTransitioning = false;
             _pendingTransition?.Invoke();
         }
 
@@ -194,15 +191,11 @@ namespace QuackUp.Utils
                 _pendingTransition = () => Previous().Forget();
                 return;
             }
-            _isTransitioning = true;
             if (CurrentStateIndex > 0)
             {
                 var previousState = states[CurrentStateIndex - 1];
-                await ChangeState(previousState);
-                CurrentStateIndex--;
-                CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
+                await ChangeStateInternal(previousState, CurrentStateIndex - 1);
             }
-            _isTransitioning = false;
             _pendingTransition?.Invoke();
         }
 
@@ -223,17 +216,13 @@ namespace QuackUp.Utils
                 _pendingTransition = () => PreviousTo(key).Forget();
                 return;
             }
-            _isTransitioning = true;
             var startIndex = CurrentStateIndex - 1;
             var targetIndex = states.Keys.ToList().IndexOf(key);
             for (var i = startIndex; i >= targetIndex; i--)
             {
                 var previousState = states[targetIndex];
-                await ChangeState(previousState);
-                CurrentStateIndex = targetIndex;
-                CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
+                await ChangeStateInternal(previousState, i);
             }
-            _isTransitioning = false;
             _pendingTransition?.Invoke();
         }
         
@@ -248,17 +237,13 @@ namespace QuackUp.Utils
                 _pendingTransition = () => PreviousTo(index).Forget();
                 return;
             }
-            _isTransitioning = true;
             var startIndex = CurrentStateIndex - 1;
             var targetIndex = Mathf.Clamp(index, 0, states.Count - 1);
             for (var i = startIndex; i >= index; i--)
             {
                 var previousState = states[i];
-                await ChangeState(previousState);
-                CurrentStateIndex = i;
-                CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
+                await ChangeStateInternal(previousState, i);
             }
-            _isTransitioning = false;
             _pendingTransition?.Invoke();
         }
 
@@ -274,18 +259,14 @@ namespace QuackUp.Utils
                 _pendingTransition = () => PreviousBy(offset).Forget();
                 return;
             }
-            _isTransitioning = true;
             var startIndex = CurrentStateIndex - 1;
             var targetIndex = (int)(CurrentStateIndex - offset);
             targetIndex = Mathf.Clamp(targetIndex, 0, states.Count - 1);
             for (var i = startIndex; i >= targetIndex; i--)
             {
                 var previousState = states[targetIndex];
-                await ChangeState(previousState);
-                CurrentStateIndex = targetIndex;
-                CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
+                await ChangeStateInternal(previousState, i);
             }
-            _isTransitioning = false;
             _pendingTransition?.Invoke();
         }
         
@@ -306,11 +287,7 @@ namespace QuackUp.Utils
                 _pendingTransition = () => JumpTo(key).Forget();
                 return;
             }
-            _isTransitioning = true;
-            await ChangeState(targetState);
-            CurrentStateIndex = states.Keys.ToList().IndexOf(key);
-            CurrentStateKey = key;
-            _isTransitioning = false;
+            await ChangeStateInternal(targetState, key: key);
             _pendingTransition?.Invoke();
         }
         
@@ -326,13 +303,9 @@ namespace QuackUp.Utils
                 _pendingTransition = () => JumpTo(index).Forget();
                 return;
             }
-            _isTransitioning = true;
             var targetIndex = Mathf.Clamp(index, 0, states.Count - 1);
             var targetState = states[targetIndex];
-            await ChangeState(targetState);
-            CurrentStateIndex = targetIndex;
-            CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
-            _isTransitioning = false;
+            await ChangeStateInternal(targetState, index);
             _pendingTransition?.Invoke();
         }
 
@@ -348,14 +321,30 @@ namespace QuackUp.Utils
                 _pendingTransition = () => JumpTo(offset).Forget();
                 return;
             }
-            _isTransitioning = true;
             var targetIndex = CurrentStateIndex + offset;
             targetIndex = Mathf.Clamp(targetIndex, 0, states.Count - 1);
             var targetState = states[targetIndex];
-            await ChangeState(targetState);
-            CurrentStateIndex = targetIndex;
-            CurrentStateKey = states.Keys.ElementAt(CurrentStateIndex);
-            _isTransitioning = false;
+            await ChangeStateInternal(targetState, targetIndex);
+            _pendingTransition?.Invoke();
+        }
+
+        /// <summary>
+        /// Reverts to the previous state. If there is no previous state, it does nothing.
+        /// </summary>
+        public virtual async UniTask Revert()
+        {
+            _pendingTransition = null;
+            if (_previousState == null)
+            {
+                DebugUtils.LogWarning("Cannot revert state because there is no previous state.");
+                return;
+            }
+            if (_isTransitioning)
+            {
+                _pendingTransition = () => Revert().Forget();
+                return;
+            }
+            await ChangeStateInternal(_previousState);
             _pendingTransition?.Invoke();
         }
 

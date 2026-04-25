@@ -7565,7 +7565,7 @@ MonoBehaviour:
         FitMe.Scene]], mscorlib
     - Name: 
       Entry: 12
-      Data: 37
+      Data: 30
     - Name: 
       Entry: 7
       Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
@@ -9213,7 +9213,7 @@ MonoBehaviour:
       Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
     - Name: Name
       Entry: 1
-      Data: IntroPart2
+      Data: ScoreDialogue
     - Name: State
       Entry: 7
       Data: 39|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
@@ -9926,721 +9926,10 @@ MonoBehaviour:
       Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
     - Name: Name
       Entry: 1
-      Data: IntroPart3
-    - Name: State
-      Entry: 7
-      Data: 46|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
-    - Name: text
-      Entry: 1
-      Data: Now it's time for a real challenge!
-    - Name: usePreviousPanelSize
-      Entry: 5
-      Data: false
-    - Name: panelInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 200
-    - Name: top
-      Entry: 4
-      Data: 700
-    - Name: right
-      Entry: 4
-      Data: 200
-    - Name: bottom
-      Entry: 4
-      Data: 1000
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterSize
-      Entry: 5
-      Data: false
-    - Name: characterSize
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterPosition
-      Entry: 5
-      Data: false
-    - Name: characterPosition
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: -369
-    - Name: 
-      Entry: 4
-      Data: -98
-    - Name: 
-      Entry: 4
-      Data: -21897.81
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterRotation
-      Entry: 5
-      Data: false
-    - Name: characterRotation
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 25.0105247
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: hasCarveWindow
-      Entry: 5
-      Data: false
-    - Name: usePreviousCarveWindowInset
-      Entry: 5
-      Data: false
-    - Name: carveWindowInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 0
-    - Name: top
-      Entry: 4
-      Data: 0
-    - Name: right
-      Entry: 4
-      Data: 785.7
-    - Name: bottom
-      Entry: 4
-      Data: 2131.2
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: image
-      Entry: 6
-      Data: 
-    - Name: hideWhenExit
-      Entry: 5
-      Data: false
-    - Name: hasNextButton
-      Entry: 5
-      Data: true
-    - Name: blockInput
-      Entry: 5
-      Data: true
-    - Name: panelRectTransform
-      Entry: 10
-      Data: 26
-    - Name: characterRectTransform
-      Entry: 10
-      Data: 27
-    - Name: carveWindowRectTransform
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
-    - Name: Name
-      Entry: 1
-      Data: NextPreset3
-    - Name: State
-      Entry: 7
-      Data: 47|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
-    - Name: playFitMeSound
-      Entry: 5
-      Data: false
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
-    - Name: Name
-      Entry: 1
-      Data: ObstacleShowcase
-    - Name: State
-      Entry: 7
-      Data: 48|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
-    - Name: text
-      Entry: 1
-      Data: "These are obstacles. You can\u2019t move or break them"
-    - Name: usePreviousPanelSize
-      Entry: 5
-      Data: false
-    - Name: panelInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 96.8
-    - Name: top
-      Entry: 4
-      Data: 1761.3
-    - Name: right
-      Entry: 4
-      Data: 96.8
-    - Name: bottom
-      Entry: 4
-      Data: 225.299988
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterSize
-      Entry: 5
-      Data: false
-    - Name: characterSize
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterPosition
-      Entry: 5
-      Data: false
-    - Name: characterPosition
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: -427
-    - Name: 
-      Entry: 4
-      Data: -859
-    - Name: 
-      Entry: 4
-      Data: -21897.81
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterRotation
-      Entry: 5
-      Data: false
-    - Name: characterRotation
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 34.8735275
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: hasCarveWindow
-      Entry: 5
-      Data: true
-    - Name: usePreviousCarveWindowInset
-      Entry: 5
-      Data: false
-    - Name: carveWindowInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 276.6
-    - Name: top
-      Entry: 4
-      Data: 605.05
-    - Name: right
-      Entry: 4
-      Data: 276.6
-    - Name: bottom
-      Entry: 4
-      Data: 947.05
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: image
-      Entry: 6
-      Data: 
-    - Name: hideWhenExit
-      Entry: 5
-      Data: false
-    - Name: hasNextButton
-      Entry: 5
-      Data: true
-    - Name: blockInput
-      Entry: 5
-      Data: true
-    - Name: panelRectTransform
-      Entry: 10
-      Data: 26
-    - Name: characterRectTransform
-      Entry: 10
-      Data: 27
-    - Name: carveWindowRectTransform
-      Entry: 10
-      Data: 28
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
-    - Name: Name
-      Entry: 1
-      Data: TryFitDialogue3
-    - Name: State
-      Entry: 7
-      Data: 49|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
-    - Name: text
-      Entry: 1
-      Data: See if you can beat this level!
-    - Name: usePreviousPanelSize
-      Entry: 5
-      Data: false
-    - Name: panelInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 200
-    - Name: top
-      Entry: 4
-      Data: 700
-    - Name: right
-      Entry: 4
-      Data: 200
-    - Name: bottom
-      Entry: 4
-      Data: 1000
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterSize
-      Entry: 5
-      Data: false
-    - Name: characterSize
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterPosition
-      Entry: 5
-      Data: false
-    - Name: characterPosition
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: -369
-    - Name: 
-      Entry: 4
-      Data: -98
-    - Name: 
-      Entry: 4
-      Data: -21897.81
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterRotation
-      Entry: 5
-      Data: false
-    - Name: characterRotation
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 25.0105247
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: hasCarveWindow
-      Entry: 5
-      Data: false
-    - Name: usePreviousCarveWindowInset
-      Entry: 5
-      Data: false
-    - Name: carveWindowInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 0
-    - Name: top
-      Entry: 4
-      Data: 0
-    - Name: right
-      Entry: 4
-      Data: 785.7
-    - Name: bottom
-      Entry: 4
-      Data: 2131.2
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: image
-      Entry: 6
-      Data: 
-    - Name: hideWhenExit
-      Entry: 5
-      Data: true
-    - Name: hasNextButton
-      Entry: 5
-      Data: true
-    - Name: blockInput
-      Entry: 5
-      Data: true
-    - Name: panelRectTransform
-      Entry: 10
-      Data: 26
-    - Name: characterRectTransform
-      Entry: 10
-      Data: 27
-    - Name: carveWindowRectTransform
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
-    - Name: Name
-      Entry: 1
-      Data: TryFit3
-    - Name: State
-      Entry: 7
-      Data: 50|FitMe.Tutorial.FitTutorialState, FitMe.Tutorial
-    - Name: jumpToWhenFail
-      Entry: 1
-      Data: Fail
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
-    - Name: Name
-      Entry: 1
-      Data: Outro1
-    - Name: State
-      Entry: 7
-      Data: 51|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
-    - Name: text
-      Entry: 1
-      Data: "Excellent! You\u2019re officially ready for the real deal!"
-    - Name: usePreviousPanelSize
-      Entry: 5
-      Data: false
-    - Name: panelInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 200
-    - Name: top
-      Entry: 4
-      Data: 700
-    - Name: right
-      Entry: 4
-      Data: 200
-    - Name: bottom
-      Entry: 4
-      Data: 1000
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterSize
-      Entry: 5
-      Data: false
-    - Name: characterSize
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterPosition
-      Entry: 5
-      Data: false
-    - Name: characterPosition
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: -369
-    - Name: 
-      Entry: 4
-      Data: -98
-    - Name: 
-      Entry: 4
-      Data: -21897.81
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterRotation
-      Entry: 5
-      Data: false
-    - Name: characterRotation
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 25.0105247
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: hasCarveWindow
-      Entry: 5
-      Data: false
-    - Name: usePreviousCarveWindowInset
-      Entry: 5
-      Data: false
-    - Name: carveWindowInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 0
-    - Name: top
-      Entry: 4
-      Data: 0
-    - Name: right
-      Entry: 4
-      Data: 785.7
-    - Name: bottom
-      Entry: 4
-      Data: 2131.2
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: image
-      Entry: 6
-      Data: 
-    - Name: hideWhenExit
-      Entry: 5
-      Data: false
-    - Name: hasNextButton
-      Entry: 5
-      Data: true
-    - Name: blockInput
-      Entry: 5
-      Data: true
-    - Name: panelRectTransform
-      Entry: 10
-      Data: 26
-    - Name: characterRectTransform
-      Entry: 10
-      Data: 27
-    - Name: carveWindowRectTransform
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
-    - Name: Name
-      Entry: 1
-      Data: Outro2
-    - Name: State
-      Entry: 7
-      Data: 52|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
-    - Name: text
-      Entry: 1
-      Data: "Let\u2019s see how far you can go! Good luck!"
-    - Name: usePreviousPanelSize
-      Entry: 5
-      Data: true
-    - Name: panelInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 200
-    - Name: top
-      Entry: 4
-      Data: 700
-    - Name: right
-      Entry: 4
-      Data: 200
-    - Name: bottom
-      Entry: 4
-      Data: 1000
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterSize
-      Entry: 5
-      Data: true
-    - Name: characterSize
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterPosition
-      Entry: 5
-      Data: true
-    - Name: characterPosition
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: -369
-    - Name: 
-      Entry: 4
-      Data: -98
-    - Name: 
-      Entry: 4
-      Data: -21897.81
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: usePreviousCharacterRotation
-      Entry: 5
-      Data: true
-    - Name: characterRotation
-      Entry: 7
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 4
-      Data: 25.0105247
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: hasCarveWindow
-      Entry: 5
-      Data: false
-    - Name: usePreviousCarveWindowInset
-      Entry: 5
-      Data: false
-    - Name: carveWindowInset
-      Entry: 7
-      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
-    - Name: left
-      Entry: 4
-      Data: 0
-    - Name: top
-      Entry: 4
-      Data: 0
-    - Name: right
-      Entry: 4
-      Data: 785.7
-    - Name: bottom
-      Entry: 4
-      Data: 2131.2
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: image
-      Entry: 6
-      Data: 
-    - Name: hideWhenExit
-      Entry: 5
-      Data: true
-    - Name: hasNextButton
-      Entry: 5
-      Data: true
-    - Name: blockInput
-      Entry: 5
-      Data: true
-    - Name: panelRectTransform
-      Entry: 10
-      Data: 26
-    - Name: characterRectTransform
-      Entry: 10
-      Data: 27
-    - Name: carveWindowRectTransform
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
-    - Name: Name
-      Entry: 1
       Data: Complete
     - Name: State
       Entry: 7
-      Data: 53|FitMe.Tutorial.CompleteTutorialState, FitMe.Tutorial
+      Data: 46|FitMe.Tutorial.CompleteTutorialState, FitMe.Tutorial
     - Name: 
       Entry: 8
       Data: 
@@ -10655,7 +9944,7 @@ MonoBehaviour:
       Data: Fail
     - Name: State
       Entry: 7
-      Data: 54|FitMe.Tutorial.FailState, FitMe.Tutorial
+      Data: 47|FitMe.Tutorial.FailState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: That's not quite right... Let's try again.
@@ -10796,7 +10085,7 @@ MonoBehaviour:
       Data: SetScore2
     - Name: State
       Entry: 7
-      Data: 55|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
+      Data: 48|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
     - Name: waitForScoreUpdate
       Entry: 5
       Data: false
@@ -10826,7 +10115,7 @@ MonoBehaviour:
       Data: Fail2
     - Name: State
       Entry: 7
-      Data: 56|FitMe.Tutorial.FailState, FitMe.Tutorial
+      Data: 49|FitMe.Tutorial.FailState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: That's not quite right... Let's try again.
@@ -10982,14 +10271,14 @@ MonoBehaviour:
       Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 57|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 50|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12
       Data: 6
     - Name: 
       Entry: 7
-      Data: 58|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
+      Data: 51|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
     - Name: scoreView
       Entry: 10
       Data: 32
@@ -11010,13 +10299,13 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 59|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
+      Data: 52|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 60|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
+      Data: 53|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
     - Name: energyBarView
       Entry: 10
       Data: 37
@@ -11025,7 +10314,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 61|FitMe.Panel.RunTimerInstaller, FitMe.Panel
+      Data: 54|FitMe.Panel.RunTimerInstaller, FitMe.Panel
     - Name: view
       Entry: 10
       Data: 38
@@ -11034,7 +10323,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 62|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
+      Data: 55|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
     - Name: mainCamera
       Entry: 10
       Data: 0
@@ -11043,7 +10332,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 63|FitMe.Panel.Tutorial.TextTutorialInstaller, FitMe.Panel
+      Data: 56|FitMe.Panel.Tutorial.TextTutorialInstaller, FitMe.Panel
     - Name: view
       Entry: 10
       Data: 39
@@ -14878,8 +14167,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 171}
-  m_SizeDelta: {x: -553.2, y: -1552.1}
+  m_AnchoredPosition: {x: -385, y: 1043}
+  m_SizeDelta: {x: -770, y: -2148.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1528366859
 MonoBehaviour:

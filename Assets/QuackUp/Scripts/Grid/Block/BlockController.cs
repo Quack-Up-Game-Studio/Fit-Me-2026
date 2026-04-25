@@ -21,6 +21,7 @@ namespace FitMe.Grid
         
         public bool AllowRotation { get; set; } = true;
         public bool AllowDrag { get; set; } = true;
+        public bool IsRotating => _isRotating;
         public Observable<Unit> OnRotate => _onRotate;
         
         private readonly Subject<Unit> _onRotate = new();

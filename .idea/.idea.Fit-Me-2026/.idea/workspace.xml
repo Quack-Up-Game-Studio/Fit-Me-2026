@@ -11,33 +11,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6b56d439-7a07-4179-aa79-8cf05c29cf13" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/ChangeSwapState.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/ChangeSwapState.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FitTutorialSate.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FitTutorialSate.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/RotateBlockTutorialState.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/RotateBlockTutorialState.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/ScoreThresholdTutorialState.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/ScoreThresholdTutorialState.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/SetScoreTutorialState.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/SetScoreTutorialState.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/SwapBlockTutorialState.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/SwapBlockTutorialState.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FailState.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FailState.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/New Tutorial.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/New Tutorial.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/Block/BlockController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/Block/BlockController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/Block/BlockFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/Block/BlockFactory.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/FitMe.Panel.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/FitMe.Panel.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Tutorial/TextTutorialView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Tutorial/TextTutorialView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/GridManager/GridManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/GridManager/GridManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Tutorial/TutorialManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Tutorial/TutorialManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Tutorial/TutorialManagerInstaller.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Tutorial/TutorialManagerInstaller.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/ILevelManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/ILevelManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/NextPresetState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/NextPresetState.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/PlaceBlockTutorialState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/PlaceBlockTutorialState.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FitTutorialSate.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FitTutorialState.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FitTutorialSate.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FitTutorialState.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/SetScoreTutorialState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/SetScoreTutorialState.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/TextTutorialState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/TextTutorialState.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/TutorialStateMachine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/TutorialStateMachine.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/Other/StateMachine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/Other/StateMachine.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/Grid/GridPreset/Tutorial/SCN_Tutorial_1.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Settings/Grid/Grid/GridPreset/Tutorial/SCN_Tutorial_1.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/LevelDatabase/TutorialLevelDatabase.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Settings/LevelDatabase/TutorialLevelDatabase.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -57,6 +50,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/a6479622a9314fcba3eb70d4da8dd46092e00/db/53c4d7c1/ISubject`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.cysharp.unitask@15a4a7657f99/Runtime/CompilerServices/AsyncUniTaskMethodBuilder.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementManager.cs" root0="FORCE_HIGHLIGHTING" />
@@ -85,7 +79,7 @@
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandlerInstaller.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/ChangeSwapState.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FitTutorialSate.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FailState.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/NextPresetState.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/RotateBlockTutorialState.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/SwapBlockTutorialState.cs" root0="FORCE_HIGHLIGHTING" />
@@ -216,6 +210,38 @@
     <option name="unityProjectFolder" value="true" />
   </component>
   <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FitTutorialState.cs</url>
+          <line>38</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/FitTutorialState.cs" containingFunctionPresentation="Lambda expression inside Method 'Enter'">
+            <startOffsets>
+              <option value="1237" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1281" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs</url>
+          <line>588</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/BlockManager/BlockManager.cs" containingFunctionPresentation="Method 'GameOverCheck'">
+            <startOffsets>
+              <option value="24198" />
+            </startOffsets>
+            <endOffsets>
+              <option value="24258" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
       <option value=".github/instructions" />

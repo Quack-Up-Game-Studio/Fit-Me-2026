@@ -94,7 +94,7 @@ namespace FitMe.Tutorial
             await ViewModel.DisplayData();
         }
 
-        public void OnNext()
+        public virtual void OnNext()
         {
             StateMachine.Next().Forget();
         }

@@ -38,6 +38,7 @@ namespace FitMe.Shared
         void ChangeScore(int amount);
         void ChangeFitMe(int amount);
         void SetFitMe(int fitMe);
+        Observable<Unit> OnScoreUpdated { get; }
     }
 
     public interface IGameStateManager
@@ -57,6 +58,7 @@ namespace FitMe.Shared
         public void SetScore(int amount){}
         public void ChangeFitMe(int amount){}
         public  void SetFitMe(int amount){}
+        public Observable<Unit> OnScoreUpdated { get; } = new Subject<Unit>();
 
         public int CurrentObstacleCount => 0;
         public UniTask NextTutorialPreset(bool playSound) => UniTask.CompletedTask;

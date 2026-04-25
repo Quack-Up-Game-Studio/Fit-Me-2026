@@ -369,9 +369,9 @@ namespace FitMe.Grid
             return bridgeIndices;
         }
         
-        public void RegenerateGrid()
+        public void DestroyGrid()
         {
-            DebugUtils.Log("Regenerating grid...");
+            DebugUtils.Log("Destroying grid...");
             ResetPreviousValidationCells();
             foreach (var cell in _cellArray)
             {
@@ -549,7 +549,7 @@ namespace FitMe.Grid
             if (!IsGameplay) return;
             await ClearGrid(true);
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
-            RegenerateGrid();
+            DestroyGrid();
             _onScoreAdded.OnNext(new(ScoreTypes.FitMe, contacts, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
         }
 
@@ -607,6 +607,17 @@ namespace FitMe.Grid
                 cell.Model.CurrentAtom.Value = null;
             }
             gridBlockData.Subscription.Dispose();
+        }
+
+        /// <summary>
+        /// Reset the grid, remove all blocks and create new cells based on the current grid preset
+        /// </summary>
+        /// <param name="playSound"></param>
+        public async UniTask ResetGrid(bool playSound = true)
+        {
+            await ClearGrid(true, playSound);
+            DestroyGrid();
+            OnSpawnGridWithGridPreset(CurrentGridPreset);
         }
 
         public async UniTask ClearGrid(bool destroyObstacle = true, bool playSound = true)
@@ -831,11 +842,11 @@ namespace FitMe.Grid
             return value;
         }
         
-        private static CellModel DrawCellArrayMatrix(Rect rect, CellModel cellModel)
+        private static CellInstance DrawCellArrayMatrix(Rect rect, CellInstance instance)
         {
-            if (cellModel == null) return null;
-            EditorGUI.DrawRect(rect.Padding(1), cellModel.CurrentAtom.Value != null ? Color.green : Color.grey);
-            return cellModel;
+            if (instance == null) return null;
+            EditorGUI.DrawRect(rect.Padding(1), instance.Model.CurrentAtom.Value != null ? Color.green : Color.grey);
+            return instance;
         }
         #endregion
 #endif

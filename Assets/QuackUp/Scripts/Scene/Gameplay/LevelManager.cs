@@ -36,10 +36,12 @@ namespace FitMe.Scene
         public static GameMode GameMode { get; set; }
         public static GridPreset GridPreset { get; set; }
         public bool IsTutorial { get; set; }
+        public Observable<Unit> OnScoreUpdated => _onScoreUpdated;
 
         private AnimationCurve _difficultyCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
         private int _levelCycle;
         
+        private readonly Subject<Unit> _onScoreUpdated = new();
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
         private readonly LevelManagerConfig _config;
         private readonly IAudioManager _audioManager;
@@ -181,6 +183,7 @@ namespace FitMe.Scene
             DebugUtils.Log($"Score added: {finalScore} (Type: {scoreEvent.ScoreType}, Contacts: {scoreEvent.Contacts.Count})");
             ChangeScore(finalScore);
             _popUpScoreFactory.Create(finalScore, scoreEvent.WorldPosition, "Score");
+            _onScoreUpdated?.OnNext(Unit.Default);
         }
         
         private void OnAboutToClearGrid()
@@ -343,13 +346,13 @@ namespace FitMe.Scene
         {
             if (!evt.IsOver) return;
             Debug.Log("Game Over Event Received!");
+            if (IsTutorial) return;
             GameOver();
         }
         
         private void GameOver()
         {
             SetGameState(Shared.GameState.GameOver);
-            if (IsTutorial) return;
             _panelManager.TryGetPanel<GameOverPanelViewModel>(_config.GameOverPanelId, out var gameOverPanelViewModel);
             if (gameOverPanelViewModel.RemainingContinueCount.CurrentValue <= 0)
             {

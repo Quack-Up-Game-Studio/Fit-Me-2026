@@ -12,12 +12,13 @@ using Object = UnityEngine.Object;
 
 namespace FitMe.Grid
 {
+    [Serializable]
     public class BlockInstance
     {
-        public BlockModel Model { get; private set; }
+        [field: SerializeField] public BlockModel Model { get; private set; }
         public BlockViewModel ViewModel { get; private set; }
         public BlockController Controller { get; private set; }
-        public GameObject GameObject { get; private set; }
+        [field: SerializeField] public GameObject GameObject { get; private set; }
         
         public BlockInstance(BlockModel model, BlockViewModel viewModel, BlockController controller, GameObject gameObject)
         {

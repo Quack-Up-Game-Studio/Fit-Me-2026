@@ -13,17 +13,22 @@ namespace FitMe.Scene
     {
         private readonly TutorialStateMachine _stateMachine;
         private readonly LoadSceneManager _loadSceneManager;
+        private readonly string _overrideStart;
         private IDisposable _subscriptions;
+        
+        public const string OverrideStartKey = "OverrideStart";
         
         [Inject]
         public TutorialManager(
             LevelManager levelManager,
             TutorialStateMachine stateMachine,
-            LoadSceneManager loadSceneManager)
+            LoadSceneManager loadSceneManager,
+            [Key(OverrideStartKey)] string startKey)
         {
             levelManager.IsTutorial = true;
             _stateMachine = stateMachine;
             _loadSceneManager = loadSceneManager;
+            _overrideStart = startKey;
             Subscribe();
         }
         
@@ -48,7 +53,7 @@ namespace FitMe.Scene
 
         public void Start()
         {
-            _stateMachine.StartTutorial();
+            _stateMachine.StartTutorial(_overrideStart);
         }
     }
 }
