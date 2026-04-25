@@ -23,13 +23,13 @@ namespace FitMe.Tutorial
         public void SetBlockManager(BlockManager blockManager)
         {
             _blockManager = blockManager;
-            swapBlockHint.Initialize();
             swapBlockHint.gameObject.SetActive(false);
         }
 
         public override async UniTask Enter()
         {
             await base.Enter();
+            swapBlockHint.Initialize();
             _subscription = _blockManager.OnSwap
                 .Subscribe(_ => 
                 { 

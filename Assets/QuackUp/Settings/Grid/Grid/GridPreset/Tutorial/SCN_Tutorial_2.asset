@@ -882,9 +882,9 @@ MonoBehaviour:
   - blockShape: 0
     rotation: {x: 0, y: 0, z: 0, w: 0}
     blockColor: 1
-  - blockShape: 5
-    rotation: {x: 0, y: 0, z: 0, w: 0}
-    blockColor: 1
   - blockShape: 7
     rotation: {x: 0, y: 0, z: 0, w: 0}
     blockColor: 0
+  - blockShape: 5
+    rotation: {x: 0, y: 0, z: 0, w: 0}
+    blockColor: 1

@@ -30,7 +30,6 @@ namespace FitMe.Tutorial
         {
             _blockManager  = blockManager;
             _blockSpawnedEvent = blockSpawnedEvent;
-            placeBlockHint.Initialize();
             placeBlockHint.gameObject.SetActive(false);
         }
 
@@ -40,6 +39,7 @@ namespace FitMe.Tutorial
                 .Subscribe(x => OnBlockSpawned(x.BlockInstances));
             OnBlockSpawned(_blockManager.BlockOnHand);
             await base.Enter();
+            placeBlockHint.Initialize();
             ShowHint().Forget();
         }
 

@@ -30,9 +30,7 @@ namespace FitMe.Tutorial
         {
             _blockManager  = blockManager;
             _blockSpawnedEvent = blockSpawnedEvent;
-            rotateBlockHint.Initialize();
             rotateBlockHint.gameObject.SetActive(false);
-           
         }
         
         public override async UniTask Enter()
@@ -40,6 +38,7 @@ namespace FitMe.Tutorial
             _blockSpawnedSubscription = _blockSpawnedEvent
                 .Subscribe(x => OnBlockSpawned(x.BlockInstances));
             OnBlockSpawned(_blockManager.BlockOnHand);
+            rotateBlockHint.Initialize();
             await base.Enter();
             ShowHint().Forget();
         }
