@@ -1,23 +1,23 @@
 # ninja log v5
-303	650	7980200241649326	C:/Yuirin/All Work/Quack-Up/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/2e164m1c/obj/armeabi-v7a/libswappywrapper.so	78f36e5c3dacf27f
-17	1855	7980200253902291	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	21a8a3c92417b2ee
-91	302	7980200238390361	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	e1b5997345a0b598
-51	1451	7980200249792577	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	95d7e528e19a1249
-33	1397	7980200249308000	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	43f3f0dfcbca314c
-77	1652	7980200251876687	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	11f9bf62631bea7f
-8	1427	7980200249586054	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	5370a79e03468ed1
-24	1529	7980200250613729	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	7b1bf9ddc36b83ea
-63	1531	7980200250649106	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	1205bad7b407f5c5
-41	1762	7980200252991689	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	88bce9195d025797
-1855	1974	7980200255118436	C:/Yuirin/All Work/Quack-Up/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/2e164m1c/obj/armeabi-v7a/libgame.so	cdebabffcc03d29b
+16	1824	7981029709821665	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	21a8a3c92417b2ee
 93	306	7981029694686857	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	e1b5997345a0b598
 307	660	7981029697994149	C:/Yuirin/All Work/Quack-Up/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/2e164m1c/obj/armeabi-v7a/libswappywrapper.so	78f36e5c3dacf27f
 44	1396	7981029705553420	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	95d7e528e19a1249
 34	1400	7981029705563509	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	43f3f0dfcbca314c
 7	1441	7981029706010191	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	5370a79e03468ed1
+79	1611	7981029707730355	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	11f9bf62631bea7f
 55	1466	7981029706239730	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	1205bad7b407f5c5
 25	1527	7981029706878182	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	7b1bf9ddc36b83ea
-79	1611	7981029707730355	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	11f9bf62631bea7f
 66	1727	7981029708905525	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	88bce9195d025797
-16	1824	7981029709821665	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	21a8a3c92417b2ee
 1824	1957	7981029711199107	C:/Yuirin/All Work/Quack-Up/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/2e164m1c/obj/armeabi-v7a/libgame.so	cdebabffcc03d29b
+85	337	7988118110789548	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	e1b5997345a0b598
+338	738	7988118114538971	C:/Yuirin/All Work/Quack-Up/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/2e164m1c/obj/armeabi-v7a/libswappywrapper.so	78f36e5c3dacf27f
+15	1831	7988118125666478	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	43f3f0dfcbca314c
+60	1859	7988118125925588	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	95d7e528e19a1249
+22	1908	7988118126436548	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	5370a79e03468ed1
+48	1959	7988118126912154	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	1205bad7b407f5c5
+6	2003	7988118127408569	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	7b1bf9ddc36b83ea
+71	2133	7988118128753942	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	11f9bf62631bea7f
+38	2242	7988118129845868	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	88bce9195d025797
+29	2359	7988118130999314	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	21a8a3c92417b2ee
+2359	2485	7988118132300888	C:/Yuirin/All Work/Quack-Up/Fit-Me-2026/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/2e164m1c/obj/armeabi-v7a/libgame.so	cdebabffcc03d29b

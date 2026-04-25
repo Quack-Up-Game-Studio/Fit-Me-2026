@@ -3,7 +3,6 @@ using FitMe.Shared;
 using MessagePipe;
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
-using Sirenix.OdinInspector.Editor.GettingStarted;
 using VContainer;
 
 namespace FitMe.Scene

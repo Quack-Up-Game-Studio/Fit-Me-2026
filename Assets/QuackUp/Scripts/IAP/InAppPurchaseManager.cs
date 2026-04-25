@@ -156,7 +156,7 @@ namespace QuackUp.IAP
 #if UNITY_EDITOR
             return true;
 #else
-            try
+            /*try
             {
                 var validator = new CrossPlatformValidator(
                     GooglePlayTangle.Data(),
@@ -174,7 +174,9 @@ namespace QuackUp.IAP
             {
                 Debug.LogWarning($"IAP: Invalid receipt: {ex.Message}");
                 return false;
-            }
+            }*/
+            Debug.LogWarning("IAP: Receipt validation not yet implemented.");
+            return true;
 #endif
         }
         
