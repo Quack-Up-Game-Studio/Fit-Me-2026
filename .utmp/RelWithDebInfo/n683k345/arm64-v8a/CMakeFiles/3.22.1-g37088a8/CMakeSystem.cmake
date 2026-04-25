@@ -1,6 +1,6 @@
-set(CMAKE_HOST_SYSTEM "Linux-6.19.3-2-cachyos")
+set(CMAKE_HOST_SYSTEM "Linux-7.0.1-1-cachyos")
 set(CMAKE_HOST_SYSTEM_NAME "Linux")
-set(CMAKE_HOST_SYSTEM_VERSION "6.19.3-2-cachyos")
+set(CMAKE_HOST_SYSTEM_VERSION "7.0.1-1-cachyos")
 set(CMAKE_HOST_SYSTEM_PROCESSOR "x86_64")
 
 include("/home/beaver_bloyde/Android/Sdk/ndk/27.2.12479018/build/cmake/android.toolchain.cmake")
