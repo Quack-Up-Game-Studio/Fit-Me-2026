@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Purchasing;
 using VContainer;
@@ -23,6 +24,7 @@ namespace QuackUp.IAP
     {
         private IStoreController m_StoreController;
         private IExtensionProvider m_StoreExtensionProvider;
+        public event Action OnInitializedSuccess;
 
         [Inject]
         public void Construct()
@@ -65,13 +67,14 @@ namespace QuackUp.IAP
             UnityPurchasing.Initialize(this, builder);
         }
 
-        private bool IsInitialized() => m_StoreController != null && m_StoreExtensionProvider != null;
+        public bool IsInitialized() => m_StoreController != null && m_StoreExtensionProvider != null;
 
         public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
         {
             Debug.Log("IAP: Store initialized successfully.");
             m_StoreController = controller;
             m_StoreExtensionProvider = extensions;
+            OnInitializedSuccess?.Invoke();
         }
 
         public void OnInitializeFailed(InitializationFailureReason error)

@@ -35,6 +35,7 @@ namespace FitMe.Panel
         {
             base.Construct(viewModel);
             Bind();
+            ViewModel.RegisterOnIAPReady(UpdatePrices);
         }
 
         private void Bind()
@@ -72,6 +73,20 @@ namespace FitMe.Panel
             _bindings?.Dispose();
         }
 
+        private void UpdatePrices()
+        {
+            foreach (var button in _consumableItemButton)
+            {
+                if (button.PriceText != null)
+                    button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
+            }
+            foreach (var button in _subscriptionButton)
+            {
+                if (button.PriceText != null)
+                    button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
+            }
+        }
+        
         private void OnBuyButtonClicked(string productId)
         {
             if (string.IsNullOrEmpty(productId))

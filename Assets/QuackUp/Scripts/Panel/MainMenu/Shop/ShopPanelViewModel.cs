@@ -43,6 +43,14 @@ namespace FitMe.Panel
             _inAppPurchaseManager = inAppPurchaseManager;
         }
         
+        public void RegisterOnIAPReady(Action onReady)
+        {
+            if (_inAppPurchaseManager.IsInitialized())
+                onReady?.Invoke(); // init เสร็จแล้ว เรียกได้เลย
+            else
+                _inAppPurchaseManager.OnInitializedSuccess += onReady; // รอก่อน
+        }
+        
         public void OnBuyButtonClicked(string productId)
         {
             _inAppPurchaseManager.BuyProductID(productId);
