@@ -51,7 +51,7 @@ namespace FitMe.Grid
         [field: Title("Block Debug")]
         public Guid Id { get; set; } = Guid.NewGuid();
         /// <remarks>
-        /// Use <see cref="ChangeType"/> to change the block type.
+        /// Use <see cref="ChangeColor"/> to change the block type.
         /// </remarks>
         public ReadOnlyReactiveProperty<BlockColor> BlockColor => _blockColor.ToReadOnlyReactiveProperty();
         public BlockConfig Config => _config;
@@ -135,7 +135,7 @@ namespace FitMe.Grid
         #endregion
         
         #region Utils
-        public void ChangeType(BlockColor color, bool updateGrid = true)
+        public void ChangeColor(BlockColor color, bool updateGrid = true)
         {
             _blockColor.OnNext(color); //Force push the new value
             if (!updateGrid) return;

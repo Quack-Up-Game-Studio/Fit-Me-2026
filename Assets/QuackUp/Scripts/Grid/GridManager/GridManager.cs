@@ -369,9 +369,9 @@ namespace FitMe.Grid
             return bridgeIndices;
         }
         
-        public void RegenerateGrid()
+        public void DestroyGrid()
         {
-            DebugUtils.Log("Regenerating grid...");
+            DebugUtils.Log("Destroying grid...");
             ResetPreviousValidationCells();
             foreach (var cell in _cellArray)
             {
@@ -549,7 +549,7 @@ namespace FitMe.Grid
             if (!IsGameplay) return;
             await ClearGrid(true);
             //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
-            RegenerateGrid();
+            DestroyGrid();
             _onScoreAdded.OnNext(new(ScoreTypes.FitMe, contacts, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
         }
 
@@ -609,10 +609,21 @@ namespace FitMe.Grid
             gridBlockData.Subscription.Dispose();
         }
 
-        public async UniTask ClearGrid(bool destroyObstacle = true)
+        /// <summary>
+        /// Reset the grid, remove all blocks and create new cells based on the current grid preset
+        /// </summary>
+        /// <param name="playSound"></param>
+        public async UniTask ResetGrid(bool playSound = true)
+        {
+            await ClearGrid(true, playSound);
+            DestroyGrid();
+            OnSpawnGridWithGridPreset(CurrentGridPreset);
+        }
+
+        public async UniTask ClearGrid(bool destroyObstacle = true, bool playSound = true)
         {
             _onAboutToClearGrid?.OnNext(Unit.Default);
-            _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
+            if (playSound) _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
             if (destroyObstacle)
             {
                 await RemoveAllBlocks(true);
@@ -831,11 +842,11 @@ namespace FitMe.Grid
             return value;
         }
         
-        private static CellModel DrawCellArrayMatrix(Rect rect, CellModel cellModel)
+        private static CellInstance DrawCellArrayMatrix(Rect rect, CellInstance instance)
         {
-            if (cellModel == null) return null;
-            EditorGUI.DrawRect(rect.Padding(1), cellModel.CurrentAtom.Value != null ? Color.green : Color.grey);
-            return cellModel;
+            if (instance == null) return null;
+            EditorGUI.DrawRect(rect.Padding(1), instance.Model.CurrentAtom.Value != null ? Color.green : Color.grey);
+            return instance;
         }
         #endregion
 #endif

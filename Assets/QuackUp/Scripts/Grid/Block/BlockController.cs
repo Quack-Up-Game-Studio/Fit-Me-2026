@@ -20,10 +20,14 @@ namespace FitMe.Grid
         public ReactiveCommand<PointerEventData> ClickCommand { get; } = new();
         
         public bool AllowRotation { get; set; } = true;
+        public bool AllowDrag { get; set; } = true;
+        public bool IsRotating => _isRotating;
+        public Observable<Unit> OnRotate => _onRotate;
         
+        private readonly Subject<Unit> _onRotate = new();
         private readonly BlockManagerConfig _config;
         private readonly GridManager _gridManager;
-        private readonly ILevelManager _levelManager;
+        private readonly IGameStateManager _gameStateManager;
         private readonly IAudioManager _audioManager;
         private readonly IPointerHandler _pointerHandler;
         
@@ -42,13 +46,13 @@ namespace FitMe.Grid
         public BlockController(
             BlockManagerConfig config,
             GridManager gridManager,
-            ILevelManager levelManager,
+            IGameStateManager gameStateManager,
             IAudioManager audioManager,
             IPointerHandler pointerHandler)
         {
             _config = config;
             _gridManager = gridManager;
-            _levelManager = levelManager;
+            _gameStateManager = gameStateManager;
             _audioManager = audioManager;
             _pointerHandler = pointerHandler;
         }
@@ -89,8 +93,9 @@ namespace FitMe.Grid
         #region Interactions
         private void OnBeginDrag(PointerEventData eventData)
         {
+            if (!AllowDrag) return;
             if (_dragWhileRotating) return;
-            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock)
+            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock)
             {
                 OnEndDrag(eventData);
                 return;
@@ -115,8 +120,9 @@ namespace FitMe.Grid
 
         private void OnDrag(PointerEventData eventData)
         {
+            if (!AllowDrag) return;
             if (_dragWhileRotating) return;
-            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock)
+            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock)
             {
                 OnEndDrag(eventData);
                 return;
@@ -171,12 +177,13 @@ namespace FitMe.Grid
 
         private void OnEndDrag(PointerEventData eventData)
         {
+            if (!AllowDrag) return;
             if (_dragWhileRotating)
             {
                 _dragWhileRotating = false;
                 return;
             }
-            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
+            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
             if (!_isDragging) return;
             if (_isRotating)
             {
@@ -204,7 +211,7 @@ namespace FitMe.Grid
         private async UniTask OnClickToRotate(PointerEventData eventData)
         {
             if (!AllowRotation) return;
-            if (_levelManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
+            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
             if (_isDragging) return;
             if (_blockInstance.ViewModel.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid) return;
             var rotateClockwise = _config.RotateClockwise ? -1f : 1f;
@@ -215,6 +222,7 @@ namespace FitMe.Grid
             _blockInstance.ViewModel.RotateCommand.Execute(new(promise, rotation));
             await promise.Task;
             _isRotating = false;
+            _onRotate?.OnNext(Unit.Default);
         }
         #endregion
 

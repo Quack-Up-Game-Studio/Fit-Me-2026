@@ -10,9 +10,16 @@ namespace FitMe.Tutorial
         private readonly Subject<Unit> _onTutorialCompleted = new();
         public Observable<Unit> OnTutorialCompleted => _onTutorialCompleted;
 
-        public void StartTutorial()
+        public void StartTutorial(string overrideStart = null)
         {
-            JumpTo(0).Forget();
+            if (!string.IsNullOrEmpty(overrideStart))
+            {
+                JumpTo(overrideStart).Forget();
+            }
+            else
+            {
+                JumpTo(0).Forget();
+            }
         }
 
         public void CompleteTutorial()

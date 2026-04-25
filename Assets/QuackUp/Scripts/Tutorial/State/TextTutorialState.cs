@@ -6,20 +6,57 @@ using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VContainer;
 
 namespace FitMe.Tutorial
 {
     [Serializable]
-    public class TextTutorialState : TutorialState
+    public class TextTutorialState : TutorialState, IDisposable
     {
         [SerializeField, TextArea] private string text;
-        [SerializeField] private bool usePreviousSize;
-        [SerializeField, HideIf(nameof(usePreviousSize))] private RectTransformInset panelInset;
+        [FormerlySerializedAs("usePreviousSize")] [SerializeField] private bool usePreviousPanelSize;
+        [SerializeField, HideIf(nameof(usePreviousPanelSize))] private RectTransformInset panelInset;
+        [SerializeField] private bool usePreviousCharacterSize;
+        [SerializeField, HideIf(nameof(usePreviousCharacterSize))] private Vector2 characterSize;
+        [SerializeField] private bool usePreviousCharacterPosition;
+        [SerializeField, HideIf(nameof(usePreviousCharacterPosition))] private Vector3 characterPosition;
+        [SerializeField] private bool usePreviousCharacterRotation;
+        [SerializeField, HideIf(nameof(usePreviousCharacterRotation))] private Vector3 characterRotation;
+        [SerializeField] private bool hasCarveWindow;
+        [SerializeField, ShowIf(nameof(hasCarveWindow))] private bool usePreviousCarveWindowInset;
+        [SerializeField, HideIf("@!hasCarveWindow || usePreviousCarveWindowInset")] private RectTransformInset carveWindowInset;
         [SerializeField] private Sprite image;
         [SerializeField] private bool hideWhenExit;
         [SerializeField] private bool hasNextButton = true;
         [SerializeField] private bool blockInput = true;
+
+        #region Debug
+        [SerializeField] private RectTransform panelRectTransform;
+        [SerializeField] private RectTransform characterRectTransform;
+        [SerializeField] private RectTransform carveWindowRectTransform;
+
+        [Button(nameof(CopyPanelTransformData))]
+        [ShowIf(nameof(panelRectTransform))]
+        private void CopyPanelTransformData()
+        {
+            panelInset = RectTransformInset.FromRectTransform(panelRectTransform);
+        }
+        [Button(nameof(CopyCharacterTransformData))]
+        [ShowIf(nameof(characterRectTransform))]
+        private void CopyCharacterTransformData()
+        {
+            characterSize = characterRectTransform.localScale;
+            characterPosition = characterRectTransform.localPosition;
+            characterRotation = characterRectTransform.localEulerAngles;
+        }
+        [Button(nameof(CopyCarveWindowTransformData))]
+        [ShowIf(nameof(carveWindowRectTransform))]
+        private void CopyCarveWindowTransformData()
+        {
+            carveWindowInset = RectTransformInset.FromRectTransform(carveWindowRectTransform);
+        }
+        #endregion
         
         protected TextTutorialViewModel ViewModel;
         private IDisposable _subscription;
@@ -40,13 +77,24 @@ namespace FitMe.Tutorial
             }
             _subscription = ViewModel.OnNextCommand
                 .Subscribe(_ => OnNext());
-            ViewModel.SetData(text, image, usePreviousSize, panelInset, hasNextButton);
+            ViewModel.SetData(new TextTutorialData
+            {
+                Text = text,
+                Image = image,
+                PanelInset = usePreviousPanelSize ? null : panelInset,
+                CharacterSize = usePreviousCharacterSize ? null : characterSize,
+                CharacterPosition = usePreviousCharacterPosition ? null : characterPosition,
+                CharacterRotation = usePreviousCharacterRotation ? null : characterRotation,
+                HasCarveWindow = hasCarveWindow,
+                CarveWindowInset = usePreviousCarveWindowInset ? null : carveWindowInset,
+                HasNextButton = hasNextButton
+            });
             if (ViewModel.VisibilityState.CurrentValue is not VisibilityState.Visible)
                 await UniTask.WhenAll(ViewModel.Show(), ViewModel.ChangeInputBlockState(blockInput));
             await ViewModel.DisplayData();
         }
 
-        public void OnNext()
+        public virtual void OnNext()
         {
             StateMachine.Next().Forget();
         }
@@ -62,6 +110,11 @@ namespace FitMe.Tutorial
             _subscription.Dispose();
             if (hideWhenExit)
                 await UniTask.WhenAll(ViewModel.Hide(), ViewModel.ChangeInputBlockState(false));
+        }
+
+        public void Dispose()
+        {
+            _subscription?.Dispose();
         }
     }
 }

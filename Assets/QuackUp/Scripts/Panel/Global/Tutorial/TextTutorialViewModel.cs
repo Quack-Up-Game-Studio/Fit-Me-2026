@@ -6,14 +6,22 @@ using UnityEngine;
 
 namespace FitMe.Panel.Tutorial
 {
+    public struct TextTutorialData
+    {
+        public string Text { get; set; }
+        public Sprite Image { get; set; }
+        public RectTransformInset? PanelInset { get; set; }
+        public Vector2? CharacterSize { get; set; }
+        public Vector3? CharacterPosition { get; set; }
+        public Vector3? CharacterRotation { get; set; }
+        public bool HasCarveWindow { get; set; }
+        public RectTransformInset? CarveWindowInset { get; set; }
+        public bool HasNextButton { get; set; }
+    }
     public class TextTutorialViewModel
     {
-        public string TutorialText { get; private set; }
-        public Sprite TutorialImage { get; private set; }
-        public bool HasNextButton { get; private set; }
-        public bool UsePreviousSize { get; private set; }
+        public TextTutorialData TutorialData { get; private set; }
         public VisibilityState PreviousVisibilityState { get; private set; }
-        public RectTransformInset PanelInset { get; private set; }
         public ReadOnlyReactiveProperty<VisibilityState> VisibilityState => _visibilityState;
         public ReadOnlyReactiveProperty<InputState> UIInputState => _uiInputState;
         public ReadOnlyReactiveProperty<bool> IsInputBlocked => _onBlockInput.Select(x => x.BlockInput).ToReadOnlyReactiveProperty();
@@ -28,13 +36,9 @@ namespace FitMe.Panel.Tutorial
         private readonly Subject<Promise<bool>> _onDisplayData = new();
         private readonly Subject<(Promise<bool> Promise, bool BlockInput)> _onBlockInput = new();
         
-        public void SetData(string text, Sprite image, bool usePreviousSize, RectTransformInset inset, bool hasNextButton)
+        public void SetData(TextTutorialData data)
         {
-            TutorialText = text;
-            TutorialImage = image;
-            HasNextButton = hasNextButton;
-            UsePreviousSize = usePreviousSize;
-            PanelInset = inset;
+            TutorialData = data;
         }
 
         public async UniTask Hide()

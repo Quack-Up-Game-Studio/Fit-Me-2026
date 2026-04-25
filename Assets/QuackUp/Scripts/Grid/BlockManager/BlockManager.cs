@@ -14,6 +14,23 @@ using Random = UnityEngine.Random;
 namespace FitMe.Grid
 {
     [Serializable]
+    public struct SpawnBlockData
+    {
+        [SerializeField] public BlockShape blockShape;
+        [SerializeField] public Quaternion rotation;
+        [HideInInspector] public BlockSchema blockSchema;
+        [SerializeField] public BlockColor blockColor;
+            
+        public SpawnBlockData(BlockShape blockShape, Quaternion rotation, BlockSchema blockSchema, BlockColor blockColor)
+        {
+            this.blockShape = blockShape;
+            this.rotation = rotation;
+            this.blockSchema = blockSchema;
+            this.blockColor = blockColor;
+        }
+    }
+    
+    [Serializable]
     public class BlockManager : IDisposable
     {
         #region Data Structures
@@ -24,22 +41,6 @@ namespace FitMe.Grid
 
             [field: SerializeField, DisplayAsString] public bool IsFree { get; set; } = true;
             [field: SerializeField, Sirenix.OdinInspector.ReadOnly] public BlockInstance CurrentBlock { get; set; }
-        }
-        
-        private struct SpawnBlockData
-        {
-            public readonly BlockShape blockShape;
-            public readonly Quaternion rotation;
-            public readonly BlockSchema blockSchema;
-            public readonly BlockColor blockColor;
-            
-            public SpawnBlockData(BlockShape blockShape, Quaternion rotation, BlockSchema blockSchema, BlockColor blockColor)
-            {
-                this.blockShape = blockShape;
-                this.rotation = rotation;
-                this.blockSchema = blockSchema;
-                this.blockColor = blockColor;
-            }
         }
         
         private struct BestFitResult
@@ -73,15 +74,25 @@ namespace FitMe.Grid
         
         #region Fields
         public const string PreviewTransformKey = "PreviewTransform";
+        [ShowInInspector, Sirenix.OdinInspector.ReadOnly]
         public IReadOnlyList<BlockInstance> BlockOnHand => _spawnPoints
             .Where(x => !x.IsFree)
             .Select(x => x.CurrentBlock)
             .ToList();
-        
+        [ShowInInspector, Sirenix.OdinInspector.ReadOnly]
+        public IReadOnlyList<BlockInstance> BlockOnPreview => _spawnPreviews
+            .Where(x => !x.IsFree)
+            .Select(x => x.CurrentBlock)
+            .ToList();
+
+        public bool AllowSwapping { get; set; } = true;
+
+        public Observable<Unit> OnSwap => _onSwap;
+        private readonly Subject<Unit> _onSwap = new();
         private Queue<SpawnBlockData> _spawnBag = new();
         private readonly List<SpawnBlockData> _blockPool = new();
         private BlockInstance _currentPreviewBlock;
-        private List<BlockInstance> _previewBlocks = new List<BlockInstance>();
+        //private List<BlockInstance> _previewBlocks = new List<BlockInstance>();
          
         private readonly GridManager _gridManager;
         private readonly SpawnPointData[] _spawnPoints;
@@ -131,6 +142,9 @@ namespace FitMe.Grid
             _gridManager.OnClearGrid
                 .Subscribe(_ => ResetBag())
                 .AddTo(ref disposableBuilder);
+            _gridManager.OnCellsCreated
+                .Subscribe(_ => OnCellsCreated())
+                .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
 
@@ -144,11 +158,15 @@ namespace FitMe.Grid
         private void OnSpawnAtStart(SpawnWithBlockPresetEvent withBlockPresetEventData)
         {
             CreatePool();
-            _spawnPoints.ForEach(FreeSpawnPoint);
-            if (!withBlockPresetEventData.BlockPreset)
-                SpawnBlocksFromBag(true);
-            else
+           // _spawnPoints.ForEach(FreeSpawnPoint);
+            if (withBlockPresetEventData.BlockPreset)
                 SpawnBlock(withBlockPresetEventData);
+        }
+
+        private void OnCellsCreated()
+        {
+            if (!_gridManager.IsGameplay) return;
+            SpawnBlocksFromBag(true);
         }
 
         private void OnFitCheck(FitTypeEvent eventData)
@@ -183,6 +201,16 @@ namespace FitMe.Grid
         
         private void RefillBag()
         {
+            if (!_gridManager.CurrentGridPreset)
+            {
+                return;
+            }
+            if (_gridManager.CurrentGridPreset.OverrideBag)
+            {
+                _spawnBag = new Queue<SpawnBlockData>(_gridManager.CurrentGridPreset.SpawnBlockData);
+                DebugUtils.Log($"Yuirin: Bag Refilled from Grid Preset! Total {_spawnBag.Count} items.");
+                return;
+            }
             if (_blockPool == null || _blockPool.Count == 0)  CreatePool();
             
             var tempBag = new List<SpawnBlockData>();
@@ -243,7 +271,7 @@ namespace FitMe.Grid
         {
             _spawnBag.Clear();
             ResetBlockInSlot();
-            SpawnBlocksFromBag(true);
+            //SpawnBlocksFromBag(true);
             Debug.LogWarning("Yuirin: Bag Reset!");
         }
         
@@ -290,7 +318,7 @@ namespace FitMe.Grid
                 worldSpace = true,
             });
             block.GameObject.name = $"Block_{shape}";
-            block.Model.ChangeType(color, false);
+            block.Model.ChangeColor(color, false);
             block.GameObject.transform.localScale = Vector3.zero;
             Vector3 scale = new Vector3(objectScale, objectScale, 1f);
             var promise = new Promise<Unit>();
@@ -314,13 +342,14 @@ namespace FitMe.Grid
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
         }
-
-        //Temporary method for testing swap mechanic
+        
         public void Swap()
         {
-            var blockToSwap = BlockOnHand[0];
+            if (!AllowSwapping) return;
+            var blockToSwap = BlockOnHand.FirstOrDefault();
             if (blockToSwap == null) return;
-            var previewBlock = _previewBlocks[0];
+            if (blockToSwap.Controller.IsRotating) return;
+            var previewBlock = BlockOnPreview.FirstOrDefault();
             if (previewBlock == null) return;
             var swapBlockData = new SpawnBlockData(blockToSwap.Model.BlockShape, 
                 blockToSwap.GameObject.transform.rotation, 
@@ -342,7 +371,10 @@ namespace FitMe.Grid
             previewBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
             var newPreviewBlock = InstantiateBlock(_spawnPreviews[0].Transform, swapBlockData.rotation, swapBlockData.blockShape, swapBlockData.blockColor, _config.PreviewScale);
             newPreviewBlock.Controller.SetActive(false);
-            _previewBlocks[0] = newPreviewBlock;
+            _spawnPreviews[0].IsFree = false;
+            _spawnPreviews[0].CurrentBlock = newPreviewBlock;
+            //_previewBlocks[0] = newPreviewBlock;
+            _onSwap?.OnNext(Unit.Default);
             //PreviewMultiNextQueue(_config.PreviewCount);
         }
 
@@ -412,21 +444,17 @@ namespace FitMe.Grid
         
         private void PreviewMultiNextQueue(int previewCount)
         {
-            
-            for (var i = 0; i < _previewBlocks.Count; i++)
+            foreach (var previewBlock in BlockOnPreview)
             {
-                var previewBlock = _previewBlocks[i];
-                if (previewBlock == null) continue;
-                previewBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
-                _previewBlocks[i] = null;
+                previewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
             }
-            
+            _spawnPreviews.ForEach(FreeSpawnPoint);
             if (_spawnBag.Count == 0) return;
             
             var bagList = _spawnBag.ToList();
             
             Debug.Log(_spawnPreviews.Length);
-            _previewBlocks.Clear();
+            //_previewBlocks.Clear();
             for (int i = 0; i < _spawnPreviews.Length; i++)
             {
                 if (i >= _spawnPreviews.Length || i >= bagList.Count) break;
@@ -442,8 +470,9 @@ namespace FitMe.Grid
                 );
         
                 block.Controller.SetActive(false);
-                _previewBlocks.Add(block);
+                //_previewBlocks.Add(block);
                 _spawnPreviews[i].CurrentBlock = block;
+                _spawnPreviews[i].IsFree = false;
             }
         }
         
@@ -542,16 +571,15 @@ namespace FitMe.Grid
             }
         }
         
-        public async UniTask GameOverCheck()
+        
+        public UniTask GameOverCheck()
         {
             var blocksToCheck = BlockOnHand.Select(x => x.Model).ToList();
             
-            var blockOnSwap =_spawnPreviews[0].CurrentBlock?.Model;
-            foreach (var preview in _spawnPreviews)
+            var blockOnSwap = BlockOnPreview.FirstOrDefault();
+            if (blockOnSwap != null)
             {
-                var model = preview.CurrentBlock?.Model;
-                if (model != null)
-                    blocksToCheck.Add(model);
+                blocksToCheck.Add(blockOnSwap.Model);
             }
             
             if (!_gridManager.CheckAvailableBlock(blocksToCheck, out _))
@@ -560,6 +588,7 @@ namespace FitMe.Grid
                 _messageHub.Publish(new NoPlaceableBlockEvent(vacantCount));    
                 _messageHub.Publish(new GameOverEvent(true));
             }
+            return UniTask.CompletedTask;
         }
         #endregion
     }

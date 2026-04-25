@@ -228,5 +228,16 @@ namespace QuackUp.Utils
         [HorizontalGroup("RightBottom")] public float bottom;
         public Vector2 OffsetMin => new(left, bottom);
         public Vector2 OffsetMax => new(-right, -top);
+
+        public static RectTransformInset FromRectTransform(RectTransform rectTransform)
+        {
+            return new RectTransformInset
+            {
+                left = rectTransform.offsetMin.x,
+                bottom = rectTransform.offsetMin.y,
+                right = -rectTransform.offsetMax.x,
+                top = -rectTransform.offsetMax.y
+            };
+        }
     }
 }

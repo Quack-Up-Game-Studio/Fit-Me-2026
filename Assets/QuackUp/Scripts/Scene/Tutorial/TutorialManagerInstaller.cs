@@ -4,6 +4,7 @@ using FitMe.Tutorial;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -33,10 +34,15 @@ namespace FitMe.Scene
     public class TutorialManagerInstaller : DebugableInstaller<TutorialManagerDebugData>
     {
         [OdinSerialize] private List<TutorialStateInfo> states;
+        [SerializeField] private bool overrideStart;
+        [SerializeField, ShowIf(nameof(overrideStart))] private string startKey;
         
         public override void Install(IContainerBuilder builder)
         {
             builder.RegisterEntryPoint<TutorialManager>().AsSelf();
+            builder.RegisterInstance(overrideStart ? startKey : string.Empty)
+                .AsSelf()
+                .Keyed(TutorialManager.OverrideStartKey);
             builder.Register<TutorialStateMachine>(Lifetime.Singleton).AsSelf();
             builder.RegisterBuildCallback(x =>
             {

@@ -1,5 +1,6 @@
 using System;
 using FitMe.Shared;
+using QuackUp.Audio;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -18,7 +19,10 @@ namespace FitMe.Scene.MainMenu
         {
             var gameStateManagerMock = new LevelManagerMock(GameState.PlaceBlock);
             builder.RegisterInstance(mainMenuManagerConfig).AsSelf();
-            builder.RegisterInstance<ILevelManager, LevelManagerMock>(gameStateManagerMock);
+            builder.RegisterInstance(gameStateManagerMock).AsSelf()
+                .As<ILevelManager>()
+                .As<IGameStateManager>()
+                .As<IScoreManager>();
             builder.Register<IMessageHub, MainMenuManagerMessageHub>(Lifetime.Singleton)
                 .Keyed(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey);
             builder.RegisterEntryPoint<MainMenuManager>().AsSelf();

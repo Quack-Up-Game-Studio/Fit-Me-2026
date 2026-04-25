@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FitMe.Shared;
 using Sirenix.OdinInspector;
@@ -18,7 +19,10 @@ namespace FitMe.Grid
     {
         public bool hasCell;
         public bool hasObstacle;
+        public bool petrified = true;
         public BlockShape shape;
+        public bool randomColor = true;
+        public BlockColor color;
         public int id;
     }
 
@@ -71,7 +75,7 @@ namespace FitMe.Grid
         [Obsolete("The game no longer uses a fixed number of obstacles.")]
         public int ObstacleCount { get; private set; } = 2;
 #if UNITY_EDITOR
-        [field: TableMatrix(SquareCells = true, HorizontalTitle = "Obstacle Data", 
+        [field: TableMatrix(SquareCells = true, HorizontalTitle = "Obstacle Data",
             DrawElementMethod = nameof(DrawObstacleDataMatrix), Transpose = true, IsReadOnly =  true)]
 #endif
         [field: SerializeField, 
@@ -120,6 +124,10 @@ namespace FitMe.Grid
             _ => 0
         };
         #endregion
+        
+        [field: SerializeField] public bool OverrideBag {get; private set;}
+        [field: ShowIf(nameof(OverrideBag))]
+        [field: SerializeField] public List<SpawnBlockData> SpawnBlockData { get; private set; } = new();
 
 #if UNITY_EDITOR
         
@@ -145,10 +153,13 @@ namespace FitMe.Grid
                 return value;
             }
             EditorGUI.DrawRect(rect.Padding(1), value.hasObstacle ? Color.red : Color.green);
-            // split the rect into 3 rows
-            var row1 = rect.Padding(1).SetHeight(rect.height / 3f);
+            // split the rect into 4 rows
+            var row1 = rect.Padding(1).SetHeight(rect.height / 6f);
             var row2 = row1.SetY(row1.yMax);
             var row3 = row2.SetY(row2.yMax);
+            var row4 = row3.SetY(row3.yMax);
+            var row5 = row4.SetY(row4.yMax);
+            var row6 = row5.SetY(row5.yMax);
             var obstacleColor = value.hasObstacle ? Color.white : Color.red;
             value.hasObstacle = EditorGUI.ToggleLeft(row1, "Obstacle", value.hasObstacle, 
                 new GUIStyle(EditorStyles.label)
@@ -157,8 +168,22 @@ namespace FitMe.Grid
                     active = { textColor = obstacleColor }
                 });
             if (!value.hasObstacle) return value;
-            value.shape = (BlockShape)SirenixEditorFields.EnumDropdown(row2, value.shape); 
-            value.id = SirenixEditorFields.IntField(row3, value.id);
+            value.petrified = EditorGUI.ToggleLeft(row2, "Petrified", value.petrified, 
+                new GUIStyle(EditorStyles.label)
+                {
+                    normal = { textColor = obstacleColor },
+                    active = { textColor = obstacleColor }
+                });
+            value.shape = (BlockShape)SirenixEditorFields.EnumDropdown(row3, value.shape); 
+            value.id = SirenixEditorFields.IntField(row4, value.id);
+            value.randomColor = EditorGUI.ToggleLeft(row5, "Random Color", value.randomColor, 
+                new GUIStyle(EditorStyles.label)
+                {
+                    normal = { textColor = obstacleColor },
+                    active = { textColor = obstacleColor }
+                });
+            if (value.randomColor)  return value;
+            value.color = (BlockColor)SirenixEditorFields.EnumDropdown(row6, value.color);
             return value;
         }
         

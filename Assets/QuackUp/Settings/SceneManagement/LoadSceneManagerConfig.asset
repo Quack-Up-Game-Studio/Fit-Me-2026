@@ -20,7 +20,7 @@ MonoBehaviour:
     - {fileID: 102900000, guid: f72f140b597b8c344a54f9dd7326b9e3, type: 3}
     - {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
     - {fileID: 102900000, guid: c200760d613a86e458e05e3202ee98f2, type: 3}
-    - {fileID: 102900000, guid: 388b31eb1fbc16313b7ba85a6b4f6724, type: 3}
+    - {fileID: 102900000, guid: f0feb881ff4a37035bd63ca0909807fd, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -166,7 +166,7 @@ MonoBehaviour:
       Data: 4
     - Name: _path
       Entry: 1
-      Data: Assets/QuackUp/Scenes/Tutorial.unity
+      Data: Assets/QuackUp/Scenes/New Tutorial.unity
     - Name: 
       Entry: 8
       Data: 

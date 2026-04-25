@@ -10,15 +10,15 @@ namespace FitMe.Panel
     {
         public ReactiveCommand PauseCommand { get; } = new();
         
-        private readonly ILevelManager _levelManager;
+        private readonly IGameStateManager _gameStateManager;
         private IDisposable _bindings;
         
         [Inject]
         public GameplayPanelViewModel(
             PanelManager panelManager,
-            ILevelManager levelManager) : base(panelManager)
+            IGameStateManager gameStateManager) : base(panelManager)
         {
-            _levelManager = levelManager;
+            _gameStateManager = gameStateManager;
             Bind();
         }
 
@@ -39,7 +39,7 @@ namespace FitMe.Panel
 
         private void OnPause()
         {
-            _levelManager.Pause();
+            _gameStateManager.Pause();
         }
     }
 }

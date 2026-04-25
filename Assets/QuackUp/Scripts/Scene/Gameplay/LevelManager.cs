@@ -21,7 +21,7 @@ using VContainer.Unity;
 
 namespace FitMe.Scene
 {
-    public class LevelManager : ILevelManager, IStartable, IDisposable
+    public class LevelManager : ILevelManager, IGameStateManager, IScoreManager, IStartable, IDisposable
     {
         public ReactiveProperty<int> Score { get; } = new(0);
         public ReactiveProperty<int> FitMe { get; } = new(0);
@@ -36,10 +36,12 @@ namespace FitMe.Scene
         public static GameMode GameMode { get; set; }
         public static GridPreset GridPreset { get; set; }
         public bool IsTutorial { get; set; }
+        public Observable<Unit> OnScoreUpdated => _onScoreUpdated;
 
         private AnimationCurve _difficultyCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
         private int _levelCycle;
         
+        private readonly Subject<Unit> _onScoreUpdated = new();
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
         private readonly LevelManagerConfig _config;
         private readonly IAudioManager _audioManager;
@@ -53,6 +55,7 @@ namespace FitMe.Scene
         private readonly ICloudSaveService _cloudSaveService;
         
         private List<GridPreset> _presets;
+        private Queue<GridPreset> _tutorialPresets;
         private PlayerRecordSaveObject _playerRecordSaveObject;
         private AudioReference _bgmReference;
         private GameState _previousStateBeforePause;
@@ -147,18 +150,17 @@ namespace FitMe.Scene
             }
             _onReturnToGameplaySubscription = gameOverPanel.OnReturnToGameplay
                 .Subscribe(_ => OnReturnToGameplay());
+            _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
             
+            _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            DebugUtils.Log($"PlayerRecordSaveObject found: {_playerRecordSaveObject}");
+            if (IsTutorial) return;
             if (!GridPreset) 
                 _messageHub.Publish(new StartCreateGridEvent());
             else
                 _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
             _messageHub.Publish(new SpawnWithBlockPresetEvent(null));
             _messageHub.Publish(new DifficultyChangeEvent(0));
-            
-            _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
-            
-            _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
-            DebugUtils.Log($"PlayerRecordSaveObject found: {_playerRecordSaveObject}");
         }
         
         private void OnScoreAdded(ScoreEvent scoreEvent)
@@ -182,6 +184,7 @@ namespace FitMe.Scene
             DebugUtils.Log($"Score added: {finalScore} (Type: {scoreEvent.ScoreType}, Contacts: {scoreEvent.Contacts.Count})");
             ChangeScore(finalScore);
             _popUpScoreFactory.Create(finalScore, scoreEvent.WorldPosition, "Score");
+            _onScoreUpdated?.OnNext(Unit.Default);
         }
         
         private void OnAboutToClearGrid()
@@ -222,21 +225,24 @@ namespace FitMe.Scene
             _difficultyCurve = _config.ShapeLevelCurve;
             _levelCycle = _config.ShapeLevelsPerCycle;
         }
+
+        private GridPreset GetTutorialLevel()
+        {
+            _tutorialPresets ??= new Queue<GridPreset>(_config.TutorialLevelDatabase.LevelPresets);
+            if (_tutorialPresets.Count != 0) return _tutorialPresets.Dequeue();
+            DebugUtils.LogError("Tutorial presets exhausted. No more tutorial levels available. Fallback to default level");
+            return _config.OriginalLevel;
+        }
         
         private GridPreset GetLevelFromPool()
         {
             if (_presets == null || _presets.Count == 0)
             {
-                CreateLevelPool();
+                _presets = new List<GridPreset>(_config.ShapeLevelDatabase.LevelPresets);
             }
             var preset = _presets.GetRandomElement();
             _presets?.Remove(preset);
             return preset;
-        }
-
-        private void CreateLevelPool()
-        {
-            _presets = new List<GridPreset>(_config.ShapeLevel);
         }
         
         public void ResetLevelPool()
@@ -244,10 +250,19 @@ namespace FitMe.Scene
             _presets = null;
             GridPreset = null;
         }
+
+        public async UniTask NextTutorialPreset(bool playSound)
+        {
+            if (!IsTutorial) return;
+            await _gridManager.ClearGrid(playSound: false);
+            GridPreset = GetTutorialLevel();
+            _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
+        }
+
         #endregion
 
         #region Difficulty level
-        private void CurrentDifficultyLevel()
+        private void ChangeDifficultyLevel()
         {
             int currentFit = FitMe.Value;
             int difficultyLevel = CalculateDifficultyLevel(_difficultyCurve, currentFit);
@@ -266,7 +281,8 @@ namespace FitMe.Scene
         private void OnFit()
         {
             _orthographicCameraManager.Shake(_config.CameraFitShakeSettings, _config.CameraFitShakeStrengthFactor);
-            CurrentDifficultyLevel();
+            if (IsTutorial) return;
+            ChangeDifficultyLevel();
             GridPreset = GameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
             _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
         }
@@ -276,26 +292,34 @@ namespace FitMe.Scene
             _audioManager.StopAudio(_bgmReference);
         }
         
-        private void ChangeScore(int value)
+        public void ChangeScore(int amount)
         {
-            Score.Value += value;
-            if (IsTutorial) return;
+            Score.Value += amount;
             if (!_playerRecordSaveObject) return;
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return;
-            saveData.cumulativeScore += value;
+            saveData.cumulativeScore += amount;
             _saveManager.Save(_playerRecordSaveObject);
         }
-        
-        private void ChangeFitMe(int value)
+
+        public void SetScore(int amount)
         {
-            FitMe.Value += value;
-            if (IsTutorial) return;
+            Score.Value = amount;
+        }
+        
+        public void ChangeFitMe(int amount)
+        {
+            FitMe.Value += amount;
             if (!_playerRecordSaveObject) return;
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return;
-            saveData.cumulativeFitMe += value;
+            saveData.cumulativeFitMe += amount;
             _saveManager.Save(_playerRecordSaveObject);
+        }
+
+        public void SetFitMe(int amount)
+        {
+            FitMe.Value = amount;
         }
         
         public void SetGameState(GameState newState)
@@ -324,13 +348,13 @@ namespace FitMe.Scene
         {
             if (!evt.IsOver) return;
             Debug.Log("Game Over Event Received!");
+            if (IsTutorial) return;
             GameOver();
         }
         
         private void GameOver()
         {
             SetGameState(Shared.GameState.GameOver);
-            if (IsTutorial) return;
             _panelManager.TryGetPanel<GameOverPanelViewModel>(_config.GameOverPanelId, out var gameOverPanelViewModel);
             if (gameOverPanelViewModel.RemainingContinueCount.CurrentValue <= 0)
             {

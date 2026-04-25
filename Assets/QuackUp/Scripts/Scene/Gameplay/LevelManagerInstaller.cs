@@ -17,7 +17,10 @@ namespace FitMe.Scene
         public void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(levelManagerConfig);
-            builder.RegisterEntryPoint<LevelManager>().AsSelf().As<ILevelManager>();
+            builder.RegisterEntryPoint<LevelManager>().AsSelf()
+                .As<ILevelManager>()
+                .As<IGameStateManager>()
+                .As<IScoreManager>();
             builder.Register<IMessageHub, LevelManagerMessageHub>(Lifetime.Singleton)
                 .Keyed(LevelManagerMessageHub.MessageHubKey);
         }
