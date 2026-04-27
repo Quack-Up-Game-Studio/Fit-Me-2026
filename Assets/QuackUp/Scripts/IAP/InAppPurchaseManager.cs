@@ -9,7 +9,7 @@ namespace QuackUp.IAP
     public static class ProductIds
     {
         public const string MonthlyPass   = "monthlypass";
-        public const string QuarterlyPass = "quarterlypass";
+        public const string QuarterlyPass = "quarterltypass";
         public const string AnnuallyPass  = "annuallypass";
         public const string Energy2       = "2_1energy";
         public const string Energy3       = "3_2energy";
@@ -25,6 +25,7 @@ namespace QuackUp.IAP
         private IStoreController m_StoreController;
         private IExtensionProvider m_StoreExtensionProvider;
         public event Action OnInitializedSuccess;
+        public event Action OnPurchaseSuccess;
 
         [Inject]
         public void Construct()
@@ -63,7 +64,7 @@ namespace QuackUp.IAP
                 new StoreSpecificIds() { { ProductIds.QuarterlyPass, GooglePlay.Name } });
             builder.AddProduct(ProductIds.AnnuallyPass, ProductType.Subscription,
                 new StoreSpecificIds() { { ProductIds.AnnuallyPass, GooglePlay.Name } });
-
+            
             UnityPurchasing.Initialize(this, builder);
         }
 
@@ -134,6 +135,7 @@ namespace QuackUp.IAP
                     break;
             }
 
+            OnPurchaseSuccess?.Invoke();
             return PurchaseProcessingResult.Complete;
         }
 
@@ -159,6 +161,8 @@ namespace QuackUp.IAP
 #if UNITY_EDITOR
             return true;
 #else
+            Debug.LogWarning("IAP: Receipt validation not yet implemented.");
+            return true;
             /*try
             {
                 var validator = new CrossPlatformValidator(
@@ -178,8 +182,6 @@ namespace QuackUp.IAP
                 Debug.LogWarning($"IAP: Invalid receipt: {ex.Message}");
                 return false;
             }*/
-            Debug.LogWarning("IAP: Receipt validation not yet implemented.");
-            return true;
 #endif
         }
         
@@ -188,6 +190,26 @@ namespace QuackUp.IAP
             if (!IsInitialized()) return "";
             var product = m_StoreController.products.WithID(productId);
             return product?.metadata.localizedPriceString ?? "";
+        }
+        
+        public bool HasActiveSubscription()
+        {
+            if (!IsInitialized()) return false;
+
+            var subscriptionIds = new[]
+            {
+                ProductIds.MonthlyPass,
+                ProductIds.QuarterlyPass,
+                ProductIds.AnnuallyPass
+            };
+
+            foreach (var id in subscriptionIds)
+            {
+                var product = m_StoreController.products.WithID(id);
+                if (product?.hasReceipt == true)
+                    return true;
+            }
+            return false;
         }
     }
 }

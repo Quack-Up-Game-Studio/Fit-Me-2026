@@ -36,6 +36,7 @@ namespace FitMe.Panel
             base.Construct(viewModel);
             Bind();
             ViewModel.RegisterOnIAPReady(UpdatePrices);
+            ViewModel.RegisterOnPurchaseSuccess(UpdatePrices);
         }
 
         private void Bind()
@@ -80,10 +81,16 @@ namespace FitMe.Panel
                 if (button.PriceText != null)
                     button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
             }
+
+            bool hasVip = ViewModel.HasActiveSubscription();
             foreach (var button in _subscriptionButton)
             {
                 if (button.PriceText != null)
-                    button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
+                    button.PriceText.text = hasVip 
+                        ? "already have VIP"
+                        : ViewModel.GetPrice(button.ProductId.ToProductString());
+        
+                button.Button.interactable = !hasVip;
             }
         }
         

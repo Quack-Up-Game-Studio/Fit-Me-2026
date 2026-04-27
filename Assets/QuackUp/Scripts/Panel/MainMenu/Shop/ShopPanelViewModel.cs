@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using QuackUp.IAP;
 using R3;
 using VContainer;
@@ -31,8 +32,9 @@ namespace FitMe.Panel
     
     public class ShopPanelViewModel : PanelViewModel
     {
+        public bool HasActiveSubscription() => _inAppPurchaseManager.HasActiveSubscription();
         public string GetPrice(string productId) => _inAppPurchaseManager.GetLocalizedPrice(productId);
-        private readonly InAppPurchaseManager _inAppPurchaseManager;
+        private InAppPurchaseManager _inAppPurchaseManager;
         private IDisposable _bindings;
 
         [Inject]
@@ -41,6 +43,12 @@ namespace FitMe.Panel
             InAppPurchaseManager inAppPurchaseManager) : base(panelManager)
         {
             _inAppPurchaseManager = inAppPurchaseManager;
+            _inAppPurchaseManager.Start();
+        }
+        
+        public void RegisterOnPurchaseSuccess(Action onSuccess)
+        {
+            _inAppPurchaseManager.OnPurchaseSuccess += onSuccess;
         }
         
         public void RegisterOnIAPReady(Action onReady)
