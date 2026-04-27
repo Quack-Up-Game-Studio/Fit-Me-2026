@@ -107,7 +107,7 @@ namespace FitMe.Scene.MainMenu
             var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
             if (!saveData.CompletedTutorial) return;
-            if (_energyManager.CurrentEnergy.CurrentValue < 1)
+            if (!_energyManager.HasEnoughEnergy(1))
             {
                 cancellationTokenSource.Cancel();
                 var promise = new Promise<Unit>();

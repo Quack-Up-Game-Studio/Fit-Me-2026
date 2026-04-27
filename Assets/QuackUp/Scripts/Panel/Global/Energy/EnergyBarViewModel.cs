@@ -10,6 +10,7 @@ namespace FitMe.Panel
     {
         public ReactiveProperty<bool> AllowWatchAd { get; } = new(true);
         public ReactiveCommand WatchAdCommand { get; } = new();
+        public ReadOnlyReactiveProperty<bool> InfiniteEnergy => _energyManager.InfiniteEnergy;
         public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
         public ReadOnlyReactiveProperty<TimeSpan> TimeUntilNextRecharge => _energyManager.TimeUntilNextRecharge;
         public EnergyManagerConfig Config => _energyManager.Config;
