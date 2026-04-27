@@ -1,0 +1,403 @@
+fileFormatVersion: 2
+guid: c13eea9f28cf9614aa9921c7cdf695b5
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6809422075926855627
+    second: RadientRays_0
+  - first:
+      213: 1738742352199718904
+    second: RadientRays_1
+  - first:
+      213: -8125454626749812202
+    second: RadientRays_2
+  - first:
+      213: 8624037216823380202
+    second: RadientRays_3
+  - first:
+      213: 6190447191623947636
+    second: RadientRays_4
+  - first:
+      213: -2842720194213534438
+    second: RadientRays_5
+  - first:
+      213: -1604083944800944592
+    second: RadientRays_6
+  - first:
+      213: -2425470143211817408
+    second: RadientRays_7
+  - first:
+      213: 2311708714570957457
+    second: RadientRays_8
+  - first:
+      213: -1511440979456326853
+    second: RadientRays_9
+  - first:
+      213: 6314818706031001013
+    second: RadientRays_10
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: RadientRays_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 580
+        width: 802
+        height: 263
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5304da623b21081a0800000000000000
+      internalID: -6809422075926855627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_1
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 816
+        width: 773
+        height: 464
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f79ac205f0412810800000000000000
+      internalID: 1738742352199718904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_2
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 823
+        width: 533
+        height: 745
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 612f50641169c3f80800000000000000
+      internalID: -8125454626749812202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_3
+      rect:
+        serializedVersion: 2
+        x: 698
+        y: 827
+        width: 265
+        height: 802
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae88186182cbea770800000000000000
+      internalID: 8624037216823380202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_4
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 823
+        width: 553
+        height: 734
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4755f812ce2e8e550800000000000000
+      internalID: 6190447191623947636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_5
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 815
+        width: 780
+        height: 442
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a15a2147b01ac88d0800000000000000
+      internalID: -2842720194213534438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_6
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 193
+        width: 694
+        height: 613
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03e7b38a6262db9e0800000000000000
+      internalID: -1604083944800944592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_7
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 2
+        width: 366
+        height: 797
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0463b8461cff65ed0800000000000000
+      internalID: -2425470143211817408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_8
+      rect:
+        serializedVersion: 2
+        x: 817
+        y: 0
+        width: 341
+        height: 798
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1924d24f3d6d41020800000000000000
+      internalID: 2311708714570957457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_9
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 174
+        width: 679
+        height: 631
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b338988ef68460be0800000000000000
+      internalID: -1511440979456326853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RadientRays_10
+      rect:
+        serializedVersion: 2
+        x: 831
+        y: 552
+        width: 803
+        height: 264
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bd38f1e72eb2a750800000000000000
+      internalID: 6314818706031001013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      RadientRays_0: -6809422075926855627
+      RadientRays_1: 1738742352199718904
+      RadientRays_10: 6314818706031001013
+      RadientRays_2: -8125454626749812202
+      RadientRays_3: 8624037216823380202
+      RadientRays_4: 6190447191623947636
+      RadientRays_5: -2842720194213534438
+      RadientRays_6: -1604083944800944592
+      RadientRays_7: -2425470143211817408
+      RadientRays_8: 2311708714570957457
+      RadientRays_9: -1511440979456326853
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
