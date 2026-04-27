@@ -7647,7 +7647,7 @@ MonoBehaviour:
         FitMe.Scene]], mscorlib
     - Name: 
       Entry: 12
-      Data: 37
+      Data: 40
     - Name: 
       Entry: 7
       Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
@@ -9738,10 +9738,31 @@ MonoBehaviour:
       Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
     - Name: Name
       Entry: 1
+      Data: CheckScore
+    - Name: State
+      Entry: 7
+      Data: 42|FitMe.Tutorial.ScoreThresholdTutorialState, FitMe.Tutorial
+    - Name: scoreThreshold
+      Entry: 3
+      Data: 5920
+    - Name: jumpToWhenFail
+      Entry: 1
+      Data: SetScore3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
+    - Name: Name
+      Entry: 1
       Data: ScoreShowcase2
     - Name: State
       Entry: 7
-      Data: 42|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 43|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "Awesome! Look how much score you\u2019ve got!"
@@ -9876,7 +9897,7 @@ MonoBehaviour:
       Data: FinishPart2
     - Name: State
       Entry: 7
-      Data: 43|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 44|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "It\u2019s getting trickier, but I know you can handle it!"
@@ -10011,7 +10032,7 @@ MonoBehaviour:
       Data: IntroPart3
     - Name: State
       Entry: 7
-      Data: 44|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 45|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Now it's time for a real challenge!
@@ -10146,7 +10167,7 @@ MonoBehaviour:
       Data: NextPreset3
     - Name: State
       Entry: 7
-      Data: 45|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
+      Data: 46|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
     - Name: playFitMeSound
       Entry: 5
       Data: false
@@ -10164,7 +10185,7 @@ MonoBehaviour:
       Data: ObstacleShowcase
     - Name: State
       Entry: 7
-      Data: 46|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 47|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "These are obstacles. You can\u2019t move or break them"
@@ -10299,7 +10320,7 @@ MonoBehaviour:
       Data: TryFitDialogue3
     - Name: State
       Entry: 7
-      Data: 47|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 48|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: See if you can beat this level!
@@ -10434,7 +10455,7 @@ MonoBehaviour:
       Data: TryFit3
     - Name: State
       Entry: 7
-      Data: 48|FitMe.Tutorial.FitTutorialState, FitMe.Tutorial
+      Data: 49|FitMe.Tutorial.FitTutorialState, FitMe.Tutorial
     - Name: jumpToWhenFail
       Entry: 1
       Data: Fail
@@ -10452,7 +10473,7 @@ MonoBehaviour:
       Data: Outro1
     - Name: State
       Entry: 7
-      Data: 49|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 50|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "Excellent! You\u2019re officially ready for the real deal!"
@@ -10587,7 +10608,7 @@ MonoBehaviour:
       Data: Outro2
     - Name: State
       Entry: 7
-      Data: 50|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 51|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "Let\u2019s see how far you can go! Good luck!"
@@ -10722,7 +10743,7 @@ MonoBehaviour:
       Data: Complete
     - Name: State
       Entry: 7
-      Data: 51|FitMe.Tutorial.CompleteTutorialState, FitMe.Tutorial
+      Data: 52|FitMe.Tutorial.CompleteTutorialState, FitMe.Tutorial
     - Name: 
       Entry: 8
       Data: 
@@ -10737,7 +10758,7 @@ MonoBehaviour:
       Data: Fail
     - Name: State
       Entry: 7
-      Data: 52|FitMe.Tutorial.FailState, FitMe.Tutorial
+      Data: 53|FitMe.Tutorial.FailState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: That's not quite right... Let's try again.
@@ -10878,7 +10899,7 @@ MonoBehaviour:
       Data: SetScore2
     - Name: State
       Entry: 7
-      Data: 53|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
+      Data: 54|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
     - Name: waitForScoreUpdate
       Entry: 5
       Data: false
@@ -10908,10 +10929,182 @@ MonoBehaviour:
       Data: Fail2
     - Name: State
       Entry: 7
-      Data: 54|FitMe.Tutorial.FailState, FitMe.Tutorial
+      Data: 55|FitMe.Tutorial.FailState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: That's not quite right... Let's try again.
+    - Name: usePreviousPanelSize
+      Entry: 5
+      Data: false
+    - Name: panelInset
+      Entry: 7
+      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
+    - Name: left
+      Entry: 4
+      Data: 200
+    - Name: top
+      Entry: 4
+      Data: 700
+    - Name: right
+      Entry: 4
+      Data: 200
+    - Name: bottom
+      Entry: 4
+      Data: 1000
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: usePreviousCharacterSize
+      Entry: 5
+      Data: false
+    - Name: characterSize
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: usePreviousCharacterPosition
+      Entry: 5
+      Data: false
+    - Name: characterPosition
+      Entry: 7
+      Data: UnityEngine.Vector3, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: -369
+    - Name: 
+      Entry: 4
+      Data: -98
+    - Name: 
+      Entry: 4
+      Data: -21897.81
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: usePreviousCharacterRotation
+      Entry: 5
+      Data: false
+    - Name: characterRotation
+      Entry: 7
+      Data: UnityEngine.Vector3, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 25.0105247
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: hasCarveWindow
+      Entry: 5
+      Data: false
+    - Name: usePreviousCarveWindowInset
+      Entry: 5
+      Data: false
+    - Name: carveWindowInset
+      Entry: 7
+      Data: QuackUp.Utils.RectTransformInset, QuackUp.Utils
+    - Name: left
+      Entry: 4
+      Data: 0
+    - Name: top
+      Entry: 4
+      Data: 0
+    - Name: right
+      Entry: 4
+      Data: 0
+    - Name: bottom
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: image
+      Entry: 6
+      Data: 
+    - Name: hideWhenExit
+      Entry: 5
+      Data: true
+    - Name: hasNextButton
+      Entry: 5
+      Data: true
+    - Name: blockInput
+      Entry: 5
+      Data: true
+    - Name: panelRectTransform
+      Entry: 6
+      Data: 
+    - Name: characterRectTransform
+      Entry: 6
+      Data: 
+    - Name: carveWindowRectTransform
+      Entry: 6
+      Data: 
+    - Name: revertToPreviousState
+      Entry: 5
+      Data: false
+    - Name: jumpTo
+      Entry: 1
+      Data: TryFit2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
+    - Name: Name
+      Entry: 1
+      Data: SetScore3
+    - Name: State
+      Entry: 7
+      Data: 56|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
+    - Name: waitForScoreUpdate
+      Entry: 5
+      Data: false
+    - Name: setScore
+      Entry: 5
+      Data: true
+    - Name: scoreToSet
+      Entry: 3
+      Data: 220
+    - Name: setFitMe
+      Entry: 5
+      Data: true
+    - Name: fitMeToSet
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: FitMe.Scene.TutorialStateInfo, FitMe.Scene
+    - Name: Name
+      Entry: 1
+      Data: Fail3
+    - Name: State
+      Entry: 7
+      Data: 57|FitMe.Tutorial.FailState, FitMe.Tutorial
+    - Name: text
+      Entry: 1
+      Data: Great job! However, there's a way to get higher score. Remember, matching
+        colors will always give you higher score. Let's try again.
     - Name: usePreviousPanelSize
       Entry: 5
       Data: false
@@ -11064,14 +11257,14 @@ MonoBehaviour:
       Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 55|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 58|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12
       Data: 7
     - Name: 
       Entry: 7
-      Data: 56|QuackUp.Utils.BackGroundEffectInstaller, QuackUp.Utils
+      Data: 59|QuackUp.Utils.BackGroundEffectInstaller, QuackUp.Utils
     - Name: _backGroundEffectView
       Entry: 10
       Data: 28
@@ -11080,7 +11273,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 57|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
+      Data: 60|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
     - Name: scoreView
       Entry: 10
       Data: 29
@@ -11101,13 +11294,13 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 58|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
+      Data: 61|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 59|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
+      Data: 62|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
     - Name: energyBarView
       Entry: 10
       Data: 34
@@ -11116,7 +11309,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 60|FitMe.Panel.RunTimerInstaller, FitMe.Panel
+      Data: 63|FitMe.Panel.RunTimerInstaller, FitMe.Panel
     - Name: view
       Entry: 10
       Data: 35
@@ -11125,7 +11318,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 61|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
+      Data: 64|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
     - Name: mainCamera
       Entry: 10
       Data: 0
@@ -11134,7 +11327,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 62|FitMe.Panel.Tutorial.TextTutorialInstaller, FitMe.Panel
+      Data: 65|FitMe.Panel.Tutorial.TextTutorialInstaller, FitMe.Panel
     - Name: view
       Entry: 10
       Data: 36
@@ -13089,6 +13282,9 @@ MonoBehaviour:
   canvasGroup: {fileID: 1163092003}
   background: {fileID: 1537595045}
   character: {fileID: 398374309}
+  characterSkeleton: {fileID: 398374310}
+  defaultAnimation: Idle1
+  animationWhenTouch: Idle2
   tutorialText: {fileID: 598817557}
   tutorialImage: {fileID: 1545388602}
   panelRect: {fileID: 755619657}
@@ -15210,7 +15406,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.6}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

@@ -6,6 +6,7 @@ using QuackUp.Utils;
 using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
+using Spine.Unity;
 using TMPEffects.Components;
 using TMPro;
 using UnityEngine;
@@ -19,6 +20,9 @@ namespace FitMe.Panel.Tutorial
         [SerializeField, Required] private CanvasGroup canvasGroup;
         [SerializeField, Required] private Image background;
         [SerializeField] private RectTransform character;
+        [SerializeField] private SkeletonGraphic characterSkeleton;
+        [SerializeField, SpineAnimation] private string defaultAnimation;
+        [SerializeField, SpineAnimation] private string animationWhenTouch;
         [SerializeField] private TMPWriter tutorialText;
         [SerializeField] private Image tutorialImage;
         [SerializeField] private RectTransform panelRect;
@@ -135,8 +139,8 @@ namespace FitMe.Panel.Tutorial
             touchAnywhereText.gameObject.SetActive(false);
             tutorialText.SetText(string.Empty);
             await UniTask.WhenAll(
-                TweenPanelInset(_cancellationTokenSource.Token), 
                 TweenCharacter(_cancellationTokenSource.Token),
+                TweenPanelInset(_cancellationTokenSource.Token),
                 TweenCarveWindowInset(_cancellationTokenSource.Token));
             nextButton.gameObject.SetActive(true);
             _displayDataTokenSource = new();
@@ -198,9 +202,20 @@ namespace FitMe.Panel.Tutorial
             {
                 _showSequence.Stop();
             });
-            _showSequence = Sequence.Create()
-                .Group(Tween.Scale(panelRect.transform, scaleTweenSettings.WithDirection(direction)))
-                .Group(Tween.Scale(character.transform, scaleTweenSettings.WithDirection(direction)));
+            if (direction)
+            {
+                characterSkeleton.AnimationState.ClearTrack(0);
+                characterSkeleton.AnimationState.SetAnimation(0, defaultAnimation, true);
+                _showSequence = Sequence.Create()
+                    .Group(Tween.Scale(character.transform, scaleTweenSettings.WithDirection(true)))
+                    .Chain(Tween.Scale(panelRect.transform, scaleTweenSettings.WithDirection(true)));
+            }
+            else
+            {
+                _showSequence = Sequence.Create()
+                    .Group(Tween.Scale(character.transform, scaleTweenSettings.WithDirection(false)))
+                    .Group(Tween.Scale(panelRect.transform, scaleTweenSettings.WithDirection(false)));
+            }
             await _showSequence.ToUniTask();
             if (!direction)
             {
@@ -227,6 +242,9 @@ namespace FitMe.Panel.Tutorial
                 return;
             }
             _cancellationTokenSource.Cancel();
+            characterSkeleton.AnimationState.ClearTrack(0);
+            characterSkeleton.AnimationState.SetAnimation(0, animationWhenTouch, false);
+            characterSkeleton.AnimationState.AddAnimation(0, defaultAnimation, true, 0);
             _viewModel.OnNextCommand.Execute(Unit.Default);
         }
         
