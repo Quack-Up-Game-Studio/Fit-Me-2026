@@ -20,9 +20,9 @@ namespace FitMe.Tutorial
         [SerializeField] private bool hasCharacter;
         [SerializeField, ShowIf(nameof(hasCharacter))] private bool usePreviousCharacterSize;
         [SerializeField, HideIf("@!hasCharacter || usePreviousCharacterSize")] private Vector2 characterSize;
-        [SerializeField] private bool usePreviousCharacterPosition;
+        [SerializeField, ShowIf(nameof(hasCharacter))] private bool usePreviousCharacterPosition;
         [SerializeField, HideIf("@!hasCharacter || usePreviousCharacterPosition")] private Vector3 characterPosition;
-        [SerializeField] private bool usePreviousCharacterRotation;
+        [SerializeField, ShowIf(nameof(hasCharacter))] private bool usePreviousCharacterRotation;
         [SerializeField, HideIf("@!hasCharacter || usePreviousCharacterRotation")] private Vector3 characterRotation;
         [SerializeField] private bool hasCarveWindow;
         [SerializeField, ShowIf(nameof(hasCarveWindow))] private bool usePreviousCarveWindowInset;
@@ -43,6 +43,14 @@ namespace FitMe.Tutorial
         {
             panelInset = RectTransformInset.FromRectTransform(panelRectTransform);
         }
+
+        [Button(nameof(PreviewCurrentPanel))]
+        [ShowIf(nameof(panelRectTransform))]
+        private void PreviewCurrentPanel()
+        {
+            panelRectTransform.offsetMin = panelInset.OffsetMin;
+            panelRectTransform.offsetMax = panelInset.OffsetMax;
+        }
         [Button(nameof(CopyCharacterTransformData))]
         [ShowIf(nameof(characterRectTransform))]
         private void CopyCharacterTransformData()
@@ -51,11 +59,26 @@ namespace FitMe.Tutorial
             characterPosition = characterRectTransform.localPosition;
             characterRotation = characterRectTransform.localEulerAngles;
         }
+        [Button(nameof(PreviewCurrentCharacter))]
+        [ShowIf(nameof(characterRectTransform))]
+        private void PreviewCurrentCharacter()
+        {
+            characterRectTransform.localScale = characterSize;
+            characterRectTransform.localPosition = characterPosition;
+            characterRectTransform.localEulerAngles = characterRotation;
+        }
         [Button(nameof(CopyCarveWindowTransformData))]
         [ShowIf(nameof(carveWindowRectTransform))]
         private void CopyCarveWindowTransformData()
         {
             carveWindowInset = RectTransformInset.FromRectTransform(carveWindowRectTransform);
+        }
+        [Button(nameof(PreviewCurrentCarveWindow))]
+        [ShowIf(nameof(carveWindowRectTransform))]
+        private void PreviewCurrentCarveWindow()
+        {
+            carveWindowRectTransform.offsetMin = carveWindowInset.OffsetMin;
+            carveWindowRectTransform.offsetMax = carveWindowInset.OffsetMax;
         }
         #endregion
         

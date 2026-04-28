@@ -138,6 +138,7 @@ namespace FitMe.Panel.Tutorial
             carveWindowRect.gameObject.SetActive(_viewModel.TutorialData.HasCarveWindow);
             touchAnywhereText.gameObject.SetActive(false);
             tutorialText.SetText(string.Empty);
+            character.gameObject.SetActive(_viewModel.TutorialData.HasCharacter);
             await UniTask.WhenAll(
                 TweenCharacter(_cancellationTokenSource.Token),
                 TweenPanelInset(_cancellationTokenSource.Token),
@@ -203,19 +204,22 @@ namespace FitMe.Panel.Tutorial
             {
                 _showSequence.Stop();
             });
+            var characterTweenSettings = scaleTweenSettings;
+            characterTweenSettings.endValue = _viewModel.TutorialData.CharacterSize != null ? 
+                new Vector3(_viewModel.TutorialData.CharacterSize.Value.x, _viewModel.TutorialData.CharacterSize.Value.y, 1) : 
+                scaleTweenSettings.endValue;
+            var characterTween = Tween.Scale(character.transform, characterTweenSettings.WithDirection(direction));
+            var panelTween = Tween.Scale(panelRect.transform, scaleTweenSettings.WithDirection(direction));
+            _showSequence = Sequence.Create().Group(characterTween);
             if (direction)
             {
                 characterSkeleton.AnimationState.ClearTrack(0);
                 characterSkeleton.AnimationState.SetAnimation(0, defaultAnimation, true);
-                _showSequence = Sequence.Create()
-                    .Group(Tween.Scale(character.transform, scaleTweenSettings.WithDirection(true)))
-                    .Chain(Tween.Scale(panelRect.transform, scaleTweenSettings.WithDirection(true)));
+                _ = _showSequence.Chain(panelTween);
             }
             else
             {
-                _showSequence = Sequence.Create()
-                    .Group(Tween.Scale(character.transform, scaleTweenSettings.WithDirection(false)))
-                    .Group(Tween.Scale(panelRect.transform, scaleTweenSettings.WithDirection(false)));
+                _ = _showSequence.Group(panelTween);
             }
             await _showSequence.ToUniTask();
             if (!direction)
@@ -273,6 +277,7 @@ namespace FitMe.Panel.Tutorial
 
         private async UniTask TweenCharacter(CancellationToken cancellationToken)
         {
+            if (!_viewModel.TutorialData.HasCharacter) return;
             var size = _viewModel.TutorialData.CharacterSize;
             var position = _viewModel.TutorialData.CharacterPosition;
             var rotation = _viewModel.TutorialData.CharacterRotation;

@@ -2,12 +2,12 @@ OVDF v1.1
 FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
 
 # $Mic7VAzS4WqZxai7iWeQfz
-Position: $root:18
+Position: $root:13
 + [Sirenix.OdinInspector.FoldoutGroupAttribute]
 	GroupName = "Debug"
 
 # $K5jtbPfBniaY6zLFYYF83z
-Position: $root:7
+Position: $root:6
 + [Sirenix.OdinInspector.FoldoutGroupAttribute]
 	GroupName = "Other Settings"
 
@@ -34,19 +34,19 @@ Position: $A6ULEbCeEoYvd9zyfAJVeg:2
 	Name = "Carve Window"
 
 # CopyCarveWindowTransformData()
-Position: $Mic7VAzS4WqZxai7iWeQfz:5
+Position: $Mic7VAzS4WqZxai7iWeQfz:8
 
 # CopyCharacterTransformData()
-Position: $Mic7VAzS4WqZxai7iWeQfz:3
+Position: $Mic7VAzS4WqZxai7iWeQfz:5
 
 # CopyPanelTransformData()
-Position: $Mic7VAzS4WqZxai7iWeQfz:1
+Position: $Mic7VAzS4WqZxai7iWeQfz:2
 
 # carveWindowRectTransform
-Position: $Mic7VAzS4WqZxai7iWeQfz:4
+Position: $Mic7VAzS4WqZxai7iWeQfz:6
 
 # characterRectTransform
-Position: $Mic7VAzS4WqZxai7iWeQfz:2
+Position: $Mic7VAzS4WqZxai7iWeQfz:3
 
 # panelRectTransform
 Position: $Mic7VAzS4WqZxai7iWeQfz:0
@@ -59,22 +59,22 @@ Position: $3VFiKkXPeV2iorYbhLEB2z:3
 + [Sirenix.OdinInspector.InlinePropertyAttribute]
 
 # usePreviousCharacterSize
-Position: $HQQ9WxvzvZ4NN5kPKYvKVA:0
-
-# characterSize
 Position: $HQQ9WxvzvZ4NN5kPKYvKVA:1
 
-# usePreviousCharacterPosition
+# characterSize
 Position: $HQQ9WxvzvZ4NN5kPKYvKVA:2
 
-# characterPosition
+# usePreviousCharacterPosition
 Position: $HQQ9WxvzvZ4NN5kPKYvKVA:3
 
-# usePreviousCharacterRotation
+# characterPosition
 Position: $HQQ9WxvzvZ4NN5kPKYvKVA:4
 
-# characterRotation
+# usePreviousCharacterRotation
 Position: $HQQ9WxvzvZ4NN5kPKYvKVA:5
+
+# characterRotation
+Position: $HQQ9WxvzvZ4NN5kPKYvKVA:6
 
 # hasCarveWindow
 Position: $UcjMX4dAYRjwtWh59LHbuP:0
@@ -100,3 +100,15 @@ Position: $K5jtbPfBniaY6zLFYYF83z:1
 
 # text
 Position: $3VFiKkXPeV2iorYbhLEB2z:0
+
+# hasCharacter
+Position: $HQQ9WxvzvZ4NN5kPKYvKVA:0
+
+# PreviewCurrentPanel()
+Position: $Mic7VAzS4WqZxai7iWeQfz:1
+
+# PreviewCurrentCharacter()
+Position: $Mic7VAzS4WqZxai7iWeQfz:4
+
+# PreviewCurrentCarveWindow()
+Position: $Mic7VAzS4WqZxai7iWeQfz:7
