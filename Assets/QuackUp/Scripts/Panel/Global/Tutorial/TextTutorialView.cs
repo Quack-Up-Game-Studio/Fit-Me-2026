@@ -198,6 +198,7 @@ namespace FitMe.Panel.Tutorial
             touchAnywhereText.gameObject.SetActive(false);
             tutorialText.SetText(string.Empty);
             carveWindowRect.gameObject.SetActive(_viewModel.TutorialData.HasCarveWindow);
+            character.gameObject.SetActive(_viewModel.TutorialData.HasCharacter);
             cancellationToken.Register(() =>
             {
                 _showSequence.Stop();

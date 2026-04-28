@@ -127,6 +127,8 @@ namespace FitMe.Grid
         
         [field: SerializeField] public bool OverrideBag {get; private set;}
         [field: ShowIf(nameof(OverrideBag))]
+        [field: SerializeField] public bool ShuffleBag { get; private set; } = true;
+        [field: ShowIf(nameof(OverrideBag))]
         [field: SerializeField] public List<SpawnBlockData> SpawnBlockData { get; private set; } = new();
 
 #if UNITY_EDITOR

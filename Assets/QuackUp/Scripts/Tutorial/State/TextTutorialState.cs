@@ -17,12 +17,13 @@ namespace FitMe.Tutorial
         [SerializeField, TextArea] private string text;
         [FormerlySerializedAs("usePreviousSize")] [SerializeField] private bool usePreviousPanelSize;
         [SerializeField, HideIf(nameof(usePreviousPanelSize))] private RectTransformInset panelInset;
-        [SerializeField] private bool usePreviousCharacterSize;
-        [SerializeField, HideIf(nameof(usePreviousCharacterSize))] private Vector2 characterSize;
+        [SerializeField] private bool hasCharacter;
+        [SerializeField, ShowIf(nameof(hasCharacter))] private bool usePreviousCharacterSize;
+        [SerializeField, HideIf("@!hasCharacter || usePreviousCharacterSize")] private Vector2 characterSize;
         [SerializeField] private bool usePreviousCharacterPosition;
-        [SerializeField, HideIf(nameof(usePreviousCharacterPosition))] private Vector3 characterPosition;
+        [SerializeField, HideIf("@!hasCharacter || usePreviousCharacterPosition")] private Vector3 characterPosition;
         [SerializeField] private bool usePreviousCharacterRotation;
-        [SerializeField, HideIf(nameof(usePreviousCharacterRotation))] private Vector3 characterRotation;
+        [SerializeField, HideIf("@!hasCharacter || usePreviousCharacterRotation")] private Vector3 characterRotation;
         [SerializeField] private bool hasCarveWindow;
         [SerializeField, ShowIf(nameof(hasCarveWindow))] private bool usePreviousCarveWindowInset;
         [SerializeField, HideIf("@!hasCarveWindow || usePreviousCarveWindowInset")] private RectTransformInset carveWindowInset;
@@ -82,6 +83,7 @@ namespace FitMe.Tutorial
                 Text = text,
                 Image = image,
                 PanelInset = usePreviousPanelSize ? null : panelInset,
+                HasCharacter = hasCharacter,
                 CharacterSize = usePreviousCharacterSize ? null : characterSize,
                 CharacterPosition = usePreviousCharacterPosition ? null : characterPosition,
                 CharacterRotation = usePreviousCharacterRotation ? null : characterRotation,

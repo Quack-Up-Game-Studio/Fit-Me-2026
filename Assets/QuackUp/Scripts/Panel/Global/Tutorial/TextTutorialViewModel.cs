@@ -11,6 +11,7 @@ namespace FitMe.Panel.Tutorial
         public string Text { get; set; }
         public Sprite Image { get; set; }
         public RectTransformInset? PanelInset { get; set; }
+        public bool HasCharacter { get; set; }
         public Vector2? CharacterSize { get; set; }
         public Vector3? CharacterPosition { get; set; }
         public Vector3? CharacterRotation { get; set; }

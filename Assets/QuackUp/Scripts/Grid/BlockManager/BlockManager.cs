@@ -201,13 +201,17 @@ namespace FitMe.Grid
         
         private void RefillBag()
         {
-            if (!_gridManager.CurrentGridPreset)
+            var currentGridPreset = _gridManager.CurrentGridPreset;
+            if (!currentGridPreset)
             {
                 return;
             }
-            if (_gridManager.CurrentGridPreset.OverrideBag)
+            if (currentGridPreset.OverrideBag)
             {
-                _spawnBag = new Queue<SpawnBlockData>(_gridManager.CurrentGridPreset.SpawnBlockData);
+                var finalList = currentGridPreset.ShuffleBag ? 
+                    currentGridPreset.SpawnBlockData.Shuffled().ToList() : 
+                    currentGridPreset.SpawnBlockData;
+                _spawnBag = new Queue<SpawnBlockData>(finalList);
                 DebugUtils.Log($"Yuirin: Bag Refilled from Grid Preset! Total {_spawnBag.Count} items.");
                 return;
             }
