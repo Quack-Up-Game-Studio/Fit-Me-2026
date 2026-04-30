@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MessagePipe;
 using QuackUp.IAP;
 using R3;
 using VContainer;
@@ -34,13 +35,14 @@ namespace FitMe.Panel
     {
         public bool HasActiveSubscription() => _inAppPurchaseManager.HasActiveSubscription();
         public string GetPrice(string productId) => _inAppPurchaseManager.GetLocalizedPrice(productId);
+        private IPublisher<EndSubscriptionEvent> _endSubscriptionPublisher;
         private InAppPurchaseManager _inAppPurchaseManager;
         private IDisposable _bindings;
 
-        [Inject]
         public ShopPanelViewModel(
             PanelManager panelManager,
-            InAppPurchaseManager inAppPurchaseManager) : base(panelManager)
+            InAppPurchaseManager inAppPurchaseManager
+            ) : base(panelManager)
         {
             _inAppPurchaseManager = inAppPurchaseManager;
             _inAppPurchaseManager.Start();
@@ -54,9 +56,9 @@ namespace FitMe.Panel
         public void RegisterOnIAPReady(Action onReady)
         {
             if (_inAppPurchaseManager.IsInitialized())
-                onReady?.Invoke(); // init เสร็จแล้ว เรียกได้เลย
+                onReady?.Invoke();
             else
-                _inAppPurchaseManager.OnInitializedSuccess += onReady; // รอก่อน
+                _inAppPurchaseManager.OnInitializedSuccess += onReady;
         }
         
         public void OnBuyButtonClicked(string productId)

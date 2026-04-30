@@ -1,4 +1,9 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using FitMe.GameData;
+using MessagePipe;
+using R3;
 using UnityEngine;
 using UnityEngine.Purchasing;
 using VContainer;
@@ -6,6 +11,8 @@ using VContainer.Unity;
 
 namespace QuackUp.IAP
 {
+    public struct EndSubscriptionEvent { }
+    
     public static class ProductIds
     {
         public const string MonthlyPass   = "monthlypass";
@@ -24,20 +31,55 @@ namespace QuackUp.IAP
     {
         private IStoreController m_StoreController;
         private IExtensionProvider m_StoreExtensionProvider;
+        private EnergyManager _energyManager;
         public event Action OnInitializedSuccess;
         public event Action OnPurchaseSuccess;
+        private IDisposable _subscriptions;
+        private CancellationTokenSource _subscriptionCheckCts;
 
         [Inject]
-        public void Construct()
+        public void Construct(ISubscriber<EndSubscriptionEvent> endSubscriptionEvent,
+            EnergyManager energyManager)
         {
-            // inject dependencies ที่ต้องการตรงนี้
+            var disposableBuilder = Disposable.CreateBuilder();
+            endSubscriptionEvent.Subscribe(evt => EndOfSubscription())
+                .AddTo(ref disposableBuilder);
+            _subscriptions = disposableBuilder.Build();
+            _energyManager = energyManager;
         }
 
+        private void Dispose()
+        {
+            _subscriptions?.Dispose();
+            _subscriptionCheckCts?.Cancel();
+            _subscriptionCheckCts?.Dispose();
+        }
+        
         public void Start()
         {
             InitializePurchasing();
         }
 
+        private void StartSubscriptionCheckLoop()
+        {
+            _subscriptionCheckCts = new CancellationTokenSource();
+            SubscriptionCheckLoop(_subscriptionCheckCts.Token).Forget();
+        }
+
+        private async UniTaskVoid SubscriptionCheckLoop(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                await UniTask.Delay(TimeSpan.FromMinutes(5), cancellationToken: token);
+        
+                if (!HasActiveSubscription())
+                {
+                    Debug.Log("IAP: Subscription expired.");
+                    EndOfSubscription();
+                }
+            }
+        }
+        
         public void InitializePurchasing()
         {
             if (IsInitialized()) return;
@@ -75,6 +117,11 @@ namespace QuackUp.IAP
             Debug.Log("IAP: Store initialized successfully.");
             m_StoreController = controller;
             m_StoreExtensionProvider = extensions;
+            
+            if (!HasActiveSubscription())
+                EndOfSubscription();
+            
+            StartSubscriptionCheckLoop();
             OnInitializedSuccess?.Invoke();
         }
 
@@ -105,29 +152,29 @@ namespace QuackUp.IAP
                 // Consumable products
                 case ProductIds.Energy2:
                     Debug.Log("IAP: 2 energy granted.");
-                    // _energyService.Add(2);
+                    _energyManager.ChangeEnergy(3);
                     break;
                 case ProductIds.Energy3:
                     Debug.Log("IAP: 3 energy granted.");
-                    // _energyService.Add(3);
+                    _energyManager.ChangeEnergy(5);
                     break;
                 case ProductIds.MaxEnergy:
                     Debug.Log("IAP: Max energy granted.");
-                    // _energyService.AddMax();
+                    _energyManager.ChangeEnergy(7);
                     break;
 
                 // Subscription products
                 case ProductIds.MonthlyPass:
                     Debug.Log("IAP: Monthly pass activated.");
-                    // _passService.Activate(PassType.Monthly);
+                    _energyManager.SetInfiniteEnergy(true);
                     break;
                 case ProductIds.QuarterlyPass:
                     Debug.Log("IAP: Quarterly pass activated.");
-                    // _passService.Activate(PassType.Quarterly);
+                    _energyManager.SetInfiniteEnergy(true);
                     break;
                 case ProductIds.AnnuallyPass:
                     Debug.Log("IAP: Annual pass activated.");
-                    // _passService.Activate(PassType.Annual);
+                    _energyManager.SetInfiniteEnergy(true);
                     break;
 
                 default:
@@ -190,6 +237,12 @@ namespace QuackUp.IAP
             if (!IsInitialized()) return "";
             var product = m_StoreController.products.WithID(productId);
             return product?.metadata.localizedPriceString ?? "";
+        }
+        
+        public void EndOfSubscription()
+        {
+            _energyManager.SetInfiniteEnergy(false);
+            Debug.Log( "IAP: Subscription ended. Infinite energy revoked.");
         }
         
         public bool HasActiveSubscription()

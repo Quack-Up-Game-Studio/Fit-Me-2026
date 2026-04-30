@@ -1,5 +1,6 @@
 using System;
-using QuackUp.IAP;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using R3;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -29,13 +30,14 @@ namespace FitMe.Panel
         [SerializeField] private string mainMenuPanelId = "MainMenu";
         private ShopPanelViewModel ViewModel => (ShopPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
+        private CancellationTokenSource _priceCts;
         
         [Inject]
         public override void Construct(IPanelViewModel viewModel)
         {
             base.Construct(viewModel);
             Bind();
-            ViewModel.RegisterOnIAPReady(UpdatePrices);
+            ViewModel.RegisterOnIAPReady(StartPriceUpdateLoop);
             ViewModel.RegisterOnPurchaseSuccess(UpdatePrices);
         }
 
@@ -72,9 +74,26 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
+            _priceCts?.Dispose();
         }
 
-        private void UpdatePrices()
+        private void StartPriceUpdateLoop()
+        {
+            UpdatePrices();
+            _priceCts = new CancellationTokenSource();
+            PriceUpdateLoop(_priceCts.Token).Forget();
+        }
+        
+        private async UniTaskVoid PriceUpdateLoop(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                await UniTask.Delay(TimeSpan.FromMinutes(1), cancellationToken: token);
+                UpdatePrices();
+            }
+        }
+        
+        public void UpdatePrices()
         {
             foreach (var button in _consumableItemButton)
             {
@@ -86,10 +105,13 @@ namespace FitMe.Panel
             foreach (var button in _subscriptionButton)
             {
                 if (button.PriceText != null)
-                    button.PriceText.text = hasVip 
-                        ? "already have VIP"
-                        : ViewModel.GetPrice(button.ProductId.ToProductString());
-        
+                    if (hasVip)
+                        button.PriceText.text = "already have VIP";
+                    else
+                    {
+                        button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
+                    }
+
                 button.Button.interactable = !hasVip;
             }
         }
