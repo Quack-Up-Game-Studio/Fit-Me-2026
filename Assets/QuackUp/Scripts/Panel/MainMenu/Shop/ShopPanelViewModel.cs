@@ -33,10 +33,11 @@ namespace FitMe.Panel
     
     public class ShopPanelViewModel : PanelViewModel
     {
+        public bool IsInFreeTrial() => _inAppPurchaseManager.IsInFreeTrial();
         public bool HasActiveSubscription() => _inAppPurchaseManager.HasActiveSubscription();
         public string GetPrice(string productId) => _inAppPurchaseManager.GetLocalizedPrice(productId);
         private IPublisher<EndSubscriptionEvent> _endSubscriptionPublisher;
-        private InAppPurchaseManager _inAppPurchaseManager;
+        private readonly InAppPurchaseManager _inAppPurchaseManager;
         private IDisposable _bindings;
 
         public ShopPanelViewModel(
@@ -45,12 +46,16 @@ namespace FitMe.Panel
             ) : base(panelManager)
         {
             _inAppPurchaseManager = inAppPurchaseManager;
-            _inAppPurchaseManager.Start();
         }
         
         public void RegisterOnPurchaseSuccess(Action onSuccess)
         {
             _inAppPurchaseManager.OnPurchaseSuccess += onSuccess;
+        }
+        
+        public void UnregisterOnPurchaseSuccess(Action onSuccess)
+        {
+            _inAppPurchaseManager.OnPurchaseSuccess -= onSuccess;
         }
         
         public void RegisterOnIAPReady(Action onReady)
@@ -59,6 +64,11 @@ namespace FitMe.Panel
                 onReady?.Invoke();
             else
                 _inAppPurchaseManager.OnInitializedSuccess += onReady;
+        }
+        
+        public void UnregisterOnIAPReady(Action onReady)
+        {
+            _inAppPurchaseManager.OnInitializedSuccess -= onReady;
         }
         
         public void OnBuyButtonClicked(string productId)

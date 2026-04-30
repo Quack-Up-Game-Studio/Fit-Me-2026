@@ -14,8 +14,6 @@ namespace FitMe.Panel
             base.Configure(builder);
             builder.RegisterComponent(shopPanelView).AsSelf().As<IPanelView>();
             builder.Register<ShopPanelViewModel>(Lifetime.Singleton).AsSelf().As<IPanelViewModel>();
-            
-            builder.Register<InAppPurchaseManager>(Lifetime.Singleton);
         }
         
         public override IPanelViewModel CreatPanel()

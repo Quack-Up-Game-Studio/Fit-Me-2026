@@ -73,8 +73,15 @@ namespace FitMe.Panel
         public override void Dispose()
         {
             base.Dispose();
-            _bindings?.Dispose();
-            _priceCts?.Dispose();
+            if (_priceCts != null)
+            {
+                _priceCts.Cancel();
+                _priceCts.Dispose();
+                _priceCts = null;
+            }
+            
+            ViewModel.UnregisterOnPurchaseSuccess(UpdatePrices);
+            ViewModel.UnregisterOnIAPReady(StartPriceUpdateLoop);
         }
 
         private void StartPriceUpdateLoop()
@@ -101,16 +108,20 @@ namespace FitMe.Panel
                     button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
             }
 
+            bool isFreeTrial = ViewModel.IsInFreeTrial();
             bool hasVip = ViewModel.HasActiveSubscription();
+            
             foreach (var button in _subscriptionButton)
             {
                 if (button.PriceText != null)
-                    if (hasVip)
-                        button.PriceText.text = "already have VIP";
+                {
+                    if (isFreeTrial)
+                        button.PriceText.text = "Free Trial Active";
+                    else if (hasVip)
+                        button.PriceText.text = "Already have VIP";
                     else
-                    {
                         button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
-                    }
+                }
 
                 button.Button.interactable = !hasVip;
             }

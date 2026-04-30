@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.Purchasing;
 using VContainer;
 using VContainer.Unity;
+using Result = UnityEngine.Purchasing.Result;
 
 namespace QuackUp.IAP
 {
@@ -118,8 +119,16 @@ namespace QuackUp.IAP
             m_StoreController = controller;
             m_StoreExtensionProvider = extensions;
             
-            if (!HasActiveSubscription())
-                EndOfSubscription();
+            if (HasActiveSubscription())
+            {
+                Debug.Log("IAP: Active subscription found, restoring benefits.");
+                _energyManager.SetInfiniteEnergy(true);
+            }
+            else
+            {
+                Debug.Log("IAP: No active subscription.");
+                _energyManager.SetInfiniteEnergy(false);
+            }
             
             StartSubscriptionCheckLoop();
             OnInitializedSuccess?.Invoke();
@@ -165,20 +174,20 @@ namespace QuackUp.IAP
 
                 // Subscription products
                 case ProductIds.MonthlyPass:
-                    Debug.Log("IAP: Monthly pass activated.");
-                    _energyManager.SetInfiniteEnergy(true);
-                    break;
                 case ProductIds.QuarterlyPass:
-                    Debug.Log("IAP: Quarterly pass activated.");
-                    _energyManager.SetInfiniteEnergy(true);
-                    break;
                 case ProductIds.AnnuallyPass:
-                    Debug.Log("IAP: Annual pass activated.");
+                    Debug.Log($"IAP: {args.purchasedProduct.definition.id} pass activated.");
                     _energyManager.SetInfiniteEnergy(true);
                     break;
 
+#if UNITY_EDITOR
+                    PlayerPrefs.SetInt("Mock_HasVIP", 1);
+                    PlayerPrefs.Save();
+#endif
+                    
                 default:
                     Debug.LogWarning($"IAP: Unknown product ID: {args.purchasedProduct.definition.id}");
+                    break;
                     break;
             }
 
@@ -239,13 +248,46 @@ namespace QuackUp.IAP
             return product?.metadata.localizedPriceString ?? "";
         }
         
-        public void EndOfSubscription()
+        private void EndOfSubscription()
         {
             _energyManager.SetInfiniteEnergy(false);
             Debug.Log( "IAP: Subscription ended. Infinite energy revoked.");
         }
         
         public bool HasActiveSubscription()
+        {
+            if (!IsInitialized()) return false;
+            
+            var subscriptionIds = new[]
+            {
+                ProductIds.MonthlyPass,
+                ProductIds.QuarterlyPass,
+                ProductIds.AnnuallyPass
+            };
+
+            foreach (var id in subscriptionIds)
+            {
+                var product = m_StoreController.products.WithID(id);
+                
+                if (product != null && product.hasReceipt)
+                {
+                    var subManager = new SubscriptionManager(product, null);
+                    var info = subManager.getSubscriptionInfo();
+
+                    if (info.isFreeTrial() == Result.True)
+                    {
+                        return true;
+                    }
+                    if (info.isSubscribed() == Result.True)
+                    {
+                        return true; 
+                    }
+                }
+            }
+            return false;
+        }
+        
+        public bool IsInFreeTrial()
         {
             if (!IsInitialized()) return false;
 
@@ -259,7 +301,10 @@ namespace QuackUp.IAP
             foreach (var id in subscriptionIds)
             {
                 var product = m_StoreController.products.WithID(id);
-                if (product?.hasReceipt == true)
+                if (product?.hasReceipt != true) continue;
+
+                var info = new SubscriptionManager(product, null).getSubscriptionInfo();
+                if (info.isFreeTrial() == Result.True)
                     return true;
             }
             return false;
