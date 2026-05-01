@@ -30,15 +30,13 @@ namespace FitMe.Panel
         [SerializeField] private string mainMenuPanelId = "MainMenu";
         private ShopPanelViewModel ViewModel => (ShopPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
-        private CancellationTokenSource _priceCts;
+        private IDisposable _priceUpdateTimer;
         
         [Inject]
         public override void Construct(IPanelViewModel viewModel)
         {
             base.Construct(viewModel);
             Bind();
-            ViewModel.RegisterOnIAPReady(StartPriceUpdateLoop);
-            ViewModel.RegisterOnPurchaseSuccess(UpdatePrices);
         }
 
         private void Bind()
@@ -46,6 +44,16 @@ namespace FitMe.Panel
             var disposableBuilder = Disposable.CreateBuilder();
             closeButton.OnClickAsObservable()
                 .Subscribe(_ => OnCloseButtonClicked())
+                .AddTo(ref disposableBuilder);
+            ViewModel.OnIAPReady
+                .Subscribe(_ =>
+                {
+                    UpdatePrices();
+                    StartPriceUpdateTimer();
+                })
+                .AddTo(ref disposableBuilder);
+            ViewModel.OnPurchaseSuccess
+                .Subscribe(_ => UpdatePrices())
                 .AddTo(ref disposableBuilder);
             foreach (var button in _consumableItemButton)
             {
@@ -70,37 +78,28 @@ namespace FitMe.Panel
             _bindings = disposableBuilder.Build();
         }
 
+        protected override void OnVisibilityStateChanged(VisibilityState state)
+        {
+            base.OnVisibilityStateChanged(state);
+            if (state == VisibilityState.Hidden) return;
+            ViewModel.ReinitializeCommand.Execute(Unit.Default);
+        }
+
         public override void Dispose()
         {
             base.Dispose();
-            if (_priceCts != null)
-            {
-                _priceCts.Cancel();
-                _priceCts.Dispose();
-                _priceCts = null;
-            }
-            
-            ViewModel.UnregisterOnPurchaseSuccess(UpdatePrices);
-            ViewModel.UnregisterOnIAPReady(StartPriceUpdateLoop);
+            _bindings?.Dispose();
+            _priceUpdateTimer?.Dispose();
         }
 
-        private void StartPriceUpdateLoop()
+        private void StartPriceUpdateTimer()
         {
-            UpdatePrices();
-            _priceCts = new CancellationTokenSource();
-            PriceUpdateLoop(_priceCts.Token).Forget();
+            _priceUpdateTimer?.Dispose();
+            _priceUpdateTimer = Observable.Interval(TimeSpan.FromMinutes(1))
+                .Subscribe(_ => UpdatePrices());
         }
         
-        private async UniTaskVoid PriceUpdateLoop(CancellationToken token)
-        {
-            while (!token.IsCancellationRequested)
-            {
-                await UniTask.Delay(TimeSpan.FromMinutes(1), cancellationToken: token);
-                UpdatePrices();
-            }
-        }
-        
-        public void UpdatePrices()
+        private void UpdatePrices()
         {
             foreach (var button in _consumableItemButton)
             {

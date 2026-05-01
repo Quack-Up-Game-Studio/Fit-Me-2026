@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
 using QuackUp.IAP;
 using R3;
@@ -33,6 +34,9 @@ namespace FitMe.Panel
     
     public class ShopPanelViewModel : PanelViewModel
     {
+        public ReactiveCommand ReinitializeCommand { get; } = new ReactiveCommand();
+        public Observable<Unit> OnIAPReady => _inAppPurchaseManager.OnIAPReady;
+        public Observable<Unit> OnPurchaseSuccess => _inAppPurchaseManager.OnPurchaseSuccess;
         public bool IsInFreeTrial() => _inAppPurchaseManager.IsInFreeTrial();
         public bool HasActiveSubscription() => _inAppPurchaseManager.HasActiveSubscription();
         public string GetPrice(string productId) => _inAppPurchaseManager.GetLocalizedPrice(productId);
@@ -46,29 +50,15 @@ namespace FitMe.Panel
             ) : base(panelManager)
         {
             _inAppPurchaseManager = inAppPurchaseManager;
+            Bind();
         }
-        
-        public void RegisterOnPurchaseSuccess(Action onSuccess)
+
+        private void Bind()
         {
-            _inAppPurchaseManager.OnPurchaseSuccess += onSuccess;
-        }
-        
-        public void UnregisterOnPurchaseSuccess(Action onSuccess)
-        {
-            _inAppPurchaseManager.OnPurchaseSuccess -= onSuccess;
-        }
-        
-        public void RegisterOnIAPReady(Action onReady)
-        {
-            if (_inAppPurchaseManager.IsInitialized())
-                onReady?.Invoke();
-            else
-                _inAppPurchaseManager.OnInitializedSuccess += onReady;
-        }
-        
-        public void UnregisterOnIAPReady(Action onReady)
-        {
-            _inAppPurchaseManager.OnInitializedSuccess -= onReady;
+            var disposableBuilder = Disposable.CreateBuilder();
+            ReinitializeCommand.Subscribe(_ => _inAppPurchaseManager.Initialize().Forget())
+                .AddTo(ref disposableBuilder);
+            _bindings = disposableBuilder.Build();
         }
         
         public void OnBuyButtonClicked(string productId)
