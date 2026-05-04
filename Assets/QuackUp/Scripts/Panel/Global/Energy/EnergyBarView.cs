@@ -11,6 +11,7 @@ namespace FitMe.Panel
     public class EnergyBarView : MonoBehaviour, IDisposable
     {
         [SerializeField] private Slider energyBar;
+        [SerializeField] private RectMask2D energyMask;
         [SerializeField] private TMP_Text energyText;
         [SerializeField] private TMP_Text untilNextRechargeText;
         [SerializeField] private Button watchAdButton;
@@ -74,6 +75,7 @@ namespace FitMe.Panel
                 untilNextRechargeText.text = string.Empty;
                 energyText.text = "Infinite";
                 energyBar.value = 1f;
+                energyMask.padding = Vector4.zero;
                 OnAllowWatchAdChanged(false);
             }
             else
@@ -86,18 +88,21 @@ namespace FitMe.Panel
         private void OnEnergyChanged(int currentEnergy)
         {
             var maxEnergy = _viewModel.Config.MaxEnergy;
-            watchAdButton.interactable = currentEnergy < maxEnergy;
+            watchAdButton.interactable = _viewModel.AllowWatchAd.CurrentValue && currentEnergy < maxEnergy;
             if (currentEnergy >= maxEnergy)
             {
                 untilNextRechargeText.text = "Full";
             }
             energyBar.value = (float)currentEnergy / maxEnergy;
+            energyMask.padding = new Vector4(0, 0, energyMask.rectTransform.rect.width * (1 - energyBar.value), 0);
             energyText.text = $"{currentEnergy} / {maxEnergy}";
         }
         
         private void OnAllowWatchAdChanged(bool allow)
         {
-            watchAdButton.gameObject.SetActive(!_viewModel.InfiniteEnergy.CurrentValue && allow);
+            var maxEnergy = _viewModel.Config.MaxEnergy;
+            var currentEnergy = _viewModel.CurrentEnergy.CurrentValue;
+            watchAdButton.interactable = !_viewModel.InfiniteEnergy.CurrentValue && allow && currentEnergy < maxEnergy;
         }
         
         private void OnTimeUntilNextRechargeChanged(TimeSpan time)
