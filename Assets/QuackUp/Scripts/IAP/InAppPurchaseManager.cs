@@ -38,6 +38,7 @@ namespace QuackUp.IAP
     {
         private CatalogProvider _catalogProvider;
         private EnergyManager _energyManager;
+        private AdsService  _adsService;
         /// <summary>
         /// Event that called when the store is connected, products and purchases are fetched, and the IAP system is ready to use.
         /// </summary>
@@ -65,14 +66,23 @@ namespace QuackUp.IAP
         {
             Initialize().Forget();
         }
+        
+        [Button("Debug Clear Subscriptions")]
+        private void DebugClearSubscriptions()
+        {
+            _confirmedSubscriptions.Clear();
+            EndOfSubscription();
+        }
 
         [Inject]
         public void Construct(
             ISubscriber<EndSubscriptionEvent> endSubscriptionEvent,
-            EnergyManager energyManager)
+            EnergyManager energyManager,
+            AdsService adsService)
         {
             _energyManager = energyManager;
             _endSubscriptionEvent = endSubscriptionEvent;
+            _adsService = adsService;
             Subscribe();
         }
 
@@ -264,11 +274,13 @@ namespace QuackUp.IAP
             {
                 DebugUtils.Log("IAP: Active subscription found, restoring benefits.");
                 _energyManager.SetInfiniteEnergy(true);
+                _adsService.SetEnableStateAll(false);
             }
             else
             {
                 DebugUtils.Log("IAP: No active subscription.");
                 _energyManager.SetInfiniteEnergy(false);
+                _adsService.SetEnableStateAll(true);
             }
             
             StartSubscriptionCheckTimer();
@@ -318,6 +330,7 @@ namespace QuackUp.IAP
                 case ProductIds.AnnuallyPass:
                     DebugUtils.Log($"IAP: {id} pass activated.");
                     _energyManager.SetInfiniteEnergy(true);
+                    _adsService.SetEnableStateAll(false);
                     _confirmedSubscriptions.Add(order.CartOrdered.Items().FirstOrDefault()?.Product);
                     break;
 
@@ -373,6 +386,7 @@ namespace QuackUp.IAP
         private void EndOfSubscription()
         {
             _energyManager.SetInfiniteEnergy(false);
+            _adsService.SetEnableStateAll(true);
             DebugUtils.Log( "IAP: Subscription ended. Infinite energy revoked.");
         }
 

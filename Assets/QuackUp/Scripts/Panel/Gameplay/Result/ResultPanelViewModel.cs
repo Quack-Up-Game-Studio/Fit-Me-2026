@@ -147,7 +147,8 @@ namespace FitMe.Panel
             _energyManager.ChangeEnergy(-1);
             _displayResultPromise.Cancel();
             if (_scoreManager.FitMe.CurrentValue >= _forceAdsThreshold && 
-                _adsService.TryGetAdsInstance<InterstitialAdInstance>(out var interstitialAdInstance))
+                _adsService.TryGetAdsInstance<InterstitialAdInstance>(out var interstitialAdInstance) && 
+                interstitialAdInstance.Enabled)
             {
                 _adSubscription = interstitialAdInstance.OnAdClosed
                     .Subscribe(_ => OnAdsClosed());

@@ -28,6 +28,7 @@ namespace FitMe.Scene.MainMenu
         private readonly MessagePackSaveManager _saveManager;
         private readonly EnergyManager _energyManager;
         private readonly PanelManager _panelManager;
+        private readonly AdsService  _adsService;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
         private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
@@ -45,6 +46,7 @@ namespace FitMe.Scene.MainMenu
             MessagePackSaveManager saveManager,
             EnergyManager energyManager,
             PanelManager panelManager,
+            AdsService adsService,
             IAudioManager audioManager,
             [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub,
             IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher)
@@ -56,6 +58,7 @@ namespace FitMe.Scene.MainMenu
             _saveManager = saveManager;
             _energyManager = energyManager;
             _panelManager = panelManager;
+            _adsService = adsService;
             _audioManager = audioManager;
             _messageHub = messageHub;
             _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
@@ -94,6 +97,9 @@ namespace FitMe.Scene.MainMenu
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
+            if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
+            if (!bannerAdInstance.Enabled) return;
+            bannerAdInstance.TryShow();
         }
 
         public void Dispose()
