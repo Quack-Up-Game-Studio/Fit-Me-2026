@@ -19,6 +19,11 @@ namespace QuackUp.Utils
         protected IDisposable _adsRefreshTimer;
         protected IDisposable _adsEventSubscription;
         protected CancellationTokenSource _timerCts = new();
+        
+        /// <summary>
+        /// ใช้สำหรับเปิดปิดการแสดงโฆษณา (เช่น ผู้เล่นซื้อการลบโฆษณา หรือ ปิดโฆษณาชั่วคราวเพื่อทดสอบ)
+        /// </summary>
+        public virtual bool Enabled { get; set; } = true;
 
         public abstract bool CanShowAd();
 
@@ -52,6 +57,89 @@ namespace QuackUp.Utils
             _timerCts?.Dispose();
         }
     }
+
+    public class BannerAdInstance : AdsInstance
+    {
+        private BannerView _bannerView;
+        public override bool CanShowAd() => Enabled && _bannerView is { IsDestroyed: false };
+        private bool _enabled = true;
+
+        public override bool Enabled
+        {
+            get => _enabled;
+            set
+            {
+                if (!value)
+                {
+                    TryHide();
+                    _enabled = false;
+                }
+                else
+                {
+                    _enabled = true;
+                    TryShow();
+                }
+            }
+        }
+
+        public override void Load()
+        {
+            DisposeAd();
+            _bannerView = new BannerView(AdsService.UnitId, AdSize.Banner, AdPosition.Bottom);
+            RegisterAdEvents();
+            _bannerView.LoadAd(new AdRequest());
+        }
+
+        public override bool TryShow()
+        {
+            if (!CanShowAd()) return false;
+            _bannerView.Show();
+            return true;
+        }
+
+        public bool TryHide()
+        {
+            if (!CanShowAd()) return false;
+            _bannerView.Hide();
+            return true;
+        }
+
+        protected override void DisposeAd()
+        {
+            if (_bannerView == null) return;
+            _adsEventSubscription?.Dispose();
+            _bannerView.Destroy();
+            _bannerView = null;
+        }
+
+        protected override void RegisterAdEvents()
+        {
+            var builder = Disposable.CreateBuilder();
+            Observable.FromEvent(
+                    h => _bannerView.OnBannerAdLoaded += h,
+                    h => _bannerView.OnBannerAdLoaded -= h)
+                .Subscribe(_ => HandleAdLoaded())
+                .AddTo(ref builder);
+            Observable.FromEvent<LoadAdError>(
+                    h => _bannerView.OnBannerAdLoadFailed += h,
+                    h => _bannerView.OnBannerAdLoadFailed -= h)
+                .Subscribe(HandleAdLoadFailed)
+                .AddTo(ref builder);
+            _adsEventSubscription = builder.Build();
+        }
+
+        private void HandleAdLoaded()
+        {
+            DebugUtils.Log("Banner ad loaded successfully.");
+            _bannerView.Hide();
+            CountdownAdSession();
+        }
+        
+        private void HandleAdLoadFailed(LoadAdError adError)
+        {
+            DebugUtils.LogError($"Failed to load banner ad: {adError.GetMessage()}");
+        }
+    }
     
     public class RewardedAdInstance : AdsInstance
     {
@@ -62,7 +150,7 @@ namespace QuackUp.Utils
         private RewardedAd _rewardedAd;
         private bool _isRewardEarned;
 
-        public override bool CanShowAd() => _rewardedAd != null && _rewardedAd.CanShowAd();
+        public override bool CanShowAd() => Enabled && _rewardedAd != null && _rewardedAd.CanShowAd();
 
         public override void Load()
         {
@@ -71,7 +159,7 @@ namespace QuackUp.Utils
             {
                 if (error != null || ad == null)
                 {
-                    Debug.LogError($"Failed to load rewarded ad: {error?.GetMessage()}");
+                    DebugUtils.LogError($"Failed to load rewarded ad: {error?.GetMessage()}");
                     return;
                 }
                 _rewardedAd = ad;
@@ -83,6 +171,11 @@ namespace QuackUp.Utils
         public override bool TryShow()
         {
 #if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
+            if (!Enabled)
+            {
+                DebugUtils.LogWarning("Ads is disabled");
+                return false;
+            }
             if (CanShowAd())
             {
                 _isRewardEarned = false;
@@ -93,7 +186,7 @@ namespace QuackUp.Utils
                 return true;
             }
         
-            Debug.Log("Ad not ready yet.");
+            DebugUtils.Log("Ads is not ready yet.");
             Load();
             return false;
             
@@ -140,7 +233,7 @@ namespace QuackUp.Utils
     public class InterstitialAdInstance : AdsInstance
     {
         private InterstitialAd _interstitialAd;
-        public override bool CanShowAd() => _interstitialAd != null && _interstitialAd.CanShowAd();
+        public override bool CanShowAd() => Enabled && _interstitialAd != null && _interstitialAd.CanShowAd();
         public override void Load()
         {
             DisposeAd();
@@ -148,7 +241,7 @@ namespace QuackUp.Utils
             {
                 if (error != null || ad == null)
                 {
-                    Debug.LogError($"Failed to load interstitial ad: {error?.GetMessage()}");
+                    DebugUtils.LogError($"Failed to load interstitial ad: {error?.GetMessage()}");
                     return;
                 }
 
@@ -161,12 +254,17 @@ namespace QuackUp.Utils
         public override bool TryShow()
         {
 #if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
+            if (!Enabled)
+            {
+                DebugUtils.LogWarning("Ads is disabled");
+                return false;
+            }
             if (CanShowAd())
             {
                 _interstitialAd.Show();
                 return true;
             }
-            Debug.Log("Ad not ready yet.");
+            DebugUtils.LogWarning("Ads is not ready yet.");
             Load();
             return false;
             
@@ -250,6 +348,9 @@ namespace QuackUp.Utils
             var interstitialAdInstance = new InterstitialAdInstance();
             interstitialAdInstance.Load();
             _adsInstances[typeof(InterstitialAdInstance)] = interstitialAdInstance;
+            var bannerAdInstance = new BannerAdInstance();
+            bannerAdInstance.Load();
+            _adsInstances[typeof(BannerAdInstance)] = bannerAdInstance;
         }
 
         public void Dispose()
@@ -266,6 +367,14 @@ namespace QuackUp.Utils
             }
             adsInstance = null;
             return false;
+        }
+
+        public void SetEnableStateAll(bool state)
+        {
+            foreach (var instance in _adsInstances.Values)
+            {
+                instance.Enabled = state;
+            }
         }
     }
 }

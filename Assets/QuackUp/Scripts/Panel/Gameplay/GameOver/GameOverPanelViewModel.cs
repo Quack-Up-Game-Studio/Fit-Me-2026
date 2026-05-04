@@ -84,6 +84,7 @@ namespace FitMe.Panel
             if (_remainingContinueCount.CurrentValue >= 0  && _enableAds)
             {
                 if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAd)) return;
+                if (!rewardedAd.Enabled) return;
                 _adSubscription = rewardedAd.OnUserEarnedReward
                     .Subscribe(_ => OnAdSuccess());
                 rewardedAd.TryShow();

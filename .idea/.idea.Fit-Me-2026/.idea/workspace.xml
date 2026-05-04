@@ -12,25 +12,15 @@
   <component name="ChangeListManager">
     <list default="true" id="6b56d439-7a07-4179-aa79-8cf05c29cf13" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Serialization.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Serialization.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Utilities.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Utilities.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Serialization.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Serialization.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Utilities.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Utilities.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Attributes.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Attributes.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Attributes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Attributes.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Editor.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Editor.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Reflection.Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Reflection.Editor.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Serialization.Config.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Serialization.Config.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Serialization.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Serialization.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Utilities.Editor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Utilities.Editor.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Utilities.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Assemblies/Sirenix.Utilities.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Odin Inspector/Modules/Unity.Localization.data" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Odin Inspector/Modules/Unity.Localization.data" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Odin Inspector/Visual Designer/Saved/FitMe_Tutorial_TextTutorialState.ovdf" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Odin Inspector/Visual Designer/Saved/FitMe_Tutorial_TextTutorialState.ovdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Fonts/Bungee-Regular Outline 1.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Fonts/Bungee-Regular Outline 1.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/New Tutorial.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/New Tutorial.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Tutorial/TextTutorialView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Tutorial/TextTutorialView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/TextTutorialState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/State/TextTutorialState.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/ProjectLifetimeScope.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/ProjectLifetimeScope.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Energy/EnergyBarViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Energy/EnergyBarViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/MainMenu/MainMenuManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/MainMenu/MainMenuManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/Ads/AdsService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/Ads/AdsService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,8 +40,11 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/a6479622a9314fcba3eb70d4da8dd46092e00/db/53c4d7c1/ISubject`1.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.cysharp.unitask@15a4a7657f99/Runtime/CompilerServices/AsyncUniTaskMethodBuilder.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.unity.purchasing@6d21c7e374c4/Runtime/Purchasing/Core/Purchasing/Models/Entitlement.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.unity.purchasing@6d21c7e374c4/Runtime/Purchasing/Core/Purchasing/Models/SubscriptionInfoHelper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.unity.purchasing@6d21c7e374c4/Runtime/Purchasing/Core/Store/Models/StoreConnectionFailureDescription.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.unity.purchasing@6d21c7e374c4/Runtime/Purchasing/Core/StoreController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.unity.purchasing@6d21c7e374c4/Runtime/Purchasing/Legacy/ConfigurationBuilder.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Core/LifetimeScope/ProjectLifetimeScope.cs" root0="FORCE_HIGHLIGHTING" />
@@ -92,6 +85,7 @@
     <setting file="file://$PROJECT_DIR$/Assets/_Recovery/0 (6).unity" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/_Recovery/0 (8).unity" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.cysharp.r3@fe2216b2d5c4/Runtime/UnityProviderInitializer.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.purchasing@6d21c7e374c4/Runtime/Purchasing/Product.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/jp.hadashikick.vcontainer@0cb993cc4615/Runtime/Container.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/jp.hadashikick.vcontainer@0cb993cc4615/Runtime/Internal/InstanceRegistrationBuilder.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/jp.hadashikick.vcontainer@0cb993cc4615/Runtime/Internal/ReflectionInjector.cs" root0="SKIP_HIGHLIGHTING" />
@@ -106,15 +100,19 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Device#class com.jetbrains.rider.plugins.unity.run.devices.UnityEditorDeviceKind#com.jetbrains.rider.plugins.unity.run.devices.UnityDevicesProvider#Unity Attach To: Attach to&quot;: &quot;Unity Editor&quot;,
+    &quot;DeviceKind#com.jetbrains.rider.plugins.unity.run.devices.UnityDevicesProvider&quot;: &quot;Unity Editor&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;Standalone Player.Start Unity.executor&quot;: &quot;Debug&quot;,
+    &quot;Unity Attach To.Attach to.executor&quot;: &quot;Debug&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Dev&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;IAPFix__Rebase&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
@@ -122,7 +120,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="Standalone Player.Start Unity">
+  <component name="RunManager" selected="Unity Attach To.Attach to">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="$USER_HOME$/Unity/Hub/Editor/6000.3.9f1/Editor/Unity" />
       <option name="PROGRAM_PARAMETERS" value="-projectPath &quot;C:\Yuirin\All Work\Quack-Up\Fit-Me-2026&quot; -debugCodeOptimization" />
@@ -197,8 +195,13 @@
       <workItem from="1776834462677" duration="6556000" />
       <workItem from="1776918091904" duration="12631000" />
       <workItem from="1777107005735" duration="469000" />
-      <workItem from="1777268234180" duration="5103000" />
-      <workItem from="1777351628482" duration="4254000" />
+      <workItem from="1777135843118" duration="155000" />
+      <workItem from="1777266491104" duration="13191000" />
+      <workItem from="1777471463066" duration="4654000" />
+      <workItem from="1777512800013" duration="10909000" />
+      <workItem from="1777601294088" duration="15300000" />
+      <workItem from="1777866570669" duration="148000" />
+      <workItem from="1777866770872" duration="2325000" />
     </task>
     <servers />
   </component>

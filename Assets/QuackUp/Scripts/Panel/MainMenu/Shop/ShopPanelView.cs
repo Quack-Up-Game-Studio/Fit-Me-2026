@@ -1,5 +1,6 @@
 using System;
-using QuackUp.IAP;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using R3;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -29,6 +30,7 @@ namespace FitMe.Panel
         [SerializeField] private string mainMenuPanelId = "MainMenu";
         private ShopPanelViewModel ViewModel => (ShopPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
+        private IDisposable _priceUpdateTimer;
         
         [Inject]
         public override void Construct(IPanelViewModel viewModel)
@@ -42,6 +44,16 @@ namespace FitMe.Panel
             var disposableBuilder = Disposable.CreateBuilder();
             closeButton.OnClickAsObservable()
                 .Subscribe(_ => OnCloseButtonClicked())
+                .AddTo(ref disposableBuilder);
+            ViewModel.OnIAPReady
+                .Subscribe(_ =>
+                {
+                    UpdatePrices();
+                    StartPriceUpdateTimer();
+                })
+                .AddTo(ref disposableBuilder);
+            ViewModel.OnPurchaseSuccess
+                .Subscribe(_ => UpdatePrices())
                 .AddTo(ref disposableBuilder);
             foreach (var button in _consumableItemButton)
             {
@@ -66,12 +78,54 @@ namespace FitMe.Panel
             _bindings = disposableBuilder.Build();
         }
 
+        protected override void OnVisibilityStateChanged(VisibilityState state)
+        {
+            base.OnVisibilityStateChanged(state);
+            if (state == VisibilityState.Hidden) return;
+            ViewModel.ReinitializeCommand.Execute(Unit.Default);
+        }
+
         public override void Dispose()
         {
             base.Dispose();
             _bindings?.Dispose();
+            _priceUpdateTimer?.Dispose();
         }
 
+        private void StartPriceUpdateTimer()
+        {
+            _priceUpdateTimer?.Dispose();
+            _priceUpdateTimer = Observable.Interval(TimeSpan.FromMinutes(1))
+                .Subscribe(_ => UpdatePrices());
+        }
+        
+        private void UpdatePrices()
+        {
+            foreach (var button in _consumableItemButton)
+            {
+                if (button.PriceText != null)
+                    button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
+            }
+
+            bool isFreeTrial = ViewModel.IsInFreeTrial();
+            bool hasVip = ViewModel.HasActiveSubscription();
+            
+            foreach (var button in _subscriptionButton)
+            {
+                if (button.PriceText != null)
+                {
+                    if (isFreeTrial)
+                        button.PriceText.text = "Free Trial Active";
+                    else if (hasVip)
+                        button.PriceText.text = "Already have VIP";
+                    else
+                        button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
+                }
+
+                button.Button.interactable = !hasVip;
+            }
+        }
+        
         private void OnBuyButtonClicked(string productId)
         {
             if (string.IsNullOrEmpty(productId))

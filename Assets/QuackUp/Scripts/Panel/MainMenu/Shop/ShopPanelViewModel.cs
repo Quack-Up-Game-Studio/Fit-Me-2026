@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using MessagePipe;
 using QuackUp.IAP;
 using R3;
 using VContainer;
@@ -31,16 +34,31 @@ namespace FitMe.Panel
     
     public class ShopPanelViewModel : PanelViewModel
     {
+        public ReactiveCommand ReinitializeCommand { get; } = new ReactiveCommand();
+        public Observable<Unit> OnIAPReady => _inAppPurchaseManager.OnIAPReady;
+        public Observable<Unit> OnPurchaseSuccess => _inAppPurchaseManager.OnPurchaseSuccess;
+        public bool IsInFreeTrial() => _inAppPurchaseManager.IsInFreeTrial();
+        public bool HasActiveSubscription() => _inAppPurchaseManager.HasActiveSubscription();
         public string GetPrice(string productId) => _inAppPurchaseManager.GetLocalizedPrice(productId);
+        private IPublisher<EndSubscriptionEvent> _endSubscriptionPublisher;
         private readonly InAppPurchaseManager _inAppPurchaseManager;
         private IDisposable _bindings;
 
-        [Inject]
         public ShopPanelViewModel(
             PanelManager panelManager,
-            InAppPurchaseManager inAppPurchaseManager) : base(panelManager)
+            InAppPurchaseManager inAppPurchaseManager
+            ) : base(panelManager)
         {
             _inAppPurchaseManager = inAppPurchaseManager;
+            Bind();
+        }
+
+        private void Bind()
+        {
+            var disposableBuilder = Disposable.CreateBuilder();
+            ReinitializeCommand.Subscribe(_ => _inAppPurchaseManager.Initialize().Forget())
+                .AddTo(ref disposableBuilder);
+            _bindings = disposableBuilder.Build();
         }
         
         public void OnBuyButtonClicked(string productId)

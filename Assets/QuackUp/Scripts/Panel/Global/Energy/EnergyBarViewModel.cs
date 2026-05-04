@@ -52,6 +52,7 @@ namespace FitMe.Panel
         {
             if (!AllowWatchAd.Value) return;
             if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAd)) return;
+            if (!rewardedAd.Enabled) return;
             _adSubscription = rewardedAd.OnUserEarnedReward
                 .Subscribe(_ => OnAdSuccess());
             rewardedAd.TryShow();

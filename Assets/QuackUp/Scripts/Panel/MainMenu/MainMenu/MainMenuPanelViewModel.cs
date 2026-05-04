@@ -38,6 +38,11 @@ namespace FitMe.Panel
             var disposableBuilder = Disposable.CreateBuilder();
             _bindings = disposableBuilder.Build();
         }
+
+        private void ShopUpdate()
+        {
+            
+        }
         
         public override void Dispose()
         {
