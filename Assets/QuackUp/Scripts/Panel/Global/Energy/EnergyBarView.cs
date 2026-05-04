@@ -12,6 +12,7 @@ namespace FitMe.Panel
     {
         [SerializeField] private Slider energyBar;
         [SerializeField] private RectMask2D energyMask;
+        [SerializeField] private Image infiniteImage;
         [SerializeField] private TMP_Text energyText;
         [SerializeField] private TMP_Text untilNextRechargeText;
         [SerializeField] private Button watchAdButton;
@@ -70,9 +71,11 @@ namespace FitMe.Panel
 
         private void OnInfiniteEnergyChanged(bool infinite)
         {
+            infiniteImage.gameObject.SetActive(infinite);
+            energyMask.gameObject.SetActive(!infinite);
             if (infinite)
             {
-                untilNextRechargeText.text = string.Empty;
+                untilNextRechargeText.text = "Infinite";
                 energyText.text = "Infinite";
                 energyBar.value = 1f;
                 energyMask.padding = Vector4.zero;
@@ -109,7 +112,7 @@ namespace FitMe.Panel
         {
             if (_viewModel.InfiniteEnergy.CurrentValue)
             {
-                untilNextRechargeText.text = string.Empty;
+                untilNextRechargeText.text = "Infinite";
                 return;
             }
             if (_viewModel.CurrentEnergy.CurrentValue >= _viewModel.Config.MaxEnergy)
@@ -119,7 +122,7 @@ namespace FitMe.Panel
             }
             //round up to the nearest second for display purposes
             var roundedTime = TimeSpan.FromSeconds(Mathf.Ceil((float)time.TotalSeconds));
-            untilNextRechargeText.text = $"Next In {roundedTime:mm\\:ss}";
+            untilNextRechargeText.text = $"{roundedTime:mm\\:ss}";
         }
     }
 }

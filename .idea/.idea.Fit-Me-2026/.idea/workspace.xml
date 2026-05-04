@@ -12,13 +12,15 @@
   <component name="ChangeListManager">
     <list default="true" id="6b56d439-7a07-4179-aa79-8cf05c29cf13" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v03/GUI/GUI_EnergyBar/GUI_Energy_BG.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v03/GUI/GUI_EnergyBar/GUI_Energy_BG.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v03/GUI/GUI_EnergyBar/GUI_Energy_Fill.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v03/GUI/GUI_EnergyBar/GUI_Energy_Fill.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v03/GUI/GUI_EnergyBar/GUI_Energy_Shop.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v03/GUI/GUI_EnergyBar/GUI_Energy_Shop.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v03/GUI/GUI_EnergyBar/GUI_Energy_Shop.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v03/GUI/GUI_EnergyBar/GUI_Energy_Shop.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/EnergyBarView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/EnergyBarView.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Energy/EnergyBarView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Energy/EnergyBarView.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -200,7 +202,7 @@
       <workItem from="1777601294088" duration="15300000" />
       <workItem from="1777866570669" duration="148000" />
       <workItem from="1777866770872" duration="2325000" />
-      <workItem from="1777880449116" duration="1072000" />
+      <workItem from="1777880449116" duration="3664000" />
     </task>
     <servers />
   </component>
