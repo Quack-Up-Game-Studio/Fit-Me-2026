@@ -11,13 +11,6 @@ using UnityEngine.UI;
 
 namespace FitMe.Panel
 {
-    [Serializable]
-    public struct GeneralNotificationData : INotificationData
-    {
-        public string message;
-        [CanBeNull] public Sprite icon;
-    }
-    
     public class GeneralNotificationView : MonoBehaviour, INotificationView
     {
         [Title("Inspectors")]

@@ -50,6 +50,7 @@ namespace FitMe.Scene
         private readonly MessagePackSaveManager _saveManager;
         private readonly PopUpScoreFactory _popUpScoreFactory;
         private readonly PanelManager _panelManager;
+        private readonly AdsService _adsService;
         private readonly OrthographicCameraManager _orthographicCameraManager;
         private readonly ILeaderboardService _leaderboardService;
         private readonly ICloudSaveService _cloudSaveService;
@@ -73,6 +74,7 @@ namespace FitMe.Scene
             MessagePackSaveManager saveManager,
             PopUpScoreFactory popUpScoreFactory,
             PanelManager panelManager,
+            AdsService adsService,
             OrthographicCameraManager orthographicCameraManager,
             ILeaderboardService leaderboardService,
             ICloudSaveService cloudSaveService)
@@ -84,6 +86,7 @@ namespace FitMe.Scene
             _popUpScoreFactory = popUpScoreFactory;
             _saveManager = saveManager;
             _panelManager = panelManager;
+            _adsService = adsService;
             _orthographicCameraManager = orthographicCameraManager;
             _leaderboardService = leaderboardService;
             _cloudSaveService = cloudSaveService;
@@ -118,6 +121,10 @@ namespace FitMe.Scene
             _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage is LoadSceneStage.StartOut)
                 .Subscribe(_ => OnSceneStartOut())
+                .AddTo(ref disposableBuilder);
+            _messageHub.GetObservable<LoadSceneStageEvent>()
+                .Where(x => x.Stage is LoadSceneStage.FinishIn)
+                .Subscribe(_ => OnSceneFinishIn())
                 .AddTo(ref disposableBuilder);
             _messageHub.Subscribe<GameOverEvent>(OnGameOverEvent)
                 .AddTo(ref disposableBuilder);
@@ -286,10 +293,20 @@ namespace FitMe.Scene
             GridPreset = GameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
             _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
         }
+
+        private void OnSceneFinishIn()
+        {
+            if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
+            if (!bannerAdInstance.Enabled) return;
+            bannerAdInstance.TryShow();
+        }
         
         private void OnSceneStartOut()
         {
             _audioManager.StopAudio(_bgmReference);
+            if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
+            if (!bannerAdInstance.Enabled) return;
+            bannerAdInstance.DestroyView();
         }
         
         public void ChangeScore(int amount)

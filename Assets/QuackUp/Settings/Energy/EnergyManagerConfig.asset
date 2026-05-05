@@ -24,3 +24,5 @@ MonoBehaviour:
   <MaxEnergy>k__BackingField: 7
   <EnergyRechargeTime>k__BackingField:
     _TimeSpan: 00:10:00
+  <NotEnoughEnergyMessage>k__BackingField: Not Enough Energy!
+  <NotEnoughEnergySprite>k__BackingField: {fileID: -143439545548600372, guid: 1770e8aafaeccd0ca9b1596516c23121, type: 3}

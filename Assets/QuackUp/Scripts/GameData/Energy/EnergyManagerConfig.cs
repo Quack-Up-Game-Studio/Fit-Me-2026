@@ -12,5 +12,7 @@ namespace FitMe.GameData
         [field: SerializeField] public int MaxEnergy { get; private set; } = 5;
         [field: TimeSpanDrawerSettings(TimeUnit.Minutes), SerializeField]
         public UTimeSpan EnergyRechargeTime { get; private set; } = TimeSpan.FromSeconds(10f);
+        [field: SerializeField] public string NotEnoughEnergyMessage { get; private set; } = "Not Enough Energy!";
+        [field: SerializeField] public Sprite NotEnoughEnergySprite { get; private set; }
     }
 }

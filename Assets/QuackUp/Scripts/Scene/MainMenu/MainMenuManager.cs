@@ -31,7 +31,6 @@ namespace FitMe.Scene.MainMenu
         private readonly AdsService  _adsService;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
-        private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
         
         private IDisposable _subscriptions;
         private IDisposable _panelSubscriptions;
@@ -48,8 +47,7 @@ namespace FitMe.Scene.MainMenu
             PanelManager panelManager,
             AdsService adsService,
             IAudioManager audioManager,
-            [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub,
-            IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher)
+            [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub)
         {
             _mainMenuManagerConfig = mainMenuManagerConfig;
             _blockManagerConfig = blockManagerConfig;
@@ -61,7 +59,6 @@ namespace FitMe.Scene.MainMenu
             _adsService = adsService;
             _audioManager = audioManager;
             _messageHub = messageHub;
-            _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
             Subscribe();
         }
         
@@ -69,7 +66,17 @@ namespace FitMe.Scene.MainMenu
         {
             var disposableBuilder = Disposable.CreateBuilder();
             _gridManager.OnAboutToPlaceBlock
-                .SubscribeAwait((x, _) => OnAboutToPlaceBlock(x.cancellation), AwaitOperation.Switch)
+                .SubscribeAwait(
+                    (_, _) => !ShouldCancelPlacement()
+                        ? UniTask.CompletedTask
+                        : _energyManager.ShowNotEnoughEnergyNotification(), AwaitOperation.Drop)
+                .AddTo(ref disposableBuilder);
+            _gridManager.OnAboutToPlaceBlock
+                .Subscribe(x =>
+                {
+                    if (!ShouldCancelPlacement()) return;
+                    x.placeCancellation.Cancel();
+                })
                 .AddTo(ref disposableBuilder);
             _gridManager.OnBlockPlaced
                 .Subscribe(_ => OnBlockPlaced())
@@ -78,7 +85,10 @@ namespace FitMe.Scene.MainMenu
                 .Where(x => x.Stage is LoadSceneStage.StartOut)
                 .Subscribe(_ => OnSceneStartOut())
                 .AddTo(ref disposableBuilder);
-            
+            _messageHub.GetObservable<LoadSceneStageEvent>()
+                .Where(x => x.Stage is LoadSceneStage.FinishIn)
+                .Subscribe(_ => OnSceneFinishIn())
+                .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
         
@@ -97,9 +107,6 @@ namespace FitMe.Scene.MainMenu
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
-            if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
-            if (!bannerAdInstance.Enabled) return;
-            bannerAdInstance.TryShow();
         }
 
         public void Dispose()
@@ -107,25 +114,13 @@ namespace FitMe.Scene.MainMenu
             _subscriptions?.Dispose();
             _panelSubscriptions?.Dispose();
         }
-        
-        private async UniTask OnAboutToPlaceBlock(CancellationTokenSource cancellationTokenSource)
+
+        private bool ShouldCancelPlacement()
         {
             var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
-            if (!saveData.CompletedTutorial) return;
-            if (!_energyManager.HasEnoughEnergy(1))
-            {
-                cancellationTokenSource.Cancel();
-                var promise = new Promise<Unit>();
-                _notificationDisplayEventPublisher.Publish(new NotificationDisplayEvent(
-                    NotificationType.General, 
-                    new GeneralNotificationData 
-                    { 
-                        message = "Not enough energy!"
-                    },
-                    promise));
-                await promise.Task;
-            }
+            if (!saveData.CompletedTutorial) return false;
+            return !_energyManager.HasEnoughEnergy(1);
         }
 
         private void OnBlockPlaced()
@@ -156,9 +151,19 @@ namespace FitMe.Scene.MainMenu
             await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
         }
 
+        private void OnSceneFinishIn()
+        {
+            if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
+            if (!bannerAdInstance.Enabled) return;
+            bannerAdInstance.TryShow();
+        }
+
         private void OnSceneStartOut()
         {
             _audioManager.StopAudio(_bgmReference);
+            if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
+            if (!bannerAdInstance.Enabled) return;
+            bannerAdInstance.DestroyView();
         }   
     }
 }

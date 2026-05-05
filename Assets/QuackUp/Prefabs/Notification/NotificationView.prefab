@@ -433,7 +433,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: FIRST SCORE, YOUR GAME BEGINS!
+  m_text: Not Enough Energy!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 925d826c7336f9943bb88f264551e3c8, type: 2}
   m_sharedMaterial: {fileID: 1872101823171606044, guid: 925d826c7336f9943bb88f264551e3c8, type: 2}
@@ -460,12 +460,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 80
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 80
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -530,17 +530,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7288023888824196420}
-  m_LocalRotation: {x: -0, y: -0, z: 0.053158026, w: -0.9985862}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1394411616178205705}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -6.094}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 395.3, y: 4.397156}
-  m_SizeDelta: {x: 200.178, y: 213.593}
+  m_AnchoredPosition: {x: 398, y: 0}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1732900700790126905
 CanvasRenderer:
@@ -570,9 +570,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7085680453519524019, guid: ed706abf120a1c242af517115ea2b41c, type: 3}
+  m_Sprite: {fileID: -143439545548600372, guid: 1770e8aafaeccd0ca9b1596516c23121, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1

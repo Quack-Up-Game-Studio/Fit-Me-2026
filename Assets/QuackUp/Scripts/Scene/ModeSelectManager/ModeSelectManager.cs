@@ -19,7 +19,6 @@ namespace FitMe.Scene
         private readonly PanelManager _panelManager;
         private readonly LoadSceneManager _loadSceneManager;
         private readonly EnergyManager _energyManager;
-        private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
         
         private IDisposable _subscriptions;
         
@@ -27,14 +26,12 @@ namespace FitMe.Scene
         public ModeSelectManager(
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
-            EnergyManager energyManager,
-            IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher)
+            EnergyManager energyManager)
 
         {
             _panelManager = panelManager;
             _loadSceneManager = loadSceneManager;
             _energyManager = energyManager;
-            _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
         }
         
         public void Start()
@@ -61,15 +58,7 @@ namespace FitMe.Scene
         {
             if (!_energyManager.HasEnoughEnergy(1))
             {
-                var promise = new Promise<Unit>();
-                _notificationDisplayEventPublisher.Publish(new NotificationDisplayEvent(
-                    NotificationType.General, 
-                    new GeneralNotificationData 
-                    { 
-                        message = "Not enough energy!"
-                    },
-                    promise));
-                await promise.Task;
+                await _energyManager.ShowNotEnoughEnergyNotification();
                 return;
             }
             _energyManager.ChangeEnergy(-1);

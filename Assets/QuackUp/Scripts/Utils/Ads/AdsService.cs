@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
+using GoogleMobileAds.Unity;
 using R3;
 using Sirenix.Utilities;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 namespace QuackUp.Utils
@@ -61,7 +63,8 @@ namespace QuackUp.Utils
     public class BannerAdInstance : AdsInstance
     {
         private BannerView _bannerView;
-        public override bool CanShowAd() => Enabled && _bannerView is { IsDestroyed: false };
+        private bool _wasVisible;
+        public override bool CanShowAd() => Enabled && _bannerView is {IsDestroyed:  false};
         private bool _enabled = true;
 
         public override bool Enabled
@@ -92,23 +95,42 @@ namespace QuackUp.Utils
 
         public override bool TryShow()
         {
+            if (_bannerView == null || _bannerView.IsDestroyed)
+            {
+                DebugUtils.LogWarning("Banner ad is not loaded yet.");
+                _wasVisible = true;
+                Load();
+                return false;
+            }
             if (!CanShowAd()) return false;
+            // if (_bannerView == null || _bannerView.IsDestroyed)
+            // {
+            //     Load();
+            // }
             _bannerView.Show();
+            _wasVisible = true;
             return true;
+        }
+
+        public void DestroyView()
+        {
+            TryHide();
+            DisposeAd();
         }
 
         public bool TryHide()
         {
             if (!CanShowAd()) return false;
             _bannerView.Hide();
+            _wasVisible = false;
             return true;
         }
 
         protected override void DisposeAd()
         {
-            if (_bannerView == null) return;
+            //if (_bannerView == null) return;
             _adsEventSubscription?.Dispose();
-            _bannerView.Destroy();
+            _bannerView?.Destroy();
             _bannerView = null;
         }
 
@@ -131,7 +153,14 @@ namespace QuackUp.Utils
         private void HandleAdLoaded()
         {
             DebugUtils.Log("Banner ad loaded successfully.");
-            _bannerView.Hide();
+            if (!_wasVisible)
+            {
+                _bannerView.Hide();
+            }
+            else
+            {
+                _bannerView.Show();
+            }
             CountdownAdSession();
         }
         

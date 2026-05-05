@@ -1,3 +1,7 @@
+using System;
+using JetBrains.Annotations;
+using UnityEngine;
+
 namespace FitMe.Shared
 {
     public struct ContinueEvent

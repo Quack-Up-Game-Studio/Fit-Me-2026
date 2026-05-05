@@ -1,7 +1,10 @@
 using System;
+using Cysharp.Threading.Tasks;
 using FitMe.Shared;
+using MessagePipe;
 using QuackUp.Save;
 using QuackUp.SocialService;
+using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -29,6 +32,7 @@ namespace FitMe.GameData
         private readonly MessagePackSaveManager _saveManager;
         private readonly EnergyManagerConfig _config;
         private readonly ICloudSaveService _cloudSaveService;
+        private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
         
         public EnergyManagerConfig Config => _config;
 
@@ -39,11 +43,13 @@ namespace FitMe.GameData
         public EnergyManager(
             EnergyManagerConfig config,
             MessagePackSaveManager saveManager,
-            ICloudSaveService cloudSaveService)
+            ICloudSaveService cloudSaveService,
+            IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher)
         {
             _config = config;
             _saveManager = saveManager;
             _cloudSaveService = cloudSaveService;
+            _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
         }
 
         public void PostInitialize()
@@ -115,6 +121,20 @@ namespace FitMe.GameData
         public void SetInfiniteEnergy(bool value)
         {
             _infiniteEnergy.Value = value;
+        }
+
+        public async UniTask ShowNotEnoughEnergyNotification()
+        {
+            var promise = new Promise<Unit>();
+            _notificationDisplayEventPublisher.Publish(new NotificationDisplayEvent(
+                NotificationType.General, 
+                new GeneralNotificationData 
+                { 
+                    message = _config.NotEnoughEnergyMessage,
+                    icon = _config.NotEnoughEnergySprite
+                },
+                promise));
+            await promise.Task;
         }
     }
 }

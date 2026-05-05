@@ -147,8 +147,8 @@ namespace FitMe.Grid
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
         public Observable<Unit> OnCellsCreated => _onCellsCreated;
         private readonly Subject<Unit> _onCellsCreated = new();
-        public Observable<(BlockInstance instance, CancellationTokenSource cancellation)> OnAboutToPlaceBlock => _onAboutToPlaceBlock;
-        private readonly Subject<(BlockInstance instance, CancellationTokenSource cancellation)> _onAboutToPlaceBlock = new();
+        public Observable<(BlockInstance instance, CancellationTokenSource placeCancellation)> OnAboutToPlaceBlock => _onAboutToPlaceBlock;
+        private readonly Subject<(BlockInstance instance, CancellationTokenSource placeCancellation)> _onAboutToPlaceBlock = new();
         public Observable<BlockInstance> OnBlockPlaced => _onBlockPlaced;
         private readonly Subject<BlockInstance> _onBlockPlaced = new();
         public Observable<ScoreEvent> OnScoreAdded => _onScoreAdded;

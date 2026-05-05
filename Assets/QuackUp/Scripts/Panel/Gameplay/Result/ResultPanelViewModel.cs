@@ -43,8 +43,7 @@ namespace FitMe.Panel
         private readonly EnergyManager _energyManager;
         private readonly AdsService _adsService;
         private readonly IScoreManager _scoreManager;
-        private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
-        private int _forceAdsThreshold;
+        private readonly int _forceAdsThreshold;
 
         private int _scoreBeforeSave;
         private int _fitMeBeforeSave;
@@ -63,7 +62,6 @@ namespace FitMe.Panel
             AdsService adsService,
             IScoreManager scoreManager,
             IAudioManager audioManager,
-            IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher,
             [Key(ForceAdsThresholdKey)] int forceAdsThreshold)
             : base(panelManager)
         {
@@ -72,7 +70,6 @@ namespace FitMe.Panel
             _energyManager = energyManager;
             _adsService = adsService;
             AudioManager = audioManager;
-            _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
             _forceAdsThreshold = forceAdsThreshold;
             Bind();
         }
@@ -133,15 +130,7 @@ namespace FitMe.Panel
         {
             if (!_energyManager.HasEnoughEnergy(1))
             {
-                var promise = new Promise<Unit>();
-                _notificationDisplayEventPublisher.Publish(new NotificationDisplayEvent(
-                    NotificationType.General, 
-                    new GeneralNotificationData 
-                    { 
-                        message = "Not enough energy!"
-                    },
-                    promise));
-                await promise.Task;
+                await _energyManager.ShowNotEnoughEnergyNotification();
                 return;
             }
             _energyManager.ChangeEnergy(-1);

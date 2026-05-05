@@ -65,6 +65,7 @@ namespace FitMe.Achievement
         
         public void Start()
         {
+            if (!_config.Enabled) return;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<AchievementSaveObject>();
             if (!_saveObject)
             {

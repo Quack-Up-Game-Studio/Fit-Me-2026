@@ -1,8 +1,10 @@
 using System;
 using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
 using QuackUp.Utils;
 using R3;
 using Sirenix.Serialization;
+using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 namespace FitMe.Shared
@@ -39,4 +41,13 @@ namespace FitMe.Shared
             this.CompletionPromise = completionPromise;
         }
     }
+    
+    [Serializable]
+    public struct GeneralNotificationData : INotificationData
+    {
+        public string message;
+        [CanBeNull] public Sprite icon;
+    }
+    
+    
 }
