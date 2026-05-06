@@ -1,16 +1,16 @@
 {
 "skeleton": {
-	"hash": "wsmKgr+BN24",
+	"hash": "F7bhfEqN0Ys",
 	"spine": "4.2.43",
-	"x": -136,
-	"y": -199,
+	"x": -129.36,
+	"y": -196.45,
 	"width": 269.03,
 	"height": 396,
 	"images": "../Skin/Smirror/",
 	"audio": "./audio"
 },
 "bones": [
-	{ "name": "root" },
+	{ "name": "root", "x": 6.64, "y": 2.55 },
 	{
 		"name": "bone1",
 		"parent": "root",

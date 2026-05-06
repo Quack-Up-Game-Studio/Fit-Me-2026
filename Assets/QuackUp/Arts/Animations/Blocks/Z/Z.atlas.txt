@@ -1,7 +1,6 @@
 Z.png
 	size: 1316, 520
 	filter: Linear, Linear
-	pma: true
 Blue/Body
 	bounds: 390, 3, 256, 385
 	rotate: 90

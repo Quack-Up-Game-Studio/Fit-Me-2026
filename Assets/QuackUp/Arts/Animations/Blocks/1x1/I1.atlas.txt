@@ -1,7 +1,6 @@
 I1.png
 	size: 253, 1007
 	filter: Linear, Linear
-	pma: true
 Blue/Body
 	bounds: 2, 354, 128, 128
 Blue/Bread

@@ -1,7 +1,6 @@
 2x2.png
 	size: 984, 523
 	filter: Linear, Linear
-	pma: true
 Blue/Body
 	bounds: 2, 2, 258, 258
 Blue/L_Arm

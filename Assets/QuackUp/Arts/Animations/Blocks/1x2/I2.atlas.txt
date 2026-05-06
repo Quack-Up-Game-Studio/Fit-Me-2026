@@ -1,7 +1,6 @@
 I2.png
 	size: 1885, 189
 	filter: Linear, Linear
-	pma: true
 Blue/Body
 	bounds: 1041, 59, 128, 256
 	rotate: 90

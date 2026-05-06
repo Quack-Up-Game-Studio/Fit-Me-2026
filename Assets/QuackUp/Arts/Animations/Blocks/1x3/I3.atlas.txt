@@ -1,7 +1,6 @@
 I3.png
 	size: 1873, 269
 	filter: Linear, Linear
-	pma: true
 Blue/1_Body
 	bounds: 2, 2, 129, 132
 	rotate: 90

@@ -1,7 +1,6 @@
 J.png
 	size: 1667, 650
 	filter: Linear, Linear
-	pma: true
 Blue/Body
 	bounds: 263, 249, 256, 399
 Blue/L_Eye
