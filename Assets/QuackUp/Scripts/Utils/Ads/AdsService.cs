@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
-using GoogleMobileAds.Unity;
 using R3;
 using Sirenix.Utilities;
-using UnityEngine;
-using VContainer;
 using VContainer.Unity;
 
 namespace QuackUp.Utils
@@ -62,6 +59,34 @@ namespace QuackUp.Utils
 
     public class BannerAdInstance : AdsInstance
     {
+        public static string UnitId
+        {
+            get
+            {
+#if UNITY_ANDROID
+                return "ca-app-pub-3940256099942544/6300978111";
+#elif UNITY_IOS
+                return "ca-app-pub-3940256099942544/2934735716";
+#else
+                return "ca-app-pub-3940256099942544/6300978111";
+#endif
+            }
+        }
+        
+        public static string AdaptiveUnitId
+        {
+            get
+            {
+#if UNITY_ANDROID
+                return "ca-app-pub-3940256099942544/9214589741";
+#elif UNITY_IOS
+                return "ca-app-pub-3940256099942544/2435281174";
+#else
+                return "ca-app-pub-3940256099942544/9214589741";
+#endif
+            }
+        }
+        
         private BannerView _bannerView;
         private bool _wasVisible;
         public override bool CanShowAd() => Enabled && _bannerView is {IsDestroyed:  false};
@@ -88,7 +113,12 @@ namespace QuackUp.Utils
         public override void Load()
         {
             DisposeAd();
-            _bannerView = new BannerView(AdsService.UnitId, AdSize.Banner, AdPosition.Bottom);
+            // Get the device safe width in density-independent pixels.
+            var deviceWidth = MobileAds.Utils.GetDeviceSafeWidth();
+            // Define the anchored adaptive ad size.
+            var adaptiveSize =
+                AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(deviceWidth);
+            _bannerView = new BannerView(AdaptiveUnitId, adaptiveSize, AdPosition.Bottom);
             RegisterAdEvents();
             _bannerView.LoadAd(new AdRequest());
         }
@@ -172,6 +202,20 @@ namespace QuackUp.Utils
     
     public class RewardedAdInstance : AdsInstance
     {
+        public static string UnitId
+        {
+            get
+            {
+#if UNITY_ANDROID
+                return "ca-app-pub-3940256099942544/5224354917";
+#elif UNITY_IOS
+                return "ca-app-pub-3940256099942544/1712485313";
+#else
+                return "ca-app-pub-3940256099942544/5224354917";
+#endif
+            }
+        }
+        
         // Event เพื่อบอกภายนอกว่า "ได้รางวัลแล้วนะ"
         public Observable<Unit> OnUserEarnedReward => _onUserEarnedReward;
         private readonly Subject<Unit> _onUserEarnedReward = new();
@@ -184,7 +228,7 @@ namespace QuackUp.Utils
         public override void Load()
         {
             DisposeAd();
-            RewardedAd.Load(AdsService.UnitId, new AdRequest(), (ad, error) =>
+            RewardedAd.Load(UnitId, new AdRequest(), (ad, error) =>
             {
                 if (error != null || ad == null)
                 {
@@ -261,12 +305,26 @@ namespace QuackUp.Utils
     
     public class InterstitialAdInstance : AdsInstance
     {
+        public static string UnitId
+        {
+            get
+            {
+#if UNITY_ANDROID
+                return "ca-app-pub-3940256099942544/1033173712";
+#elif UNITY_IOS
+                return "ca-app-pub-3940256099942544/4411468910";
+#else
+                return "ca-app-pub-3940256099942544/1033173712";
+#endif
+            }
+        }
+        
         private InterstitialAd _interstitialAd;
         public override bool CanShowAd() => Enabled && _interstitialAd != null && _interstitialAd.CanShowAd();
         public override void Load()
         {
             DisposeAd();
-            InterstitialAd.Load(AdsService.UnitId, new AdRequest(), (ad, error) =>
+            InterstitialAd.Load(UnitId, new AdRequest(), (ad, error) =>
             {
                 if (error != null || ad == null)
                 {
@@ -335,20 +393,6 @@ namespace QuackUp.Utils
     public class AdsService : IStartable, IDisposable
     {
         private readonly Dictionary<Type, AdsInstance> _adsInstances = new();
-
-        public static string UnitId
-        {
-            get
-            {
-#if UNITY_ANDROID
-                return "ca-app-pub-3940256099942544/5224354917";
-#elif UNITY_IOS
-                return "ca-app-pub-3940256099942544/2934735716";
-#else
-                return "ca-app-pub-3940256099942544/5224354917";
-#endif
-            }
-        }
 
         public void Start()
         {
