@@ -10,7 +10,22 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b56d439-7a07-4179-aa79-8cf05c29cf13" name="Changes" comment="" />
+    <list default="true" id="6b56d439-7a07-4179-aa79-8cf05c29cf13" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp/PopUpTextInstaller.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp/PopUpTextInstaller.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp/PopUpTextView.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp/PopUpTextView.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp/PopUpTextViewModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp/PopUpTextViewModel.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/VFX/Light/Circle_burst.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/VFX/Light/Circle_burst.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/New Tutorial.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/New Tutorial.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FitMe.Panel.csproj.DotSettings" beforeDir="false" afterPath="$PROJECT_DIR$/FitMe.Panel.csproj.DotSettings" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -49,6 +64,9 @@
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/GridManager/GridManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelViewModel.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Floating/GeneralFloatingUIElement.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp/PopUpTextInstaller.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp/PopUpTextView.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/PopUp/PopUpTextViewModel.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/RunTimer/RunTimerInstaller.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/RunTimer/RunTimerViewModel.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardBlock.cs" root0="FORCE_HIGHLIGHTING" />
@@ -200,7 +218,7 @@
       <workItem from="1778040460648" duration="17000" />
       <workItem from="1778041175233" duration="408000" />
       <workItem from="1778042136281" duration="217000" />
-      <workItem from="1778046607313" duration="4105000" />
+      <workItem from="1778046607313" duration="8574000" />
     </task>
     <servers />
   </component>
