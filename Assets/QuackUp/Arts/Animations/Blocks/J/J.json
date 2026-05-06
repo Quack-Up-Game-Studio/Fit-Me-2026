@@ -1,16 +1,16 @@
 {
 "skeleton": {
-	"hash": "d7NyLP/K7Tw",
+	"hash": "vlZZd3CnS34",
 	"spine": "4.2.43",
-	"x": -136,
-	"y": -202,
+	"x": -131.81,
+	"y": -194.75,
 	"width": 273,
 	"height": 403,
 	"images": "../Skin/Lmirror/",
 	"audio": "./audio"
 },
 "bones": [
-	{ "name": "root" },
+	{ "name": "root", "x": 4.19, "y": 7.25 },
 	{
 		"name": "bone1",
 		"parent": "root",

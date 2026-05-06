@@ -1,8 +1,8 @@
 {
 "skeleton": {
-	"hash": "RTvBI2qYt1Q",
+	"hash": "+36iMEMwIqI",
 	"spine": "4.2.43",
-	"x": -138,
+	"x": -143.34,
 	"y": -199,
 	"width": 276,
 	"height": 403,
@@ -10,7 +10,7 @@
 	"audio": "./audio"
 },
 "bones": [
-	{ "name": "root" },
+	{ "name": "root", "x": -5.34 },
 	{
 		"name": "bone1",
 		"parent": "root",

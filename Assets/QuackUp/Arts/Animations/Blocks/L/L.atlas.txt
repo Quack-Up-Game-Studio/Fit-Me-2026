@@ -1,7 +1,6 @@
 L.png
 	size: 1047, 1032
 	filter: Linear, Linear
-	pma: true
 Blue/Body
 	bounds: 521, 516, 256, 384
 	rotate: 90

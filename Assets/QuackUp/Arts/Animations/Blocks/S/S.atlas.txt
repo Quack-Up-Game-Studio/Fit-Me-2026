@@ -1,7 +1,6 @@
 S.png
 	size: 1873, 459
 	filter: Linear, Linear
-	pma: true
 Blue/Body
 	bounds: 1037, 73, 256, 384
 Blue/L_Eye

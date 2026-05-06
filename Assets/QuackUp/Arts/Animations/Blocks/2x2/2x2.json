@@ -1,16 +1,16 @@
 {
 "skeleton": {
-	"hash": "4/9lFCXIxwM",
+	"hash": "MO5lZelU0BI",
 	"spine": "4.2.43",
-	"x": -149.44,
-	"y": -128.84,
+	"x": -150.97,
+	"y": -133.31,
 	"width": 298.06,
 	"height": 263.01,
 	"images": "../Skin/2x2/",
 	"audio": "./../Skin/2x2/"
 },
 "bones": [
-	{ "name": "root", "rotation": 0.03, "x": 1.53, "y": 1.53 },
+	{ "name": "root", "rotation": 0.03, "y": -2.95 },
 	{
 		"name": "bone",
 		"parent": "root",

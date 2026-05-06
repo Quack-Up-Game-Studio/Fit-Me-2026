@@ -1,16 +1,16 @@
 {
 "skeleton": {
-	"hash": "flH+GEY1psI",
+	"hash": "+aW51KFdUo4",
 	"spine": "4.2.43",
 	"x": -193,
-	"y": -137.8,
+	"y": -139.34,
 	"width": 386,
 	"height": 271.8,
 	"images": "../Skin/T/",
 	"audio": "./audio"
 },
 "bones": [
-	{ "name": "root" },
+	{ "name": "root", "y": -1.53 },
 	{
 		"name": "bone1",
 		"parent": "root",
