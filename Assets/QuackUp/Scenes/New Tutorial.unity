@@ -5846,7 +5846,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 106.9
+  m_fontSize: 88.65
   m_fontSizeBase: 80
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -10854,7 +10854,7 @@ MonoBehaviour:
       Data: true
     - Name: playFitSound
       Entry: 5
-      Data: false
+      Data: true
     - Name: jumpTo
       Entry: 6
       Data: 
@@ -11031,7 +11031,7 @@ MonoBehaviour:
       Data: false
     - Name: playFitSound
       Entry: 5
-      Data: false
+      Data: true
     - Name: jumpTo
       Entry: 1
       Data: TryFit2
