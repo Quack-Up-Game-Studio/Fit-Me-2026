@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using FMODUnity;
 using PrimeTween;
 using R3;
+using Redcode.Extensions;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -20,6 +21,8 @@ namespace FitMe.Panel
         [SerializeField] private Button retryButton;
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private TMP_Text fitText;
+        [SerializeField] private ParticleSystem ringLight;
+        [SerializeField] private CanvasGroup[] childCanvasGroups;
         
         [Title("Audios")]
         [SerializeField] EventReference newHighScoreSfx;
@@ -77,6 +80,12 @@ namespace FitMe.Panel
         protected override void OnVisibilityStateChanged(VisibilityState state)
         {
             base.OnVisibilityStateChanged(state);
+            childCanvasGroups.ForEach(x =>
+            {
+                var active = state is VisibilityState.Visible;
+                x.interactable = active;
+                x.blocksRaycasts = active;
+            });
             if (state != VisibilityState.Visible) return;
             newHighScoreBlock.SetActive(false);
             newFitMeBlock.SetActive(false);
@@ -115,6 +124,7 @@ namespace FitMe.Panel
             ViewModel.AudioManager.PlayAudioOneShot(newHighScoreSfx, transform.position);
             _newHighScoreScaleTween = Tween.Scale(newHighScoreBlock.transform, newHighScoreScaleTweenSettings);
             await _newHighScoreScaleTween.ToUniTask(cancellationToken: cancellationToken);
+            ringLight.Play();
         }
     
         private async UniTask ShowFitMeScore(DisplayResultCommandData data)

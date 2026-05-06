@@ -16,11 +16,16 @@ MonoBehaviour:
     SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects:
-    - {fileID: 1230876444624197109, guid: b5708590b4877d04bae40d5773a25cbc, type: 3}
-    - {fileID: 3459389654907894709, guid: 699911cc879791c4db86eb77270f2585, type: 3}
-    - {fileID: 3001183294099326999, guid: 3548efa84bb41644e82b25a35493be01, type: 3}
-    - {fileID: 3107294058057085691, guid: 5dd10fffad25f0f4b8a9bf517b570d1c, type: 3}
-    - {fileID: 6954473007158518212, guid: 5c230ff5486454b4da0e19f47f81ce5b, type: 3}
+    - {fileID: 8226141072355784795, guid: b5708590b4877d04bae40d5773a25cbc, type: 3}
+    - {fileID: 6363069908183525581, guid: 699911cc879791c4db86eb77270f2585, type: 3}
+    - {fileID: 2030314019870187627, guid: 3548efa84bb41644e82b25a35493be01, type: 3}
+    - {fileID: 6776248672410552702, guid: 5dd10fffad25f0f4b8a9bf517b570d1c, type: 3}
+    - {fileID: 6253179348267189853, guid: 5c230ff5486454b4da0e19f47f81ce5b, type: 3}
+    - {fileID: 6621836917693844731, guid: f7cbd1c2f8df75446a2da13c6a67044c, type: 3}
+    - {fileID: 6521834472423604740, guid: c05307a074a053740a2372fd4e453f64, type: 3}
+    - {fileID: 602350069429725904, guid: 4cccb8cba313ba4469390df403cc8d4e, type: 3}
+    - {fileID: 4713942679692800398, guid: c208d7381a203c24f8dccaa66a8737c2, type: 3}
+    - {fileID: 8050307895433920445, guid: 5ea46cb77e1d9624eb33935cdbcd07e6, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -112,13 +117,99 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: skinDictionary
+    - Name: _placeVfx
       Entry: 7
-      Data: 2|System.Collections.Generic.Dictionary`2[[FitMe.Shared.BlockColor, FitMe.Shared],[System.String,
-        mscorlib]], mscorlib
+      Data: 2|System.Collections.Generic.Dictionary`2[[FitMe.Shared.BlockColor, FitMe.Shared],[UnityEngine.ParticleSystem,
+        UnityEngine.ParticleSystemModule]], mscorlib
     - Name: comparer
       Entry: 7
       Data: 3|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Shared.BlockColor,
+        FitMe.Shared]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 5
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 10
+      Data: 5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 10
+      Data: 6
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 10
+      Data: 7
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 10
+      Data: 8
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 4
+    - Name: $v
+      Entry: 10
+      Data: 9
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: skinDictionary
+      Entry: 7
+      Data: 4|System.Collections.Generic.Dictionary`2[[FitMe.Shared.BlockColor, FitMe.Shared],[System.String,
+        mscorlib]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 5|System.Collections.Generic.EnumEqualityComparer`1[[FitMe.Shared.BlockColor,
         FitMe.Shared]], mscorlib
     - Name: 
       Entry: 12

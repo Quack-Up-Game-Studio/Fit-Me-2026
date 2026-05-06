@@ -136,6 +136,7 @@ namespace FitMe.Grid
                     break;
                 case BlockInteractionState.PlacedOnGrid:
                     Place(_gridConfig.CellSize);
+                    PlayPlaceVFX();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
@@ -226,6 +227,13 @@ namespace FitMe.Grid
             _pickUpTween = Tween.Scale(transform, scale, 0.2f);
             skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
             StartIdleTimer();
+        }
+
+        private void PlayPlaceVFX()
+        {
+            if (!_blockConfig.PlaceVFX.TryGetValue(_blockColor, out var vfx)) return;
+            var vfxInstance = Instantiate(vfx, transform.position, Quaternion.identity);
+            vfxInstance.Play(true);
         }
         
         private async UniTask Explode(ExplodeCommandData data)

@@ -29,6 +29,8 @@ namespace FitMe.Grid
         [Title("VFX")]
         [field: OdinSerialize] private Dictionary<BlockColor, ParticleSystem> _explodeVfx = new();
         public IReadOnlyDictionary<BlockColor, ParticleSystem> ExplodeVfx => _explodeVfx;
+        [field: OdinSerialize] private Dictionary<BlockColor, ParticleSystem> _placeVfx = new();
+        public IReadOnlyDictionary<BlockColor, ParticleSystem> PlaceVFX => _placeVfx;
         
         [TitleGroup("Skins")] 
         [SerializeField, Required] private SkeletonDataAsset skeletonDataAsset;

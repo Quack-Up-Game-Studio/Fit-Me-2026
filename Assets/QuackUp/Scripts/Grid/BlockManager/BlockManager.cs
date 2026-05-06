@@ -103,6 +103,7 @@ namespace FitMe.Grid
         private readonly IMessageHub _messageHub;
 
         private int _smartRandomCount;
+        private bool _continued;
         
         private IDisposable _subscriptions;
         #endregion
@@ -140,7 +141,7 @@ namespace FitMe.Grid
                 .Subscribe(OnFitCheck)
                 .AddTo(ref disposableBuilder);
             _gridManager.OnClearGrid
-                .Subscribe(_ => ResetBag())
+                .Subscribe(_ => ResetBag(_continued))
                 .AddTo(ref disposableBuilder);
             _gridManager.OnCellsCreated
                 .Subscribe(_ => OnCellsCreated())
@@ -182,6 +183,7 @@ namespace FitMe.Grid
         private void OnContinue()
         {
             _smartRandomCount++;
+            _continued = true;
         }
         #endregion
         
@@ -271,11 +273,15 @@ namespace FitMe.Grid
             _currentPreviewBlock = null;
         }
         
-        public void ResetBag()
+        public void ResetBag(bool shouldRespawn = false)
         {
             _spawnBag.Clear();
             ResetBlockInSlot();
-            //SpawnBlocksFromBag(true);
+            if (shouldRespawn)
+            {
+                _continued = false;
+                SpawnBlocksFromBag(true);
+            }
             Debug.LogWarning("Yuirin: Bag Reset!");
         }
         
