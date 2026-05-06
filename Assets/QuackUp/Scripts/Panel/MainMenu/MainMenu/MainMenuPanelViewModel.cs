@@ -10,7 +10,6 @@ namespace FitMe.Panel
     public class MainMenuPanelViewModel : PanelViewModel
     {
         public ReactiveCommand ToTutorial { get; private set; } = new();
-        public ReactiveProperty<string> GameVersion { get; private set; } = new(Application.version);
         public ReactiveProperty<bool> CompletedTutorial { get; private set; } = new(false);
         
         private PlayerRecordSaveObject _playerRecordSaveObject;

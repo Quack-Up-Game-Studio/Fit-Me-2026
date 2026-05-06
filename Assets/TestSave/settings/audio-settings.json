@@ -7,7 +7,7 @@
     },
     "BGM": {
       "LinearVolume": 1,
-      "IsMuted": true
+      "IsMuted": false
     },
     "SFX": {
       "LinearVolume": 1,

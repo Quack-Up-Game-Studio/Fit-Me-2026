@@ -5,12 +5,14 @@ using FitMe.Tutorial;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
 using R3;
+using Sirenix.OdinInspector;
 using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
 
 namespace FitMe.Scene
 {
+    [Serializable]
     public class TutorialManager : IStartable, IDisposable
     {
         private readonly TutorialStateMachine _stateMachine;
@@ -51,6 +53,7 @@ namespace FitMe.Scene
             _subscriptions.Dispose();
         }
         
+        [Button("Complete Tutorial")]
         private void OnTutorialCompleted()
         {
             var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();

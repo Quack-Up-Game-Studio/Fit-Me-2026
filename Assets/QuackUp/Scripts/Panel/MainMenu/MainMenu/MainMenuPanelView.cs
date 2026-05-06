@@ -9,7 +9,6 @@ namespace FitMe.Panel
 {
     public class MainMenuPanelView : PanelView
     {
-        [SerializeField] private TMP_Text gameVersionText;
         [SerializeField] private Button challengeButton;
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button leaderboardButton;
@@ -33,9 +32,6 @@ namespace FitMe.Panel
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            ViewModel.GameVersion
-                .Subscribe(OnGameVersionChanged)
-                .AddTo(ref disposableBuilder);
             ViewModel.CompletedTutorial
                 .Subscribe(OnTutorialCompletionChanged)
                 .AddTo(ref disposableBuilder);
@@ -61,11 +57,6 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
-        }
-        
-        private void OnGameVersionChanged(string version)
-        {
-            gameVersionText.text = version;
         }
         
         private void OnTutorialCompletionChanged(bool completed)

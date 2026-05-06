@@ -1,5 +1,6 @@
 using System;
 using R3;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -8,6 +9,7 @@ namespace FitMe.Panel
 {
     public class SettingsPanelView : PanelView
     {
+        [SerializeField] private TMP_Text gameVersionText;
         [SerializeField] private Button musicToggleButton;
         [SerializeField] private Image musicSlashImage;
         [SerializeField] private Button sfxToggleButton;
@@ -44,6 +46,13 @@ namespace FitMe.Panel
                 .Subscribe(_ => OnCloseButtonClicked())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
+        }
+
+        protected override void OnVisibilityStateChanged(VisibilityState state)
+        {
+            base.OnVisibilityStateChanged(state);
+            if (state == VisibilityState.Hidden) return;
+            gameVersionText.text = Application.version;
         }
 
         public override void Dispose()

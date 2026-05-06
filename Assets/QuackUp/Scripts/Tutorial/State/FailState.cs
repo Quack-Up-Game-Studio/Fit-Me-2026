@@ -12,6 +12,7 @@ namespace FitMe.Tutorial
     public class FailState : TextTutorialState
     {
         [SerializeField] private bool revertToPreviousState;
+        [SerializeField] private bool playFitSound = true;
         [SerializeField, HideIf(nameof(revertToPreviousState))] private string jumpTo;
         
         private GridManager _gridManager;
@@ -37,7 +38,7 @@ namespace FitMe.Tutorial
         public override async UniTask Exit()
         {
             await base.Exit();
-            await _gridManager.ResetGrid(true);
+            await _gridManager.ResetGrid(playFitSound);
         }
     }
 }
