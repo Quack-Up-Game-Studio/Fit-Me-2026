@@ -87,7 +87,7 @@ namespace FitMe.Panel
         
         private void Resume()
         {
-            _gameStateManager.Unpause();
+            _gameStateManager.SetPause(false);
         }
 
         private void OnMusicToggled(bool isOn)

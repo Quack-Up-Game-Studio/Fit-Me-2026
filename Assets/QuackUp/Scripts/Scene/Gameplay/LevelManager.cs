@@ -29,9 +29,12 @@ namespace FitMe.Scene
 
         /// <remarks>
         /// Use <see cref="SetGameState"/> to change game state.
-        /// For pausing, use <see cref="Pause"/> to pause the game or use <see cref="Unpause"/> to restore the previous state before pausing.
         /// </remarks>
         public ReadOnlyReactiveProperty<GameState> GameState => _gameState.ToReadOnlyReactiveProperty();
+        /// <remarks>
+        /// Use <see cref="SetPause"/> to change pause state.
+        /// </remarks>
+        public ReadOnlyReactiveProperty<bool> IsPaused => _isPaused.ToReadOnlyReactiveProperty();
         
         public static GameMode GameMode { get; set; }
         public static GridPreset GridPreset { get; set; }
@@ -42,6 +45,7 @@ namespace FitMe.Scene
         private int _levelCycle;
         
         private readonly Subject<Unit> _onScoreUpdated = new();
+        private readonly ReactiveProperty<bool> _isPaused = new(false);
         private readonly ReactiveProperty<GameState> _gameState = new(Shared.GameState.CountOff);
         private readonly LevelManagerConfig _config;
         private readonly IAudioManager _audioManager;
@@ -59,7 +63,6 @@ namespace FitMe.Scene
         private Queue<GridPreset> _tutorialPresets;
         private PlayerRecordSaveObject _playerRecordSaveObject;
         private AudioReference _bgmReference;
-        private GameState _previousStateBeforePause;
         private GameState _stateBeforeClearGrid;
         private IDisposable _subscriptions;
         private IDisposable _onResultSubscription;
@@ -341,24 +344,12 @@ namespace FitMe.Scene
         
         public void SetGameState(GameState newState)
         {
-            if (newState is Shared.GameState.Pause)
-            {
-                DebugUtils.LogWarning("Use Pause() method to pause the game.");
-                Pause();
-                return;
-            }
             _gameState.Value = newState;
         }
 
-        public void Pause()
+        public void SetPause(bool pause)
         {
-            _previousStateBeforePause = _gameState.Value;
-            _gameState.Value = Shared.GameState.Pause;
-        }
-
-        public void Unpause()
-        {
-            _gameState.Value = _previousStateBeforePause;
+            _isPaused.Value = pause;
         }
 
         private void OnGameOverEvent(GameOverEvent evt)

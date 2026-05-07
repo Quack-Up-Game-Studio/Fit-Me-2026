@@ -11,7 +11,6 @@ namespace FitMe.Shared
         GameClear,
         GameOver,
         ClearingGrid,
-        Pause,
     }
     
     public struct GameOverEvent
@@ -43,14 +42,15 @@ namespace FitMe.Shared
 
     public interface IGameStateManager
     {
+        ReadOnlyReactiveProperty<bool> IsPaused { get; }
         ReadOnlyReactiveProperty<GameState> GameState { get; }
         void SetGameState(GameState newState);
-        void Pause();
-        void Unpause();
+        void SetPause(bool pause);
     }
     
     public class LevelManagerMock : ILevelManager, IGameStateManager, IScoreManager
     {
+        public ReadOnlyReactiveProperty<bool> IsPaused => _isPaused.ToReadOnlyReactiveProperty();
         public ReadOnlyReactiveProperty<GameState> GameState => _currentGameState.ToReadOnlyReactiveProperty();
         public ReactiveProperty<int> Score { get; } = new(0);
         public ReactiveProperty<int> FitMe { get; } = new(0);
@@ -62,14 +62,14 @@ namespace FitMe.Shared
 
         public int CurrentObstacleCount => 0;
         public UniTask NextTutorialPreset(bool playSound) => UniTask.CompletedTask;
-
+        
+        private readonly ReactiveProperty<bool> _isPaused = new(false);
         private readonly ReactiveProperty<GameState> _currentGameState = new(Shared.GameState.PlaceBlock);
         public LevelManagerMock(GameState initialState)
         {
             _currentGameState.Value = initialState;
         }
         public void SetGameState(GameState newState){}
-        public void Pause(){}
-        public void Unpause(){}
+        public void SetPause(bool pause){}
     }
 }

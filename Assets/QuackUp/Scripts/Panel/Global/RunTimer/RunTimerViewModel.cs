@@ -24,8 +24,8 @@ namespace FitMe.Panel
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _gameStateManager.GameState
-                .Subscribe(OnGameStateChanged)
+            _gameStateManager.IsPaused
+                .Subscribe(OnPauseStateChanged)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -35,29 +35,15 @@ namespace FitMe.Panel
             _bindings?.Dispose();
             StopTimer();
         }
-        
-        private void OnGameStateChanged(GameState gameState)
+
+        private void OnPauseStateChanged(bool paused)
         {
-            DebugUtils.Log($"Run Timer: GameState changed to {gameState}");
-            switch (gameState)
+            if (!paused && _timer == null)
             {
-                case GameState.CountOff:
-                case GameState.PlaceBlock:
-                    if (_timer == null)
-                    {
-                        StartTimer();
-                    }
-                    break;
-                case GameState.GameClear:
-                case GameState.GameOver:
-                case GameState.Pause:
-                    StopTimer();
-                    break;
-                case GameState.ClearingGrid:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(gameState), gameState, null);
+                StartTimer();
+                return;
             }
+            StopTimer();
         }
         
         private void StartTimer()

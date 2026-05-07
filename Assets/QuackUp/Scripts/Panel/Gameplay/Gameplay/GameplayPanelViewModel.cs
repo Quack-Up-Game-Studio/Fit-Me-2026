@@ -39,7 +39,7 @@ namespace FitMe.Panel
 
         private void OnPause()
         {
-            _gameStateManager.Pause();
+            _gameStateManager.SetPause(true);
         }
     }
 }

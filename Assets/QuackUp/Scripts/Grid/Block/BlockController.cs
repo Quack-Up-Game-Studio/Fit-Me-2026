@@ -95,7 +95,8 @@ namespace FitMe.Grid
         {
             if (!AllowDrag) return;
             if (_dragWhileRotating) return;
-            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock)
+            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock ||
+                _gameStateManager.IsPaused.CurrentValue)
             {
                 OnEndDrag(eventData);
                 return;
@@ -122,7 +123,8 @@ namespace FitMe.Grid
         {
             if (!AllowDrag) return;
             if (_dragWhileRotating) return;
-            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock)
+            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock ||
+                _gameStateManager.IsPaused.CurrentValue)
             {
                 OnEndDrag(eventData);
                 return;
@@ -183,7 +185,8 @@ namespace FitMe.Grid
                 _dragWhileRotating = false;
                 return;
             }
-            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
+            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock ||
+                _gameStateManager.IsPaused.CurrentValue) return;
             if (!_isDragging) return;
             if (_isRotating)
             {
@@ -211,7 +214,8 @@ namespace FitMe.Grid
         private async UniTask OnClickToRotate(PointerEventData eventData)
         {
             if (!AllowRotation) return;
-            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock) return;
+            if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock ||
+                _gameStateManager.IsPaused.CurrentValue) return;
             if (_isDragging) return;
             if (_blockInstance.ViewModel.BlockInteractionState.Value is BlockInteractionState.PlacedOnGrid) return;
             var rotateClockwise = _config.RotateClockwise ? -1f : 1f;
