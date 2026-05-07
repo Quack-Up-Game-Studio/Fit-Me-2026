@@ -3,7 +3,7 @@
     "m_SelectedProcess": {
         "deviceId": "a9130acf",
         "name": "com.MadduckGameStudio.FitMe",
-        "processId": 19622,
+        "processId": 30838,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -162,6 +162,18 @@
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
             "processId": 19622,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 22781,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 30838,
             "exited": false
         }
     ],

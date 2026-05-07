@@ -58,9 +58,10 @@ namespace FitMe.Scene
         {
             var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
+            var sceneToLoad = saveData.CompletedTutorial ? SceneType.MainMenu : SceneType.Gameplay;
             saveData.CompletedTutorial = true;
             _saveManager.Save(saveObject);
-            _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false).Forget();
+            _loadSceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single, false).Forget();
         }
 
         public void Start()

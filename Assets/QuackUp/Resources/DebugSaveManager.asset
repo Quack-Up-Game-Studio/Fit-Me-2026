@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: DebugSaveManager
   m_EditorClassIdentifier: QuackUp.Save::QuackUp.Save.DebugSaveManager
   serializationData:
-    SerializedFormat: 2
-    SerializedBytes: 
+    SerializedFormat: 0
+    SerializedBytes: 01010c0000005f0073006100760065004d0061006e0061006700650072002f00000000013100000051007500610063006b00550070002e0053006100760065002e004d006500730073006100670065005000610063006b0053006100760065004d0061006e0061006700650072002c00200051007500610063006b00550070002e0053006100760065000000000001010c0000005f0073006100760065004f0062006a0065006300740073002f01000000017f000000530079007300740065006d002e0043006f006c006c0065006300740069006f006e0073002e00470065006e0065007200690063002e00440069006300740069006f006e00610072007900600032005b005b00530079007300740065006d002e0053007400720069006e0067002c0020006d00730063006f0072006c00690062005d002c005b0051007500610063006b00550070002e0053006100760065002e004d006500730073006100670065005000610063006b0053006100760065004f0062006a006500630074002c00200051007500610063006b00550070002e0053006100760065005d005d002c0020006d00730063006f0072006c00690062000100000001010800000063006f006d00700061007200650072002f020000000159000000530079007300740065006d002e0043006f006c006c0065006300740069006f006e0073002e00470065006e0065007200690063002e00470065006e00650072006900630045007100750061006c0069007400790043006f006d0070006100720065007200600031005b005b00530079007300740065006d002e0053007400720069006e0067002c0020006d00730063006f0072006c00690062005d005d002c0020006d00730063006f0072006c00690062000200000005060500000000000000042e27010200000024006b00010600000050006c0061007900650072000b0102000000240076000000000005042e27010200000024006b00010500000041007500640069006f000b0102000000240076000100000005042e27010200000024006b000104000000470061006d0065000b0102000000240076000200000005042e27010200000024006b00010b00000041006300680069006500760065006d0065006e0074000b0102000000240076000300000005042e27010200000024006b00010600000045006e0065007200670079000b0102000000240076000400000005070505
     ReferencedUnityObjects:
     - {fileID: 11400000, guid: 474e0a39740a226b0bf66f0c1880cc59, type: 2}
     - {fileID: 11400000, guid: 4f2e641bd80906e8aa5537aa80c3576f, type: 2}
@@ -25,91 +25,5 @@ MonoBehaviour:
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes:
-    - Name: _saveManager
-      Entry: 7
-      Data: 0|QuackUp.Save.MessagePackSaveManager, QuackUp.Save
-    - Name: _saveObjects
-      Entry: 7
-      Data: 1|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[QuackUp.Save.MessagePackSaveObject,
-        QuackUp.Save]], mscorlib
-    - Name: comparer
-      Entry: 7
-      Data: 2|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
-        mscorlib]], mscorlib
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Player
-    - Name: $v
-      Entry: 10
-      Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Audio
-    - Name: $v
-      Entry: 10
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Game
-    - Name: $v
-      Entry: 10
-      Data: 2
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Achievement
-    - Name: $v
-      Entry: 10
-      Data: 3
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Energy
-    - Name: $v
-      Entry: 10
-      Data: 4
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
+    SerializationNodes: []
   saveConfig: {fileID: 11400000, guid: b90f06e68dacac831ad715d9153ac335, type: 2}
