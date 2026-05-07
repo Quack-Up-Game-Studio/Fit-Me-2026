@@ -137,7 +137,8 @@ namespace FitMe.Grid
                     break;
                 case BlockInteractionState.PlacedOnGrid:
                     Place(_gridConfig.CellSize);
-                    PlayPlaceVFX();
+                    if (_viewModel.BlockState.CurrentValue is BlockState.Normal)
+                        PlayPlaceVFX();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
