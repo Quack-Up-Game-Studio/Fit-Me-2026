@@ -43,6 +43,7 @@ namespace FitMe.Grid
         private Tween _pickUpTween;
         private IDisposable _switchIdleTimer;
         private CancellationTokenSource _switchIdleCts;
+        private ParticleSystem _placingVfxInstance;
         //private Sequence _rotationSequence;
         
         private BlockConfig _blockConfig;
@@ -232,8 +233,8 @@ namespace FitMe.Grid
         private void PlayPlaceVFX()
         {
             if (!_blockConfig.PlaceVFX.TryGetValue(_blockColor, out var vfx)) return;
-            var vfxInstance = Instantiate(vfx, transform.position, Quaternion.identity);
-            vfxInstance.Play(true);
+            _placingVfxInstance = Instantiate(vfx, transform.position, Quaternion.identity);
+            _placingVfxInstance.Play(true);
         }
         
         private async UniTask Explode(ExplodeCommandData data)
@@ -267,6 +268,9 @@ namespace FitMe.Grid
         {
             meshRenderer.sortingOrder = order;
             obstacleSpriteRenderer.sortingOrder = order;
+            if (!_placingVfxInstance) return;
+            var psr = _placingVfxInstance.GetComponent<ParticleSystemRenderer>();
+            psr.sortingOrder = order - 1;
         }
 
         private void OnBlockColorChanged(BlockColor color)

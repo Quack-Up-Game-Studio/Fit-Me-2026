@@ -666,7 +666,7 @@ namespace FitMe.Grid
             for (var i = 0; i < _blockOnGrid.Count; i++)
             {
                 var gridBlockData = _blockOnGrid[i];
-                gridBlockData.BlockInstance.ViewModel.SetSortingOrderCommand.Execute(i);
+                gridBlockData.BlockInstance.ViewModel.SetSortingOrderCommand.Execute(i * 2);
             }
         }
         #endregion
