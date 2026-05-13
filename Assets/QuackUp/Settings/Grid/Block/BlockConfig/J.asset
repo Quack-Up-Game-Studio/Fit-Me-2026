@@ -280,7 +280,7 @@ MonoBehaviour:
       Entry: 8
       Data: 
   <UseAtomSprite>k__BackingField: 0
-  <ObstacleSprite>k__BackingField: {fileID: 21300000, guid: 3de174295c3ffe045b6de824210a5ad7, type: 3}
+  <ObstacleSprite>k__BackingField: {fileID: -3847777739887999215, guid: 3de174295c3ffe045b6de824210a5ad7, type: 3}
   idleAnimations:
   - Idle1
   - Idle2
