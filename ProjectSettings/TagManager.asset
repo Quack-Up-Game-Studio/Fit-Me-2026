@@ -53,5 +53,8 @@ TagManager:
   - name: UI
     uniqueID: 1195608579
     locked: 0
+  - name: Energy Bar
+    uniqueID: 270803555
+    locked: 0
   m_RenderingLayers:
   - Default
