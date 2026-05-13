@@ -20,6 +20,7 @@ namespace FitMe.Panel
     public class ShopPanelView : PanelView
     {
         [SerializeField] private Button closeButton;
+        [SerializeField] private Button subManagerButton;
         
         [Title("Consume Item Buttons")]
         [SerializeField] private ButtonInfo[] _consumableItemButton;
@@ -54,6 +55,9 @@ namespace FitMe.Panel
                 .AddTo(ref disposableBuilder);
             ViewModel.OnPurchaseSuccess
                 .Subscribe(_ => UpdatePrices())
+                .AddTo(ref disposableBuilder);
+            subManagerButton.OnClickAsObservable()
+                .Subscribe(_ => OnSubscriptionManager())
                 .AddTo(ref disposableBuilder);
             foreach (var button in _consumableItemButton)
             {
@@ -140,6 +144,11 @@ namespace FitMe.Panel
         {
             if (!TryGetCrossfadeRule(mainMenuPanelId, out var rule)) return;
             ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData(mainMenuPanelId, rule.crossfadeSettings));
+        }
+
+        private void OnSubscriptionManager()
+        {
+            Application.OpenURL($"https://play.google.com/store/account/subscriptions?package={Application.identifier}");
         }
     }
 }
