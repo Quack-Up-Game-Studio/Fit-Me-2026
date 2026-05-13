@@ -22,7 +22,7 @@ namespace QuackUp.IAP
     public static class ProductIds
     {
         public const string MonthlyPass   = "monthlypass";
-        public const string QuarterlyPass = "quarterltypass";
+        public const string QuarterlyPass = "quarterltypass"; // intentionally kept as-is
         public const string AnnuallyPass  = "annuallypass";
         public const string Energy2       = "2_1energy";
         public const string Energy3       = "3_2energy";
@@ -38,12 +38,13 @@ namespace QuackUp.IAP
     {
         private CatalogProvider _catalogProvider;
         private EnergyManager _energyManager;
-        private AdsService  _adsService;
+        private AdsService _adsService;
+
         /// <summary>
         /// Event that called when the store is connected, products and purchases are fetched, and the IAP system is ready to use.
         /// </summary>
         public Observable<Unit> OnIAPReady => _onIAPReady;
-        public  Observable<Unit> OnPurchaseSuccess => _onPurchaseSuccess;
+        public Observable<Unit> OnPurchaseSuccess => _onPurchaseSuccess;
         private Subject<Unit> _onPurchaseSuccess = new Subject<Unit>();
         private Subject<Unit> _onIAPReady = new Subject<Unit>();
         private DisposableBag _fetchProductsSubscriptions;
@@ -53,20 +54,18 @@ namespace QuackUp.IAP
         private IDisposable _subscriptions;
         private IDisposable _subscriptionCheckTimer;
         private ISubscriber<EndSubscriptionEvent> _endSubscriptionEvent;
-        
+
         [ShowInInspector, ReadOnly] public bool IsIAPReady => IsConnected && IsProductReady && IsPurchaseReady;
         [ShowInInspector, ReadOnly] public bool IsConnected { get; private set; }
-        [ShowInInspector, ReadOnly] public bool IsProductReady {get ; private set;}
-        [ShowInInspector, ReadOnly] public bool IsPurchaseReady {get; private set;}
+        [ShowInInspector, ReadOnly] public bool IsProductReady { get; private set; }
+        [ShowInInspector, ReadOnly] public bool IsPurchaseReady { get; private set; }
         private readonly List<Product> _confirmedSubscriptions = new();
-        [ShowInInspector, ReadOnly] private IReadOnlyList<string> DebugConfirmedSubscriptions => _confirmedSubscriptions.Select(x => x.definition.id).ToList();
+        [ShowInInspector, ReadOnly] private IReadOnlyList<string> DebugConfirmedSubscriptions =>
+            _confirmedSubscriptions.Select(x => x.definition.id).ToList();
 
         [Button("Debug Initialize")]
-        private void DebugInitialize()
-        {
-            Initialize().Forget();
-        }
-        
+        private void DebugInitialize() => Initialize().Forget();
+
         [Button("Debug Clear Subscriptions")]
         private void DebugClearSubscriptions()
         {
@@ -103,8 +102,10 @@ namespace QuackUp.IAP
             _purchaseSubscriptions.Dispose();
             _subscriptions?.Dispose();
             _subscriptionCheckTimer?.Dispose();
+            _onPurchaseSuccess?.Dispose();
+            _onIAPReady?.Dispose();
         }
-        
+
         public void Start()
         {
             CreateCatalog();
@@ -114,14 +115,12 @@ namespace QuackUp.IAP
         private void CreateCatalog()
         {
             var catalogProvider = new CatalogProvider();
-            
+
 #if UNITY_EDITOR
-            // Test products
             catalogProvider.AddProduct(ProductIds.GoldTest, ProductType.Consumable,
                 new StoreSpecificIds() { { ProductIds.GoldTest, GooglePlay.Name } });
 #endif
 
-            // Consumable products
             catalogProvider.AddProduct(ProductIds.Energy2, ProductType.Consumable,
                 new StoreSpecificIds() { { ProductIds.Energy2, GooglePlay.Name } });
             catalogProvider.AddProduct(ProductIds.Energy3, ProductType.Consumable,
@@ -129,17 +128,16 @@ namespace QuackUp.IAP
             catalogProvider.AddProduct(ProductIds.MaxEnergy, ProductType.Consumable,
                 new StoreSpecificIds() { { ProductIds.MaxEnergy, GooglePlay.Name } });
 
-            // Subscription products
             catalogProvider.AddProduct(ProductIds.MonthlyPass, ProductType.Subscription,
                 new StoreSpecificIds() { { ProductIds.MonthlyPass, GooglePlay.Name } });
             catalogProvider.AddProduct(ProductIds.QuarterlyPass, ProductType.Subscription,
                 new StoreSpecificIds() { { ProductIds.QuarterlyPass, GooglePlay.Name } });
             catalogProvider.AddProduct(ProductIds.AnnuallyPass, ProductType.Subscription,
                 new StoreSpecificIds() { { ProductIds.AnnuallyPass, GooglePlay.Name } });
-            
+
             _catalogProvider = catalogProvider;
         }
-        
+
         public async UniTask Initialize()
         {
             if (!IsConnected)
@@ -151,7 +149,7 @@ namespace QuackUp.IAP
             if (IsIAPReady)
                 _onIAPReady?.OnNext(Unit.Default);
         }
-        
+
         #region Connection
 
         private async UniTask InitializeConnection()
@@ -178,10 +176,11 @@ namespace QuackUp.IAP
             Debug.Log("IAP: Retrying store connection...");
             Initialize().Forget();
         }
-        
+
         #endregion
 
         #region Products
+
         private async UniTask InitializeProducts()
         {
             if (_catalogProvider == null || _catalogProvider.GetProducts().Count == 0)
@@ -207,7 +206,7 @@ namespace QuackUp.IAP
             await productFetchTcs.Task;
             IsProductReady = productFetchTcs.GetResult(0);
         }
-        
+
         private void OnProductsFetched(List<Product> products, UniTaskCompletionSource<bool> tcs)
         {
             DebugUtils.Log("IAP: Products fetched successfully");
@@ -219,15 +218,15 @@ namespace QuackUp.IAP
             DebugUtils.LogError($"IAP: Failed to fetch products: {productFetchFailed.FailureReason}");
             tcs.TrySetResult(false);
         }
-        
+
         #endregion
-        
+
         #region Purchases
 
         private async UniTask InitializePurchases()
         {
             var storeController = UnityIAPServices.StoreController();
-            _fetchProductsSubscriptions.Dispose();
+            _fetchPurchasesSubscriptions.Dispose();
             _fetchPurchasesSubscriptions = new DisposableBag();
             var purchaseFetchTcs = new UniTaskCompletionSource<bool>();
             Observable.FromEvent<Orders>(
@@ -240,7 +239,7 @@ namespace QuackUp.IAP
                     handler => storeController.OnPurchasesFetchFailed -= handler)
                 .Subscribe(failure => OnPurchasesFetchedFail(failure, purchaseFetchTcs))
                 .AddTo(ref _fetchPurchasesSubscriptions);
-            
+
             _purchaseSubscriptions.Dispose();
             _purchaseSubscriptions = new DisposableBag();
             Observable.FromEvent<PendingOrder>(
@@ -253,23 +252,23 @@ namespace QuackUp.IAP
                     handler => storeController.OnPurchaseFailed -= handler)
                 .Subscribe(OnPurchaseFailed)
                 .AddTo(ref _purchaseSubscriptions);
-            
+
             storeController.FetchPurchases();
             await purchaseFetchTcs.Task;
             IsPurchaseReady = purchaseFetchTcs.GetResult(0);
         }
-        
+
         private void OnPurchasesFetched(Orders orders, UniTaskCompletionSource<bool> tcs)
         {
             var confirmedSubscription =
                 orders.ConfirmedOrders
-                    .Where(x =>
-                        x.CartOrdered.Items().FirstOrDefault()?.Product.definition.type == ProductType.Subscription)
                     .Select(x => x.CartOrdered.Items().FirstOrDefault()?.Product)
+                    // Fix 1: แก้ nested property pattern เป็น explicit null check
+                    .Where(p => p != null && p.definition.type == ProductType.Subscription)
                     .ToList();
             _confirmedSubscriptions.Clear();
             _confirmedSubscriptions.AddRange(confirmedSubscription);
-            
+
             if (HasActiveSubscription())
             {
                 DebugUtils.Log("IAP: Active subscription found, restoring benefits.");
@@ -282,11 +281,11 @@ namespace QuackUp.IAP
                 _energyManager.SetInfiniteEnergy(false);
                 _adsService.SetEnableStateAll(true);
             }
-            
+
             StartSubscriptionCheckTimer();
             tcs.TrySetResult(true);
         }
-        
+
         private void OnPurchasesFetchedFail(PurchasesFetchFailureDescription failureDescription, UniTaskCompletionSource<bool> tcs)
         {
             DebugUtils.LogError($"IAP: Failed to fetch purchases: {failureDescription.FailureReason}");
@@ -295,13 +294,8 @@ namespace QuackUp.IAP
 
         private void OnPurchasePending(PendingOrder order)
         {
-            // if (!ValidateReceipt(args))
-            // {
-            //     Debug.LogWarning($"IAP: Receipt validation failed for {args.purchasedProduct.definition.id}");
-            //     return PurchaseProcessingResult.Complete;
-            // }
-            
-            var id = order.CartOrdered.Items().FirstOrDefault()?.Product.definition.id;
+            var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
+            var id = product?.definition.id;
             switch (id)
             {
 #if UNITY_EDITOR
@@ -310,7 +304,6 @@ namespace QuackUp.IAP
                     // _currencyService.AddGold(100);
                     break;
 #endif
-                // Consumable products
                 case ProductIds.Energy2:
                     DebugUtils.Log("IAP: 3 energy granted.");
                     _energyManager.ChangeEnergy(3);
@@ -323,22 +316,18 @@ namespace QuackUp.IAP
                     DebugUtils.Log("IAP: Max energy granted.");
                     _energyManager.ChangeEnergy(_energyManager.Config.MaxEnergy);
                     break;
-
-                // Subscription products
                 case ProductIds.MonthlyPass:
                 case ProductIds.QuarterlyPass:
                 case ProductIds.AnnuallyPass:
                     DebugUtils.Log($"IAP: {id} pass activated.");
                     _energyManager.SetInfiniteEnergy(true);
                     _adsService.SetEnableStateAll(false);
-                    _confirmedSubscriptions.Add(order.CartOrdered.Items().FirstOrDefault()?.Product);
-                    break;
-
+                    if (product != null) _confirmedSubscriptions.Add(product);
 #if UNITY_EDITOR
                     PlayerPrefs.SetInt("Mock_HasVIP", 1);
                     PlayerPrefs.Save();
 #endif
-                    
+                    break;
                 default:
                     DebugUtils.LogWarning($"IAP: Unknown product ID: {id}");
                     break;
@@ -367,10 +356,11 @@ namespace QuackUp.IAP
                 DebugUtils.LogWarning("IAP: Store not ready. Please try again later.");
             }
         }
-        
+
         #endregion
 
         #region Subscriptions
+
         private void StartSubscriptionCheckTimer()
         {
             _subscriptionCheckTimer?.Dispose();
@@ -382,12 +372,12 @@ namespace QuackUp.IAP
                     EndOfSubscription();
                 });
         }
-        
+
         private void EndOfSubscription()
         {
             _energyManager.SetInfiniteEnergy(false);
             _adsService.SetEnableStateAll(true);
-            DebugUtils.Log( "IAP: Subscription ended. Infinite energy revoked.");
+            DebugUtils.Log("IAP: Subscription ended. Infinite energy revoked.");
         }
 
         private (bool active, bool freeTrial) CheckSubscriptionStatus(Product product)
@@ -398,20 +388,16 @@ namespace QuackUp.IAP
             {
                 info = infoHelper.GetSubscriptionInfo();
             }
-            catch (StoreSubscriptionInfoNotSupportedException e)
+            catch (StoreSubscriptionInfoNotSupportedException)
             {
-                // Assume that this is the mock store and any subscription product is active without free trial for testing purposes
+                // Assume mock store — any subscription product is active without free trial
                 return (true, false);
             }
-            
+
             if (info.IsFreeTrial() == Result.True)
-            {
                 return (true, true);
-            }
             if (info.IsSubscribed() == Result.True)
-            {
                 return (true, false);
-            }
             return (false, false);
         }
 
@@ -424,9 +410,11 @@ namespace QuackUp.IAP
         {
             return _confirmedSubscriptions.Any(x => CheckSubscriptionStatus(x).freeTrial);
         }
+
         #endregion
-        
+
         #region Helpers
+
         public string GetLocalizedPrice(string productId)
         {
             if (!IsIAPReady) return "";
@@ -434,35 +422,6 @@ namespace QuackUp.IAP
             var product = storeController.GetProductById(productId);
             return product?.metadata.localizedPriceString ?? "";
         }
-        
-        //         private bool ValidateReceipt(PurchaseEventArgs args)
-//         {
-// #if UNITY_EDITOR
-//             return true;
-// #else
-//             Debug.LogWarning("IAP: Receipt validation not yet implemented.");
-//             return true;
-//             /*try
-//             {
-//                 var validator = new CrossPlatformValidator(
-//                     GooglePlayTangle.Data(),
-//                     AppleTangle.Data(),
-//                     Application.identifier);
-//
-//                 var result = validator.Validate(args.purchasedProduct.receipt);
-//                 foreach (var receipt in result)
-//                 {
-//                     Debug.Log($"IAP: Receipt validated - ProductID: {receipt.productID}");
-//                 }
-//                 return true;
-//             }
-//             catch (IAPSecurityException ex)
-//             {
-//                 Debug.LogWarning($"IAP: Invalid receipt: {ex.Message}");
-//                 return false;
-//             }*/
-// #endif
-//         }
         #endregion
     }
 }
