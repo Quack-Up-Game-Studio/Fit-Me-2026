@@ -4,6 +4,7 @@ using VContainer;
 
 namespace QuackUp.IAP
 {
+    #if UNITY_EDITOR
     public class TestIAP : MonoBehaviour
     {
         [SerializeField] private Button _goldButton;
@@ -45,4 +46,5 @@ namespace QuackUp.IAP
             _inAppPurchaseManager.BuyProductID("no_ads");
         }
     }
+    #endif
 }
