@@ -334,7 +334,7 @@ namespace QuackUp.IAP
             }
             var storeController = UnityIAPServices.StoreController();
             storeController.ConfirmPurchase(order);
-            _onPurchaseSuccess?.OnNext(Unit.Default);
+            RefetchAndNotify().Forget();
         }
 
         private void OnPurchaseFailed(FailedOrder order)
@@ -357,6 +357,12 @@ namespace QuackUp.IAP
             }
         }
 
+        private async UniTaskVoid RefetchAndNotify()
+        {
+            IsPurchaseReady = false;
+            await InitializePurchases();
+            _onPurchaseSuccess?.OnNext(Unit.Default);
+        }
         #endregion
 
         #region Subscriptions
@@ -365,12 +371,17 @@ namespace QuackUp.IAP
         {
             _subscriptionCheckTimer?.Dispose();
             _subscriptionCheckTimer = Observable.Interval(TimeSpan.FromMinutes(5))
-                .Subscribe(_ =>
-                {
-                    if (HasActiveSubscription()) return;
-                    DebugUtils.Log("IAP: Subscription expired.");
-                    EndOfSubscription();
-                });
+                .Subscribe(_ => CheckAndUpdateSubscription().Forget());
+        }
+
+        private async UniTaskVoid CheckAndUpdateSubscription()
+        {
+            IsPurchaseReady = false;
+            await InitializePurchases();
+    
+            if (HasActiveSubscription()) return;
+            DebugUtils.Log("IAP: Subscription expired.");
+            EndOfSubscription();
         }
 
         private void EndOfSubscription()
