@@ -14,14 +14,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/arm64-v8a/configure_fingerprint.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.utmp/RelWithDebInfo/n683k345/armeabi-v7a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/GooglePlayGames/com.google.play.games/Editor/m2repository/com/google/games/gpgs-plugin-support/2.1.0/gpgs-plugin-support-2.1.0.aar.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/GooglePlayGames/com.google.play.games/Editor/m2repository/com/google/games/gpgs-plugin-support/2.1.0/gpgs-plugin-support-2.1.0.aar.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/ProjectLifetimeScope.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/ProjectLifetimeScope.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/QuackUp.IAP.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/QuackUp.IAP.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Shop/ShopPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Shop/ShopPanelViewModel.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -39,6 +34,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.unity.purchasing@c1f2e55dc464/Runtime/Purchasing/Core/Purchasing/Models/SubscriptionInfoHelper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.unity.purchasing@c1f2e55dc464/Runtime/Purchasing/Core/StoreController.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/SSD1/All projects/Unity/Fit-Me-2026/Library/PackageCache/com.unity.purchasing@c1f2e55dc464/Runtime/Security/CrossPlatformValidator.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/UnityPurchasing/generated/GooglePlayTangle.cs" root0="SKIP_HIGHLIGHTING" />
@@ -129,6 +125,10 @@
       <workItem from="1779077416616" duration="105000" />
       <workItem from="1779078133130" duration="356000" />
       <workItem from="1779078969933" duration="769000" />
+      <workItem from="1779080793293" duration="6660000" />
+      <workItem from="1779087945226" duration="501000" />
+      <workItem from="1779088651649" duration="1199000" />
+      <workItem from="1779090350925" duration="1390000" />
     </task>
     <servers />
   </component>

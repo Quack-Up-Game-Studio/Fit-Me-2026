@@ -56,7 +56,7 @@ namespace FitMe.Panel
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            ReinitializeCommand.Subscribe(_ => _inAppPurchaseManager.Initialize().Forget())
+            ReinitializeCommand.Subscribe(_ => _inAppPurchaseManager.Reinitialize().Forget())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }

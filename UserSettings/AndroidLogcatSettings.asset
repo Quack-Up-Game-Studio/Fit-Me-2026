@@ -3,7 +3,7 @@
     "m_SelectedProcess": {
         "deviceId": "a9130acf",
         "name": "com.MadduckGameStudio.FitMe",
-        "processId": 21353,
+        "processId": 4637,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -11,43 +11,37 @@
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 3905,
+            "processId": 4804,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 1154,
+            "processId": 9278,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 15929,
+            "processId": 15495,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 31899,
+            "processId": 19639,
             "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 1866,
+            "processId": 23520,
             "exited": false
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
-            "processId": 11722,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 21353,
+            "processId": 4637,
             "exited": false
         }
     ],
@@ -106,7 +100,7 @@
     },
     "m_FilterOptions": {
         "m_Filter": "",
-        "m_UseRegularExpressions": false,
+        "m_UseRegularExpressions": true,
         "m_MatchCase": false
     },
     "m_SymbolPaths": [],

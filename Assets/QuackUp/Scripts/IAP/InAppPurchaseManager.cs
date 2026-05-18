@@ -55,16 +55,18 @@ namespace QuackUp.IAP
         private DisposableBag _connectSubscriptions;
         private DisposableBag _purchaseSubscriptions;
         private IDisposable _subscriptions;
-        private IDisposable _subscriptionCheckTimer;
+        private IDisposable _expirationTimer;
+        private IDisposable _periodicCheckTimer;
         private ISubscriber<EndSubscriptionEvent> _endSubscriptionEvent;
+        private bool _initializing;
 
         [ShowInInspector, ReadOnly] public bool IsIAPReady => IsConnected && IsProductReady && IsPurchaseReady;
         [ShowInInspector, ReadOnly] public bool IsConnected { get; private set; }
         [ShowInInspector, ReadOnly] public bool IsProductReady { get; private set; }
         [ShowInInspector, ReadOnly] public bool IsPurchaseReady { get; private set; }
-        private readonly List<(Product product, string receipt)> _confirmedSubscriptions = new();
+        private readonly List<SubscriptionInfo> _confirmedSubscriptions = new();
         [ShowInInspector, ReadOnly] private IReadOnlyList<string> DebugConfirmedSubscriptions =>
-            _confirmedSubscriptions.Select(x => x.product.definition.id).ToList();
+            _confirmedSubscriptions.Select(x => x.GetProductId()).ToList();
 
         [Button("Debug Initialize")]
         private void DebugInitialize() => Initialize().Forget();
@@ -104,7 +106,8 @@ namespace QuackUp.IAP
             _connectSubscriptions.Dispose();
             _purchaseSubscriptions.Dispose();
             _subscriptions?.Dispose();
-            _subscriptionCheckTimer?.Dispose();
+            _expirationTimer?.Dispose();
+            _periodicCheckTimer?.Dispose();
             _onPurchaseSuccess?.Dispose();
             _onIAPReady?.Dispose();
         }
@@ -141,8 +144,9 @@ namespace QuackUp.IAP
             _catalogProvider = catalogProvider;
         }
 
-        public async UniTask Initialize()
+        private async UniTask Initialize()
         {
+            _initializing = true;
             if (!IsConnected)
                 await InitializeConnection();
             if (!IsProductReady)
@@ -151,6 +155,16 @@ namespace QuackUp.IAP
                 await InitializePurchases();
             if (IsIAPReady)
                 _onIAPReady?.OnNext(Unit.Default);
+            _initializing = false;
+        }
+
+        public async UniTask Reinitialize()
+        {
+            if (_initializing) return;
+            IsConnected = false;
+            IsProductReady = false;
+            IsPurchaseReady = false;
+            await Initialize();
         }
 
         #region Connection
@@ -268,6 +282,7 @@ namespace QuackUp.IAP
                     .Where(x => ValidateReceipt(x.Info.Receipt))
                     .Select(x => (x.CartOrdered.Items().FirstOrDefault()?.Product, x.Info.Receipt))
                     .Where(p => p.Product != null && p.Product.definition.type == ProductType.Subscription)
+                    .Select(p => GetSubscriptionInfo(p.Product, p.Receipt))
                     .ToList();
             _confirmedSubscriptions.Clear();
             _confirmedSubscriptions.AddRange(confirmedSubscription);
@@ -286,6 +301,7 @@ namespace QuackUp.IAP
             }
 
             StartSubscriptionCheckTimer();
+            StartExpirationTimer();
             tcs.TrySetResult(true);
         }
 
@@ -327,7 +343,8 @@ namespace QuackUp.IAP
                     DebugUtils.Log($"IAP: {id} pass activated.");
                     _energyManager.SetInfiniteEnergy(true);
                     _adsService.SetEnableStateAll(false);
-                    _confirmedSubscriptions.Add((product, receipt));
+                    _confirmedSubscriptions.Add(GetSubscriptionInfo(product, receipt));
+                    StartExpirationTimer();
 #if UNITY_EDITOR
                     PlayerPrefs.SetInt("Mock_HasVIP", 1);
                     PlayerPrefs.Save();
@@ -339,7 +356,7 @@ namespace QuackUp.IAP
             }
             var storeController = UnityIAPServices.StoreController();
             storeController.ConfirmPurchase(order);
-            RefetchAndNotify().Forget();
+            _onPurchaseSuccess?.OnNext(Unit.Default);
         }
 
         private void OnPurchaseFailed(FailedOrder order)
@@ -389,29 +406,43 @@ namespace QuackUp.IAP
                 DebugUtils.LogWarning("IAP: Store not ready. Please try again later.");
             }
         }
-
-        private async UniTaskVoid RefetchAndNotify()
-        {
-            IsPurchaseReady = false;
-            await InitializePurchases();
-            _onPurchaseSuccess?.OnNext(Unit.Default);
-        }
         #endregion
 
         #region Subscriptions
 
         private void StartSubscriptionCheckTimer()
         {
-            _subscriptionCheckTimer?.Dispose();
-            _subscriptionCheckTimer = Observable.Interval(TimeSpan.FromMinutes(5))
+            _periodicCheckTimer?.Dispose();
+            _periodicCheckTimer = Observable.Interval(TimeSpan.FromMinutes(5))
                 .Subscribe(_ => CheckAndUpdateSubscription().Forget());
+        }
+
+        private void StartExpirationTimer()
+        {
+            _expirationTimer?.Dispose();
+            var expiration = _confirmedSubscriptions
+                .Select(x => x.GetExpireDate())
+                .Where(date => date > DateTime.UtcNow) // Only future dates
+                .OrderByDescending(x => x)
+                .FirstOrDefault();
+            // Check if we have a valid expiration date (not default and in the future)
+            if (expiration > DateTime.UtcNow && expiration < new DateTime(9999, 12, 31))
+            {
+                var expirationOffset = new DateTimeOffset(expiration, TimeSpan.Zero);
+                _expirationTimer = Observable.Timer(expirationOffset)
+                    .Subscribe(_ => CheckAndUpdateSubscription().Forget());
+                DebugUtils.Log($"IAP: Timer set for {expiration:yyyy-MM-dd HH:mm:ss} UTC");
+            }
+            else
+            {
+                DebugUtils.Log("IAP: No valid subscription expiration date found. Skipping expiration timer.");
+            }
         }
 
         private async UniTaskVoid CheckAndUpdateSubscription()
         {
             IsPurchaseReady = false;
             await InitializePurchases();
-    
             if (HasActiveSubscription()) return;
             DebugUtils.Log("IAP: Subscription expired.");
             EndOfSubscription();
@@ -424,41 +455,29 @@ namespace QuackUp.IAP
             DebugUtils.Log("IAP: Subscription ended. Infinite energy revoked.");
         }
 
-        private (bool active, bool freeTrial) CheckSubscriptionStatus(Product product, string receipt = null)
+        private SubscriptionInfo GetSubscriptionInfo(Product product, string receipt = null)
         {
-            DebugUtils.Log($"Checking subscription for: {product.definition.id} | receipt: {receipt}...");
+            DebugUtils.Log($"Getting subscription info for: {product.definition.id} | receipt: {receipt}...");
             var infoHelper = string.IsNullOrEmpty(receipt) ?
                 new SubscriptionInfoHelper(product, null) : 
                 new SubscriptionInfoHelper(receipt, product.definition.storeSpecificId, null);
-            SubscriptionInfo info;
             try
             {
-                info = infoHelper.GetSubscriptionInfo();
+                return infoHelper.GetSubscriptionInfo();
             }
             catch (StoreSubscriptionInfoNotSupportedException)
             {
-#if UNITY_EDITOR
-                // Assume mock store — any subscription product is active without free trial
-                return (true, false);
-#endif
-                return (false, false); // In production, if the store can't be validated then assume inactive by default.
+                return null;
             }
-
-            if (info.IsFreeTrial() == Result.True)
-                return (true, true);
-            if (info.IsSubscribed() == Result.True)
-                return (true, false);
-            return (false, false);
         }
-
         public bool HasActiveSubscription()
         {
-            return _confirmedSubscriptions.Any(x => CheckSubscriptionStatus(x.product, x.receipt).active);
+            return _confirmedSubscriptions.Any(x => x.IsSubscribed() is Result.True);
         }
 
         public bool IsInFreeTrial()
         {
-            return _confirmedSubscriptions.Any(x => CheckSubscriptionStatus(x.product, x.receipt).freeTrial);
+            return _confirmedSubscriptions.Any(x => x.IsFreeTrial() is Result.True);
         }
 
         #endregion
