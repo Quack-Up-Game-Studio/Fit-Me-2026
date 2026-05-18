@@ -3,195 +3,51 @@
     "m_SelectedProcess": {
         "deviceId": "a9130acf",
         "name": "com.MadduckGameStudio.FitMe",
-        "processId": 15929,
+        "processId": 21353,
         "exited": false
     },
     "m_SelectedPriority": 0,
     "m_KnownProcessesForSerialization": [
         {
             "deviceId": "a9130acf",
-            "name": "com.miui.home",
-            "processId": 25773,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 30831,
-            "exited": true
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 2863,
-            "exited": true
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 8811,
-            "exited": true
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 9509,
-            "exited": true
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 10275,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 378,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 10930,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 26527,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 29623,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 384,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 7477,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 12670,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 20216,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 23617,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 7014,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 26332,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 28660,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 13618,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 14000,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 26778,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 5749,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 7689,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 8764,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 14066,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 19622,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 22781,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
-            "name": "com.MadduckGameStudio.FitMe",
-            "processId": 30838,
-            "exited": false
-        },
-        {
-            "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
             "processId": 3905,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
             "processId": 1154,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
             "processId": 15929,
+            "exited": true
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 31899,
+            "exited": true
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 1866,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 11722,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 21353,
             "exited": false
         }
     ],

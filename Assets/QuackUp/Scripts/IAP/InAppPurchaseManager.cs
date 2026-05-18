@@ -14,6 +14,9 @@ using VContainer;
 using VContainer.Unity;
 using DisposableBag = R3.DisposableBag;
 using Result = UnityEngine.Purchasing.Result;
+#if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_TVOS)
+using UnityEngine.Purchasing.Security;
+#endif
 
 namespace QuackUp.IAP
 {
@@ -59,9 +62,9 @@ namespace QuackUp.IAP
         [ShowInInspector, ReadOnly] public bool IsConnected { get; private set; }
         [ShowInInspector, ReadOnly] public bool IsProductReady { get; private set; }
         [ShowInInspector, ReadOnly] public bool IsPurchaseReady { get; private set; }
-        private readonly List<Product> _confirmedSubscriptions = new();
+        private readonly List<(Product product, string receipt)> _confirmedSubscriptions = new();
         [ShowInInspector, ReadOnly] private IReadOnlyList<string> DebugConfirmedSubscriptions =>
-            _confirmedSubscriptions.Select(x => x.definition.id).ToList();
+            _confirmedSubscriptions.Select(x => x.product.definition.id).ToList();
 
         [Button("Debug Initialize")]
         private void DebugInitialize() => Initialize().Forget();
@@ -262,9 +265,9 @@ namespace QuackUp.IAP
         {
             var confirmedSubscription =
                 orders.ConfirmedOrders
-                    .Select(x => x.CartOrdered.Items().FirstOrDefault()?.Product)
-                    // Fix 1: แก้ nested property pattern เป็น explicit null check
-                    .Where(p => p != null && p.definition.type == ProductType.Subscription)
+                    .Where(x => ValidateReceipt(x.Info.Receipt))
+                    .Select(x => (x.CartOrdered.Items().FirstOrDefault()?.Product, x.Info.Receipt))
+                    .Where(p => p.Product != null && p.Product.definition.type == ProductType.Subscription)
                     .ToList();
             _confirmedSubscriptions.Clear();
             _confirmedSubscriptions.AddRange(confirmedSubscription);
@@ -294,6 +297,8 @@ namespace QuackUp.IAP
 
         private void OnPurchasePending(PendingOrder order)
         {
+            var receipt = order.Info.Receipt;
+            if (!ValidateReceipt(receipt)) return;
             var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
             var id = product?.definition.id;
             switch (id)
@@ -322,7 +327,7 @@ namespace QuackUp.IAP
                     DebugUtils.Log($"IAP: {id} pass activated.");
                     _energyManager.SetInfiniteEnergy(true);
                     _adsService.SetEnableStateAll(false);
-                    if (product != null) _confirmedSubscriptions.Add(product);
+                    _confirmedSubscriptions.Add((product, receipt));
 #if UNITY_EDITOR
                     PlayerPrefs.SetInt("Mock_HasVIP", 1);
                     PlayerPrefs.Save();
@@ -342,6 +347,34 @@ namespace QuackUp.IAP
             var id = order.CartOrdered.Items().FirstOrDefault()?.Product.definition.id;
             var failureReason = order.FailureReason;
             DebugUtils.LogWarning($"IAP: Purchase failed: {id}, Reason: {failureReason}");
+        }
+
+        private bool ValidateReceipt(string receipt)
+        {
+           
+#if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_TVOS)
+            if (string.IsNullOrEmpty(receipt))
+            {
+                DebugUtils.LogWarning("IAP: Cannot validate null or empty receipt");
+                return false;
+            }
+            var validator = new CrossPlatformValidator(GooglePlayTangle.Data(), Application.identifier);
+            try
+            {
+                var results = validator.Validate(receipt);
+                foreach (var result in results)
+                {
+                    DebugUtils.Log($"IAP: Receipt valid. Product ID: {result.productID}, Purchase Date: {result.purchaseDate}, Transaction ID: {result.transactionID}");
+                }
+                return true;
+            }
+            catch (IAPSecurityException e) 
+            {
+                DebugUtils.LogError($"IAP: Failed to validate receipt: {receipt}, exception: {e.Message}");
+                return false;
+            }
+#endif
+            return true; // Auto pass for other platforms.
         }
 
         public void BuyProductID(string productId)
@@ -391,9 +424,12 @@ namespace QuackUp.IAP
             DebugUtils.Log("IAP: Subscription ended. Infinite energy revoked.");
         }
 
-        private (bool active, bool freeTrial) CheckSubscriptionStatus(Product product)
+        private (bool active, bool freeTrial) CheckSubscriptionStatus(Product product, string receipt = null)
         {
-            var infoHelper = new SubscriptionInfoHelper(product, null);
+            DebugUtils.Log($"Checking subscription for: {product.definition.id} | receipt: {receipt}...");
+            var infoHelper = string.IsNullOrEmpty(receipt) ?
+                new SubscriptionInfoHelper(product, null) : 
+                new SubscriptionInfoHelper(receipt, product.definition.storeSpecificId, null);
             SubscriptionInfo info;
             try
             {
@@ -401,8 +437,11 @@ namespace QuackUp.IAP
             }
             catch (StoreSubscriptionInfoNotSupportedException)
             {
+#if UNITY_EDITOR
                 // Assume mock store — any subscription product is active without free trial
                 return (true, false);
+#endif
+                return (false, false); // In production, if the store can't be validated then assume inactive by default.
             }
 
             if (info.IsFreeTrial() == Result.True)
@@ -414,12 +453,12 @@ namespace QuackUp.IAP
 
         public bool HasActiveSubscription()
         {
-            return _confirmedSubscriptions.Any(x => CheckSubscriptionStatus(x).active);
+            return _confirmedSubscriptions.Any(x => CheckSubscriptionStatus(x.product, x.receipt).active);
         }
 
         public bool IsInFreeTrial()
         {
-            return _confirmedSubscriptions.Any(x => CheckSubscriptionStatus(x).freeTrial);
+            return _confirmedSubscriptions.Any(x => CheckSubscriptionStatus(x.product, x.receipt).freeTrial);
         }
 
         #endregion
