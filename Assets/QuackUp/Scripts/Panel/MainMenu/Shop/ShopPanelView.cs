@@ -19,6 +19,7 @@ namespace FitMe.Panel
     {
         [SerializeField] private Button closeButton;
         [SerializeField] private Button subManagerButton;
+        [SerializeField] private GameObject uiGroup;
         
         [Title("Consume Item Buttons")]
         [SerializeField] private ButtonInfo[] _consumableItemButton;
@@ -143,7 +144,8 @@ namespace FitMe.Panel
                 if (lostConnectionPopup != null)
                     lostConnectionPopup.SetActive(true);
             }
-
+            uiGroup.SetActive(false);
+            
             ViewModel.ReinitializeCommand.Execute(Unit.Default);
         }
         

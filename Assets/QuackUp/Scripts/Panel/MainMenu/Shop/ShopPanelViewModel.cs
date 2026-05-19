@@ -39,7 +39,7 @@ namespace FitMe.Panel
         public bool IsInFreeTrial() => _inAppPurchaseManager.IsInFreeTrial();
         public bool HasActiveSubscription() => _inAppPurchaseManager.HasActiveSubscription();
         public string GetPrice(string productId) => _inAppPurchaseManager.GetLocalizedPrice(productId);
-        public bool IsIAPReady => _inAppPurchaseManager.IsIAPReady;
+        public bool IsIAPReady => false;
         private IPublisher<EndSubscriptionEvent> _endSubscriptionPublisher;
         private readonly InAppPurchaseManager _inAppPurchaseManager;
         private IDisposable _bindings;
