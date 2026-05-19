@@ -1,6 +1,4 @@
 using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using R3;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -28,6 +26,9 @@ namespace FitMe.Panel
         [Title("Subscription Buttons")]
         [SerializeField] private ButtonInfo[] _subscriptionButton;
         
+        [Title("Popup Settings")]
+        [SerializeField] private GameObject lostConnectionPopup;
+        
         [SerializeField] private string mainMenuPanelId = "MainMenu";
         private ShopPanelViewModel ViewModel => (ShopPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
@@ -49,6 +50,9 @@ namespace FitMe.Panel
             ViewModel.OnIAPReady
                 .Subscribe(_ =>
                 {
+                    if (lostConnectionPopup != null)
+                        lostConnectionPopup.SetActive(false);
+
                     UpdatePrices();
                     StartPriceUpdateTimer();
                 })
@@ -105,6 +109,8 @@ namespace FitMe.Panel
         
         private void UpdatePrices()
         {
+            OnOfflineMode();
+            
             foreach (var button in _consumableItemButton)
             {
                 if (button.PriceText != null)
@@ -128,6 +134,17 @@ namespace FitMe.Panel
 
                 button.Button.interactable = !hasVip;
             }
+        }
+        
+        private void OnOfflineMode()
+        {
+            if (!ViewModel.IsIAPReady)
+            {
+                if (lostConnectionPopup != null)
+                    lostConnectionPopup.SetActive(true);
+            }
+
+            ViewModel.ReinitializeCommand.Execute(Unit.Default);
         }
         
         private void OnBuyButtonClicked(string productId)
