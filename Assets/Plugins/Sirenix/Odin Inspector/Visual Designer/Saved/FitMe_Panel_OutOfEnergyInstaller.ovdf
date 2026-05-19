@@ -1,0 +1,7 @@
+OVDF v1.1
+FitMe.Panel.OutOfEnergyInstaller, FitMe.Panel
+
+# _title
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Out Of Energy"

@@ -30,8 +30,17 @@ namespace FitMe.GameData
         [Key("TotalPlayTime")]
         [field: OdinSerialize] public TimeSpan TotalPlayTime { get; set; } = TimeSpan.Zero;
         
+        [Key("CurrentRemainingAd")]
+        [field: SerializeField] public int CurrentRemainingAd { get; set; } = 0;
+        
+        [Key("LastWatchAdTimeStamp")]
+        public DateTime LastWatchAdTimeStamp { get; set; } = DateTime.MinValue;
+        
         [IgnoreMember]
         [ShowInInspector, DisplayAsString] private string DebugTotalPlayTime => TotalPlayTime.ToString(@"hh\:mm\:ss");
+        
+        [IgnoreMember]
+        [ShowInInspector] private string DebugLastEnergyUpdateTime => LastWatchAdTimeStamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
         
         [Serializable]
         [MessagePackObject(AllowPrivate = true)]

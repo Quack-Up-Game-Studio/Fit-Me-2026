@@ -99,7 +99,7 @@ namespace FitMe.GameData
             {
                 return;
             }
-            var newEnergy = Mathf.Clamp(_currentEnergy.Value + amount, 0, _config.MaxEnergy);
+            var newEnergy = Mathf.Clamp(_currentEnergy.Value + amount, 0, int.MaxValue); //Allow energy overflow
             var saveData = _saveObject.GetSaveData<EnergyManagerSaveData>();
             if (_currentEnergy.Value >= _config.MaxEnergy && newEnergy < _config.MaxEnergy)
             {

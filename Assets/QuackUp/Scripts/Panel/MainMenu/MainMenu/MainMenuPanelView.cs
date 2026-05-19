@@ -14,6 +14,8 @@ namespace FitMe.Panel
         [SerializeField] private Button leaderboardButton;
         [SerializeField] private Button shopButton;
         [SerializeField] private Button tutorialButton;
+        [SerializeField] private Button watchAdsButton;
+        [SerializeField] private TMP_Text timeUntilNextAdText;
         [SerializeField] private string challengePanelId = "Challenge";
         [SerializeField] private string settingsPanelId = "Settings";
         [SerializeField] private string leaderboardPanelId = "Leaderboard";
@@ -50,6 +52,18 @@ namespace FitMe.Panel
             tutorialButton.OnClickAsObservable()
                 .Subscribe(_ => OnTutorialButtonClicked())
                 .AddTo(ref disposableBuilder);
+            watchAdsButton.OnClickAsObservable()
+                .Subscribe(_ => ViewModel.WatchAdCommand.Execute(Unit.Default))
+                .AddTo(ref disposableBuilder);
+            ViewModel.RemainingAdCount
+                .Subscribe(OnRemainingAdCountChanged)
+                .AddTo(ref disposableBuilder);
+            ViewModel.TimeUntilNextWatchAd
+                .Subscribe(OnTimeUntilNextAdChanged)
+                .AddTo(ref disposableBuilder);
+            ViewModel.CurrentEnergy
+                .Subscribe(OnEnergyChanged)
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 
@@ -57,6 +71,34 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
+        }
+        
+        private void OnEnergyChanged(int energy)
+        {
+            watchAdsButton.gameObject.SetActive(energy <= 0);
+            timeUntilNextAdText.gameObject.SetActive(energy <= 0);
+        }
+        
+        private void OnRemainingAdCountChanged(int count)
+        {
+            if (ViewModel.RemainingAdCount.CurrentValue >= ViewModel.MaxAdCount)
+            {
+                timeUntilNextAdText.text = "Full";
+            }
+            watchAdsButton.interactable = count > 0;
+            //remainingAdCount.text = $"Remaining: {count}";
+        }
+
+        private void OnTimeUntilNextAdChanged(TimeSpan time)
+        {
+            if (ViewModel.RemainingAdCount.CurrentValue >= ViewModel.MaxAdCount)
+            {
+                timeUntilNextAdText.text = "Full";
+                return;
+            }
+            //round up to the nearest second for display purposes
+            var roundedTime = TimeSpan.FromSeconds(Mathf.Ceil((float)time.TotalSeconds));
+            timeUntilNextAdText.text = $"{roundedTime:mm\\:ss}";
         }
         
         private void OnTutorialCompletionChanged(bool completed)

@@ -9,19 +9,30 @@ namespace FitMe.Panel
 {
     public class MainMenuPanelViewModel : PanelViewModel
     {
+        public ReactiveCommand WatchAdCommand { get; } = new();
         public ReactiveCommand ToTutorial { get; private set; } = new();
         public ReactiveProperty<bool> CompletedTutorial { get; private set; } = new(false);
+        public ReadOnlyReactiveProperty<int> RemainingAdCount => _outOfEnergyManager.RemainingAdCount;
+        public ReadOnlyReactiveProperty<TimeSpan> TimeUntilNextWatchAd => _outOfEnergyManager.TimeUntilNextWatchAd;
+        public int MaxAdCount => _outOfEnergyManager.MaxAdCount;
+        public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
         
         private PlayerRecordSaveObject _playerRecordSaveObject;
-        private MessagePackSaveManager _saveManager;
+        private readonly MessagePackSaveManager _saveManager;
+        private readonly EnergyManager _energyManager;
+        private readonly OutOfEnergyManager _outOfEnergyManager;
         private IDisposable _bindings;
         
         [Inject]
         public MainMenuPanelViewModel(
             PanelManager panelManager,
-            MessagePackSaveManager saveManager) : base(panelManager)
+            EnergyManager energyManager,
+            MessagePackSaveManager saveManager,
+            OutOfEnergyManager outOfEnergyManager) : base(panelManager)
         {
             _saveManager  = saveManager;
+            _energyManager = energyManager;
+            _outOfEnergyManager = outOfEnergyManager;
             Bind();
         }
 
@@ -35,12 +46,10 @@ namespace FitMe.Panel
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
+            WatchAdCommand
+                .Subscribe(_ => _outOfEnergyManager.WatchAds())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
-        }
-
-        private void ShopUpdate()
-        {
-            
         }
         
         public override void Dispose()

@@ -13,7 +13,7 @@ namespace FitMe.Panel
         [SerializeField] private Slider energyBar;
         [SerializeField] private RectMask2D energyMask;
         [SerializeField] private Image infiniteImage;
-        [SerializeField] private TMP_Text energyText;
+        [SerializeField] private TMP_Text energyCountText;
         [SerializeField] private TMP_Text untilNextRechargeText;
         [SerializeField] private Button watchAdButton;
         
@@ -75,8 +75,8 @@ namespace FitMe.Panel
             energyMask.gameObject.SetActive(!infinite);
             if (infinite)
             {
+                energyCountText.text = string.Empty;
                 untilNextRechargeText.text = "Infinite";
-                energyText.text = "Infinite";
                 energyBar.value = 1f;
                 energyMask.padding = Vector4.zero;
                 OnAllowWatchAdChanged(false);
@@ -96,9 +96,19 @@ namespace FitMe.Panel
             {
                 untilNextRechargeText.text = "Full";
             }
-            energyBar.value = (float)currentEnergy / maxEnergy;
-            energyMask.padding = new Vector4(0, 0, energyMask.rectTransform.rect.width * (1 - energyBar.value), 0);
-            energyText.text = $"{currentEnergy} / {maxEnergy}";
+
+            var percent = Mathf.Clamp01((float)currentEnergy / maxEnergy);
+            energyBar.value = percent;
+            energyMask.padding = new Vector4(0, 0, (energyMask.rectTransform.rect.width * (1 - percent)) * transform.localScale.x, 0);
+            switch (currentEnergy)
+            {
+                case > 99:
+                    energyCountText.text = "99+";
+                    return;
+                default:
+                    energyCountText.text = $"{currentEnergy}";
+                    break;
+            }
         }
         
         private void OnAllowWatchAdChanged(bool allow)

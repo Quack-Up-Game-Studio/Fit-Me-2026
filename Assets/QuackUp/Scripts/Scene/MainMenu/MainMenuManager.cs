@@ -29,6 +29,7 @@ namespace FitMe.Scene.MainMenu
         private readonly EnergyManager _energyManager;
         private readonly PanelManager _panelManager;
         private readonly AdsService  _adsService;
+        private readonly OutOfEnergyManager _outOfEnergyManager;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
         
@@ -46,6 +47,7 @@ namespace FitMe.Scene.MainMenu
             EnergyManager energyManager,
             PanelManager panelManager,
             AdsService adsService,
+            OutOfEnergyManager outOfEnergyManager,
             IAudioManager audioManager,
             [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub)
         {
@@ -57,6 +59,7 @@ namespace FitMe.Scene.MainMenu
             _energyManager = energyManager;
             _panelManager = panelManager;
             _adsService = adsService;
+            _outOfEnergyManager = outOfEnergyManager;
             _audioManager = audioManager;
             _messageHub = messageHub;
             Subscribe();
@@ -66,10 +69,11 @@ namespace FitMe.Scene.MainMenu
         {
             var disposableBuilder = Disposable.CreateBuilder();
             _gridManager.OnAboutToPlaceBlock
-                .SubscribeAwait(
-                    (_, _) => !ShouldCancelPlacement()
-                        ? UniTask.CompletedTask
-                        : _energyManager.ShowNotEnoughEnergyNotification(), AwaitOperation.Drop)
+                .Subscribe(x =>
+                {
+                    if (!ShouldCancelPlacement()) return;
+                    _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
+                })
                 .AddTo(ref disposableBuilder);
             _gridManager.OnAboutToPlaceBlock
                 .Subscribe(x =>
@@ -88,6 +92,9 @@ namespace FitMe.Scene.MainMenu
             _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage is LoadSceneStage.FinishIn)
                 .Subscribe(_ => OnSceneFinishIn())
+                .AddTo(ref disposableBuilder);
+            _outOfEnergyManager.OnToShop
+                .Subscribe(_ => OnToShop())
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -138,6 +145,11 @@ namespace FitMe.Scene.MainMenu
             }
         }
 
+        private void OnToShop()
+        {
+            _panelManager.Crossfade("MainMenu", "Shop", new CrossfadeSettings()).Forget();
+        }
+
         private async UniTask ToTutorial()
         {
             LevelManager.GameMode = GameMode.Classic;
@@ -153,6 +165,10 @@ namespace FitMe.Scene.MainMenu
 
         private void OnSceneFinishIn()
         {
+            if (!_energyManager.HasEnoughEnergy(1))
+            {
+                _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
+            }
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
             bannerAdInstance.TryShow();
