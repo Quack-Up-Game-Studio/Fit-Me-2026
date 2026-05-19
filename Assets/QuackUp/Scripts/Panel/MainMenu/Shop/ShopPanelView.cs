@@ -112,14 +112,20 @@ namespace FitMe.Panel
         {
             OnOfflineMode();
             
-            foreach (var button in _consumableItemButton)
-            {
-                if (button.PriceText != null)
-                    button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
-            }
 
             bool isFreeTrial = ViewModel.IsInFreeTrial();
             bool hasVip = ViewModel.HasActiveSubscription();
+            
+            foreach (var button in _consumableItemButton)
+            {
+                if (button.PriceText != null)
+                {
+                    if (hasVip)
+                        button.PriceText.text = "Already have VIP";
+                    else
+                        button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
+                }
+            }
             
             foreach (var button in _subscriptionButton)
             {
@@ -143,8 +149,8 @@ namespace FitMe.Panel
             {
                 if (lostConnectionPopup != null)
                     lostConnectionPopup.SetActive(true);
+                uiGroup.SetActive(false);
             }
-            uiGroup.SetActive(false);
             
             ViewModel.ReinitializeCommand.Execute(Unit.Default);
         }
