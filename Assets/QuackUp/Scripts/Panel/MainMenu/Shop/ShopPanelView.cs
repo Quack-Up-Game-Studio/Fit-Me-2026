@@ -51,7 +51,7 @@ namespace FitMe.Panel
             ViewModel.OnIAPReady
                 .Subscribe(_ =>
                 {
-                    if (lostConnectionPopup != null)
+                    if (lostConnectionPopup)
                         lostConnectionPopup.SetActive(false);
 
                     UpdatePrices();
@@ -67,7 +67,7 @@ namespace FitMe.Panel
             foreach (var button in _consumableItemButton)
             {
                 var productId = button.ProductId.ToProductString();
-                if (button.PriceText != null)
+                if (button.PriceText)
                     button.PriceText.text = ViewModel.GetPrice(productId);
                 button.Button
                     .OnClickAsObservable()
@@ -77,7 +77,7 @@ namespace FitMe.Panel
             foreach (var button in _subscriptionButton)
             {
                 var productId = button.ProductId.ToProductString();
-                if (button.PriceText != null)
+                if (button.PriceText)
                     button.PriceText.text = ViewModel.GetPrice(productId);
                 button.Button
                     .OnClickAsObservable()
@@ -118,18 +118,16 @@ namespace FitMe.Panel
             
             foreach (var button in _consumableItemButton)
             {
-                if (button.PriceText != null)
+                if (button.PriceText)
                 {
-                    if (hasVip)
-                        button.PriceText.text = "Already have VIP";
-                    else
-                        button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
+                    button.PriceText.text = hasVip ? "Already have VIP" : ViewModel.GetPrice(button.ProductId.ToProductString());
                 }
+                button.Button.interactable = !hasVip;
             }
             
             foreach (var button in _subscriptionButton)
             {
-                if (button.PriceText != null)
+                if (button.PriceText)
                 {
                     if (isFreeTrial)
                         button.PriceText.text = "Free Trial Active";
@@ -147,7 +145,7 @@ namespace FitMe.Panel
         {
             if (!ViewModel.IsIAPReady)
             {
-                if (lostConnectionPopup != null)
+                if (lostConnectionPopup)
                     lostConnectionPopup.SetActive(true);
                 uiGroup.SetActive(false);
             }
