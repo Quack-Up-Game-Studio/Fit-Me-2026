@@ -24,7 +24,7 @@ namespace QuackUp.IAP
     public static class ProductIds
     {
         public const string MonthlyPass   = "monthlypass";
-        public const string QuarterlyPass = "quarterltypass"; // intentionally kept as-is
+        public const string QuarterlyPass = "quarterltypass";
         public const string AnnuallyPass  = "annuallypass";
         public const string Energy2       = "2_1energy";
         public const string Energy3       = "3_2energy";

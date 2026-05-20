@@ -1,6 +1,4 @@
 using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using R3;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -21,12 +19,16 @@ namespace FitMe.Panel
     {
         [SerializeField] private Button closeButton;
         [SerializeField] private Button subManagerButton;
+        [SerializeField] private GameObject uiGroup;
         
         [Title("Consume Item Buttons")]
         [SerializeField] private ButtonInfo[] _consumableItemButton;
         
         [Title("Subscription Buttons")]
         [SerializeField] private ButtonInfo[] _subscriptionButton;
+        
+        [Title("Popup Settings")]
+        [SerializeField] private GameObject lostConnectionPopup;
         
         [SerializeField] private string mainMenuPanelId = "MainMenu";
         private ShopPanelViewModel ViewModel => (ShopPanelViewModel)BaseViewModel;
@@ -49,6 +51,9 @@ namespace FitMe.Panel
             ViewModel.OnIAPReady
                 .Subscribe(_ =>
                 {
+                    if (lostConnectionPopup != null)
+                        lostConnectionPopup.SetActive(false);
+
                     UpdatePrices();
                     StartPriceUpdateTimer();
                 })
@@ -105,14 +110,22 @@ namespace FitMe.Panel
         
         private void UpdatePrices()
         {
-            foreach (var button in _consumableItemButton)
-            {
-                if (button.PriceText != null)
-                    button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
-            }
+            OnOfflineMode();
+            
 
             bool isFreeTrial = ViewModel.IsInFreeTrial();
             bool hasVip = ViewModel.HasActiveSubscription();
+            
+            foreach (var button in _consumableItemButton)
+            {
+                if (button.PriceText != null)
+                {
+                    if (hasVip)
+                        button.PriceText.text = "Already have VIP";
+                    else
+                        button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
+                }
+            }
             
             foreach (var button in _subscriptionButton)
             {
@@ -128,6 +141,18 @@ namespace FitMe.Panel
 
                 button.Button.interactable = !hasVip;
             }
+        }
+        
+        private void OnOfflineMode()
+        {
+            if (!ViewModel.IsIAPReady)
+            {
+                if (lostConnectionPopup != null)
+                    lostConnectionPopup.SetActive(true);
+                uiGroup.SetActive(false);
+            }
+            
+            ViewModel.ReinitializeCommand.Execute(Unit.Default);
         }
         
         private void OnBuyButtonClicked(string productId)
