@@ -111,6 +111,7 @@ namespace FitMe.Panel
         [Button(nameof(ChangeRemainingAdCount))]
         public void ChangeRemainingAdCount(int amount)
         {
+            if (amount == 0) return;
             var newValue = Mathf.Clamp(_remainingAdCount.Value + amount, 0, _maxAdCount);
             var saveData = _saveObject.GetSaveData<PlayerRecordSaveData>();
             if (_remainingAdCount.Value >= _maxAdCount && newValue < _maxAdCount)

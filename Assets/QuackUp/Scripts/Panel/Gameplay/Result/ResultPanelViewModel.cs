@@ -36,6 +36,8 @@ namespace FitMe.Panel
         public ReadOnlyReactiveProperty<string> ScoreText { get; private set; }
         public ReadOnlyReactiveProperty<string> FitText { get; private set; }
         public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
+        public ReadOnlyReactiveProperty<bool> InfiniteEnergy => _energyManager.InfiniteEnergy;
+        public bool HasEnoughEnergy(uint amount) => _energyManager.HasEnoughEnergy(amount);
         
         public IAudioManager AudioManager { get; private set; }
 

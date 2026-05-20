@@ -16,6 +16,8 @@ namespace FitMe.Panel
         public ReadOnlyReactiveProperty<TimeSpan> TimeUntilNextWatchAd => _outOfEnergyManager.TimeUntilNextWatchAd;
         public int MaxAdCount => _outOfEnergyManager.MaxAdCount;
         public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
+        public ReadOnlyReactiveProperty<bool> InfiniteEnergy => _energyManager.InfiniteEnergy;
+        public bool HasEnoughEnergy(uint amount) => _energyManager.HasEnoughEnergy(amount);
         
         private PlayerRecordSaveObject _playerRecordSaveObject;
         private readonly MessagePackSaveManager _saveManager;

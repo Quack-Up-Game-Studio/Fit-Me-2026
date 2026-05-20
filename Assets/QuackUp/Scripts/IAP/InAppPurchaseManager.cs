@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using MessagePipe;
@@ -48,17 +47,19 @@ namespace QuackUp.IAP
         /// </summary>
         public Observable<Unit> OnIAPReady => _onIAPReady;
         public Observable<Unit> OnPurchaseSuccess => _onPurchaseSuccess;
-        private Subject<Unit> _onPurchaseSuccess = new Subject<Unit>();
-        private Subject<Unit> _onIAPReady = new Subject<Unit>();
+        private Subject<Unit> _onPurchaseSuccess = new();
+        private Subject<Unit> _onIAPReady = new();
         private DisposableBag _fetchProductsSubscriptions;
         private DisposableBag _fetchPurchasesSubscriptions;
         private DisposableBag _connectSubscriptions;
         private DisposableBag _purchaseSubscriptions;
+        private IDisposable _entitlementSubscription;
         private IDisposable _subscriptions;
         private IDisposable _expirationTimer;
         private IDisposable _periodicCheckTimer;
         private ISubscriber<EndSubscriptionEvent> _endSubscriptionEvent;
         private bool _initializing;
+        private StoreController StoreController => UnityIAPServices.StoreController();
 
         [ShowInInspector, ReadOnly] public bool IsIAPReady => IsConnected && IsProductReady && IsPurchaseReady;
         [ShowInInspector, ReadOnly] public bool IsConnected { get; private set; }
@@ -105,6 +106,7 @@ namespace QuackUp.IAP
             _fetchPurchasesSubscriptions.Dispose();
             _connectSubscriptions.Dispose();
             _purchaseSubscriptions.Dispose();
+            _entitlementSubscription?.Dispose();
             _subscriptions?.Dispose();
             _expirationTimer?.Dispose();
             _periodicCheckTimer?.Dispose();
@@ -147,6 +149,7 @@ namespace QuackUp.IAP
         private async UniTask Initialize()
         {
             _initializing = true;
+            SubscribeBeforeConnect();
             if (!IsConnected)
                 await InitializeConnection();
             if (!IsProductReady)
@@ -167,19 +170,45 @@ namespace QuackUp.IAP
             await Initialize();
         }
 
+        private void SubscribeBeforeConnect()
+        {
+            _connectSubscriptions.Dispose();
+            _connectSubscriptions = new DisposableBag();
+            Observable.FromEvent<StoreConnectionFailureDescription>(
+                    handler => StoreController.OnStoreDisconnected += handler,
+                    handler => StoreController.OnStoreDisconnected -= handler)
+                .Subscribe(OnStoreDisconnected)
+                .AddTo(ref _connectSubscriptions);
+            
+            _purchaseSubscriptions.Dispose();
+            _purchaseSubscriptions = new DisposableBag();
+            Observable.FromEvent<Order>(
+                    handler => StoreController.OnPurchaseConfirmed += handler,
+                    handler => StoreController.OnPurchaseConfirmed -= handler)
+                .Subscribe(OnPurchaseConfirmed)
+                .AddTo(ref _purchaseSubscriptions);
+            Observable.FromEvent<PendingOrder>(
+                    handler => StoreController.OnPurchasePending += handler,
+                    handler => StoreController.OnPurchasePending -= handler)
+                .Subscribe(OnPurchasePending)
+                .AddTo(ref _purchaseSubscriptions);
+            Observable.FromEvent<FailedOrder>(
+                    handler => StoreController.OnPurchaseFailed += handler,
+                    handler => StoreController.OnPurchaseFailed -= handler)
+                .Subscribe(OnPurchaseFailed)
+                .AddTo(ref _purchaseSubscriptions);
+            Observable.FromEvent<DeferredOrder>(
+                    handler => StoreController.OnPurchaseDeferred += handler,
+                    handler => StoreController.OnPurchaseDeferred -= handler)
+                .Subscribe(OnPurchaseDeferred)
+                .AddTo(ref _purchaseSubscriptions);
+        }
+
         #region Connection
 
         private async UniTask InitializeConnection()
         {
-            _connectSubscriptions.Dispose();
-            var storeController = UnityIAPServices.StoreController();
-            _connectSubscriptions = new DisposableBag();
-            Observable.FromEvent<StoreConnectionFailureDescription>(
-                    handler => storeController.OnStoreDisconnected += handler,
-                    handler => storeController.OnStoreDisconnected -= handler)
-                .Subscribe(OnStoreDisconnected)
-                .AddTo(ref _connectSubscriptions);
-            await storeController.Connect();
+            await StoreController.Connect();
             IsConnected = true;
         }
 
@@ -205,21 +234,20 @@ namespace QuackUp.IAP
                 DebugUtils.LogError("IAP: No products found in catalog.");
                 return;
             }
-            var storeController = UnityIAPServices.StoreController();
             _fetchProductsSubscriptions.Dispose();
             _fetchProductsSubscriptions = new DisposableBag();
             var productFetchTcs = new UniTaskCompletionSource<bool>();
             Observable.FromEvent<List<Product>>(
-                    handler => storeController.OnProductsFetched += handler,
-                    handler => storeController.OnProductsFetched -= handler)
+                    handler => StoreController.OnProductsFetched += handler,
+                    handler => StoreController.OnProductsFetched -= handler)
                 .Subscribe(products => OnProductsFetched(products, productFetchTcs))
                 .AddTo(ref _fetchProductsSubscriptions);
             Observable.FromEvent<ProductFetchFailed>(
-                    handler => storeController.OnProductsFetchFailed += handler,
-                    handler => storeController.OnProductsFetchFailed -= handler)
+                    handler => StoreController.OnProductsFetchFailed += handler,
+                    handler => StoreController.OnProductsFetchFailed -= handler)
                 .Subscribe(failure => OnProductsFetchedFail(failure, productFetchTcs))
                 .AddTo(ref _fetchProductsSubscriptions);
-            storeController.FetchProductsWithNoRetries(_catalogProvider.GetProducts());
+            StoreController.FetchProductsWithNoRetries(_catalogProvider.GetProducts());
             await productFetchTcs.Task;
             IsProductReady = productFetchTcs.GetResult(0);
         }
@@ -242,47 +270,40 @@ namespace QuackUp.IAP
 
         private async UniTask InitializePurchases()
         {
-            var storeController = UnityIAPServices.StoreController();
             _fetchPurchasesSubscriptions.Dispose();
             _fetchPurchasesSubscriptions = new DisposableBag();
             var purchaseFetchTcs = new UniTaskCompletionSource<bool>();
             Observable.FromEvent<Orders>(
-                    handler => storeController.OnPurchasesFetched += handler,
-                    handler => storeController.OnPurchasesFetched -= handler)
+                    handler => StoreController.OnPurchasesFetched += handler,
+                    handler => StoreController.OnPurchasesFetched -= handler)
                 .Subscribe(orders => OnPurchasesFetched(orders, purchaseFetchTcs))
                 .AddTo(ref _fetchPurchasesSubscriptions);
             Observable.FromEvent<PurchasesFetchFailureDescription>(
-                    handler => storeController.OnPurchasesFetchFailed += handler,
-                    handler => storeController.OnPurchasesFetchFailed -= handler)
+                    handler => StoreController.OnPurchasesFetchFailed += handler,
+                    handler => StoreController.OnPurchasesFetchFailed -= handler)
                 .Subscribe(failure => OnPurchasesFetchedFail(failure, purchaseFetchTcs))
                 .AddTo(ref _fetchPurchasesSubscriptions);
-
-            _purchaseSubscriptions.Dispose();
-            _purchaseSubscriptions = new DisposableBag();
-            Observable.FromEvent<PendingOrder>(
-                    handler => storeController.OnPurchasePending += handler,
-                    handler => storeController.OnPurchasePending -= handler)
-                .Subscribe(OnPurchasePending)
-                .AddTo(ref _purchaseSubscriptions);
-            Observable.FromEvent<FailedOrder>(
-                    handler => storeController.OnPurchaseFailed += handler,
-                    handler => storeController.OnPurchaseFailed -= handler)
-                .Subscribe(OnPurchaseFailed)
-                .AddTo(ref _purchaseSubscriptions);
-
-            storeController.FetchPurchases();
+            StoreController.FetchPurchases();
             await purchaseFetchTcs.Task;
             IsPurchaseReady = purchaseFetchTcs.GetResult(0);
         }
 
         private void OnPurchasesFetched(Orders orders, UniTaskCompletionSource<bool> tcs)
         {
+            // var confirmedSubscription =
+            //     orders.ConfirmedOrders
+            //         .Where(x => ValidateReceipt(x.Info.Receipt))
+            //         .Select(x => (x.CartOrdered.Items().FirstOrDefault()?.Product, x.Info.Receipt))
+            //         .Where(p => p.Product != null && p.Product.definition.type == ProductType.Subscription)
+            //         .Select(p => GetSubscriptionInfo(p.Product, p.Receipt))
+            //         .ToList();
+            
             var confirmedSubscription =
                 orders.ConfirmedOrders
                     .Where(x => ValidateReceipt(x.Info.Receipt))
-                    .Select(x => (x.CartOrdered.Items().FirstOrDefault()?.Product, x.Info.Receipt))
+                    .Select(x => (x.CartOrdered.Items().FirstOrDefault()?.Product, x.Info?.PurchasedProductInfo.FirstOrDefault()?.subscriptionInfo))
                     .Where(p => p.Product != null && p.Product.definition.type == ProductType.Subscription)
-                    .Select(p => GetSubscriptionInfo(p.Product, p.Receipt))
+                    .Select(p => p.subscriptionInfo)
                     .ToList();
             _confirmedSubscriptions.Clear();
             _confirmedSubscriptions.AddRange(confirmedSubscription);
@@ -315,6 +336,12 @@ namespace QuackUp.IAP
         {
             var receipt = order.Info.Receipt;
             if (!ValidateReceipt(receipt)) return;
+            StoreController.ConfirmPurchase(order);
+        }
+
+        private void OnPurchaseConfirmed(Order order)
+        {
+            if (order is PendingOrder) return; //The order is still pending; it will be confirmed in OnPurchasePending, so we can skip processing here.
             var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
             var id = product?.definition.id;
             switch (id)
@@ -327,15 +354,15 @@ namespace QuackUp.IAP
 #endif
                 case ProductIds.Energy2:
                     DebugUtils.Log("IAP: 3 energy granted.");
-                    _energyManager.ChangeEnergy(3);
+                    _energyManager.ChangeEnergy(3, true);
                     break;
                 case ProductIds.Energy3:
                     DebugUtils.Log("IAP: 5 energy granted.");
-                    _energyManager.ChangeEnergy(5);
+                    _energyManager.ChangeEnergy(5, true);
                     break;
                 case ProductIds.MaxEnergy:
                     DebugUtils.Log("IAP: Max energy granted.");
-                    _energyManager.ChangeEnergy(_energyManager.Config.MaxEnergy);
+                    _energyManager.ChangeEnergy(_energyManager.Config.MaxEnergy, true);
                     break;
                 case ProductIds.MonthlyPass:
                 case ProductIds.QuarterlyPass:
@@ -343,7 +370,7 @@ namespace QuackUp.IAP
                     DebugUtils.Log($"IAP: {id} pass activated.");
                     _energyManager.SetInfiniteEnergy(true);
                     _adsService.SetEnableStateAll(false);
-                    _confirmedSubscriptions.Add(GetSubscriptionInfo(product, receipt));
+                    _confirmedSubscriptions.Add(order.Info.PurchasedProductInfo.FirstOrDefault()?.subscriptionInfo);
                     StartExpirationTimer();
 #if UNITY_EDITOR
                     PlayerPrefs.SetInt("Mock_HasVIP", 1);
@@ -354,8 +381,6 @@ namespace QuackUp.IAP
                     DebugUtils.LogWarning($"IAP: Unknown product ID: {id}");
                     break;
             }
-            var storeController = UnityIAPServices.StoreController();
-            storeController.ConfirmPurchase(order);
             _onPurchaseSuccess?.OnNext(Unit.Default);
         }
 
@@ -364,6 +389,33 @@ namespace QuackUp.IAP
             var id = order.CartOrdered.Items().FirstOrDefault()?.Product.definition.id;
             var failureReason = order.FailureReason;
             DebugUtils.LogWarning($"IAP: Purchase failed: {id}, Reason: {failureReason}");
+        }
+
+        private void OnPurchaseDeferred(DeferredOrder order)
+        {
+            var id = order.CartOrdered.Items().FirstOrDefault()?.Product.definition.id;
+            DebugUtils.Log($"IAP: Purchase deferred: {id}. Awaiting approval.");
+        }
+
+        private async UniTask<Entitlement> CheckEntitlement(Product product)
+        {
+            if (!IsIAPReady) return null;
+            var tcs = new UniTaskCompletionSource<Entitlement>();
+            _entitlementSubscription?.Dispose();
+            _entitlementSubscription = Observable.FromEvent<Entitlement>(
+                    handler => StoreController.OnCheckEntitlement += handler,
+                    handler => StoreController.OnCheckEntitlement -= handler)
+                .Subscribe(entitlement => OnCheckEntitlement(entitlement, tcs));
+            StoreController.CheckEntitlement(product);
+            var result = await tcs.Task;
+            return result;
+        }
+
+        private void OnCheckEntitlement(Entitlement entitlement, UniTaskCompletionSource<Entitlement> tcs)
+        { 
+            var id = entitlement.Product?.definition.id;
+            DebugUtils.Log($"IAP: Check entitlement: {id}");
+            tcs.TrySetResult(entitlement);
         }
 
         private bool ValidateReceipt(string receipt)
@@ -398,8 +450,7 @@ namespace QuackUp.IAP
         {
             if (IsIAPReady)
             {
-                var storeController = UnityIAPServices.StoreController();
-                storeController.PurchaseProduct(productId);
+                StoreController.PurchaseProduct(productId);
             }
             else
             {
@@ -421,6 +472,7 @@ namespace QuackUp.IAP
         {
             _expirationTimer?.Dispose();
             var expiration = _confirmedSubscriptions
+                .Where(x => x != null)
                 .Select(x => x.GetExpireDate())
                 .Where(date => date > DateTime.UtcNow) // Only future dates
                 .OrderByDescending(x => x)
@@ -455,28 +507,39 @@ namespace QuackUp.IAP
             DebugUtils.Log("IAP: Subscription ended. Infinite energy revoked.");
         }
 
-        private SubscriptionInfo GetSubscriptionInfo(Product product, string receipt = null)
-        {
-            DebugUtils.Log($"Getting subscription info for: {product.definition.id} | receipt: {receipt}...");
-            var infoHelper = string.IsNullOrEmpty(receipt) ?
-                new SubscriptionInfoHelper(product, null) : 
-                new SubscriptionInfoHelper(receipt, product.definition.storeSpecificId, null);
-            try
-            {
-                return infoHelper.GetSubscriptionInfo();
-            }
-            catch (StoreSubscriptionInfoNotSupportedException)
-            {
-                return null;
-            }
-        }
+//         private SubscriptionInfo GetSubscriptionInfo(Product product, string receipt = null)
+//         {
+//             DebugUtils.Log($"Getting subscription info for: {product.definition.id} | receipt: {receipt}...");
+//             var infoHelper = string.IsNullOrEmpty(receipt) ?
+//                 new SubscriptionInfoHelper(product, null) : 
+//                 new SubscriptionInfoHelper(receipt, product.definition.storeSpecificId, null);
+//             try
+//             {
+//                 return infoHelper.GetSubscriptionInfo();
+//             }
+//             catch (StoreSubscriptionInfoNotSupportedException)
+//             {
+// #if UNITY_EDITOR
+//                 // This works in editor but not in other platforms. Using this as fallback for testing.
+//                 return new SubscriptionInfoHelper(product, null).GetSubscriptionInfo();
+// #endif
+//                 return null;
+//             }
+//         }
+        
         public bool HasActiveSubscription()
         {
+#if UNITY_EDITOR
+            return _confirmedSubscriptions.Count > 0; // Since in editor, the subscription info is always null, we just assume that any confirmed subscription is active for testing purposes.
+#endif
             return _confirmedSubscriptions.Any(x => x.IsSubscribed() is Result.True);
         }
 
         public bool IsInFreeTrial()
         {
+#if UNITY_EDITOR
+            return false; // Since in editor, the subscription info is always null, we cannot determine if it's in free trial or not. Returning false for testing purposes.
+#endif
             return _confirmedSubscriptions.Any(x => x.IsFreeTrial() is Result.True);
         }
 
@@ -486,10 +549,9 @@ namespace QuackUp.IAP
 
         public string GetLocalizedPrice(string productId)
         {
-            if (!IsIAPReady) return "";
-            var storeController = UnityIAPServices.StoreController();
-            var product = storeController.GetProductById(productId);
-            return product?.metadata.localizedPriceString ?? "";
+            if (!IsIAPReady) return string.Empty;
+            var product = StoreController.GetProductById(productId);
+            return product?.metadata.localizedPriceString ?? string.Empty;
         }
         #endregion
     }

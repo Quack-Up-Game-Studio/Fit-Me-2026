@@ -62,7 +62,10 @@ namespace FitMe.Panel
                 .Subscribe(OnTimeUntilNextAdChanged)
                 .AddTo(ref disposableBuilder);
             ViewModel.CurrentEnergy
-                .Subscribe(OnEnergyChanged)
+                .Subscribe(_ => OnEnergyUpdated())
+                .AddTo(ref disposableBuilder);
+            ViewModel.InfiniteEnergy
+                .Subscribe(_ => OnEnergyUpdated())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -73,10 +76,11 @@ namespace FitMe.Panel
             _bindings?.Dispose();
         }
         
-        private void OnEnergyChanged(int energy)
+        private void OnEnergyUpdated()
         {
-            watchAdsButton.gameObject.SetActive(energy <= 0);
-            timeUntilNextAdText.gameObject.SetActive(energy <= 0);
+            var shouldDisplay = !ViewModel.HasEnoughEnergy(1);
+            watchAdsButton.gameObject.SetActive(shouldDisplay);
+            timeUntilNextAdText.gameObject.SetActive(shouldDisplay);
         }
         
         private void OnRemainingAdCountChanged(int count)

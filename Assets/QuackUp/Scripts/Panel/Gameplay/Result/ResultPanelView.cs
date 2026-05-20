@@ -17,6 +17,7 @@ namespace FitMe.Panel
         [SerializeField] private GameObject yourScoreBlock;
         [SerializeField] private GameObject newHighScoreBlock;
         [SerializeField] private GameObject newFitMeBlock;
+        [SerializeField] private GameObject notEnoughEnergyBlock;
         [SerializeField] private Button mainMenuButton;
         [SerializeField] private Button retryButton;
         [SerializeField] private TMP_Text scoreText;
@@ -67,7 +68,12 @@ namespace FitMe.Panel
             ViewModel.DisplayResultCommand
                 .SubscribeAwait((data, _) => OnDisplayResult(data), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
-            
+            ViewModel.CurrentEnergy
+                .Subscribe(_ => OnEnergyUpdated())
+                .AddTo(ref disposableBuilder);
+            ViewModel.InfiniteEnergy
+                .Subscribe(_ => OnEnergyUpdated())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
@@ -75,6 +81,13 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
+        }
+
+        private void OnEnergyUpdated()
+        {
+            var shouldEnable = ViewModel.HasEnoughEnergy(1);
+            retryButton.interactable = shouldEnable;
+            notEnoughEnergyBlock.SetActive(!shouldEnable);
         }
 
         protected override void OnVisibilityStateChanged(VisibilityState state)

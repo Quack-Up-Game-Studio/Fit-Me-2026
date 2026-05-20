@@ -93,12 +93,19 @@ namespace FitMe.GameData
         }
 
         [Button("Change Energy")]
-        public void ChangeEnergy(int amount)
+        public void ChangeEnergy(int amount, bool addToOverflow = false)
         {
             if (amount < 0 && _infiniteEnergy.Value)
             {
                 return;
             }
+            if (!addToOverflow)
+            {
+                amount = _currentEnergy.Value + amount > _config.MaxEnergy ? 
+                    _config.MaxEnergy - _currentEnergy.Value : 
+                    amount;
+            }
+            if (amount == 0) return; //Prevent unnecessary save operation.
             var newEnergy = Mathf.Clamp(_currentEnergy.Value + amount, 0, int.MaxValue); //Allow energy overflow
             var saveData = _saveObject.GetSaveData<EnergyManagerSaveData>();
             if (_currentEnergy.Value >= _config.MaxEnergy && newEnergy < _config.MaxEnergy)

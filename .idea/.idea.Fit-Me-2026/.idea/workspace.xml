@@ -11,29 +11,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3e146db8-0d40-4527-ab2e-58ab9324552a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyInstaller.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyInstaller.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyManager.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyView.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyView.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyViewModel.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/EnergyBarView.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/EnergyBarView.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/ProjectLifetimeScope.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Prefabs/ProjectLifetimeScope.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Energy/EnergyManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Energy/EnergyManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Player/PlayerRecordSaveData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Player/PlayerRecordSaveData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Energy/EnergyBarView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Energy/EnergyBarView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelView.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/MainMenu/MainMenuManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/MainMenu/MainMenuManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/settings/audio-settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FitMe.Panel.csproj.DotSettings" beforeDir="false" afterPath="$PROJECT_DIR$/FitMe.Panel.csproj.DotSettings" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,6 +136,7 @@
       <workItem from="1779088651649" duration="1199000" />
       <workItem from="1779090350925" duration="1390000" />
       <workItem from="1779155953223" duration="19395000" />
+      <workItem from="1779241267951" duration="9105000" />
     </task>
     <servers />
   </component>
@@ -164,6 +151,25 @@
     <option name="unityProjectFolder" value="true" />
   </component>
   <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs</url>
+          <line>543</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" containingFunctionPresentation="Method 'IsInFreeTrial'">
+            <startOffsets>
+              <option value="23145" />
+            </startOffsets>
+            <endOffsets>
+              <option value="23146" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
       <option value=".github/instructions" />
