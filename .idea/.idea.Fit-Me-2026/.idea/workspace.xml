@@ -217,6 +217,7 @@
       <workItem from="1779419109197" duration="6633000" />
       <workItem from="1779427772478" duration="2776000" />
       <workItem from="1779430586764" duration="101000" />
+      <workItem from="1779434975066" duration="6000" />
     </task>
     <servers />
   </component>
@@ -226,7 +227,6 @@
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
   <component name="UnityProjectDiscoverer">
-    <option name="hasUnityReference" value="true" />
     <option name="unityProject" value="true" />
     <option name="unityProjectFolder" value="true" />
   </component>

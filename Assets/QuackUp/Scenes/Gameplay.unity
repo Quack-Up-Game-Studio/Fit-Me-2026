@@ -1458,7 +1458,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -1535,6 +1535,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 838701619}
   down: {fileID: 1678965720}
+  childImages: []
+  useCustomColors: 1
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!114 &152614620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2199,7 +2210,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -2246,6 +2257,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 338021123}
   down: {fileID: 195877464}
+  childImages: []
+  useCustomColors: 0
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!114 &223126295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4680,7 +4702,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -4719,6 +4741,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 636353215}
   down: {fileID: 179514544}
+  childImages: []
+  useCustomColors: 0
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!114 &579961354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6904,7 +6937,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -6981,6 +7014,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 2109256054}
   down: {fileID: 185606947}
+  childImages: []
+  useCustomColors: 0
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!114 &1015904681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7654,7 +7698,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -7731,6 +7775,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 1280767585}
   down: {fileID: 204887327}
+  childImages: []
+  useCustomColors: 0
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!114 &1157418563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8262,6 +8317,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 703046792}
   down: {fileID: 927422573}
+  childImages: []
+  useCustomColors: 0
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!114 &1336743143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8281,7 +8347,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -10838,7 +10904,7 @@ MonoBehaviour:
   newFitMeBlock: {fileID: 143637280}
   notEnoughEnergyBlock: {fileID: 1993226999}
   mainMenuButton: {fileID: 1157418559}
-  retryButton: {fileID: 152614616}
+  retryButton: {fileID: 152614619}
   scoreText: {fileID: 822654856}
   fitText: {fileID: 1704565338}
   ringLight: {fileID: 1445575899}

@@ -8,6 +8,7 @@ using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using QuackUp.Utils;
 
 namespace FitMe.Panel
 {
@@ -19,7 +20,7 @@ namespace FitMe.Panel
         [SerializeField] private GameObject newFitMeBlock;
         [SerializeField] private GameObject notEnoughEnergyBlock;
         [SerializeField] private Button mainMenuButton;
-        [SerializeField] private Button retryButton;
+        [SerializeField] private UIButton3D retryButton;
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private TMP_Text fitText;
         [SerializeField] private ParticleSystem ringLight;
@@ -53,7 +54,7 @@ namespace FitMe.Panel
                 .Subscribe(_ => OnMainMenu())
                 .AddTo(ref disposableBuilder);
             
-            retryButton.OnClickAsObservable()
+            retryButton.Button.OnClickAsObservable()
                 .Subscribe(_ => OnRetry())
                 .AddTo(ref disposableBuilder);
             
@@ -86,7 +87,8 @@ namespace FitMe.Panel
         private void OnEnergyUpdated()
         {
             var shouldEnable = ViewModel.HasEnoughEnergy(1);
-            retryButton.interactable = shouldEnable;
+            retryButton.Button.interactable = shouldEnable;
+            retryButton.ApplyTint(shouldEnable ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
             notEnoughEnergyBlock.SetActive(!shouldEnable);
         }
 

@@ -18,8 +18,8 @@ namespace FitMe.Panel
         [SerializeField] private RectTransform panelTransform;
         [SerializeField] private Image backgroundImage;
         [SerializeField] private Button closeButton;
-        [SerializeField] private Button shopButton;
-        [SerializeField] private Button watchAdsButton;
+        [SerializeField] private UIButton3D shopButton;
+        [SerializeField] private UIButton3D watchAdsButton;
         [SerializeField] private TMP_Text remainingAdCount;
         [SerializeField] private TMP_Text timeUntilNextAdText;
         [SerializeField] private TweenSettings<Vector3> scaleTweenSettings;
@@ -50,10 +50,10 @@ namespace FitMe.Panel
             _viewModel.TransitionOutCommand
                 .SubscribeAwait((x, ct) => TransitionOut(x, ct), AwaitOperation.Switch)
                 .AddTo(ref builder);
-            watchAdsButton.OnClickAsObservable()
+            watchAdsButton.Button.OnClickAsObservable()
                 .Subscribe(_ => _viewModel.WatchAdsCommand.Execute(Unit.Default))
                 .AddTo(ref builder);
-            shopButton.OnClickAsObservable()
+            shopButton.Button.OnClickAsObservable()
                 .Subscribe(_ => _viewModel.ToShopCommand.Execute(Unit.Default))
                 .AddTo(ref builder);
             closeButton.OnClickAsObservable()
@@ -84,7 +84,8 @@ namespace FitMe.Panel
             {
                 timeUntilNextAdText.text = "Full";
             }
-            watchAdsButton.interactable = count > 0;
+            watchAdsButton.Button.interactable = count > 0;
+            watchAdsButton.ApplyTint(count > 0 ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
             remainingAdCount.text = $"Remaining: {count}";
         }
 

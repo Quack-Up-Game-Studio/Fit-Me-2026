@@ -1081,6 +1081,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 6497634889597470853}
   down: {fileID: 4386377194402540764}
+  childImages: []
+  useCustomColors: 0
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!114 &4579354286826904080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5197,6 +5208,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   up: {fileID: 6259068533179689357}
   down: {fileID: 1577564713299602608}
+  childImages: []
+  useCustomColors: 1
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!114 &6364817311609726262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5936,8 +5958,8 @@ MonoBehaviour:
   panelTransform: {fileID: 2224876489413880231}
   backgroundImage: {fileID: 3623349042815755396}
   closeButton: {fileID: 6455349438039057959}
-  shopButton: {fileID: 9068711157268699454}
-  watchAdsButton: {fileID: 7626379213351162489}
+  shopButton: {fileID: 1831767925363298174}
+  watchAdsButton: {fileID: 208935163137266984}
   remainingAdCount: {fileID: 7001060999881059509}
   timeUntilNextAdText: {fileID: 2570339473161322388}
   scaleTweenSettings:
