@@ -116,20 +116,18 @@ namespace FitMe.Panel
                 _leaderboardBlocks.Add(block);
             }
 
-            for (var i = 0; i < data.TopThree.Count; i++)
+            for (var i = 0; i < topLeaderboardBlocks.Length; i++)
             {
-                var top = data.TopThree[i];
                 var block = topLeaderboardBlocks[i];
-                block.gameObject.SetActive(true);
+                var hasTopThree = data.TopThree != null && i < data.TopThree.Count;
+                block.gameObject.SetActive(hasTopThree);
+                if (!hasTopThree) continue;
+
+                var top = data.TopThree[i];
                 var userData = top.UserData;
                 var scoreData = top.Score;
                 var fitData = top.Fit;
                 block.SetData(userData, userData.DisplayName, scoreData.FormattedValue, fitData.FormattedValue, scoreData.Timestamp, scoreData.Rank);
-            }
-            //disable the remaining top block if the leaderboard has less than 3 entries
-            for (var i = data.TopThree.Count; i < topLeaderboardBlocks.Length; i++)
-            {
-                topLeaderboardBlocks[i].gameObject.SetActive(false);
             }
             
             personalLeaderboardBlock.SetData(

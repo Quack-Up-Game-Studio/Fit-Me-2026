@@ -125,8 +125,27 @@ namespace FitMe.Panel
                 .WithStart(LeaderboardDataRequestParameters.LeaderboardStart.PlayerCentered)
                 .WithTimeSpan(LeaderboardDataRequestParameters.LeaderboardTimeSpan.AllTime)
                 .Build());
+            var scoreTopThreeTask = FocusOn.Value == FocusOnMode.Top
+                ? scoreTask
+                : LeaderboardService.RequestLeaderboardData(LeaderboardDataRequestParameters.Builder
+                    .CreateBuilder(scoreLeaderboardId, 30)
+                    .WithCollection(LeaderboardDataRequestParameters.LeaderboardCollection.Public)
+                    .WithStart(LeaderboardDataRequestParameters.LeaderboardStart.TopScores)
+                    .WithTimeSpan(LeaderboardDataRequestParameters.LeaderboardTimeSpan.AllTime)
+                    .Build());
+            var fitTopThreeTask = FocusOn.Value == FocusOnMode.Top
+                ? fitTask
+                : LeaderboardService.RequestLeaderboardData(LeaderboardDataRequestParameters.Builder
+                    .CreateBuilder(fitLeaderboardId, 30)
+                    .WithCollection(LeaderboardDataRequestParameters.LeaderboardCollection.Public)
+                    .WithStart(LeaderboardDataRequestParameters.LeaderboardStart.TopScores)
+                    .WithTimeSpan(LeaderboardDataRequestParameters.LeaderboardTimeSpan.AllTime)
+                    .Build());
+
             var results = await UniTask.WhenAll(scoreTask, fitTask);
             var personalResults = await UniTask.WhenAll(personalScoreTask, personalFitTask);
+            var topThreeResults = await UniTask.WhenAll(scoreTopThreeTask, fitTopThreeTask);
+
             if (ct.IsCancellationRequested)
             {
                 _status.Value = LeaderboardStatus.Cancelled;
@@ -142,6 +161,14 @@ namespace FitMe.Panel
             DebugUtils.Log($"Fit entries count: {fitResult.Entries.Count}");
             var entries = HandleSorting(scoreResult, fitResult, SortBy.Value);
             DebugUtils.Log($"Entries count: {entries.Count}");
+
+            List<LeaderboardEntryData> topThreeEntries = null;
+            if (topThreeResults.Item1 is CommonLeaderboardDataRequestResults topThreeScoreResult &&
+                topThreeResults.Item2 is CommonLeaderboardDataRequestResults topThreeFitResult)
+            {
+                topThreeEntries = HandleSorting(topThreeScoreResult, topThreeFitResult, SortBy.Value).Take(3).ToList();
+            }
+
             var personalLeaderboardEntry = new LeaderboardEntryData
             {
                 Rank = personalResults.Item1.scoreData.Rank,
@@ -154,8 +181,8 @@ namespace FitMe.Panel
             {
                 LeaderboardTitle = "Global",
                 Entries = entries,
-                TopThree = entries.Take(3).ToList(),
-                RemainingEntries = entries.Skip(3).ToList(),
+                TopThree = topThreeEntries,
+                RemainingEntries = FocusOn.Value == FocusOnMode.Top ? entries.Skip(3).ToList() : entries,
                 PersonalEntry = personalLeaderboardEntry
             };
             _onDataLoaded.OnNext(leaderboardData);
