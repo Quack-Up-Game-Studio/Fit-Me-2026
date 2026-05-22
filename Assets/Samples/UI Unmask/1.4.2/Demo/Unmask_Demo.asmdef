@@ -1,7 +1,8 @@
 {
     "name": "Unmask_Demo",
     "references": [
-        "Coffee.UnmaskForUGUI"
+        "Coffee.UnmaskForUGUI",
+        "UnityEngine.UI"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

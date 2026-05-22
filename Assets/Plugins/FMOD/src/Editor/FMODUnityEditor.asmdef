@@ -8,7 +8,11 @@
         "Unity.VisualScripting.Core.Editor",
         "Unity.VisualScripting.Flow.Editor",
         "Unity.ScriptableBuildPipeline.Editor",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "UnityEditor.UI",
+        "UnityEngine.UI",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"

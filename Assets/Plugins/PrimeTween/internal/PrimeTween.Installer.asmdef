@@ -2,7 +2,11 @@
     "name": "PrimeTween.Installer",
     "rootNamespace": "",
     "references": [
-        "PrimeTween.Runtime"
+        "PrimeTween.Runtime",
+        "UnityEditor.UI",
+        "UnityEngine.UI",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"

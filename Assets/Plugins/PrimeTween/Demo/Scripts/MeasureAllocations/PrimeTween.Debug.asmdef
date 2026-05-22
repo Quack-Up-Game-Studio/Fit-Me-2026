@@ -2,7 +2,8 @@
     "name": "PrimeTween.Debug",
     "rootNamespace": "",
     "references": [
-        "PrimeTween.Runtime"
+        "PrimeTween.Runtime",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

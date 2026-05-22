@@ -1,4 +1,5 @@
 #if UNITY_ANDROID
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -118,6 +119,33 @@ namespace FitMe.SocialService.Android
             var result = await _leaderboard.LoadMoreScores(gpgsResults.LeaderBoardScoreData.NextPageToken, parameters.RowCount);
             var commonResults = await ConvertToCommonResults(result);
             return commonResults;
+        }
+
+        public async UniTask<(IUserDataProvider UserData, ScoreData scoreData)> RequestPersonalLeaderboardData(
+            LeaderboardDataRequestParameters parameters)
+        {
+            var result = await RequestLeaderboardData(parameters);
+            var userId =  PlayGamesPlatform.Instance.GetUserId();
+            var placeholderUser = new UserData
+            {
+                DisplayName = PlayGamesPlatform.Instance.GetUserDisplayName(),
+                AvatarUrl = PlayGamesPlatform.Instance.GetUserImageUrl(),
+                UserId = userId,
+            };
+            var placeholderScore = new ScoreData
+            {
+                FormattedValue = "-",
+                RawValue = 0,
+                Rank = 0,
+                Timestamp = DateTime.MinValue
+            };
+            if (result is not CommonLeaderboardDataRequestResults commonResults) return (placeholderUser, placeholderScore);
+            var personal = commonResults.Entries
+                .Cast<ValueTuple<IUserDataProvider, ScoreData>?>()
+                .FirstOrDefault(e => e.HasValue && e.Value.Item1.UserId == userId);
+            if (personal != null) return (personal.Value.Item1, personal.Value.Item2);
+            DebugUtils.LogWarning("Personal leaderboard data not found in the results.");
+            return (placeholderUser, placeholderScore);
         }
 
         private async UniTask<CommonLeaderboardDataRequestResults> ConvertToCommonResults(LeaderboardScoreData leaderboardScoreData)

@@ -1,4 +1,14 @@
 {
+    "dotnet.defaultSolution": "Fit-Me-2026.sln",
+    "dotnet.dotnetPath": "/usr/bin/dotnet",
+    "dotrush.roslyn.dotnetSdkDirectory": "/usr/share/dotnet/sdk/10.0.104",
+    "dotrush.msbuildProperties": {
+        "DefineConstants": "UNITY_EDITOR"
+    },
+    "dotrush.roslyn.projectOrSolutionFiles": [
+        "/mnt/ssd1/All projects/Unity/Fit-Me-2026/Fit-Me-2026.sln"
+    ],
+    "dotrush.roslyn.restoreProjectsBeforeLoading": false,
     "files.exclude": {
         "**/.DS_Store": true,
         "**/.git": true,
@@ -55,17 +65,5 @@
         "UserSettings/": true,
         "temp/": true,
         "Temp/": true
-    },
-    "files.associations": {
-        "*.asset": "yaml",
-        "*.meta": "yaml",
-        "*.prefab": "yaml",
-        "*.unity": "yaml"
-    },
-    "explorer.fileNesting.enabled": true,
-    "explorer.fileNesting.patterns": {
-        "*.sln": "*.csproj",
-        "*.slnx": "*.csproj"
-    },
-    "dotnet.defaultSolution": "Fit-Me-2026.slnx"
+    }
 }

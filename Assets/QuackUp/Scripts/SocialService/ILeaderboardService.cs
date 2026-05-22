@@ -11,6 +11,7 @@ namespace QuackUp.SocialService
         UniTask<ILeaderboardDataRequestResults> RequestLeaderboardData(LeaderboardDataRequestParameters parameters);
         UniTask<ILeaderboardDataRequestResults> PreviousPage(LeaderboardPagingParameters parameters);
         UniTask<ILeaderboardDataRequestResults> NextPage(LeaderboardPagingParameters parameters);
+        UniTask<(IUserDataProvider UserData, ScoreData scoreData)> RequestPersonalLeaderboardData(LeaderboardDataRequestParameters parameters);
     }
     
     public class MockLeaderboardService : ILeaderboardService
@@ -38,6 +39,12 @@ namespace QuackUp.SocialService
                         new ScoreData { RawValue = 800, FormattedValue = "800", Rank = 2, Timestamp = DateTime.UtcNow }),
                     (new UserData { UserId = "3", DisplayName = "Player3" }, 
                         new ScoreData { RawValue = 600, FormattedValue = "600", Rank = 3, Timestamp = DateTime.UtcNow }),
+                    (new UserData { UserId = "4", DisplayName = "Player4" }, 
+                        new ScoreData { RawValue = 400, FormattedValue = "400", Rank = 4, Timestamp = DateTime.UtcNow }),
+                    (new UserData { UserId = "5", DisplayName = "Player5" }, 
+                        new ScoreData { RawValue = 300, FormattedValue = "300", Rank = 5, Timestamp = DateTime.UtcNow }),
+                    (new UserData { UserId = "6", DisplayName = "Player6" }, 
+                        new ScoreData { RawValue = 0, FormattedValue = "0", Rank = 6, Timestamp = DateTime.UtcNow }),
                 }
             });
         }
@@ -50,6 +57,13 @@ namespace QuackUp.SocialService
         public UniTask<ILeaderboardDataRequestResults> NextPage(LeaderboardPagingParameters parameters)
         {
             return UniTask.FromResult<ILeaderboardDataRequestResults>(null);
+        }
+
+        public UniTask<(IUserDataProvider UserData, ScoreData scoreData)> RequestPersonalLeaderboardData(LeaderboardDataRequestParameters parameters)
+        {
+            return UniTask.FromResult<(IUserDataProvider UserData, ScoreData scoreData)>((
+                new UserData { UserId = "player", DisplayName = "You" }, 
+                new ScoreData { RawValue = 1111, FormattedValue = "1,111", Rank = 999, Timestamp = DateTime.UtcNow }));
         }
     }
     

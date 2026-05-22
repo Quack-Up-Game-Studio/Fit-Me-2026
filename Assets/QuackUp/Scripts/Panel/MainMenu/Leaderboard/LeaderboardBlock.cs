@@ -1,7 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
 using QuackUp.SocialService;
-using QuackUp.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,8 +34,8 @@ namespace FitMe.Panel
             nameText.text = username;
             scoreText.text = formattedScore;
             fitText.text = formattedFit;
-            dateText.text = date.ToLocalTime().ToString("dd-MM-yyyy HH:mm");
-            rankText.text = $"{rank}.";
+            if (dateText) dateText.text = date.ToLocalTime().ToString("dd-MM-yyyy HH:mm");
+            if (rankText) rankText.text = $"{rank}.";
         }
 
         private async UniTaskVoid LoadAvatar(IUserDataProvider userDataProvider)

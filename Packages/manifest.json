@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.antigravity.ide": "https://github.com/billythekidz/UnityAntigravityIDE.git",
     "com.coffee.ui-material-property-injector": "1.2.0",
     "com.coffee.unmask": "1.4.2",
     "com.cysharp.messagepipe": "1.8.1",

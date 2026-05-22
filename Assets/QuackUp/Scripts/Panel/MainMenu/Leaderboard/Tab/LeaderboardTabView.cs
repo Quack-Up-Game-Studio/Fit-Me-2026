@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using FitMe.Shared;
-using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace FitMe.Panel
 {
@@ -17,7 +14,8 @@ namespace FitMe.Panel
     public class LeaderboardTabView : PanelView
     {
         [SerializeField] private GameMode gameMode;
-        [SerializeField] private RectTransform scrollContent;
+        [SerializeField] private LeaderboardBlock[] topLeaderboardBlocks;
+        [SerializeField] private LeaderboardBlock personalLeaderboardBlock;
         [SerializeField] private TMP_Text leaderboardTitleText;
         [SerializeField] private LeaderboardBlock leaderboardBlockPrefab;
         [SerializeField] private RectTransform leaderboardBlockParent;
@@ -26,8 +24,6 @@ namespace FitMe.Panel
         [OdinSerialize] private Dictionary<GameMode, string> panelIdMapping = new();
         
         private readonly List<LeaderboardBlock> _leaderboardBlocks = new();
-        
-        private RectTransform ScrollContentRectTransform => scrollContent;
         private LeaderboardTabViewModel ViewModel => (LeaderboardTabViewModel)BaseViewModel;
         private IDisposable _bindings;
         
@@ -109,6 +105,7 @@ namespace FitMe.Panel
             leaderboardTitleText.text = data.LeaderboardTitle;
             _leaderboardBlocks.ForEach(x => Destroy(x.gameObject));
             _leaderboardBlocks.Clear();
+            
             foreach (var entry in data.Entries)
             {
                 var block = Instantiate(leaderboardBlockPrefab, leaderboardBlockParent);
@@ -118,7 +115,30 @@ namespace FitMe.Panel
                 block.SetData(userData, userData.DisplayName, scoreData.FormattedValue, fitData.FormattedValue, scoreData.Timestamp, scoreData.Rank);
                 _leaderboardBlocks.Add(block);
             }
-            ScrollContentRectTransform.ForceRebuildLayout().Forget();
+
+            for (var i = 0; i < data.TopThree.Count; i++)
+            {
+                var top = data.TopThree[i];
+                var block = topLeaderboardBlocks[i];
+                block.gameObject.SetActive(true);
+                var userData = top.UserData;
+                var scoreData = top.Score;
+                var fitData = top.Fit;
+                block.SetData(userData, userData.DisplayName, scoreData.FormattedValue, fitData.FormattedValue, scoreData.Timestamp, scoreData.Rank);
+            }
+            //disable the remaining top block if the leaderboard has less than 3 entries
+            for (var i = data.TopThree.Count; i < topLeaderboardBlocks.Length; i++)
+            {
+                topLeaderboardBlocks[i].gameObject.SetActive(false);
+            }
+            
+            personalLeaderboardBlock.SetData(
+                data.PersonalEntry.UserData, 
+                data.PersonalEntry.UserData.DisplayName, 
+                data.PersonalEntry.Score.FormattedValue, 
+                data.PersonalEntry.Fit.FormattedValue, 
+                data.PersonalEntry.Date, 
+                data.PersonalEntry.Rank);
         }
     }
 }

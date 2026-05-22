@@ -44,6 +44,9 @@ namespace FitMe.Panel
     {
         public string LeaderboardTitle { get; set; }
         public List<LeaderboardEntryData> Entries { get; set; } = new();
+        public List<LeaderboardEntryData> TopThree { get; set; } = new();
+        public List<LeaderboardEntryData> RemainingEntries { get; set; } = new();
+        public LeaderboardEntryData PersonalEntry { get; set; } = new();
     }
     
     public class LeaderboardTabViewModel : PanelViewModel
@@ -110,7 +113,20 @@ namespace FitMe.Panel
                 .WithStart(focus)
                 .WithTimeSpan(LeaderboardDataRequestParameters.LeaderboardTimeSpan.AllTime)
                 .Build());
+            var personalScoreTask = LeaderboardService.RequestPersonalLeaderboardData(LeaderboardDataRequestParameters.Builder
+                .CreateBuilder(scoreLeaderboardId, 30)
+                .WithCollection(LeaderboardDataRequestParameters.LeaderboardCollection.Public)
+                .WithStart(LeaderboardDataRequestParameters.LeaderboardStart.PlayerCentered)
+                .WithTimeSpan(LeaderboardDataRequestParameters.LeaderboardTimeSpan.AllTime)
+                .Build());
+            var personalFitTask = LeaderboardService.RequestPersonalLeaderboardData(LeaderboardDataRequestParameters.Builder
+                .CreateBuilder(fitLeaderboardId, 30)
+                .WithCollection(LeaderboardDataRequestParameters.LeaderboardCollection.Public)
+                .WithStart(LeaderboardDataRequestParameters.LeaderboardStart.PlayerCentered)
+                .WithTimeSpan(LeaderboardDataRequestParameters.LeaderboardTimeSpan.AllTime)
+                .Build());
             var results = await UniTask.WhenAll(scoreTask, fitTask);
+            var personalResults = await UniTask.WhenAll(personalScoreTask, personalFitTask);
             if (ct.IsCancellationRequested)
             {
                 _status.Value = LeaderboardStatus.Cancelled;
@@ -126,10 +142,21 @@ namespace FitMe.Panel
             DebugUtils.Log($"Fit entries count: {fitResult.Entries.Count}");
             var entries = HandleSorting(scoreResult, fitResult, SortBy.Value);
             DebugUtils.Log($"Entries count: {entries.Count}");
+            var personalLeaderboardEntry = new LeaderboardEntryData
+            {
+                Rank = personalResults.Item1.scoreData.Rank,
+                UserData = personalResults.Item1.UserData,
+                Score = personalResults.Item1.scoreData,
+                Fit = personalResults.Item2.scoreData,
+                Date = personalResults.Item1.scoreData.Timestamp
+            };
             var leaderboardData = new LeaderboardData
             {
-                LeaderboardTitle = "Leaderboard",
-                Entries = entries
+                LeaderboardTitle = "Global",
+                Entries = entries,
+                TopThree = entries.Take(3).ToList(),
+                RemainingEntries = entries.Skip(3).ToList(),
+                PersonalEntry = personalLeaderboardEntry
             };
             _onDataLoaded.OnNext(leaderboardData);
             _status.Value = LeaderboardStatus.Loaded;
