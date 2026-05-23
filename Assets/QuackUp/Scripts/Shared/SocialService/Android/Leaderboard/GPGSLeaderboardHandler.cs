@@ -125,7 +125,13 @@ namespace FitMe.SocialService.Android
             LeaderboardDataRequestParameters parameters)
         {
             var result = await RequestLeaderboardData(parameters);
-            var userId =  PlayGamesPlatform.Instance.GetUserId();
+            var profileTcs = new UniTaskCompletionSource<PlayGamesUserProfile[]>();
+            PlayGamesPlatform.Instance.LoadUsers(new []{PlayGamesPlatform.Instance.GetUserId()}, (profiles) =>
+            {
+                profileTcs.TrySetResult(profiles.Cast<PlayGamesUserProfile>().ToArray());
+            });
+            var userLoadResults = await profileTcs.Task;
+            var userId = userLoadResults.FirstOrDefault()?.id;
             var placeholderUser = new UserData
             {
                 DisplayName = PlayGamesPlatform.Instance.GetUserDisplayName(),
@@ -139,12 +145,23 @@ namespace FitMe.SocialService.Android
                 Rank = 0,
                 Timestamp = DateTime.MinValue
             };
-            if (result is not CommonLeaderboardDataRequestResults commonResults) return (placeholderUser, placeholderScore);
-            var personal = commonResults.Entries
-                .Cast<ValueTuple<IUserDataProvider, ScoreData>?>()
-                .FirstOrDefault(e => e.HasValue && e.Value.Item1.UserId == userId);
-            if (personal != null) return (personal.Value.Item1, personal.Value.Item2);
-            DebugUtils.LogWarning("Personal leaderboard data not found in the results.");
+
+            if (result is CommonLeaderboardDataRequestResults { RawResults: GPGSLeaderboardDataRequestResults gpgsResults } &&
+                gpgsResults.LeaderBoardScoreData.PlayerScore != null)
+            {
+                var playerScore = gpgsResults.LeaderBoardScoreData.PlayerScore;
+                DebugUtils.Log($"Found personal entry via PlayerScore. Rank: {playerScore.rank}, Score: {playerScore.value}");
+                var scoreData = new ScoreData
+                {
+                    Rank = playerScore.rank,
+                    RawValue = playerScore.value,
+                    FormattedValue = playerScore.formattedValue,
+                    Timestamp = playerScore.date
+                };
+                return (placeholderUser, scoreData);
+            }
+
+            DebugUtils.LogWarning("Personal leaderboard data not found in the results. Returning placeholder.");
             return (placeholderUser, placeholderScore);
         }
 

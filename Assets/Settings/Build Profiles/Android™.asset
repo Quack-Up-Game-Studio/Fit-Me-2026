@@ -168,7 +168,7 @@ MonoBehaviour:
     - line: '|   loadStoreDebugModeEnabled: 0'
     - line: '|   visionOSBundleVersion: 1.0'
     - line: '|   tvOSBundleVersion: 1.0'
-    - line: '|   bundleVersion: 0.13.7-devbuild.1+android'
+    - line: '|   bundleVersion: 0.14.0-devbuild.1+android'
     - line: '|   preloadedAssets:'
     - line: '|   - {fileID: 11400000, guid: 501e80137a8d2c65081cfffec031cefd, type:
         2}'
@@ -203,7 +203,7 @@ MonoBehaviour:
     - line: '|     iPhone: 0'
     - line: '|     tvOS: 0'
     - line: '|   overrideDefaultApplicationIdentifier: 1'
-    - line: '|   AndroidBundleVersionCode: 44'
+    - line: '|   AndroidBundleVersionCode: 45'
     - line: '|   AndroidMinSdkVersion: 25'
     - line: '|   AndroidTargetSdkVersion: 0'
     - line: '|   AndroidPreferredInstallLocation: 1'
@@ -299,7 +299,7 @@ MonoBehaviour:
     - line: '|   AndroidAllowedArchitectures: -13'
     - line: '|   AndroidSplashScreenScale: 0'
     - line: '|   androidSplashScreen: {instanceID: 0}'
-    - line: '|   AndroidKeystoreName: C:/Yuirin/All Work/fitme.keystore'
+    - line: '|   AndroidKeystoreName: ''{dedicated}: .android/fitme.keystore'''
     - line: '|   AndroidKeyaliasName: fit me'
     - line: '|   AndroidEnableArmv9SecurityFeatures: 0'
     - line: '|   AndroidEnableArm64MTE: 0'
@@ -805,7 +805,7 @@ MonoBehaviour:
     - line: '|   XboxOneOverrideIdentityPublisher: '
     - line: '|   vrEditorSettings: {}'
     - line: '|   cloudServicesEnabled:'
-    - line: '|     Purchasing: 1'
+    - line: '|     Purchasing: 0'
     - line: '|   luminIcon:'
     - line: '|     m_Name: '
     - line: '|     m_ModelFolderPath: '
@@ -872,6 +872,6 @@ MonoBehaviour:
         m_CurrentDeploymentTargetId: __builtin__target_default
         m_BuildType: 2
         m_LinkTimeOptimization: 0
-        m_BuildAppBundle: 1
+        m_BuildAppBundle: 0
         m_IPAddressToConnect: 
         m_SymlinkSources: 0
