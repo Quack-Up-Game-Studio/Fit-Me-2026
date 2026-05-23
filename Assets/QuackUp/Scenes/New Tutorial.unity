@@ -2373,8 +2373,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e0eecf36db4055d1bb0852fca385022, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
-  up: {fileID: 338021123}
-  down: {fileID: 195877464}
+  button: {fileID: 223126292}
   childImages: []
   useCustomColors: 0
   customColors:
@@ -2386,6 +2385,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   autoTintOnDisabled: 0
+  up: {fileID: 338021123}
+  down: {fileID: 195877464}
 --- !u!114 &223126295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4687,10 +4688,12 @@ MonoBehaviour:
       Data: 
   canvasGroup: {fileID: 347676322}
   adsButton: {fileID: 1015904677}
+  continueButton: {fileID: 1336743143}
   skipButton: {fileID: 1282230843}
   gameplayPanelId: Gameplay
   resultPanelId: Result
   continueCountText: {fileID: 1341396151}
+  flavorText: {fileID: 1304593761}
   clockImage: {fileID: 414266207}
 --- !u!114 &347676324
 MonoBehaviour:
@@ -6063,8 +6066,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e0eecf36db4055d1bb0852fca385022, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
-  up: {fileID: 636353215}
-  down: {fileID: 179514544}
+  button: {fileID: 579961352}
   childImages: []
   useCustomColors: 0
   customColors:
@@ -6076,6 +6078,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   autoTintOnDisabled: 0
+  up: {fileID: 636353215}
+  down: {fileID: 179514544}
 --- !u!114 &579961354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12275,8 +12279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e0eecf36db4055d1bb0852fca385022, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
-  up: {fileID: 2109256054}
-  down: {fileID: 185606947}
+  button: {fileID: 1015904677}
   childImages: []
   useCustomColors: 0
   customColors:
@@ -12288,6 +12291,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   autoTintOnDisabled: 1
+  up: {fileID: 2109256054}
+  down: {fileID: 185606947}
 --- !u!114 &1015904681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12382,8 +12387,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e0eecf36db4055d1bb0852fca385022, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
-  up: {fileID: 1430885615}
-  down: {fileID: 427842922}
+  button: {fileID: 1024891238}
   childImages: []
   useCustomColors: 0
   customColors:
@@ -12395,6 +12399,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   autoTintOnDisabled: 1
+  up: {fileID: 1430885615}
+  down: {fileID: 427842922}
 --- !u!114 &1024891236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14594,8 +14600,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e0eecf36db4055d1bb0852fca385022, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
-  up: {fileID: 703046792}
-  down: {fileID: 927422573}
+  button: {fileID: 1336743143}
   childImages: []
   useCustomColors: 0
   customColors:
@@ -14607,6 +14612,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   autoTintOnDisabled: 1
+  up: {fileID: 703046792}
+  down: {fileID: 927422573}
 --- !u!114 &1336743143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18261,8 +18268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e0eecf36db4055d1bb0852fca385022, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
-  up: {fileID: 901546969}
-  down: {fileID: 1684735438}
+  button: {fileID: 1825455402}
   childImages: []
   useCustomColors: 0
   customColors:
@@ -18274,6 +18280,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   autoTintOnDisabled: 1
+  up: {fileID: 901546969}
+  down: {fileID: 1684735438}
 --- !u!114 &1825455400
 MonoBehaviour:
   m_ObjectHideFlags: 0

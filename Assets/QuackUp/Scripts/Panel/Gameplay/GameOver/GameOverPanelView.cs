@@ -10,13 +10,15 @@ namespace FitMe.Panel
     public class GameOverPanelView : PanelView
     {
         [SerializeField] private Button adsButton;
+        [SerializeField] private Button continueButton;
         [SerializeField] private Button skipButton;
         [SerializeField] private string gameplayPanelId = "Gameplay";
         [SerializeField] private string resultPanelId = "Result";
         
         [SerializeField] private TMP_Text continueCountText;
+        [SerializeField] private TMP_Text flavorText;
         [SerializeField] private Image clockImage;
-        
+
         private GameOverPanelViewModel ViewModel => (GameOverPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
 
@@ -32,6 +34,10 @@ namespace FitMe.Panel
             var disposableBuilder = Disposable.CreateBuilder();
             
             adsButton.OnClickAsObservable()
+                .Subscribe(_ => OnAdsContinue())
+                .AddTo(ref disposableBuilder);
+
+            continueButton.OnClickAsObservable()
                 .Subscribe(_ => OnAdsContinue())
                 .AddTo(ref disposableBuilder);
 
@@ -54,6 +60,15 @@ namespace FitMe.Panel
                     {
                         OnSkip();
                     }
+                })
+                .AddTo(ref disposableBuilder);
+
+            ViewModel.IsAdsDisabledFromVip
+                .Subscribe(isDisabled =>
+                {
+                    adsButton.gameObject.SetActive(!isDisabled);
+                    continueButton.gameObject.SetActive(isDisabled);
+                    flavorText.text = isDisabled ? "Continue for free" : "Watch ads to continue";
                 })
                 .AddTo(ref disposableBuilder);
             

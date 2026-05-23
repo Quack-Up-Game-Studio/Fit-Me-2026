@@ -126,7 +126,7 @@ namespace FitMe.Panel
                 .WithTimeSpan(LeaderboardDataRequestParameters.LeaderboardTimeSpan.AllTime)
                 .Build());
             var scoreTopThreeTask = FocusOn.Value == FocusOnMode.Top
-                ? scoreTask
+                ? UniTask.FromResult<ILeaderboardDataRequestResults>(null)
                 : LeaderboardService.RequestLeaderboardData(LeaderboardDataRequestParameters.Builder
                     .CreateBuilder(scoreLeaderboardId, 30)
                     .WithCollection(LeaderboardDataRequestParameters.LeaderboardCollection.Public)
@@ -134,7 +134,7 @@ namespace FitMe.Panel
                     .WithTimeSpan(LeaderboardDataRequestParameters.LeaderboardTimeSpan.AllTime)
                     .Build());
             var fitTopThreeTask = FocusOn.Value == FocusOnMode.Top
-                ? fitTask
+                ? UniTask.FromResult<ILeaderboardDataRequestResults>(null)
                 : LeaderboardService.RequestLeaderboardData(LeaderboardDataRequestParameters.Builder
                     .CreateBuilder(fitLeaderboardId, 30)
                     .WithCollection(LeaderboardDataRequestParameters.LeaderboardCollection.Public)
@@ -144,7 +144,9 @@ namespace FitMe.Panel
 
             var results = await UniTask.WhenAll(scoreTask, fitTask);
             var personalResults = await UniTask.WhenAll(personalScoreTask, personalFitTask);
-            var topThreeResults = await UniTask.WhenAll(scoreTopThreeTask, fitTopThreeTask);
+            var topThreeResults = FocusOn.Value == FocusOnMode.Top ? 
+                results : 
+                await UniTask.WhenAll(scoreTopThreeTask, fitTopThreeTask);
 
             if (ct.IsCancellationRequested)
             {

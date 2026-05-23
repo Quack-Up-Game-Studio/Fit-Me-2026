@@ -2,6 +2,7 @@ using System;
 using FitMe.GameData;
 using FitMe.Shared;
 using MessagePipe;
+using QuackUp.IAP;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
@@ -17,11 +18,14 @@ namespace FitMe.Panel
         public Observable<Unit> OnReturnToGameplay => _onReturnToGameplay;
         public ReadOnlyReactiveProperty<int> RemainingContinueCount => _remainingContinueCount;
         public ReadOnlyReactiveProperty<float> CountdownTimePercent => _countdownTimePercent;
+        public ReadOnlyReactiveProperty<bool> IsAdsDisabledFromVip => _isAdsDisabledFromVip;
         
         private readonly Subject<Unit> _onReturnToGameplay = new();
         private readonly ReactiveProperty<int> _remainingContinueCount = new();
         private readonly ReactiveProperty<float> _countdownTimePercent = new();
+        private readonly ReactiveProperty<bool> _isAdsDisabledFromVip = new();
         private readonly AdsService _adsService;
+        private readonly InAppPurchaseManager _inAppPurchaseManager;
         private readonly int _maxContinueCount;
         private readonly bool _enableAds = true;
         private readonly IPublisher<ContinueEvent> _clearGridEventPublisher;
@@ -39,11 +43,13 @@ namespace FitMe.Panel
         public GameOverPanelViewModel(
             PanelManager panelManager,
             AdsService adsService,
+            InAppPurchaseManager inAppPurchaseManager,
             [Key(MaxContinueCountId)] int maxContinueCount,
             [Key(CountdownTimeId)] float maxCountdownTime,
             IPublisher<ContinueEvent> clearGridEventPublisher) : base(panelManager)
         {
             _adsService = adsService;
+            _inAppPurchaseManager = inAppPurchaseManager;
             
             _maxContinueCount = maxContinueCount;
             _remainingContinueCount.Value = _maxContinueCount;
@@ -68,6 +74,12 @@ namespace FitMe.Panel
                 .Subscribe(_ => OnSkip())
                 .AddTo(ref disposableBuilder);
             
+            _isAdsDisabledFromVip.Value = _inAppPurchaseManager.HasActiveSubscription();
+
+            _inAppPurchaseManager.OnPurchaseSuccess
+                .Subscribe(_ => _isAdsDisabledFromVip.Value = _inAppPurchaseManager.HasActiveSubscription())
+                .AddTo(ref disposableBuilder);
+
             _bindings = disposableBuilder.Build();
         }
         
@@ -83,8 +95,18 @@ namespace FitMe.Panel
         {
             if (_remainingContinueCount.CurrentValue >= 0  && _enableAds)
             {
+                if (_inAppPurchaseManager.HasActiveSubscription())
+                {
+                    OnAdSuccess();
+                    return;
+                }
+
                 if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAd)) return;
-                if (!rewardedAd.Enabled) return;
+                if (!rewardedAd.Enabled) 
+                {
+                    OnAdSuccess();
+                    return;
+                }
                 _adSubscription = rewardedAd.OnUserEarnedReward
                     .Subscribe(_ => OnAdSuccess());
                 rewardedAd.TryShow();
