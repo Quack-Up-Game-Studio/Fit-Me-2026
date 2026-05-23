@@ -147,7 +147,10 @@ namespace FitMe.Scene.MainMenu
 
         private void OnToShop()
         {
-            _panelManager.Crossfade("MainMenu", "Shop", new CrossfadeSettings()).Forget();
+            _panelManager.Crossfade("MainMenu", "Shop", new CrossfadeSettings
+            {
+                crossFadeType = CrossfadeType.InOnly,
+            }).Forget();
         }
 
         private async UniTask ToTutorial()

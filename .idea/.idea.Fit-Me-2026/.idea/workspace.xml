@@ -10,61 +10,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e146db8-0d40-4527-ab2e-58ab9324552a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GooglePlayGames/com.google.play.games/Editor/Google.Play.Games.Editor.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GooglePlayGames/com.google.play.games/Editor/Google.Play.Games.Editor.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GooglePlayGames/com.google.play.games/Runtime/Google.Play.Games.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GooglePlayGames/com.google.play.games/Runtime/Google.Play.Games.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/FMOD/FMODUnity.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/FMOD/FMODUnity.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/FMOD/addons/Haptics/Scripts/FMODUnityHaptics.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/FMOD/addons/Haptics/Scripts/FMODUnityHaptics.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/FMOD/addons/ResonanceAudio/Editor/FMODUnityResonanceEditor.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/FMOD/addons/ResonanceAudio/Editor/FMODUnityResonanceEditor.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FMODUnityResonance.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/FMOD/addons/ResonanceAudio/Scripts/FMODUnityResonance.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/FMOD/src/Editor/FMODUnityEditor.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/FMOD/src/Editor/FMODUnityEditor.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/PrimeTween/Demo/Scripts/MeasureAllocations/PrimeTween.Debug.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/PrimeTween/Demo/Scripts/MeasureAllocations/PrimeTween.Debug.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/PrimeTween/Demo/Scripts/PrimeTween.Demo.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/PrimeTween/Demo/Scripts/PrimeTween.Demo.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/PrimeTween/internal/PrimeTween.Installer.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/PrimeTween/internal/PrimeTween.Installer.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Redcode/Extensions/Extensions.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Redcode/Extensions/Extensions.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Redcode/Extensions/Scripts/Editor/ExtensionsEditor.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Redcode/Extensions/Scripts/Editor/ExtensionsEditor.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/SelectionHistory/Editor/sc.utilities.selectionhistory.editor.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/SelectionHistory/Editor/sc.utilities.selectionhistory.editor.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Odin Inspector/Modules/Unity.Mathematics/Sirenix.OdinInspector.Modules.UnityMathematics.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Sirenix/Odin Inspector/Modules/Unity.Mathematics/Sirenix.OdinInspector.Modules.UnityMathematics.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v05/Leaderboard/TopMedalist/Score/FitCount_Second.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v05/Leaderboard/TopMedalist/Score/FitCount_Third.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v05/Leaderboard/TopMedalist/Score/Score_Second.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/UpdateArt_v05/Leaderboard/TopMedalist/Score/Score_Third.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/FitMe.Achievement.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/FitMe.Achievement.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Audio/QuackUp.Audio.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Audio/QuackUp.Audio.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Core/QuackUp.Core.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Core/QuackUp.Core.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Entity/FitMe.Entity.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Entity/FitMe.Entity.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/QuackUp.GPGS.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GPGS/QuackUp.GPGS.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/FitMe.GameData.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/FitMe.GameData.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/FitMe.Grid.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/FitMe.Grid.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/QuackUp.IAP.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/QuackUp.IAP.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Input/QuackUp.Input.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Input/QuackUp.Input.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/FitMe.Panel.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/FitMe.Panel.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardBlock.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/LeaderboardBlock.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/Tab/LeaderboardTabView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/Tab/LeaderboardTabView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/Tab/LeaderboardTabViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/Tab/LeaderboardTabViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/QuackUp.Save.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/QuackUp.Save.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/FitMe.Scene.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/FitMe.Scene.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/SceneManagement/QuackUp.SceneManagement.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/SceneManagement/QuackUp.SceneManagement.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/FitMe.Shared.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/FitMe.Shared.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/FitMe.SocialService.Android.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/FitMe.SocialService.Android.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/SocialService/Android/Leaderboard/GPGSLeaderboardHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/SocialService/ILeaderboardService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/SocialService/ILeaderboardService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/SocialService/QuackUp.SocialService.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/SocialService/QuackUp.SocialService.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/FitMe.Tutorial.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/FitMe.Tutorial.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/QuackUp.Utils.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/QuackUp.Utils.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Samples/UI Unmask/1.4.2/Demo/Unmask_Demo.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Samples/UI Unmask/1.4.2/Demo/Unmask_Demo.asmdef" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fit Me 2026.slnx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fit-Me-2026.slnx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
-    </list>
+    <list default="true" id="3e146db8-0d40-4527-ab2e-58ab9324552a" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -218,6 +164,7 @@
       <workItem from="1779427772478" duration="2776000" />
       <workItem from="1779430586764" duration="101000" />
       <workItem from="1779434975066" duration="6000" />
+      <workItem from="1779500958100" duration="630000" />
     </task>
     <servers />
   </component>
@@ -227,6 +174,7 @@
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
   <component name="UnityProjectDiscoverer">
+    <option name="hasUnityReference" value="true" />
     <option name="unityProject" value="true" />
     <option name="unityProjectFolder" value="true" />
   </component>

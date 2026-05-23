@@ -4,5 +4,6 @@
     <!-- Suppress Unity-specific false positives -->
     <!-- IDE0051: Remove unused private members (Unity messages like Start, Update) -->
     <!-- IDE0044: Add readonly modifier (serialized fields) -->
+    <FrameworkPathOverride Condition="'$(OS)' == 'Unix'">/usr/lib/mono/4.7.1-api/</FrameworkPathOverride>
   </PropertyGroup>
 </Project>

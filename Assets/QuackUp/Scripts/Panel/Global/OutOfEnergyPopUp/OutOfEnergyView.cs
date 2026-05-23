@@ -82,7 +82,7 @@ namespace FitMe.Panel
         {
             if (_viewModel.RemainingAdCount.CurrentValue >= _viewModel.MaxAdCount)
             {
-                timeUntilNextAdText.text = "Full";
+                timeUntilNextAdText.text = string.Empty;
             }
             watchAdsButton.Button.interactable = count > 0;
             watchAdsButton.ApplyTint(count > 0 ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
@@ -93,7 +93,7 @@ namespace FitMe.Panel
         {
             if (_viewModel.RemainingAdCount.CurrentValue >= _viewModel.MaxAdCount)
             {
-                timeUntilNextAdText.text = "Full";
+                timeUntilNextAdText.text = string.Empty;
                 return;
             }
             //round up to the nearest second for display purposes

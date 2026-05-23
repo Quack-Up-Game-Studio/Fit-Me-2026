@@ -5,13 +5,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
+using Redcode.Extensions;
+using QuackUp.Utils;
 
 namespace FitMe.Panel
 {
     public struct ButtonInfo
     {
         public ProductId ProductId;
-        public Button Button;
+        public CustomTintButton CustomTintButton;
         public TMP_Text PriceText;
     }
     
@@ -20,6 +22,7 @@ namespace FitMe.Panel
         [SerializeField] private Button closeButton;
         [SerializeField] private Button subManagerButton;
         [SerializeField] private GameObject uiGroup;
+        [SerializeField] private CanvasGroup[] childCanvasGroups;
         
         [Title("Consume Item Buttons")]
         [SerializeField] private ButtonInfo[] _consumableItemButton;
@@ -69,7 +72,7 @@ namespace FitMe.Panel
                 var productId = button.ProductId.ToProductString();
                 if (button.PriceText)
                     button.PriceText.text = ViewModel.GetPrice(productId);
-                button.Button
+                button.CustomTintButton.Button
                     .OnClickAsObservable()
                     .Subscribe(_ => OnBuyButtonClicked(productId))
                     .AddTo(ref disposableBuilder);
@@ -79,7 +82,7 @@ namespace FitMe.Panel
                 var productId = button.ProductId.ToProductString();
                 if (button.PriceText)
                     button.PriceText.text = ViewModel.GetPrice(productId);
-                button.Button
+                button.CustomTintButton.Button
                     .OnClickAsObservable()
                     .Subscribe(_ => OnBuyButtonClicked(productId))
                     .AddTo(ref disposableBuilder);
@@ -90,6 +93,12 @@ namespace FitMe.Panel
         protected override void OnVisibilityStateChanged(VisibilityState state)
         {
             base.OnVisibilityStateChanged(state);
+            childCanvasGroups.ForEach(x =>
+            {
+                var active = state is VisibilityState.Visible;
+                x.interactable = active;
+                x.blocksRaycasts = active;
+            });
             if (state == VisibilityState.Hidden) return;
             ViewModel.ReinitializeCommand.Execute(Unit.Default);
         }
@@ -122,7 +131,9 @@ namespace FitMe.Panel
                 {
                     button.PriceText.text = hasVip ? "Already have VIP" : ViewModel.GetPrice(button.ProductId.ToProductString());
                 }
-                button.Button.interactable = !hasVip;
+                var interactable = !hasVip;
+                button.CustomTintButton.Button.interactable = interactable;
+                button.CustomTintButton.ApplyTint(interactable ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
             }
             
             foreach (var button in _subscriptionButton)
@@ -137,7 +148,9 @@ namespace FitMe.Panel
                         button.PriceText.text = ViewModel.GetPrice(button.ProductId.ToProductString());
                 }
 
-                button.Button.interactable = !hasVip;
+                var interactable = !hasVip;
+                button.CustomTintButton.Button.interactable = interactable;
+                button.CustomTintButton.ApplyTint(interactable ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
             }
         }
         

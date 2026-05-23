@@ -17,10 +17,11 @@ namespace FitMe.Panel
         [SerializeField] private LeaderboardBlock[] topLeaderboardBlocks;
         [SerializeField] private LeaderboardBlock personalLeaderboardBlock;
         [SerializeField] private TMP_Text leaderboardTitleText;
+        [SerializeField] private TMP_Text focusHeaderText;
         [SerializeField] private LeaderboardBlock leaderboardBlockPrefab;
         [SerializeField] private RectTransform leaderboardBlockParent;
-        [SerializeField] private TMP_Dropdown sortByDropdown;
-        [SerializeField] private TMP_Dropdown focusOnDropdown;
+        [SerializeField] private UIToggleControl sortByToggleControl;
+        [SerializeField] private UIToggleControl focusOnToggleControl;
         [OdinSerialize] private Dictionary<GameMode, string> panelIdMapping = new();
         
         private readonly List<LeaderboardBlock> _leaderboardBlocks = new();
@@ -30,18 +31,8 @@ namespace FitMe.Panel
         public override void Construct(IPanelViewModel viewModel)
         {
             base.Construct(viewModel);
-            sortByDropdown.options = new List<TMP_Dropdown.OptionData>
-            {
-                new(nameof(SortByMode.Score)),
-                new(nameof(SortByMode.Fit))
-            };
-            focusOnDropdown.options = new List<TMP_Dropdown.OptionData>
-            {
-                new(nameof(FocusOnMode.Top)),
-                new(nameof(FocusOnMode.Player))
-            };
-            sortByDropdown.value = (int)ViewModel.SortBy.Value;
-            focusOnDropdown.value = (int)ViewModel.FocusOn.Value;
+            sortByToggleControl.SelectOption((int)ViewModel.SortBy.Value, instant: true);
+            focusOnToggleControl.SelectOption((int)ViewModel.FocusOn.Value, instant: true);
             Bind();
         }
 
@@ -52,10 +43,24 @@ namespace FitMe.Panel
                 .IgnoreFirstValueWhenSubscribe()
                 .Subscribe(OnGameModeChanged)
                 .AddTo(ref disposableBuilder);
-            sortByDropdown.onValueChanged.AsObservable()
+            sortByToggleControl.SelectedIndex
+                .IgnoreFirstValueWhenSubscribe()
                 .Subscribe(OnSortByChanged)
                 .AddTo(ref disposableBuilder);
-            focusOnDropdown.onValueChanged.AsObservable()
+            focusOnToggleControl.SelectedIndex
+                .Do(x =>
+                {
+                     switch ((FocusOnMode)x)
+                    {
+                        case FocusOnMode.Top:
+                            focusHeaderText.text = "Global Ranks";
+                            break;
+                        case FocusOnMode.Player:
+                            focusHeaderText.text = "Nearby Ranks";
+                            break;
+                    }
+                })
+                .IgnoreFirstValueWhenSubscribe()
                 .Subscribe(OnFocusOnChanged)
                 .AddTo(ref disposableBuilder);
             ViewModel.OnDataLoaded

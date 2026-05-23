@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
+using PrimeTween;
 
 namespace FitMe.Panel
 {
@@ -16,6 +17,9 @@ namespace FitMe.Panel
         [SerializeField] private Button tutorialButton;
         [SerializeField] private Button watchAdsButton;
         [SerializeField] private TMP_Text timeUntilNextAdText;
+        [SerializeField] private RectTransform logoRect;
+        [SerializeField] private TweenSettings<Vector3> logoBubbleSettings;
+
         [SerializeField] private string challengePanelId = "Challenge";
         [SerializeField] private string settingsPanelId = "Settings";
         [SerializeField] private string leaderboardPanelId = "Leaderboard";
@@ -23,6 +27,10 @@ namespace FitMe.Panel
         
         private MainMenuPanelViewModel ViewModel => (MainMenuPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
+        
+        private Vector3 _originalLogoScale = Vector3.one;
+        private bool _hasStoredLogoScale;
+        private Tween _logoTween;
         
         [Inject]
         public override void Construct(IPanelViewModel viewModel)
@@ -74,6 +82,38 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
+            _logoTween.Stop();
+        }
+
+        private void OnDisable()
+        {
+            _logoTween.Stop();
+        }
+
+        protected override void OnVisibilityStateChanged(VisibilityState state)
+        {
+            base.OnVisibilityStateChanged(state);
+            
+            if (!logoRect) return;
+
+            if (state != VisibilityState.Visible)
+            {
+                _logoTween.Stop();
+                if (_hasStoredLogoScale)
+                {
+                    logoRect.localScale = _originalLogoScale;
+                }
+                return;
+            }
+
+            if (!_hasStoredLogoScale)
+            {
+                _originalLogoScale = logoRect.localScale;
+                _hasStoredLogoScale = true;
+            }
+            
+            _logoTween.Stop();
+            _logoTween = Tween.Scale(logoRect, logoBubbleSettings);
         }
         
         private void OnEnergyUpdated()
