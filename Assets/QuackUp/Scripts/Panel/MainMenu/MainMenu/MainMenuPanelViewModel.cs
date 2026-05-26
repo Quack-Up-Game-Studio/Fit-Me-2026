@@ -14,6 +14,7 @@ namespace FitMe.Panel
         public ReactiveCommand ToTutorial { get; private set; } = new();
         public ReactiveProperty<bool> CompletedTutorial { get; private set; } = new(false);
         public ReactiveProperty<bool> IsSaveLoading { get; private set; } = new(true);
+        public bool IsSaveReady => _saveManager.IsSaveReady;
         public ReadOnlyReactiveProperty<int> RemainingAdCount => _outOfEnergyManager.RemainingAdCount;
         public ReadOnlyReactiveProperty<TimeSpan> TimeUntilNextWatchAd => _outOfEnergyManager.TimeUntilNextWatchAd;
         public int MaxAdCount => _outOfEnergyManager.MaxAdCount;

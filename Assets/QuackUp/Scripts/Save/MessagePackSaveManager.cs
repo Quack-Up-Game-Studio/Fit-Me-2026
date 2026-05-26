@@ -24,9 +24,11 @@ namespace QuackUp.Save
 
         private readonly UniTaskCompletionSource _saveDataReadyTcs = new();
         public UniTask SaveDataReady => _saveDataReadyTcs.Task;
+        public bool IsSaveReady { get; private set; }
 
         public void MarkSaveDataReady()
         {
+            IsSaveReady = true;
             _saveDataReadyTcs.TrySetResult();
         }
 

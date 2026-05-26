@@ -130,6 +130,7 @@ namespace FitMe.Scene.MainMenu
 
         private bool ShouldCancelPlacement()
         {
+            if (!_saveManager.IsSaveReady) return false;
             var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
             if (!saveData.CompletedTutorial) return false;
@@ -174,7 +175,7 @@ namespace FitMe.Scene.MainMenu
 
         private void OnSceneFinishIn()
         {
-            if (!_energyManager.HasEnoughEnergy(1))
+            if (_saveManager.IsSaveReady && !_energyManager.HasEnoughEnergy(1))
             {
                 _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
             }

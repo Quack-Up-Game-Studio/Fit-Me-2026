@@ -111,25 +111,32 @@ namespace FitMe.SocialService.Android
         {
             try
             {
-                DeserializedSaveData deserializedLocal;
-                DeserializedSaveData deserializedRemote;
-                try
+                DeserializedSaveData deserializedLocal = null;
+                DeserializedSaveData deserializedRemote = null;
+                
+                var localBytes = _messagePackSaveManager.GetZipBytes();
+                if (localBytes != null)
                 {
-                    deserializedLocal = _messagePackSaveManager.DeserializeSaveDataFromZipBytes(_messagePackSaveManager.GetZipBytes());
+                    try
+                    {
+                        deserializedLocal = _messagePackSaveManager.DeserializeSaveDataFromZipBytes(localBytes);
+                    }
+                    catch (Exception e)
+                    {
+                        DebugUtils.LogError($"Error during local save data loading: {e}");
+                        _messagePackSaveManager.ResetAll();
+                        _onSyncResult.OnNext(false);
+                        return;
+                    }
                 }
-                catch (Exception e)
-                {
-                    DebugUtils.LogError($"Error during local save data loading: {e}");
-                    _messagePackSaveManager.ResetAll();
-                    _onSyncResult.OnNext(false);
-                    return;
-                }
+                
                 if (!result.success)
                 {
                     HandleReset(deserializedLocal);
                     _onSyncResult.OnNext(false);
                     return;
                 }
+                
                 try
                 {
                     deserializedRemote = _messagePackSaveManager.DeserializeSaveDataFromZipBytes(result.bytes);
@@ -141,6 +148,15 @@ namespace FitMe.SocialService.Android
                     _onSyncResult.OnNext(false);
                     return;
                 }
+                
+                if (deserializedLocal == null && deserializedRemote != null)
+                {
+                    _messagePackSaveManager.LoadFromDeserializedData(deserializedRemote);
+                    DebugUtils.Log("Using remote save data directly as no local save data exists.");
+                    _onSyncResult.OnNext(true);
+                    return;
+                }
+                
                 var conflictSolution = await _remoteSaveResolver.ResolveConflictAsync(deserializedLocal, deserializedRemote);
                 if (cancellationToken.IsCancellationRequested) return;
                 switch (conflictSolution)

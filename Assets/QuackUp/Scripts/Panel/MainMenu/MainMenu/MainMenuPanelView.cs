@@ -157,6 +157,11 @@ namespace FitMe.Panel
         
         private void OnTutorialCompletionChanged(bool completed)
         {
+            if (!ViewModel.IsSaveReady)
+            {
+                tutorialButton.gameObject.SetActive(false);
+                return;
+            }
             tutorialButton.gameObject.SetActive(completed);
         }
 
