@@ -8,7 +8,7 @@ using VContainer.Unity;
 
 namespace QuackUp.GPGS
 {
-    public class GPGSAuthenticationManager : IStartable
+    public class GPGSAuthenticationManager : IInitializable
     {
 
         public Observable<SignInStatus> OnAuthenticationResult => _onAuthenticationResult;
@@ -22,7 +22,7 @@ namespace QuackUp.GPGS
             _config = config;
         }
         
-        public void Start()
+        public void Initialize()
         {
             if (!_config.AutoAuthenticateOnStart) return;
             Authenticate();

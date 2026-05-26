@@ -45,6 +45,7 @@ namespace FitMe.SocialService.Android
         private void OnAuthenticationResultReceived(SignInStatus success)
         {
             _avatarCache = null; // Clear avatar cache on authentication result to ensure we fetch the correct avatar for the authenticated user
+            DebugUtils.Log("Authentication Result: " + success);
             _onAuthenticationResult.OnNext(success == SignInStatus.Success);
         }
         
