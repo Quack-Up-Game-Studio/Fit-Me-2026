@@ -20,6 +20,9 @@ namespace QuackUp.GPGS
         public GPGSAuthenticationManager(GPGSAuthenticationManagerConfig config)
         {
             _config = config;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            PlayGamesPlatform.DebugLogEnabled = true;
+#endif
         }
         
         public void Initialize()
