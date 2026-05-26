@@ -100,7 +100,15 @@ namespace FitMe.Panel
                 x.blocksRaycasts = active;
             });
             if (state == VisibilityState.Hidden) return;
-            ViewModel.ReinitializeCommand.Execute(Unit.Default);
+            
+            if (ViewModel.IsIAPReady)
+            {
+                UpdatePrices();
+            }
+            else
+            {
+                ViewModel.ReinitializeCommand.Execute(Unit.Default);
+            }
         }
 
         public override void Dispose()
@@ -161,9 +169,8 @@ namespace FitMe.Panel
                 if (lostConnectionPopup)
                     lostConnectionPopup.SetActive(true);
                 uiGroup.SetActive(false);
+                ViewModel.ReinitializeCommand.Execute(Unit.Default);
             }
-            
-            ViewModel.ReinitializeCommand.Execute(Unit.Default);
         }
         
         private void OnBuyButtonClicked(string productId)

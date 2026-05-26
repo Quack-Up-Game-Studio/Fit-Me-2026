@@ -124,19 +124,11 @@ namespace FitMe.SocialService.Android
         public async UniTask<(IUserDataProvider UserData, ScoreData scoreData)> RequestPersonalLeaderboardData(
             LeaderboardDataRequestParameters parameters)
         {
-            var result = await RequestLeaderboardData(parameters);
-            var profileTcs = new UniTaskCompletionSource<PlayGamesUserProfile[]>();
-            PlayGamesPlatform.Instance.LoadUsers(new []{PlayGamesPlatform.Instance.GetUserId()}, (profiles) =>
-            {
-                profileTcs.TrySetResult(profiles.Cast<PlayGamesUserProfile>().ToArray());
-            });
-            var userLoadResults = await profileTcs.Task;
-            var userId = userLoadResults.FirstOrDefault()?.id;
             var placeholderUser = new UserData
             {
-                DisplayName = PlayGamesPlatform.Instance.GetUserDisplayName(),
-                AvatarUrl = PlayGamesPlatform.Instance.GetUserImageUrl(),
-                UserId = userId,
+                DisplayName = "Guest",
+                AvatarUrl = string.Empty,
+                UserId = "guest",
             };
             var placeholderScore = new ScoreData
             {
@@ -145,6 +137,24 @@ namespace FitMe.SocialService.Android
                 Rank = 0,
                 Timestamp = DateTime.MinValue
             };
+
+            if (!PlayGamesPlatform.Instance.IsAuthenticated())
+            {
+                return (placeholderUser, placeholderScore);
+            }
+
+            var result = await RequestLeaderboardData(parameters);
+            var profileTcs = new UniTaskCompletionSource<PlayGamesUserProfile[]>();
+            PlayGamesPlatform.Instance.LoadUsers(new []{PlayGamesPlatform.Instance.GetUserId()}, (profiles) =>
+            {
+                profileTcs.TrySetResult(profiles.Cast<PlayGamesUserProfile>().ToArray());
+            });
+            var userLoadResults = await profileTcs.Task;
+            var userId = userLoadResults.FirstOrDefault()?.id;
+            
+            placeholderUser.DisplayName = PlayGamesPlatform.Instance.GetUserDisplayName();
+            placeholderUser.AvatarUrl = PlayGamesPlatform.Instance.GetUserImageUrl();
+            placeholderUser.UserId = userId;
 
             if (result is CommonLeaderboardDataRequestResults { RawResults: GPGSLeaderboardDataRequestResults gpgsResults } &&
                 gpgsResults.LeaderBoardScoreData.PlayerScore != null)

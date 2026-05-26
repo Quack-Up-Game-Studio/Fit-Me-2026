@@ -25,7 +25,19 @@ namespace QuackUp.GPGS
         public void Initialize()
         {
             if (!_config.AutoAuthenticateOnStart) return;
-            Authenticate();
+            AuthenticateSilently().Forget();
+        }
+        
+        public UniTask<SignInStatus> AuthenticateSilently()
+        {
+            var tcs = new UniTaskCompletionSource<SignInStatus>();
+            PlayGamesPlatform.Instance.Authenticate(
+                (result) =>
+                {
+                    tcs.TrySetResult(result);
+                    _onAuthenticationResult.OnNext(result);
+                });
+            return tcs.Task;
         }
         
         public UniTask<SignInStatus> Authenticate()

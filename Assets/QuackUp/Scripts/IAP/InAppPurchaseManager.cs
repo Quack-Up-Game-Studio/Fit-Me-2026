@@ -148,6 +148,7 @@ namespace QuackUp.IAP
 
         private async UniTask Initialize()
         {
+            if (_initializing) return;
             _initializing = true;
             SubscribeBeforeConnect();
             if (!IsConnected)

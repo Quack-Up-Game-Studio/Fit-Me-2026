@@ -10,6 +10,11 @@ namespace QuackUp.GPGS
     {
         public async UniTask<bool> ReportScore(string leaderboardId, long score, string metadata = null)
         {
+            if (!PlayGamesPlatform.Instance.IsAuthenticated())
+            {
+                DebugUtils.LogWarning("GPGS: Cannot report score, user is not authenticated.");
+                return false;
+            }
             var tcs = new UniTaskCompletionSource<bool>();
             PlayGamesPlatform.Instance.ReportScore(score, leaderboardId, metadata, (success) =>
             {
@@ -22,6 +27,11 @@ namespace QuackUp.GPGS
         
         public void ShowLeaderboardUI(string leaderboardId)
         {
+            if (!PlayGamesPlatform.Instance.IsAuthenticated())
+            {
+                DebugUtils.LogWarning("GPGS: Cannot show leaderboard UI, user is not authenticated.");
+                return;
+            }
             PlayGamesPlatform.Instance.ShowLeaderboardUI(leaderboardId);
         }
 
