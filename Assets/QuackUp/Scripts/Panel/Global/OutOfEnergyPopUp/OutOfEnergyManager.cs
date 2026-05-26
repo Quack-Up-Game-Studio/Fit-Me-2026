@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using QuackUp.Save;
 using QuackUp.SocialService;
@@ -76,6 +77,12 @@ namespace FitMe.Panel
 
         public void Start()
         {
+            InitializeAsync().Forget();
+        }
+
+        private async UniTaskVoid InitializeAsync()
+        {
+            await _saveManager.SaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = _saveObject.GetSaveData<PlayerRecordSaveData>();
             _remainingAdCount.Value = saveData.IsFirstTimePlayer ? _maxAdCount : saveData.CurrentRemainingAd;

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using FMOD;
 using FMOD.Studio;
 using FMODUnity;
@@ -50,6 +51,12 @@ namespace QuackUp.Audio
         
         public void PostInitialize()
         {
+            InitializeAsync().Forget();
+        }
+
+        private async UniTaskVoid InitializeAsync()
+        {
+            await _saveManager.SaveDataReady;
             Load();
         }
 

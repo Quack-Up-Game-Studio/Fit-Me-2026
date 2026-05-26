@@ -101,6 +101,12 @@ namespace FitMe.Scene.MainMenu
         
         public void Start()
         {
+            StartAsync().Forget();
+        }
+
+        private async UniTaskVoid StartAsync()
+        {
+            await _saveManager.SaveDataReady;
             var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
             saveData.IsFirstTimePlayer = false;

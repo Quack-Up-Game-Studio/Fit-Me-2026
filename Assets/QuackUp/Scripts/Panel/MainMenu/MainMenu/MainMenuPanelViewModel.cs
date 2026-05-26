@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using QuackUp.Save;
 using R3;
@@ -12,6 +13,7 @@ namespace FitMe.Panel
         public ReactiveCommand WatchAdCommand { get; } = new();
         public ReactiveCommand ToTutorial { get; private set; } = new();
         public ReactiveProperty<bool> CompletedTutorial { get; private set; } = new(false);
+        public ReactiveProperty<bool> IsSaveLoading { get; private set; } = new(true);
         public ReadOnlyReactiveProperty<int> RemainingAdCount => _outOfEnergyManager.RemainingAdCount;
         public ReadOnlyReactiveProperty<TimeSpan> TimeUntilNextWatchAd => _outOfEnergyManager.TimeUntilNextWatchAd;
         public int MaxAdCount => _outOfEnergyManager.MaxAdCount;
@@ -41,8 +43,16 @@ namespace FitMe.Panel
         protected override void OnVisible()
         {
             base.OnVisible();
+            InitializeAsync().Forget();
+        }
+
+        private async UniTaskVoid InitializeAsync()
+        {
+            IsSaveLoading.Value = true;
+            await _saveManager.SaveDataReady;
             _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             CompletedTutorial.Value = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>().CompletedTutorial;
+            IsSaveLoading.Value = false;
         }
 
         private void Bind()
