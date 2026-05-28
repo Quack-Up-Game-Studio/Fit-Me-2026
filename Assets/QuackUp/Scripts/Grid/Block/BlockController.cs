@@ -138,7 +138,14 @@ namespace FitMe.Grid
                 && !_config.AllowPickUpAfterPlacement) return;
             _gridManager.ValidatePlacement(_blockInstance.Model);
             var mousePosition = _pointerHandler.MouseWorldPosition;
-            var position = (mousePosition - _mousePositionDifference) + _config.BlockDragOffset;
+            var dragOffset = Vector2.zero;
+            if (_config.UseDynamicDragOffset)
+            {
+                var normalizedY = Mathf.Clamp01(eventData.position.y / Mathf.Max(1f, Screen.height));
+                var dynamicY = Mathf.Lerp(_config.MinDynamicDragOffset, _config.MaxDynamicDragOffset, normalizedY);
+                dragOffset.y = dynamicY;
+            }
+            var position = (mousePosition - _mousePositionDifference) + dragOffset;
             _blockDragSequence.Stop();
             if (!_dragSequencePlayed)
             {

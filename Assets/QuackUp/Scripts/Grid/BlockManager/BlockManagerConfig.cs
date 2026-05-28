@@ -43,7 +43,9 @@ namespace FitMe.Grid
         [field: SerializeField] public Vector2 SwitchIdleTimeRange { get; private set; } = new(30f, 60f);
         [field: SerializeField] public TweenSettings BlockDragTweenSettings { get; private set; }
         [field: SerializeField] public float BlockDragInertia { get; private set; } = 0.1f;
-        [field: SerializeField] public Vector2 BlockDragOffset { get; private set; }
+        [field: SerializeField] public bool UseDynamicDragOffset { get; private set; } = true;
+        [field: SerializeField] public float MinDynamicDragOffset { get; private set; } = 0f;
+        [field: SerializeField] public float MaxDynamicDragOffset { get; private set; } = 2.5f;
         
         [Title("Audios")] 
         [field: SerializeField] public EventReference PlaceSucceedSfx { get; private set; }

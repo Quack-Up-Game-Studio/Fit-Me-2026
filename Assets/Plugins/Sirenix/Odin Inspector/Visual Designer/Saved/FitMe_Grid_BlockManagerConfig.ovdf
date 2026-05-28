@@ -20,7 +20,7 @@ Position: $root:2
 	GroupName = "References"
 
 # $DGvRVyDJQGz3EWecgErbzP
-Position: $root:51
+Position: $root:48
 + [Sirenix.OdinInspector.FoldoutGroupAttribute]
 	GroupName = "Audio"
 
@@ -107,10 +107,10 @@ Position: $7h7pX9KLWqGdjJMMjxYgWD:1
 Position: $7h7pX9KLWqGdjJMMjxYgWD:7
 
 # <SwitchIdleTimeRange>k__BackingField
-Position: $7h7pX9KLWqGdjJMMjxYgWD:10
+Position: $7h7pX9KLWqGdjJMMjxYgWD:9
 
 # <PickUpScaleMultiplier>k__BackingField
-Position: $7h7pX9KLWqGdjJMMjxYgWD:11
+Position: $7h7pX9KLWqGdjJMMjxYgWD:10
 
 # <CanRefill>k__BackingField
 Position: $EZTbQq4nNfhry5RcXRpaX4:3
@@ -122,7 +122,20 @@ Position: $EZTbQq4nNfhry5RcXRpaX4:4
 Position: $EZTbQq4nNfhry5RcXRpaX4:5
 
 # <BlockDragTweenSettings>k__BackingField
-Position: $7h7pX9KLWqGdjJMMjxYgWD:8
+Position: $7h7pX9KLWqGdjJMMjxYgWD:7
 
 # <BlockDragInertia>k__BackingField
-Position: $7h7pX9KLWqGdjJMMjxYgWD:9
+Position: $7h7pX9KLWqGdjJMMjxYgWD:8
+
+# <UseDynamicDragOffset>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:11
+
+# <MinDynamicDragOffset>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:12
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseDynamicDragOffset"
+
+# <MaxDynamicDragOffset>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:13
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseDynamicDragOffset"

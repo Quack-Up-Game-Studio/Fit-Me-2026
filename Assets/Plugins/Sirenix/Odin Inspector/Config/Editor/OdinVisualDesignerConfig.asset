@@ -17,4 +17,6 @@ MonoBehaviour:
   - TypeBinding: Sirenix.OdinInspector.HideLabelAttribute, Sirenix.OdinInspector.Attributes
   - TypeBinding: Sirenix.OdinInspector.TitleAttribute, Sirenix.OdinInspector.Attributes
   - TypeBinding: Sirenix.OdinInspector.RequiredAttribute, Sirenix.OdinInspector.Attributes
+  - TypeBinding: Sirenix.OdinInspector.EnableIfAttribute, Sirenix.OdinInspector.Attributes
+  - TypeBinding: Sirenix.OdinInspector.ShowIfAttribute, Sirenix.OdinInspector.Attributes
   savePath: Assets/Plugins/Sirenix/Odin Inspector/Visual Designer/Saved
