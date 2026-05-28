@@ -8,7 +8,7 @@ using VContainer.Unity;
 
 namespace QuackUp.GPGS
 {
-    public class GPGSAuthenticationManager : IStartable
+    public class GPGSAuthenticationManager : IInitializable
     {
 
         public Observable<SignInStatus> OnAuthenticationResult => _onAuthenticationResult;
@@ -20,12 +20,27 @@ namespace QuackUp.GPGS
         public GPGSAuthenticationManager(GPGSAuthenticationManagerConfig config)
         {
             _config = config;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            PlayGamesPlatform.DebugLogEnabled = true;
+#endif
         }
         
-        public void Start()
+        public void Initialize()
         {
             if (!_config.AutoAuthenticateOnStart) return;
-            Authenticate();
+            AuthenticateSilently().Forget();
+        }
+        
+        public UniTask<SignInStatus> AuthenticateSilently()
+        {
+            var tcs = new UniTaskCompletionSource<SignInStatus>();
+            PlayGamesPlatform.Instance.Authenticate(
+                (result) =>
+                {
+                    tcs.TrySetResult(result);
+                    _onAuthenticationResult.OnNext(result);
+                });
+            return tcs.Task;
         }
         
         public UniTask<SignInStatus> Authenticate()

@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using QuackUp.Save;
 using R3;
 using UnityEngine;
@@ -23,6 +24,12 @@ namespace FitMe.GameData
         
         public void PostInitialize()
         {
+            InitializeAsync().Forget();
+        }
+
+        private async UniTaskVoid InitializeAsync()
+        {
+            await _saveManager.SaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             StartTimer();
             Application.focusChanged += OnApplicationFocusChanged;

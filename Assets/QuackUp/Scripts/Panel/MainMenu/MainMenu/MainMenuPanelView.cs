@@ -24,6 +24,7 @@ namespace FitMe.Panel
         [SerializeField] private string settingsPanelId = "Settings";
         [SerializeField] private string leaderboardPanelId = "Leaderboard";
         [SerializeField] private string shopPanelId = "Shop";
+        [SerializeField] private GameObject loadingOverlay;
         
         private MainMenuPanelViewModel ViewModel => (MainMenuPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
@@ -44,6 +45,15 @@ namespace FitMe.Panel
             var disposableBuilder = Disposable.CreateBuilder();
             ViewModel.CompletedTutorial
                 .Subscribe(OnTutorialCompletionChanged)
+                .AddTo(ref disposableBuilder);
+            ViewModel.IsSaveLoading
+                .Subscribe(loading =>
+                {
+                    if (loadingOverlay)
+                    {
+                        loadingOverlay.SetActive(loading);
+                    }
+                })
                 .AddTo(ref disposableBuilder);
             challengeButton.OnClickAsObservable()
                 .Subscribe(_ => OnChallengeButtonClicked())
@@ -147,6 +157,11 @@ namespace FitMe.Panel
         
         private void OnTutorialCompletionChanged(bool completed)
         {
+            if (!ViewModel.IsSaveReady)
+            {
+                tutorialButton.gameObject.SetActive(false);
+                return;
+            }
             tutorialButton.gameObject.SetActive(completed);
         }
 

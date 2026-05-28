@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using FitMe.Shared;
 using MessagePipe;
 using QuackUp.Save;
@@ -66,6 +67,12 @@ namespace FitMe.Achievement
         public void Start()
         {
             if (!_config.Enabled) return;
+            InitializeAsync().Forget();
+        }
+
+        private async UniTaskVoid InitializeAsync()
+        {
+            await _saveManager.SaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<AchievementSaveObject>();
             if (!_saveObject)
             {

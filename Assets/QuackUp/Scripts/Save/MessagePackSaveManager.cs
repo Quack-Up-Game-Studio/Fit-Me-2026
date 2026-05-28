@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
@@ -20,6 +21,16 @@ namespace QuackUp.Save
     {
         private readonly MessagePackSaveConfig _config;
         [OdinSerialize, ReadOnly] private Dictionary<string, MessagePackSaveObject> _saveObjects = new();
+
+        private readonly UniTaskCompletionSource _saveDataReadyTcs = new();
+        public UniTask SaveDataReady => _saveDataReadyTcs.Task;
+        public bool IsSaveReady { get; private set; }
+
+        public void MarkSaveDataReady()
+        {
+            IsSaveReady = true;
+            _saveDataReadyTcs.TrySetResult();
+        }
 
         public Observable<bool> OnSaveResult => _onSaveResult;
         private readonly Subject<bool> _onSaveResult = new();
@@ -64,6 +75,9 @@ namespace QuackUp.Save
                 messagePackSaveObject.Reset();
             }
             LoadAll();
+#if !UNITY_ANDROID || UNITY_EDITOR
+            MarkSaveDataReady();
+#endif
         }
         
         

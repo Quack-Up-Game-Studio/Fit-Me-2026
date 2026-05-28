@@ -54,6 +54,12 @@ namespace FitMe.GameData
 
         public void PostInitialize()
         {
+            InitializeAsync().Forget();
+        }
+
+        private async UniTaskVoid InitializeAsync()
+        {
+            await _saveManager.SaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<EnergyManagerSaveObject>();
             var saveData = _saveObject.GetSaveData<EnergyManagerSaveData>();
             var playerSaveData = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>().GetSaveData<PlayerRecordSaveData>();

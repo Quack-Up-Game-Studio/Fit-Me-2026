@@ -10,14 +10,20 @@ using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
 using VContainer;
+using VContainer.Unity;
 
 namespace FitMe.SocialService.Android
 {
-    public class GPGSSavedGamesHandler : ICloudSaveService, IDisposable
+    public class GPGSSavedGamesHandler : ICloudSaveService, IInitializable, IDisposable
     {
         private readonly GPGSSavedGames _gpgsSavedGames;
         private readonly MessagePackSaveManager _messagePackSaveManager;
         private readonly RemoteSaveResolver _remoteSaveResolver;
+        private readonly GPGSAuthenticationManager _authenticationManager;
+        private readonly GPGSAuthenticationManagerConfig _authConfig;
+        private readonly GPGSSavedGamesConfig _saveGamesConfig;
+
+        private readonly UniTaskCompletionSource _cloudLoadCompletedTcs = new();
 
         public Observable<bool> OnSyncResult => _onSyncResult;
         private readonly Subject<bool> _onSyncResult = new();
@@ -27,14 +33,69 @@ namespace FitMe.SocialService.Android
         [Inject]
         public GPGSSavedGamesHandler(
             GPGSAuthenticationManager authenticationManager,
+            GPGSAuthenticationManagerConfig authConfig,
             GPGSSavedGames gpgsSavedGames,
+            GPGSSavedGamesConfig saveGamesConfig,
             MessagePackSaveManager messagePackSaveManager,
             RemoteSaveResolver remoteSaveResolver)
         {
+            _authenticationManager = authenticationManager;
+            _authConfig = authConfig;
             _gpgsSavedGames = gpgsSavedGames;
+            _saveGamesConfig = saveGamesConfig;
             _messagePackSaveManager = messagePackSaveManager;
             _remoteSaveResolver = remoteSaveResolver;
             Subscribe();
+        }
+
+        public void Initialize()
+        {
+            InitializeAsync().Forget();
+        }
+
+        private async UniTaskVoid InitializeAsync()
+        {
+            try
+            {
+                if (!_authConfig.AutoAuthenticateOnStart)
+                {
+                    DebugUtils.Log("GPGSSavedGamesHandler: AutoAuthenticateOnStart is disabled. Marking save data ready.");
+                    _messagePackSaveManager.MarkSaveDataReady();
+                    return;
+                }
+
+                DebugUtils.Log("GPGSSavedGamesHandler: Waiting for silent authentication result...");
+                var status = await _authenticationManager.OnAuthenticationResult.FirstAsync();
+                DebugUtils.Log($"GPGSSavedGamesHandler: Silent authentication completed with status: {status}");
+
+                if (status != GooglePlayGames.BasicApi.SignInStatus.Success)
+                {
+                    DebugUtils.Log("GPGSSavedGamesHandler: Silent authentication failed. Marking save data ready.");
+                    _messagePackSaveManager.MarkSaveDataReady();
+                    return;
+                }
+
+                if (!_saveGamesConfig.LoadAutomaticallyAfterAuthentication)
+                {
+                    DebugUtils.Log("GPGSSavedGamesHandler: LoadAutomaticallyAfterAuthentication is disabled. Marking save data ready.");
+                    _messagePackSaveManager.MarkSaveDataReady();
+                    return;
+                }
+
+                DebugUtils.Log("GPGSSavedGamesHandler: Waiting for cloud save load...");
+                var timeoutTask = UniTask.Delay(TimeSpan.FromSeconds(8));
+                var completedTaskIndex = await UniTask.WhenAny(_cloudLoadCompletedTcs.Task, timeoutTask);
+                if (completedTaskIndex == 1)
+                {
+                    DebugUtils.LogWarning("GPGSSavedGamesHandler: Cloud save load timed out. Forcing save data ready.");
+                    _messagePackSaveManager.MarkSaveDataReady();
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugUtils.LogError($"GPGSSavedGamesHandler: Exception in InitializeAsync: {ex}");
+                _messagePackSaveManager.MarkSaveDataReady();
+            }
         }
 
         private void Subscribe()
@@ -48,56 +109,80 @@ namespace FitMe.SocialService.Android
         
         private async UniTask OnSaveLoaded((bool success, byte[] bytes) result, CancellationToken cancellationToken)
         {
-            DeserializedSaveData deserializedLocal;
-            DeserializedSaveData deserializedRemote;
             try
             {
-                deserializedLocal = _messagePackSaveManager.DeserializeSaveDataFromZipBytes(_messagePackSaveManager.GetZipBytes());
-            }
-            catch (Exception e)
-            {
-                DebugUtils.LogError($"Error during local save data loading: {e}");
-                _messagePackSaveManager.ResetAll();
-                _onSyncResult.OnNext(false);
-                return;
-            }
-            if (!result.success)
-            {
-                HandleReset(deserializedLocal);
-                _onSyncResult.OnNext(false);
-                return;
-            }
-            try
-            {
-                deserializedRemote = _messagePackSaveManager.DeserializeSaveDataFromZipBytes(result.bytes);
-            }
-            catch (Exception e)
-            {
-                DebugUtils.LogError($"Error during remote save data deserialization: {e}");
-                HandleReset(deserializedLocal);
-                _onSyncResult.OnNext(false);
-                return;
-            }
-            var conflictSolution = await _remoteSaveResolver.ResolveConflictAsync(deserializedLocal, deserializedRemote);
-            if (cancellationToken.IsCancellationRequested) return;
-            switch (conflictSolution)
-            {
-                case ConflictSolution.UseLocal:
-                    _messagePackSaveManager.LoadFromDeserializedData(deserializedLocal);
-                    DebugUtils.Log("Using local save data.");
-                    _onSyncResult.OnNext(true);
-                    break;
-                case ConflictSolution.UseRemote:
-                    _messagePackSaveManager.LoadFromDeserializedData(deserializedRemote);
-                    DebugUtils.Log("Using remote save data.");
-                    _onSyncResult.OnNext(true);
-                    break;
-                case ConflictSolution.Abort:
-                    DebugUtils.Log("Aborting sync.");
+                DeserializedSaveData deserializedLocal = null;
+                DeserializedSaveData deserializedRemote = null;
+                
+                var localBytes = _messagePackSaveManager.GetZipBytes();
+                if (localBytes != null)
+                {
+                    try
+                    {
+                        deserializedLocal = _messagePackSaveManager.DeserializeSaveDataFromZipBytes(localBytes);
+                    }
+                    catch (Exception e)
+                    {
+                        DebugUtils.LogError($"Error during local save data loading: {e}");
+                        _messagePackSaveManager.ResetAll();
+                        _onSyncResult.OnNext(false);
+                        return;
+                    }
+                }
+                
+                if (!result.success)
+                {
+                    HandleReset(deserializedLocal);
                     _onSyncResult.OnNext(false);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                    return;
+                }
+                
+                try
+                {
+                    deserializedRemote = _messagePackSaveManager.DeserializeSaveDataFromZipBytes(result.bytes);
+                }
+                catch (Exception e)
+                {
+                    DebugUtils.LogError($"Error during remote save data deserialization: {e}");
+                    HandleReset(deserializedLocal);
+                    _onSyncResult.OnNext(false);
+                    return;
+                }
+                
+                if (deserializedLocal == null && deserializedRemote != null)
+                {
+                    _messagePackSaveManager.LoadFromDeserializedData(deserializedRemote);
+                    DebugUtils.Log("Using remote save data directly as no local save data exists.");
+                    _onSyncResult.OnNext(true);
+                    return;
+                }
+                
+                var conflictSolution = await _remoteSaveResolver.ResolveConflictAsync(deserializedLocal, deserializedRemote);
+                if (cancellationToken.IsCancellationRequested) return;
+                switch (conflictSolution)
+                {
+                    case ConflictSolution.UseLocal:
+                        _messagePackSaveManager.LoadFromDeserializedData(deserializedLocal);
+                        DebugUtils.Log("Using local save data.");
+                        _onSyncResult.OnNext(true);
+                        break;
+                    case ConflictSolution.UseRemote:
+                        _messagePackSaveManager.LoadFromDeserializedData(deserializedRemote);
+                        DebugUtils.Log("Using remote save data.");
+                        _onSyncResult.OnNext(true);
+                        break;
+                    case ConflictSolution.Abort:
+                        DebugUtils.Log("Aborting sync.");
+                        _onSyncResult.OnNext(false);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            finally
+            {
+                _cloudLoadCompletedTcs.TrySetResult();
+                _messagePackSaveManager.MarkSaveDataReady();
             }
         }
 

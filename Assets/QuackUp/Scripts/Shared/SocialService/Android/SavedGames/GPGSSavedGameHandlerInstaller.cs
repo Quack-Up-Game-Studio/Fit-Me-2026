@@ -20,7 +20,7 @@ namespace FitMe.SocialService.Android
 #if UNITY_ANDROID
             builder.RegisterInstance(remoteSaveResolverConfig);
             builder.Register<RemoteSaveResolver>(Lifetime.Singleton).AsSelf();
-            builder.Register<GPGSSavedGamesHandler>(Lifetime.Singleton)
+            builder.RegisterEntryPoint<GPGSSavedGamesHandler>(Lifetime.Singleton)
                 .As<ICloudSaveService>();
 #endif
         }

@@ -4,6 +4,8 @@ using FitMe.GameData;
 using FitMe.Tutorial;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
+using QuackUp.SocialService;
+using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
 using UnityEngine.SceneManagement;
@@ -18,6 +20,7 @@ namespace FitMe.Scene
         private readonly TutorialStateMachine _stateMachine;
         private readonly LoadSceneManager _loadSceneManager;
         private readonly MessagePackSaveManager  _saveManager;
+        private readonly ICloudSaveService _cloudSaveService;
         private readonly string _overrideStart;
         private IDisposable _subscriptions;
         
@@ -29,12 +32,14 @@ namespace FitMe.Scene
             TutorialStateMachine stateMachine,
             LoadSceneManager loadSceneManager,
             MessagePackSaveManager saveManager,
+            ICloudSaveService cloudSaveService,
             [Key(OverrideStartKey)] string startKey)
         {
             levelManager.IsTutorial = true;
             _stateMachine = stateMachine;
             _loadSceneManager = loadSceneManager;
             _saveManager = saveManager;
+            _cloudSaveService = cloudSaveService;
             _overrideStart = startKey;
             Subscribe();
         }
@@ -61,6 +66,7 @@ namespace FitMe.Scene
             var sceneToLoad = saveData.CompletedTutorial ? SceneType.MainMenu : SceneType.Gameplay;
             saveData.CompletedTutorial = true;
             _saveManager.Save(saveObject);
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
             _loadSceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single, false).Forget();
         }
 
