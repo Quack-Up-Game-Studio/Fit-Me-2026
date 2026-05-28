@@ -28,7 +28,8 @@ namespace FitMe.Panel
         private readonly InAppPurchaseManager _inAppPurchaseManager;
         private readonly int _maxContinueCount;
         private readonly bool _enableAds = true;
-        private readonly IPublisher<ContinueEvent> _clearGridEventPublisher;
+        private readonly IPublisher<ClearGridEvent> _clearGridEventPublisher;
+        private readonly IPublisher<ContinueEvent> _continueEventPublisher;
         
         private float _maxCountdownTime;
         private float _countdownTime;
@@ -46,7 +47,8 @@ namespace FitMe.Panel
             InAppPurchaseManager inAppPurchaseManager,
             [Key(MaxContinueCountId)] int maxContinueCount,
             [Key(CountdownTimeId)] float maxCountdownTime,
-            IPublisher<ContinueEvent> clearGridEventPublisher) : base(panelManager)
+            IPublisher<ClearGridEvent> clearGridEventPublisher,
+            IPublisher<ContinueEvent> continueEventPublisher) : base(panelManager)
         {
             _adsService = adsService;
             _inAppPurchaseManager = inAppPurchaseManager;
@@ -59,6 +61,7 @@ namespace FitMe.Panel
             _countdownTimePercent.Value = _maxCountdownTime;
             
             _clearGridEventPublisher = clearGridEventPublisher;
+            _continueEventPublisher = continueEventPublisher;
             
             Bind();
         }
@@ -93,24 +96,23 @@ namespace FitMe.Panel
         
         private void OnAdsButtonClicked()
         {
-            if (_remainingContinueCount.CurrentValue >= 0  && _enableAds)
+            if (_remainingContinueCount.CurrentValue < 0 || !_enableAds) return;
+            if (_inAppPurchaseManager.HasActiveSubscription())
             {
-                if (_inAppPurchaseManager.HasActiveSubscription())
-                {
-                    OnAdSuccess();
-                    return;
-                }
-
-                if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAd)) return;
-                if (!rewardedAd.Enabled) 
-                {
-                    OnAdSuccess();
-                    return;
-                }
-                _adSubscription = rewardedAd.OnUserEarnedReward
-                    .Subscribe(_ => OnAdSuccess());
-                rewardedAd.TryShow();
+                OnAdSuccess();
+                return;
             }
+
+            if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAd)) return;
+            if (!rewardedAd.Enabled) 
+            {
+                OnAdSuccess();
+                return;
+            }
+            _adSubscription?.Dispose();
+            _adSubscription = rewardedAd.OnUserEarnedReward
+                .Subscribe(_ => OnAdSuccess());
+            rewardedAd.TryShow();
         }
         
         private void OnAdSuccess()
@@ -129,7 +131,8 @@ namespace FitMe.Panel
         private void ReturnToGameplay()
         {
             _onReturnToGameplay.OnNext(Unit.Default);
-            _clearGridEventPublisher.Publish(new ContinueEvent(shouldClearGrid: true, shouldDestroyObstacles: false));
+            _continueEventPublisher.Publish(new ContinueEvent());
+            _clearGridEventPublisher.Publish(new ClearGridEvent(shouldClearGrid: true, shouldDestroyObstacles: false));
             _countdownTimer.Dispose();
         }
 

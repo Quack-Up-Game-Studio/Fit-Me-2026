@@ -6078,7 +6078,6 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 911c5c0be2fc1510ca0e1b75da98a018, type: 2}
     - {fileID: 11400000, guid: 7b03f086f57bd8ab58f33086006b3fce, type: 2}
     - {fileID: 1775199596}
-    - {fileID: 1440182162}
     - {fileID: 1081198250}
     - {fileID: 1832981020}
     - {fileID: 17166187}
@@ -6164,28 +6163,13 @@ MonoBehaviour:
       Data: 4|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 1
     - Name: 
       Entry: 7
       Data: 5|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
     - Name: <Transform>k__BackingField
       Entry: 10
       Data: 10
-    - Name: <IsFree>k__BackingField
-      Entry: 5
-      Data: true
-    - Name: <CurrentBlock>k__BackingField
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 6|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
-    - Name: <Transform>k__BackingField
-      Entry: 10
-      Data: 11
     - Name: <IsFree>k__BackingField
       Entry: 5
       Data: true
@@ -6203,13 +6187,28 @@ MonoBehaviour:
       Data: 
     - Name: previewSpawnPoint
       Entry: 10
-      Data: 12
+      Data: 11
     - Name: previewsPoint
       Entry: 7
-      Data: 7|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
+      Data: 6|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
     - Name: 
       Entry: 12
       Data: 4
+    - Name: 
+      Entry: 7
+      Data: 7|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
+    - Name: <Transform>k__BackingField
+      Entry: 10
+      Data: 12
+    - Name: <IsFree>k__BackingField
+      Entry: 5
+      Data: true
+    - Name: <CurrentBlock>k__BackingField
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 7
       Data: 8|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
@@ -6256,21 +6255,6 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: 
-      Entry: 7
-      Data: 11|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
-    - Name: <Transform>k__BackingField
-      Entry: 10
-      Data: 16
-    - Name: <IsFree>k__BackingField
-      Entry: 5
-      Data: true
-    - Name: <CurrentBlock>k__BackingField
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
       Entry: 13
       Data: 
     - Name: 
@@ -6278,22 +6262,22 @@ MonoBehaviour:
       Data: 
     - Name: atomViewPrefab
       Entry: 10
-      Data: 17
+      Data: 16
     - Name: blockViewPrefab
       Entry: 10
-      Data: 18
+      Data: 17
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 12|FitMe.Entity.EntityManagerInstaller, FitMe.Entity
+      Data: 11|FitMe.Entity.EntityManagerInstaller, FitMe.Entity
     - Name: entityManagerConfig
       Entry: 10
-      Data: 19
+      Data: 18
     - Name: sceneEntity
       Entry: 7
-      Data: 13|System.Collections.Generic.List`1[[FitMe.Entity.IEntityLifetimeScope,
+      Data: 12|System.Collections.Generic.List`1[[FitMe.Entity.IEntityLifetimeScope,
         FitMe.Entity]], mscorlib
     - Name: 
       Entry: 12
@@ -6312,26 +6296,26 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 14|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
+      Data: 13|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
     - Name: levelManagerConfig
       Entry: 10
-      Data: 20
+      Data: 19
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 15|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
+      Data: 14|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
     - Name: parentLifetimeScope
       Entry: 10
-      Data: 21
+      Data: 20
     - Name: panelLifetimeScopes
       Entry: 7
-      Data: 16|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
+      Data: 15|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
         FitMe.Panel]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 17|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+      Data: 16|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -6347,7 +6331,7 @@ MonoBehaviour:
       Data: Gameplay
     - Name: $v
       Entry: 10
-      Data: 22
+      Data: 21
     - Name: 
       Entry: 8
       Data: 
@@ -6359,7 +6343,7 @@ MonoBehaviour:
       Data: Pause
     - Name: $v
       Entry: 10
-      Data: 23
+      Data: 22
     - Name: 
       Entry: 8
       Data: 
@@ -6371,7 +6355,7 @@ MonoBehaviour:
       Data: Result
     - Name: $v
       Entry: 10
-      Data: 24
+      Data: 23
     - Name: 
       Entry: 8
       Data: 
@@ -6383,7 +6367,7 @@ MonoBehaviour:
       Data: GameOver
     - Name: $v
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: 
       Entry: 8
       Data: 
@@ -6407,27 +6391,42 @@ MonoBehaviour:
       Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 18|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 17|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12
       Data: 7
     - Name: 
       Entry: 7
-      Data: 19|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
+      Data: 18|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
     - Name: scoreView
       Entry: 10
-      Data: 26
+      Data: 25
     - Name: scoreTransform
       Entry: 10
-      Data: 27
+      Data: 26
     - Name: fitmeTransform
       Entry: 10
-      Data: 28
+      Data: 27
     - Name: popUpScoreViewPrefab
       Entry: 10
-      Data: 29
+      Data: 28
     - Name: popUpScoreParent
+      Entry: 10
+      Data: 29
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 19|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 20|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
+    - Name: energyBarView
       Entry: 10
       Data: 30
     - Name: 
@@ -6435,14 +6434,8 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 20|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 21|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
-    - Name: energyBarView
+      Data: 21|FitMe.Panel.RunTimerInstaller, FitMe.Panel
+    - Name: view
       Entry: 10
       Data: 31
     - Name: 
@@ -6450,16 +6443,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 22|FitMe.Panel.RunTimerInstaller, FitMe.Panel
-    - Name: view
-      Entry: 10
-      Data: 32
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 23|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
+      Data: 22|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
     - Name: mainCamera
       Entry: 10
       Data: 0
@@ -6468,19 +6452,19 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 24|QuackUp.Utils.BackGroundEffectInstaller, QuackUp.Utils
+      Data: 23|QuackUp.Utils.BackGroundEffectInstaller, QuackUp.Utils
     - Name: _backGroundEffectView
       Entry: 10
-      Data: 33
+      Data: 32
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 25|FitMe.Panel.PopUpTextInstaller, FitMe.Panel
+      Data: 24|FitMe.Panel.PopUpTextInstaller, FitMe.Panel
     - Name: popUpTextView
       Entry: 10
-      Data: 34
+      Data: 33
     - Name: 
       Entry: 8
       Data: 

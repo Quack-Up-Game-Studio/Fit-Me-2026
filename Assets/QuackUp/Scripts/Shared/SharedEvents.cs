@@ -1,18 +1,16 @@
-using System;
-using JetBrains.Annotations;
-using UnityEngine;
-
 namespace FitMe.Shared
 {
-    public struct ContinueEvent
+    public struct ClearGridEvent
     {
         public readonly bool ShouldClearGrid;
         public readonly bool ShouldDestroyObstacles;
 
-        public ContinueEvent(bool shouldClearGrid, bool shouldDestroyObstacles)
+        public ClearGridEvent(bool shouldClearGrid, bool shouldDestroyObstacles)
         {
             ShouldClearGrid = shouldClearGrid;
             ShouldDestroyObstacles = shouldDestroyObstacles;
         }
     }
+    
+    public struct ContinueEvent{}
 }

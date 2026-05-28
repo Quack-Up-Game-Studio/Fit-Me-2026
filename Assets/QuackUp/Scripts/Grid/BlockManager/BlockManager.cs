@@ -261,12 +261,13 @@ namespace FitMe.Grid
 
         private void ResetBlockInSlot()
         {
-            for (int i = 0; i < _spawnPoints.Length; i++)
+            Debug.LogWarning("BlockManager: Resetting blocks in spawn points and previews.");
+            foreach (var spawnPoint in _spawnPoints)
             {
-                if (_spawnPoints[i].IsFree) continue;
-                _spawnPoints[i].CurrentBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
-                _spawnPoints[i].CurrentBlock = null;
-                _spawnPoints[i].IsFree = true;
+                if (spawnPoint.IsFree) continue;
+                spawnPoint.CurrentBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
+                spawnPoint.CurrentBlock = null;
+                spawnPoint.IsFree = true;
             }
             
             _currentPreviewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
@@ -279,10 +280,11 @@ namespace FitMe.Grid
             ResetBlockInSlot();
             if (shouldRespawn)
             {
+                Debug.LogWarning("BlockManager: Bag Respawned!");
                 _continued = false;
                 SpawnBlocksFromBag(true);
             }
-            Debug.LogWarning("Yuirin: Bag Reset!");
+            Debug.LogWarning("BlockManager: Bag Reset!");
         }
         
         /// <summary>

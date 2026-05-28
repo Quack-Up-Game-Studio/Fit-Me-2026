@@ -198,7 +198,7 @@ namespace FitMe.Grid
                 .Subscribe<SpawnWithGridPresetEvent>(x => OnSpawnGridWithGridPreset(x.GridPreset))
                 .AddTo(ref disposableBuilder);
             _messageHub
-                .Subscribe<ContinueEvent>(OnContinue)
+                .Subscribe<ClearGridEvent>(OnContinue)
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -240,7 +240,7 @@ namespace FitMe.Grid
             CreateCells();
         }
 
-        private void OnContinue(ContinueEvent data)
+        private void OnContinue(ClearGridEvent data)
         {
             if (data.ShouldClearGrid)
             {

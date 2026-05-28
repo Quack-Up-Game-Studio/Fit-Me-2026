@@ -6186,7 +6186,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 120
+  m_fontSize: 88.55
   m_fontSizeBase: 80
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -7422,7 +7422,6 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 911c5c0be2fc1510ca0e1b75da98a018, type: 2}
     - {fileID: 11400000, guid: 7b03f086f57bd8ab58f33086006b3fce, type: 2}
     - {fileID: 1775199596}
-    - {fileID: 1440182162}
     - {fileID: 1081198250}
     - {fileID: 1832981020}
     - {fileID: 17166187}
@@ -7514,28 +7513,13 @@ MonoBehaviour:
       Data: 4|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 1
     - Name: 
       Entry: 7
       Data: 5|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
     - Name: <Transform>k__BackingField
       Entry: 10
       Data: 10
-    - Name: <IsFree>k__BackingField
-      Entry: 5
-      Data: true
-    - Name: <CurrentBlock>k__BackingField
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 6|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
-    - Name: <Transform>k__BackingField
-      Entry: 10
-      Data: 11
     - Name: <IsFree>k__BackingField
       Entry: 5
       Data: true
@@ -7553,13 +7537,28 @@ MonoBehaviour:
       Data: 
     - Name: previewSpawnPoint
       Entry: 10
-      Data: 12
+      Data: 11
     - Name: previewsPoint
       Entry: 7
-      Data: 7|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
+      Data: 6|FitMe.Grid.BlockManager+SpawnPointData[], FitMe.Grid
     - Name: 
       Entry: 12
       Data: 4
+    - Name: 
+      Entry: 7
+      Data: 7|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
+    - Name: <Transform>k__BackingField
+      Entry: 10
+      Data: 12
+    - Name: <IsFree>k__BackingField
+      Entry: 5
+      Data: true
+    - Name: <CurrentBlock>k__BackingField
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 7
       Data: 8|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
@@ -7606,21 +7605,6 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: 
-      Entry: 7
-      Data: 11|FitMe.Grid.BlockManager+SpawnPointData, FitMe.Grid
-    - Name: <Transform>k__BackingField
-      Entry: 10
-      Data: 16
-    - Name: <IsFree>k__BackingField
-      Entry: 5
-      Data: true
-    - Name: <CurrentBlock>k__BackingField
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
       Entry: 13
       Data: 
     - Name: 
@@ -7628,8 +7612,17 @@ MonoBehaviour:
       Data: 
     - Name: atomViewPrefab
       Entry: 10
-      Data: 17
+      Data: 16
     - Name: blockViewPrefab
+      Entry: 10
+      Data: 17
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 11|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
+    - Name: levelManagerConfig
       Entry: 10
       Data: 18
     - Name: 
@@ -7637,26 +7630,17 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 12|FitMe.Scene.LevelManagerInstaller, FitMe.Scene
-    - Name: levelManagerConfig
-      Entry: 10
-      Data: 19
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 13|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
+      Data: 12|FitMe.Panel.PanelManagerInstaller, FitMe.Panel
     - Name: parentLifetimeScope
       Entry: 10
-      Data: 20
+      Data: 19
     - Name: panelLifetimeScopes
       Entry: 7
-      Data: 14|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
+      Data: 13|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[FitMe.Panel.PanelLifetimeScope,
         FitMe.Panel]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 15|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+      Data: 14|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -7672,7 +7656,7 @@ MonoBehaviour:
       Data: Gameplay
     - Name: $v
       Entry: 10
-      Data: 21
+      Data: 20
     - Name: 
       Entry: 8
       Data: 
@@ -7684,7 +7668,7 @@ MonoBehaviour:
       Data: Pause
     - Name: $v
       Entry: 10
-      Data: 22
+      Data: 21
     - Name: 
       Entry: 8
       Data: 
@@ -7696,7 +7680,7 @@ MonoBehaviour:
       Data: Result
     - Name: $v
       Entry: 10
-      Data: 23
+      Data: 22
     - Name: 
       Entry: 8
       Data: 
@@ -7708,7 +7692,7 @@ MonoBehaviour:
       Data: GameOver
     - Name: $v
       Entry: 10
-      Data: 24
+      Data: 23
     - Name: 
       Entry: 8
       Data: 
@@ -7726,10 +7710,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 16|FitMe.Scene.TutorialManagerInstaller, FitMe.Scene
+      Data: 15|FitMe.Scene.TutorialManagerInstaller, FitMe.Scene
     - Name: states
       Entry: 7
-      Data: 17|System.Collections.Generic.List`1[[FitMe.Scene.TutorialStateInfo,
+      Data: 16|System.Collections.Generic.List`1[[FitMe.Scene.TutorialStateInfo,
         FitMe.Scene]], mscorlib
     - Name: 
       Entry: 12
@@ -7742,7 +7726,7 @@ MonoBehaviour:
       Data: Welcome1
     - Name: State
       Entry: 7
-      Data: 18|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 17|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: <style="HL_B">Welcome to<br>Fit Me!</style><br>I'll be your little helper
@@ -7860,10 +7844,10 @@ MonoBehaviour:
       Data: true
     - Name: panelRectTransform
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: characterRectTransform
       Entry: 10
-      Data: 26
+      Data: 25
     - Name: carveWindowRectTransform
       Entry: 6
       Data: 
@@ -7881,7 +7865,7 @@ MonoBehaviour:
       Data: Welcome2
     - Name: State
       Entry: 7
-      Data: 19|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 18|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Fit Me is a puzzle game where you <style="HL">fit all blocks into the
@@ -8020,7 +8004,7 @@ MonoBehaviour:
       Data: Welcome3
     - Name: State
       Entry: 7
-      Data: 20|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 19|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "Sounds easy, right? Let\u2019s give it a try!"
@@ -8158,7 +8142,7 @@ MonoBehaviour:
       Data: NextPreset
     - Name: State
       Entry: 7
-      Data: 21|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
+      Data: 20|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
     - Name: playFitMeSound
       Entry: 5
       Data: false
@@ -8176,7 +8160,7 @@ MonoBehaviour:
       Data: DisableSwap
     - Name: State
       Entry: 7
-      Data: 22|FitMe.Tutorial.ChangeSwapState, FitMe.Tutorial
+      Data: 21|FitMe.Tutorial.ChangeSwapState, FitMe.Tutorial
     - Name: allowSwapping
       Entry: 5
       Data: false
@@ -8194,7 +8178,7 @@ MonoBehaviour:
       Data: PlayZone
     - Name: State
       Entry: 7
-      Data: 23|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 22|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: This is your <style="HL">Play Zone!</style> This is where you can interact
@@ -8312,7 +8296,7 @@ MonoBehaviour:
       Data: true
     - Name: panelRectTransform
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: characterRectTransform
       Entry: 6
       Data: 
@@ -8333,7 +8317,7 @@ MonoBehaviour:
       Data: PreviewZone
     - Name: State
       Entry: 7
-      Data: 24|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 23|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Check here to see what's coming up in your <style="HL">Next Queue!</style>
@@ -8450,13 +8434,13 @@ MonoBehaviour:
       Data: true
     - Name: panelRectTransform
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: characterRectTransform
       Entry: 6
       Data: 
     - Name: carveWindowRectTransform
       Entry: 10
-      Data: 27
+      Data: 26
     - Name: 
       Entry: 8
       Data: 
@@ -8471,7 +8455,7 @@ MonoBehaviour:
       Data: RotateDialogue
     - Name: State
       Entry: 7
-      Data: 25|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 24|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Give a block a quick tap to <style="HL">Rotate!</style>
@@ -8588,7 +8572,7 @@ MonoBehaviour:
       Data: true
     - Name: panelRectTransform
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: characterRectTransform
       Entry: 6
       Data: 
@@ -8609,10 +8593,10 @@ MonoBehaviour:
       Data: Rotate
     - Name: State
       Entry: 7
-      Data: 26|FitMe.Tutorial.RotateBlockTutorialState, FitMe.Tutorial
+      Data: 25|FitMe.Tutorial.RotateBlockTutorialState, FitMe.Tutorial
     - Name: rotateBlockHint
       Entry: 10
-      Data: 28
+      Data: 27
     - Name: 
       Entry: 8
       Data: 
@@ -8627,7 +8611,7 @@ MonoBehaviour:
       Data: EnableSwap
     - Name: State
       Entry: 7
-      Data: 27|FitMe.Tutorial.ChangeSwapState, FitMe.Tutorial
+      Data: 26|FitMe.Tutorial.ChangeSwapState, FitMe.Tutorial
     - Name: allowSwapping
       Entry: 5
       Data: true
@@ -8645,7 +8629,7 @@ MonoBehaviour:
       Data: SwapDialogue
     - Name: State
       Entry: 7
-      Data: 28|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 27|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Need a different shape? Tap this button to <style="HL">Swap!</style>
@@ -8783,10 +8767,10 @@ MonoBehaviour:
       Data: Swap
     - Name: State
       Entry: 7
-      Data: 29|FitMe.Tutorial.SwapBlockTutorialState, FitMe.Tutorial
+      Data: 28|FitMe.Tutorial.SwapBlockTutorialState, FitMe.Tutorial
     - Name: swapBlockHint
       Entry: 10
-      Data: 29
+      Data: 28
     - Name: 
       Entry: 8
       Data: 
@@ -8801,7 +8785,7 @@ MonoBehaviour:
       Data: PlaceBlockDialogue
     - Name: State
       Entry: 7
-      Data: 30|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 29|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Now, <style="HL">Drag & Drop</style> the blocks into the empty spaces
@@ -8940,10 +8924,10 @@ MonoBehaviour:
       Data: PlaceBlock
     - Name: State
       Entry: 7
-      Data: 31|FitMe.Tutorial.PlaceBlockTutorialState, FitMe.Tutorial
+      Data: 30|FitMe.Tutorial.PlaceBlockTutorialState, FitMe.Tutorial
     - Name: placeBlockHint
       Entry: 10
-      Data: 30
+      Data: 29
     - Name: 
       Entry: 8
       Data: 
@@ -8958,7 +8942,7 @@ MonoBehaviour:
       Data: NextQueue
     - Name: State
       Entry: 7
-      Data: 32|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 31|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Once the block leaves your hand, the next one from the Next Queue pops
@@ -9076,13 +9060,13 @@ MonoBehaviour:
       Data: true
     - Name: panelRectTransform
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: characterRectTransform
       Entry: 6
       Data: 
     - Name: carveWindowRectTransform
       Entry: 10
-      Data: 27
+      Data: 26
     - Name: 
       Entry: 8
       Data: 
@@ -9097,7 +9081,7 @@ MonoBehaviour:
       Data: TryFitDialogue1
     - Name: State
       Entry: 7
-      Data: 33|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 32|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Alright, let's try to fit every blocks into the grid!
@@ -9235,7 +9219,7 @@ MonoBehaviour:
       Data: TryFit1
     - Name: State
       Entry: 7
-      Data: 34|FitMe.Tutorial.FitTutorialState, FitMe.Tutorial
+      Data: 33|FitMe.Tutorial.FitTutorialState, FitMe.Tutorial
     - Name: jumpToWhenFail
       Entry: 1
       Data: Fail
@@ -9253,7 +9237,7 @@ MonoBehaviour:
       Data: SetScore
     - Name: State
       Entry: 7
-      Data: 35|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
+      Data: 34|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
     - Name: waitForScoreUpdate
       Entry: 5
       Data: true
@@ -9283,7 +9267,7 @@ MonoBehaviour:
       Data: FinishPart1
     - Name: State
       Entry: 7
-      Data: 36|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 35|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "<style=\"HL_B\">Great job!</style><br>You\u2019ve got the hang of it.
@@ -9404,7 +9388,7 @@ MonoBehaviour:
       Data: 
     - Name: characterRectTransform
       Entry: 10
-      Data: 26
+      Data: 25
     - Name: carveWindowRectTransform
       Entry: 6
       Data: 
@@ -9422,7 +9406,7 @@ MonoBehaviour:
       Data: IntroPart2
     - Name: State
       Entry: 7
-      Data: 37|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 36|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: <style="HL">Every move earns you Scores!</style> Keep clearing levels
@@ -9561,7 +9545,7 @@ MonoBehaviour:
       Data: NextPreset2
     - Name: State
       Entry: 7
-      Data: 38|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
+      Data: 37|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
     - Name: playFitMeSound
       Entry: 5
       Data: false
@@ -9579,7 +9563,7 @@ MonoBehaviour:
       Data: ScoreShowcase
     - Name: State
       Entry: 7
-      Data: 39|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 38|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Check here to see your high score and fit score.
@@ -9696,13 +9680,13 @@ MonoBehaviour:
       Data: true
     - Name: panelRectTransform
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: characterRectTransform
       Entry: 6
       Data: 
     - Name: carveWindowRectTransform
       Entry: 10
-      Data: 27
+      Data: 26
     - Name: 
       Entry: 8
       Data: 
@@ -9717,7 +9701,7 @@ MonoBehaviour:
       Data: TryFitDialogue2
     - Name: State
       Entry: 7
-      Data: 40|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 39|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Want a boost? <style="HL">Match blocks of the same color</style> to trigger
@@ -9856,7 +9840,7 @@ MonoBehaviour:
       Data: TryFit2
     - Name: State
       Entry: 7
-      Data: 41|FitMe.Tutorial.FitTutorialState, FitMe.Tutorial
+      Data: 40|FitMe.Tutorial.FitTutorialState, FitMe.Tutorial
     - Name: jumpToWhenFail
       Entry: 1
       Data: SetScore2
@@ -9874,7 +9858,7 @@ MonoBehaviour:
       Data: CheckScore
     - Name: State
       Entry: 7
-      Data: 42|FitMe.Tutorial.ScoreThresholdTutorialState, FitMe.Tutorial
+      Data: 41|FitMe.Tutorial.ScoreThresholdTutorialState, FitMe.Tutorial
     - Name: scoreThreshold
       Entry: 3
       Data: 5920
@@ -9895,7 +9879,7 @@ MonoBehaviour:
       Data: ScoreShowcase2
     - Name: State
       Entry: 7
-      Data: 43|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 42|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "<style=\"HL_B\">Awesome!</style><br>Look how much score you\u2019ve
@@ -10034,7 +10018,7 @@ MonoBehaviour:
       Data: FinishPart2
     - Name: State
       Entry: 7
-      Data: 44|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 43|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "It\u2019s getting trickier, but I know you can handle it!"
@@ -10154,7 +10138,7 @@ MonoBehaviour:
       Data: 
     - Name: characterRectTransform
       Entry: 10
-      Data: 26
+      Data: 25
     - Name: carveWindowRectTransform
       Entry: 6
       Data: 
@@ -10172,7 +10156,7 @@ MonoBehaviour:
       Data: IntroPart3
     - Name: State
       Entry: 7
-      Data: 45|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 44|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Now it's time for a real challenge!
@@ -10310,7 +10294,7 @@ MonoBehaviour:
       Data: NextPreset3
     - Name: State
       Entry: 7
-      Data: 46|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
+      Data: 45|FitMe.Tutorial.NextPresetState, FitMe.Tutorial
     - Name: playFitMeSound
       Entry: 5
       Data: false
@@ -10328,7 +10312,7 @@ MonoBehaviour:
       Data: ObstacleShowcase
     - Name: State
       Entry: 7
-      Data: 47|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 46|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "These are <style=\"HL\">obstacles</style>. You can\u2019t move or break
@@ -10446,13 +10430,13 @@ MonoBehaviour:
       Data: true
     - Name: panelRectTransform
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: characterRectTransform
       Entry: 6
       Data: 
     - Name: carveWindowRectTransform
       Entry: 10
-      Data: 27
+      Data: 26
     - Name: 
       Entry: 8
       Data: 
@@ -10467,7 +10451,7 @@ MonoBehaviour:
       Data: TryFitDialogue3
     - Name: State
       Entry: 7
-      Data: 48|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 47|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: See if you can beat this level!
@@ -10605,7 +10589,7 @@ MonoBehaviour:
       Data: TryFit3
     - Name: State
       Entry: 7
-      Data: 49|FitMe.Tutorial.FitTutorialState, FitMe.Tutorial
+      Data: 48|FitMe.Tutorial.FitTutorialState, FitMe.Tutorial
     - Name: jumpToWhenFail
       Entry: 1
       Data: Fail
@@ -10623,7 +10607,7 @@ MonoBehaviour:
       Data: Outro1
     - Name: State
       Entry: 7
-      Data: 50|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 49|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "<style=\"HL_B\">Excellent!</style><br>You\u2019re officially ready for
@@ -10744,7 +10728,7 @@ MonoBehaviour:
       Data: 
     - Name: characterRectTransform
       Entry: 10
-      Data: 26
+      Data: 25
     - Name: carveWindowRectTransform
       Entry: 6
       Data: 
@@ -10762,7 +10746,7 @@ MonoBehaviour:
       Data: Outro2
     - Name: State
       Entry: 7
-      Data: 51|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 50|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: "Let\u2019s see how far you can go! Good luck!"
@@ -10900,7 +10884,7 @@ MonoBehaviour:
       Data: Complete
     - Name: State
       Entry: 7
-      Data: 52|FitMe.Tutorial.CompleteTutorialState, FitMe.Tutorial
+      Data: 51|FitMe.Tutorial.CompleteTutorialState, FitMe.Tutorial
     - Name: 
       Entry: 8
       Data: 
@@ -10915,7 +10899,7 @@ MonoBehaviour:
       Data: Fail
     - Name: State
       Entry: 7
-      Data: 53|FitMe.Tutorial.FailState, FitMe.Tutorial
+      Data: 52|FitMe.Tutorial.FailState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: That's not quite right... Let's try again.
@@ -11062,7 +11046,7 @@ MonoBehaviour:
       Data: SetScore2
     - Name: State
       Entry: 7
-      Data: 54|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
+      Data: 53|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
     - Name: waitForScoreUpdate
       Entry: 5
       Data: false
@@ -11092,7 +11076,7 @@ MonoBehaviour:
       Data: Fail2
     - Name: State
       Entry: 7
-      Data: 55|FitMe.Tutorial.FailState, FitMe.Tutorial
+      Data: 54|FitMe.Tutorial.FailState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: That's not quite right... Let's try again.
@@ -11239,7 +11223,7 @@ MonoBehaviour:
       Data: SetScore3
     - Name: State
       Entry: 7
-      Data: 56|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
+      Data: 55|FitMe.Tutorial.SetScoreTutorialState, FitMe.Tutorial
     - Name: waitForScoreUpdate
       Entry: 5
       Data: false
@@ -11269,7 +11253,7 @@ MonoBehaviour:
       Data: Fail3.1
     - Name: State
       Entry: 7
-      Data: 57|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
+      Data: 56|FitMe.Tutorial.TextTutorialState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: <style="HL_B">Great job!</style><br>However... There's another way to
@@ -11408,7 +11392,7 @@ MonoBehaviour:
       Data: Fail3.2
     - Name: State
       Entry: 7
-      Data: 58|FitMe.Tutorial.FailState, FitMe.Tutorial
+      Data: 57|FitMe.Tutorial.FailState, FitMe.Tutorial
     - Name: text
       Entry: 1
       Data: Remember, <style="HL">matching colors</style> will always give you higher
@@ -11526,7 +11510,7 @@ MonoBehaviour:
       Data: true
     - Name: panelRectTransform
       Entry: 10
-      Data: 25
+      Data: 24
     - Name: characterRectTransform
       Entry: 6
       Data: 
@@ -11571,36 +11555,51 @@ MonoBehaviour:
       Data: 
     - Name: uiInstallers
       Entry: 7
-      Data: 59|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
+      Data: 58|System.Collections.Generic.List`1[[VContainer.Unity.IInstaller, VContainer]],
         mscorlib
     - Name: 
       Entry: 12
       Data: 8
     - Name: 
       Entry: 7
-      Data: 60|QuackUp.Utils.BackGroundEffectInstaller, QuackUp.Utils
+      Data: 59|QuackUp.Utils.BackGroundEffectInstaller, QuackUp.Utils
     - Name: _backGroundEffectView
       Entry: 10
-      Data: 31
+      Data: 30
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 61|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
+      Data: 60|FitMe.Panel.ScoreUiInstaller, FitMe.Panel
     - Name: scoreView
       Entry: 10
-      Data: 32
+      Data: 31
     - Name: scoreTransform
       Entry: 10
-      Data: 33
+      Data: 32
     - Name: fitmeTransform
       Entry: 10
-      Data: 34
+      Data: 33
     - Name: popUpScoreViewPrefab
       Entry: 10
-      Data: 35
+      Data: 34
     - Name: popUpScoreParent
+      Entry: 10
+      Data: 35
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 61|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 62|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
+    - Name: energyBarView
       Entry: 10
       Data: 36
     - Name: 
@@ -11608,14 +11607,8 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 62|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 63|FitMe.Panel.EnergyBarInstaller, FitMe.Panel
-    - Name: energyBarView
+      Data: 63|FitMe.Panel.RunTimerInstaller, FitMe.Panel
+    - Name: view
       Entry: 10
       Data: 37
     - Name: 
@@ -11623,16 +11616,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 64|FitMe.Panel.RunTimerInstaller, FitMe.Panel
-    - Name: view
-      Entry: 10
-      Data: 38
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 65|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
+      Data: 64|QuackUp.Utils.OrthographicCameraManagerInstaller, QuackUp.Utils
     - Name: mainCamera
       Entry: 10
       Data: 0
@@ -11641,19 +11625,19 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 66|FitMe.Panel.Tutorial.TextTutorialInstaller, FitMe.Panel
+      Data: 65|FitMe.Panel.Tutorial.TextTutorialInstaller, FitMe.Panel
     - Name: view
       Entry: 10
-      Data: 39
+      Data: 38
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 67|FitMe.Panel.PopUpTextInstaller, FitMe.Panel
+      Data: 66|FitMe.Panel.PopUpTextInstaller, FitMe.Panel
     - Name: popUpTextView
       Entry: 10
-      Data: 40
+      Data: 39
     - Name: 
       Entry: 8
       Data: 
