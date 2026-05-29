@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 8e521d9ab85cdfef29e6c2f0cc4c6940
+guid: 30a94aec027c11445bc0514255918597
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6552709902708259361
-    second: BTTN_Blue_Still_0
+      213: -912336458246327351
+    second: IG_Swap_Icon_0
+  - first:
+      213: -8964528671650899661
+    second: IG_Swap_Icon_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +49,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BTTN_Blue_Still_0
+      name: IG_Swap_Icon_0
       rect:
         serializedVersion: 2
-        x: 21
-        y: 34
-        width: 211
-        height: 134
+        x: 0
+        y: 45
+        width: 111
+        height: 40
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +131,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 12a3c1350f6efea50800000000000000
-      internalID: 6552709902708259361
+      spriteID: 9c3f69233dab653f0800000000000000
+      internalID: -912336458246327351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: IG_Swap_Icon_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 111
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33991735ba8979380800000000000000
+      internalID: -8964528671650899661
       vertices: []
       indices: 
       edges: []
@@ -138,7 +163,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +173,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BTTN_Blue_Still_0: 6552709902708259361
+      IG_Swap_Icon_0: -912336458246327351
+      IG_Swap_Icon_1: -8964528671650899661
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

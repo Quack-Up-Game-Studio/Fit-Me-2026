@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8e521d9ab85cdfef29e6c2f0cc4c6940
+guid: bed9cddcfdce22245bb2abfafd5dc167
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6552709902708259361
-    second: BTTN_Blue_Still_0
+      213: 500949976220000489
+    second: SignOut_Icon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BTTN_Blue_Still_0
+      name: SignOut_Icon_0
       rect:
         serializedVersion: 2
-        x: 21
-        y: 34
-        width: 211
-        height: 134
+        x: 0
+        y: 0
+        width: 57
+        height: 46
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 12a3c1350f6efea50800000000000000
-      internalID: 6552709902708259361
+      spriteID: 9e065d6695bb3f600800000000000000
+      internalID: 500949976220000489
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BTTN_Blue_Still_0: 6552709902708259361
+      SignOut_Icon_0: 500949976220000489
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

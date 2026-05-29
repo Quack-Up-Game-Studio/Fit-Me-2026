@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8e521d9ab85cdfef29e6c2f0cc4c6940
+guid: e56f71d9c23adb6448ddcef00984576c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6552709902708259361
-    second: BTTN_Blue_Still_0
+      213: -8597897652331728086
+    second: PopUp_Banner_Yellow_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BTTN_Blue_Still_0
+      name: PopUp_Banner_Yellow_0
       rect:
         serializedVersion: 2
-        x: 21
-        y: 34
-        width: 211
-        height: 134
+        x: 0
+        y: 0
+        width: 849
+        height: 1042
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 12a3c1350f6efea50800000000000000
-      internalID: 6552709902708259361
+      spriteID: a233a9983a12ea880800000000000000
+      internalID: -8597897652331728086
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BTTN_Blue_Still_0: 6552709902708259361
+      PopUp_Banner_Yellow_0: -8597897652331728086
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

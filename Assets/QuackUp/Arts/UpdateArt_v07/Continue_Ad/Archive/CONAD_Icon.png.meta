@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 8e521d9ab85cdfef29e6c2f0cc4c6940
+guid: e3f553d5ee6764d41841825f31ca5881
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6552709902708259361
-    second: BTTN_Blue_Still_0
+      213: -1778787481480049736
+    second: CONAD_Icon_0
+  - first:
+      213: -4733531454808315336
+    second: CONAD_Icon_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BTTN_Blue_Still_0
+      name: CONAD_Icon_0
       rect:
         serializedVersion: 2
-        x: 21
-        y: 34
-        width: 211
-        height: 134
+        x: 0
+        y: 0
+        width: 692
+        height: 543
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +131,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 12a3c1350f6efea50800000000000000
-      internalID: 6552709902708259361
+      spriteID: 8bb4873c53a7057e0800000000000000
+      internalID: -1778787481480049736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CONAD_Icon_1
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 484
+        width: 112
+        height: 107
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83a230f983e1f4eb0800000000000000
+      internalID: -4733531454808315336
       vertices: []
       indices: 
       edges: []
@@ -148,7 +173,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BTTN_Blue_Still_0: 6552709902708259361
+      CONAD_Icon_0: -1778787481480049736
+      CONAD_Icon_1: -4733531454808315336
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

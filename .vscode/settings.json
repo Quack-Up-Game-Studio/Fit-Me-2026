@@ -1,12 +1,12 @@
 {
     "dotnet.defaultSolution": "Fit-Me-2026.sln",
-    "dotnet.dotnetPath": "/usr/bin/dotnet",
-    "dotrush.roslyn.dotnetSdkDirectory": "/usr/share/dotnet/sdk/10.0.104",
+    "dotnet.dotnetPath": "C:/Program Files/dotnet/dotnet.exe",
+    "dotrush.roslyn.dotnetSdkDirectory": "C:/Program Files/dotnet/sdk/8.0.421",
     "dotrush.msbuildProperties": {
         "DefineConstants": "UNITY_EDITOR"
     },
     "dotrush.roslyn.projectOrSolutionFiles": [
-        "/mnt/ssd1/All projects/Unity/Fit-Me-2026/Fit-Me-2026.sln"
+        "C:/Yuirin/AllWork/Quack-Up/Fit-Me-2026/Fit-Me-2026.sln"
     ],
     "dotrush.roslyn.restoreProjectsBeforeLoading": false,
     "files.exclude": {
