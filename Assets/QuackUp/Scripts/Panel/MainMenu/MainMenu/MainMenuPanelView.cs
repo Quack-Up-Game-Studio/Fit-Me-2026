@@ -125,6 +125,7 @@ namespace FitMe.Panel
             
             _logoTween.Stop();
             _logoTween = Tween.Scale(logoRect, logoBubbleSettings);
+            OnEnergyUpdated();
         }
         
         private void OnEnergyUpdated()
