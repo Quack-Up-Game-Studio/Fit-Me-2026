@@ -192,13 +192,13 @@ namespace FitMe.SocialService.Android
                 DebugUtils.Log("Load user profiles completed.");
                 for (var i = 0; i < leaderboardScoreData.Scores.Length; i++)
                 {
-                    var user = userProfiles[i];
                     var score = leaderboardScoreData.Scores[i];
+                    var user = userProfiles.FirstOrDefault(u => u.id == score.userID);
                     var userData = new UserData
                     {
-                        DisplayName = user.userName,
-                        UserId = user.id,
-                        AvatarUrl = user.AvatarURL
+                        DisplayName = user != null ? user.userName : "Guest",
+                        UserId = user != null ? user.id : score.userID,
+                        AvatarUrl = user != null ? user.AvatarURL : string.Empty
                     };
                     var scoreData = new ScoreData
                     {

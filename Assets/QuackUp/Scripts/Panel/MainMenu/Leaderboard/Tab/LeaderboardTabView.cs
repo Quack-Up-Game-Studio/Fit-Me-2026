@@ -117,7 +117,7 @@ namespace FitMe.Panel
                 var userData = entry.UserData;
                 var scoreData = entry.Score;
                 var fitData = entry.Fit;
-                block.SetData(userData, userData.DisplayName, scoreData.RawValue, fitData.RawValue, scoreData.Timestamp, scoreData.Rank);
+                block.SetData(userData, userData.DisplayName, scoreData.RawValue, fitData.RawValue, scoreData.Timestamp, entry.Rank);
                 _leaderboardBlocks.Add(block);
             }
 
@@ -132,7 +132,7 @@ namespace FitMe.Panel
                 var userData = top.UserData;
                 var scoreData = top.Score;
                 var fitData = top.Fit;
-                block.SetData(userData, userData.DisplayName, scoreData.RawValue, fitData.RawValue, scoreData.Timestamp, scoreData.Rank);
+                block.SetData(userData, userData.DisplayName, scoreData.RawValue, fitData.RawValue, scoreData.Timestamp, top.Rank);
             }
             
             personalLeaderboardBlock.SetData(

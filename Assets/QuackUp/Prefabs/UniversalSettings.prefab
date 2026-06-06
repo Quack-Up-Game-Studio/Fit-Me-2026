@@ -1603,7 +1603,7 @@ MonoBehaviour:
   sfxSlashImage: {fileID: 488400030697839314}
   closeButton: {fileID: 7650813347127772808}
   facebookButton: {fileID: 7618918030559665747}
-  facebookCommunityUrl: https://www.google.com/
+  facebookCommunityUrl: https://www.facebook.com/profile.php?id=61582015237711
   backPanelId: MainMenu
   mainMenuButton: {fileID: 681645422043821224}
 --- !u!222 &6825000313252481641

@@ -25,9 +25,8 @@ namespace GPGS
 {
 public static class GPGSIds
 {
-        public const string achievement_test = "CgkIucy-kIMDEAIQAQ"; // <GPGSID>
-        public const string leaderboard_fit_me = "CgkIucy-kIMDEAIQAw"; // <GPGSID>
         public const string leaderboard_score = "CgkIucy-kIMDEAIQAg"; // <GPGSID>
+        public const string leaderboard_fit_me = "CgkIucy-kIMDEAIQAw"; // <GPGSID>
 
 }
 }

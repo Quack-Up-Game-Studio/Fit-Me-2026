@@ -13,8 +13,8 @@ namespace FitMe.Panel
 {
     public enum SortByMode
     {
-        Score,
-        Fit
+        Fit,
+        Score
     }
 
     public enum FocusOnMode
@@ -226,8 +226,8 @@ namespace FitMe.Panel
                     Date = primaryData.ScoreData.Timestamp
                 });
             }
-            //Sort by primary then by timestamp
-            entries = entries.OrderByDescending(e => sortBy == SortByMode.Score ? e.Score.RawValue : e.Fit.RawValue)
+            //Sort by Rank ascending (to preserve GPGS rank ordering)
+            entries = entries.OrderBy(e => e.Rank == 0 ? int.MaxValue : e.Rank)
                 .ThenByDescending(e => e.Date)
                 .ToList();
             return entries;
