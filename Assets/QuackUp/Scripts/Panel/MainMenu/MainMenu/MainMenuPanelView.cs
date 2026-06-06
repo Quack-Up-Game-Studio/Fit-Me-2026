@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 using PrimeTween;
+using QuackUp.Utils;
 
 namespace FitMe.Panel
 {
@@ -15,7 +16,7 @@ namespace FitMe.Panel
         [SerializeField] private Button leaderboardButton;
         [SerializeField] private Button shopButton;
         [SerializeField] private Button tutorialButton;
-        [SerializeField] private Button watchAdsButton;
+        [SerializeField] private CustomTintButton watchAdsButton;
         [SerializeField] private TMP_Text timeUntilNextAdText;
         [SerializeField] private RectTransform logoRect;
         [SerializeField] private TweenSettings<Vector3> logoBubbleSettings;
@@ -70,7 +71,7 @@ namespace FitMe.Panel
             tutorialButton.OnClickAsObservable()
                 .Subscribe(_ => OnTutorialButtonClicked())
                 .AddTo(ref disposableBuilder);
-            watchAdsButton.OnClickAsObservable()
+            watchAdsButton.Button.OnClickAsObservable()
                 .Subscribe(_ => ViewModel.WatchAdCommand.Execute(Unit.Default))
                 .AddTo(ref disposableBuilder);
             ViewModel.RemainingAdCount
@@ -124,30 +125,32 @@ namespace FitMe.Panel
             
             _logoTween.Stop();
             _logoTween = Tween.Scale(logoRect, logoBubbleSettings);
+            OnEnergyUpdated();
         }
         
         private void OnEnergyUpdated()
         {
-            var shouldDisplay = !ViewModel.HasEnoughEnergy(1);
-            watchAdsButton.gameObject.SetActive(shouldDisplay);
-            timeUntilNextAdText.gameObject.SetActive(shouldDisplay);
+            var interactable = !ViewModel.HasEnoughEnergy(1) && ViewModel.RemainingAdCount.CurrentValue > 0;
+            watchAdsButton.Button.interactable = interactable;
+            watchAdsButton.ApplyTint(interactable ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
         }
         
         private void OnRemainingAdCountChanged(int count)
         {
             if (ViewModel.RemainingAdCount.CurrentValue >= ViewModel.MaxAdCount)
             {
-                timeUntilNextAdText.text = "Full";
+                timeUntilNextAdText.text = string.Empty;
             }
-            watchAdsButton.interactable = count > 0;
-            //remainingAdCount.text = $"Remaining: {count}";
+            var interactable = count > 0 && !ViewModel.HasEnoughEnergy(1);
+            watchAdsButton.Button.interactable = interactable;
+            watchAdsButton.ApplyTint(interactable ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
         }
 
         private void OnTimeUntilNextAdChanged(TimeSpan time)
         {
             if (ViewModel.RemainingAdCount.CurrentValue >= ViewModel.MaxAdCount)
             {
-                timeUntilNextAdText.text = "Full";
+                timeUntilNextAdText.text = string.Empty;
                 return;
             }
             //round up to the nearest second for display purposes

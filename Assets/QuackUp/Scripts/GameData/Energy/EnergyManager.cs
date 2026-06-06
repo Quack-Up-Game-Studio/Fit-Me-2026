@@ -99,13 +99,15 @@ namespace FitMe.GameData
         }
 
         [Button("Change Energy")]
-        public void ChangeEnergy(int amount, bool addToOverflow = false)
+        public void ChangeEnergy(int amount, bool allowOverflow = false)
         {
             if (amount < 0 && _infiniteEnergy.Value)
             {
                 return;
             }
-            if (!addToOverflow)
+            if (amount <= 0) allowOverflow = true; //NOTE: Negative or zero change amount will always allow overflow 
+            // as not doing so will make player lose the overflow energy due to the condition below.
+            if (!allowOverflow)
             {
                 amount = _currentEnergy.Value + amount > _config.MaxEnergy ? 
                     _config.MaxEnergy - _currentEnergy.Value : 
