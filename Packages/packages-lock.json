@@ -91,6 +91,15 @@
       },
       "hash": "cbb49edd2a1b252340967c2ffd8b7121539987af"
     },
+    "com.gameanalytics.sdk": {
+      "version": "https://github.com/GameAnalytics/GA-SDK-UNITY.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.google.external-dependency-manager": "1.2.168"
+      },
+      "hash": "bd69624335594f29eba0e78a68e6a70eb857f4b6"
+    },
     "com.github-glitchenzo.nugetforunity": {
       "version": "4.5.0",
       "depth": 0,

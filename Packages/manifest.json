@@ -11,6 +11,7 @@
     "com.esotericsoftware.spine.spine-unity": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Assets/Spine#4.2",
     "com.esotericsoftware.spine.spine-unity-examples": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Assets/Spine Examples#4.2",
     "com.esotericsoftware.spine.urp-shaders": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Modules/com.esotericsoftware.spine.urp-shaders#4.2",
+    "com.gameanalytics.sdk": "https://github.com/GameAnalytics/GA-SDK-UNITY.git",
     "com.github-glitchenzo.nugetforunity": "4.5.0",
     "com.github.messagepack-csharp": "https://github.com/MessagePack-CSharp/MessagePack-CSharp.git?path=src/MessagePack.UnityClient/Assets/Scripts/MessagePack",
     "com.google.ads.mobile": "10.7.0",

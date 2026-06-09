@@ -5,6 +5,7 @@ using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Panel;
 using FitMe.Shared;
+using GameAnalyticsSDK;
 using MessagePipe;
 using QuackUp.Audio;
 using QuackUp.Save;
@@ -120,6 +121,7 @@ namespace FitMe.Scene.MainMenu
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
+            GameAnalytics.Initialize();
         }
 
         public void Dispose()
