@@ -317,12 +317,12 @@ namespace FitMe.Scene
         private void OnFit()
         {
             _orthographicCameraManager.Shake(_config.CameraFitShakeSettings, _config.CameraFitShakeStrengthFactor);
-            _scoreLastLevel = Score.Value;
-            _fitMeLastLevel = FitMe.Value;
-            
+
             /* Analytics */
             ReportComplete();
-            
+            _scoreLastLevel = Score.Value;
+            _fitMeLastLevel = FitMe.Value;
+
             if (IsTutorial) return;
             ChangeDifficultyLevel();
             GridPreset = GameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;

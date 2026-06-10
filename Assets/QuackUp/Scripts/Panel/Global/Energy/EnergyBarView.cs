@@ -90,6 +90,12 @@ namespace FitMe.Panel
 
         private void OnEnergyChanged(int currentEnergy)
         {
+            if (_viewModel.InfiniteEnergy.CurrentValue)
+            {
+                energyCountText.text = string.Empty;
+                untilNextRechargeText.text = "Infinite";
+                return;
+            }
             var maxEnergy = _viewModel.Config.MaxEnergy;
             watchAdButton.interactable = _viewModel.AllowWatchAd.CurrentValue && currentEnergy < maxEnergy;
             if (currentEnergy >= maxEnergy)

@@ -48,4 +48,9 @@ namespace FitMe.Shared
         public const string Spender = "Spender"; //For user who has spent money but not on subscription.
         public const string Premium = "Premium"; //For user who has spent money on subscription.
     }
+
+    public static class GACartType
+    {
+        public const string Store = "Store";
+    }
 }

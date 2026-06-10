@@ -414,21 +414,30 @@ namespace QuackUp.IAP
                     DebugUtils.LogWarning($"IAP: Unknown product ID: {id}");
                     break;
             }
-            var currency = product?.metadata.isoCurrencyCode ?? "USD";
-            var priceDecimal = product?.metadata.localizedPrice ?? 0m;
-            var amount = IapCurrencyHelper.GetAmountInMinorUnits(priceDecimal, currency);
-            GameAnalytics.NewBusinessEvent(currency, amount, itemType, id, "Store");
+
             _onPurchaseSuccess?.OnNext(Unit.Default);
             
             //Save
             var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
-            if (!saveObject) return;
-            var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
-            if (saveData == null) return;
-            if (saveData.HasPurchasedAtLeastOnce) return;
-            saveData.HasPurchasedAtLeastOnce = true;
-            _saveManager.Save(saveObject);
-            _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
+            if (saveObject)
+            {
+                var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
+                if (saveData is {HasPurchasedAtLeastOnce: false})
+                {
+                    saveData.HasPurchasedAtLeastOnce = true;
+                    _saveManager.Save(saveObject);
+                    _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
+                }
+            }
+
+            //Update Player Tier
+            UpdateAnalyticPlayerTier();
+
+            //Report Business
+            var currency = product?.metadata.isoCurrencyCode ?? "USD";
+            var priceDecimal = product?.metadata.localizedPrice ?? 0m;
+            var amount = IapCurrencyHelper.GetAmountInMinorUnits(priceDecimal, currency);
+            GameAnalytics.NewBusinessEvent(currency, amount, itemType, id, GACartType.Store);
         }
 
         private void OnPurchaseFailed(FailedOrder order)
