@@ -1,7 +1,7 @@
 {
     "dotnet.defaultSolution": "Fit-Me-2026.sln",
     "dotnet.dotnetPath": "/usr/bin/dotnet",
-    "dotrush.roslyn.dotnetSdkDirectory": "/usr/share/dotnet/sdk/10.0.104",
+    "dotrush.roslyn.dotnetSdkDirectory": "/usr/share/dotnet/sdk/10.0.108",
     "dotrush.msbuildProperties": {
         "DefineConstants": "UNITY_EDITOR"
     },

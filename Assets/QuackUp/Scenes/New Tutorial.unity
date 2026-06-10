@@ -3441,8 +3441,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -250}
-  m_SizeDelta: {x: 0, y: 500}
+  m_AnchoredPosition: {x: 0, y: -277.5}
+  m_SizeDelta: {x: 0, y: 555}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &316097224
 MonoBehaviour:
@@ -3517,7 +3517,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 133, y: -126}
+  m_AnchoredPosition: {x: 164, y: -154}
   m_SizeDelta: {x: 237, y: 92}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &328596219
@@ -6156,8 +6156,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Remember, <style="HL">matching colors</style> will always give you higher
-    score. Let's try again.
+  m_text: <style="HL_B">Welcome to<br>"Fit Me!"</style><br>I'll be your little helper
+    today!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 925d826c7336f9943bb88f264551e3c8, type: 2}
   m_sharedMaterial: {fileID: 1872101823171606044, guid: 925d826c7336f9943bb88f264551e3c8, type: 2}
@@ -6184,12 +6184,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 88.55
+  m_fontSize: 91.55
   m_fontSizeBase: 80
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 120
+  m_fontSizeMax: 96
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -14811,7 +14811,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.99458957}
   m_AnchorMax: {x: 0.5, y: 0.99458957}
-  m_AnchoredPosition: {x: 0, y: -3}
+  m_AnchoredPosition: {x: 0, y: -31}
   m_SizeDelta: {x: 400, y: 204.90002}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &1336743139
@@ -16936,7 +16936,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -30}
+  m_AnchoredPosition: {x: 0, y: -58}
   m_SizeDelta: {x: 225, y: 158}
   m_Pivot: {x: 1, y: 1}
 --- !u!1 &1582551618

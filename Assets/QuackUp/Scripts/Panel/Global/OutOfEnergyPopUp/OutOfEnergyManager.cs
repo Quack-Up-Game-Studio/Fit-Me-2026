@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
+using FitMe.Shared;
 using QuackUp.Save;
 using QuackUp.SocialService;
 using QuackUp.Utils;
@@ -82,7 +83,7 @@ namespace FitMe.Panel
 
         private async UniTaskVoid InitializeAsync()
         {
-            await _saveManager.SaveDataReady;
+            await _saveManager.WaitForSaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = _saveObject.GetSaveData<PlayerRecordSaveData>();
             _remainingAdCount.Value = saveData.IsFirstTimePlayer ? _maxAdCount : saveData.CurrentRemainingAd;
@@ -134,12 +135,13 @@ namespace FitMe.Panel
         public void WatchAds()
         {
             if (_remainingAdCount.Value <= 0) return;
-            if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var instance)) return;
-            if (!instance.Enabled) return;
+            if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAdInstance)) return;
+            if (!rewardedAdInstance.Enabled) return;
             _onRewardEarned?.Dispose();
-            _onRewardEarned = instance.OnUserEarnedReward
+            _onRewardEarned = rewardedAdInstance.OnUserEarnedReward
                 .Subscribe(_ => OnRewardEarned());
-            instance.TryShow();
+            rewardedAdInstance.AdContext = "RefillEnergy";
+            rewardedAdInstance.TryShow();
         }
 
         public void ToShop()
@@ -151,7 +153,7 @@ namespace FitMe.Panel
         private void OnRewardEarned()
         {
             ChangeRemainingAdCount(-1);
-            _energyManager.ChangeEnergy(1);
+            _energyManager.ChangeEnergy(1, itemType: GAItemType.Ads, itemId: GAItemId.OutOfEnergyAds);
             TransitionOutCommand.Execute(new Promise<Unit>());
             _onRewardEarned?.Dispose();
         }

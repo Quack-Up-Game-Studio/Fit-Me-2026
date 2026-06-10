@@ -30,7 +30,7 @@ MonoBehaviour:
   secretKey:
   - 61fb9723fde971d9acf5f8d81bca8a7040328889
   Build:
-  - 0.1
+  - 0.14.4-devbuild.1+android
   SelectedPlatformOrganization:
   - Ping Mate
   SelectedPlatformStudio:
@@ -52,18 +52,26 @@ MonoBehaviour:
   IntroScreen: 0
   InfoLogEditor: 1
   InfoLogBuild: 1
-  VerboseLogBuild: 0
+  VerboseLogBuild: 1
   UseManualSessionHandling: 0
   SendExampleGameDataToMyGame: 0
   InternetConnectivity: 0
-  CustomDimensions01: []
+  CustomDimensions01:
+  - F2P
+  - Premium
+  - Spender
   CustomDimensions02: []
   CustomDimensions03: []
-  ResourceItemTypes: []
-  ResourceCurrencies: []
+  ResourceItemTypes:
+  - IAP
+  - Play
+  - Recharge
+  - Ads
+  ResourceCurrencies:
+  - Energy
   LastCreatedGamePlatform: -1
   Platforms: 0b000000
-  CurrentInspectorState: 3
+  CurrentInspectorState: 1
   ClosedHints: 
   DisplayHints: 0
   DisplayHintsScrollState: {x: 0, y: 0}
@@ -91,11 +99,11 @@ MonoBehaviour:
   FpsCriticalThreshold: 20
   FpsCirticalSubmitInterval: 1
   PlatformFoldOut: 00
-  CustomDimensions01FoldOut: 0
+  CustomDimensions01FoldOut: 1
   CustomDimensions02FoldOut: 0
   CustomDimensions03FoldOut: 0
-  ResourceItemTypesFoldOut: 0
-  ResourceCurrenciesFoldOut: 0
+  ResourceItemTypesFoldOut: 1
+  ResourceCurrenciesFoldOut: 1
   EnableMemoryHistogram: 1
   EnableHealthEvent: 0
   EnableFPSHistogram: 1

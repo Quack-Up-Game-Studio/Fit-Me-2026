@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using R3;
 using TMPro;
 using UnityEngine;
@@ -20,6 +22,7 @@ namespace FitMe.Panel
         [SerializeField] private TMP_Text timeUntilNextAdText;
         [SerializeField] private RectTransform logoRect;
         [SerializeField] private TweenSettings<Vector3> logoBubbleSettings;
+        [SerializeField] private GeneralFloatingUIElement placeBlockHint;
 
         [SerializeField] private string challengePanelId = "Challenge";
         [SerializeField] private string settingsPanelId = "Settings";
@@ -29,6 +32,7 @@ namespace FitMe.Panel
         
         private MainMenuPanelViewModel ViewModel => (MainMenuPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
+        private CancellationTokenSource _hintCts = new();
         
         private Vector3 _originalLogoScale = Vector3.one;
         private bool _hasStoredLogoScale;
@@ -86,6 +90,20 @@ namespace FitMe.Panel
             ViewModel.InfiniteEnergy
                 .Subscribe(_ => OnEnergyUpdated())
                 .AddTo(ref disposableBuilder);
+            ViewModel.ShowPlaceBlockHint
+                .IgnoreFirstValueWhenSubscribe()
+                .Subscribe(show =>
+                {
+                    if (show)
+                    {
+                        ShowHint().Forget();
+                    }
+                    else
+                    {
+                        HideHint().Forget();
+                    }
+                })
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 
@@ -94,11 +112,22 @@ namespace FitMe.Panel
             base.Dispose();
             _bindings?.Dispose();
             _logoTween.Stop();
+            if (_hintCts is { IsCancellationRequested: false })
+            {
+                _hintCts.Cancel();
+            }
+            _hintCts?.Dispose();
+            _hintCts = null;
         }
 
         private void OnDisable()
         {
             _logoTween.Stop();
+        }
+
+        private void Awake()
+        {
+            placeBlockHint.Initialize();
         }
 
         protected override void OnVisibilityStateChanged(VisibilityState state)
@@ -126,6 +155,34 @@ namespace FitMe.Panel
             _logoTween.Stop();
             _logoTween = Tween.Scale(logoRect, logoBubbleSettings);
             OnEnergyUpdated();
+        }
+        
+        private async UniTask ShowHint()
+        {
+            if (!placeBlockHint) return;
+            CancelHint();
+            var token = _hintCts.Token;
+            placeBlockHint.Reset();
+            await placeBlockHint.TransitionIn(token);
+            placeBlockHint.Animate(token).Forget();
+        }
+
+        private async UniTask HideHint()
+        {
+            if (!placeBlockHint) return;
+            CancelHint();
+            var token = _hintCts.Token;
+            await placeBlockHint.TransitionOut(token);
+        }
+
+        private void CancelHint()
+        {
+            if (_hintCts is { IsCancellationRequested: false })
+            {
+                _hintCts.Cancel();
+            }
+            _hintCts?.Dispose();
+            _hintCts = new CancellationTokenSource();
         }
         
         private void OnEnergyUpdated()

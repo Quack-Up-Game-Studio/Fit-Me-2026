@@ -23,7 +23,7 @@ namespace QuackUp.Save
         [OdinSerialize, ReadOnly] private Dictionary<string, MessagePackSaveObject> _saveObjects = new();
 
         private readonly UniTaskCompletionSource _saveDataReadyTcs = new();
-        public UniTask SaveDataReady => _saveDataReadyTcs.Task;
+        public UniTask WaitForSaveDataReady => IsSaveReady ? UniTask.CompletedTask : _saveDataReadyTcs.Task;
         public bool IsSaveReady { get; private set; }
 
         public void MarkSaveDataReady()

@@ -72,7 +72,7 @@ namespace FitMe.Achievement
 
         private async UniTaskVoid InitializeAsync()
         {
-            await _saveManager.SaveDataReady;
+            await _saveManager.WaitForSaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<AchievementSaveObject>();
             if (!_saveObject)
             {

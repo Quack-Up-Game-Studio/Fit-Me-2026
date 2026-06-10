@@ -167,10 +167,10 @@ MonoBehaviour:
     applyIconToSubfolders: 0
     materialColor: 0
   - folderName: Settings
-    folderColor: {r: 0.7058824, g: 0.3254902, b: 0.03529412, a: 1}
-    fullPath: 
-    icon: {fileID: 0}
-    applyToAllFolders: 1
+    folderColor: {r: 0.990566, g: 0.49014893, b: 0, a: 1}
+    fullPath: Assets/QuackUp/Settings
+    icon: {fileID: 2800000, guid: 70b9d2eb2707e734eb8ccad25f52b7ed, type: 3}
+    applyToAllFolders: 0
     applyColorToSubfolders: 1
     applyIconToSubfolders: 0
     materialColor: 0
@@ -188,5 +188,21 @@ MonoBehaviour:
     icon: {fileID: 0}
     applyToAllFolders: 1
     applyColorToSubfolders: 1
+    applyIconToSubfolders: 0
+    materialColor: 0
+  - folderName: ArtAssets
+    folderColor: {r: 0.9137255, g: 0.11764706, b: 0.3882353, a: 1}
+    fullPath: Assets/QuackUp/Arts/ArtAssets
+    icon: {fileID: 2800000, guid: 70b9d2eb2707e734eb8ccad25f52b7ed, type: 3}
+    applyToAllFolders: 0
+    applyColorToSubfolders: 0
+    applyIconToSubfolders: 0
+    materialColor: 2
+  - folderName: Button_9_Sliced
+    folderColor: {r: 0, g: 1, b: 0, a: 1}
+    fullPath: Assets/QuackUp/Arts/UpdateArt_v02/Button_9_Sliced
+    icon: {fileID: 0}
+    applyToAllFolders: 0
+    applyColorToSubfolders: 0
     applyIconToSubfolders: 0
     materialColor: 0

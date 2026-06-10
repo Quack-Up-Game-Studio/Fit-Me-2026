@@ -61,7 +61,7 @@ namespace FitMe.Scene
                 await _energyManager.ShowNotEnoughEnergyNotification();
                 return;
             }
-            _energyManager.ChangeEnergy(-1);
+            _energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.ModeSelectPlay);
             LevelManager.GameMode = mode;
             await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
         }

@@ -12,16 +12,40 @@
   <component name="ChangeListManager">
     <list default="true" id="3e146db8-0d40-4527-ab2e-58ab9324552a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fit-Me-2026/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Android/mainTemplate.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Android/mainTemplate.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Arts/Materials/RepeatingScroll.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/Gameplay.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scenes/MainMenu.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/FitMe.Scene.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/FitMe.Scene.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Achievement/AchievementManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Audio/AudioManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Audio/AudioManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Energy/EnergyManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Energy/EnergyManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/FitMe.GameData.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/FitMe.GameData.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Player/PlayerRecordSaveData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Player/PlayerRecordSaveData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Player/PlaytimeTracker/PlaytimeTracker.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/GameData/Player/PlaytimeTracker/PlaytimeTracker.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/FitMe.Grid.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Grid/FitMe.Grid.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/QuackUp.IAP.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/QuackUp.IAP.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/GameOver/GameOverPanelViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Gameplay/Result/ResultPanelViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Energy/EnergyBarViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/Energy/EnergyBarViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/MessagePackSaveManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Save/MessagePackSaveManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerConfig.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerMessageHub.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Gameplay/LevelManagerMessageHub.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/MainMenu/MainMenuManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/MainMenu/MainMenuManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/Build Profiles/Android™.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/ModeSelectManager/ModeSelectManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/ModeSelectManager/ModeSelectManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Tutorial/TutorialManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Scene/Tutorial/TutorialManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/GAStatics.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/GAStatics.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/FitMe.Tutorial.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Tutorial/FitMe.Tutorial.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/QuackUp.Utils.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/QuackUp.Utils.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/QuackUp/Settings/Scenes/Gameplay/LevelManagerConfig.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/QuackUp/Settings/Scenes/Gameplay/LevelManagerConfig.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/GameAnalytics/Settings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/GameAnalytics/Settings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TestSave/save/player-save.sav" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/AndroidResolverDependencies.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/AndroidResolverDependencies.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/AndroidLogcatSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +80,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scenes/Tutorial.unity" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/IAP/InAppPurchaseManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyInstaller.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyManager.cs" root0="FORCE_HIGHLIGHTING" />
@@ -63,6 +88,10 @@
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/Global/OutOfEnergyPopUp/OutOfEnergyViewModel.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/Tab/LeaderboardTabView.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/Leaderboard/Tab/LeaderboardTabViewModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelView.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Panel/MainMenu/MainMenu/MainMenuPanelViewModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Shared/GAStatics.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/QuackUp/Scripts/Utils/Ads/AdsService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/UnityPurchasing/generated/GooglePlayTangle.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="McpProjectServerCommands">
@@ -70,6 +99,9 @@
     <urls />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 8
@@ -98,6 +130,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;RoslynSettingsId&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
@@ -191,6 +224,30 @@
       <workItem from="1780717911413" duration="503000" />
       <workItem from="1780906004301" duration="204000" />
       <workItem from="1780971800031" duration="696000" />
+      <workItem from="1780973834018" duration="106000" />
+      <workItem from="1780973967344" duration="1324000" />
+      <workItem from="1780975479197" duration="425000" />
+      <workItem from="1780976309311" duration="236000" />
+      <workItem from="1780976672155" duration="817000" />
+      <workItem from="1780977531398" duration="201000" />
+      <workItem from="1780977755620" duration="490000" />
+      <workItem from="1780978361696" duration="555000" />
+      <workItem from="1780979178430" duration="211000" />
+      <workItem from="1780979809106" duration="64000" />
+      <workItem from="1780979948457" duration="330000" />
+      <workItem from="1780980322622" duration="361000" />
+      <workItem from="1780982634358" duration="2098000" />
+      <workItem from="1780984916741" duration="945000" />
+      <workItem from="1780987796861" duration="2434000" />
+      <workItem from="1780990426852" duration="1255000" />
+      <workItem from="1780991782665" duration="2025000" />
+      <workItem from="1780994214748" duration="3000" />
+      <workItem from="1780994297761" duration="3370000" />
+      <workItem from="1780999757749" duration="6254000" />
+      <workItem from="1781006057951" duration="1592000" />
+      <workItem from="1781007747787" duration="1444000" />
+      <workItem from="1781009711162" duration="442000" />
+      <workItem from="1781010399451" duration="678000" />
     </task>
     <servers />
   </component>

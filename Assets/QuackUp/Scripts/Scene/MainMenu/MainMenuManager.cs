@@ -20,7 +20,7 @@ using VContainer.Unity;
 
 namespace FitMe.Scene.MainMenu
 {
-    public class MainMenuManager : IStartable, IDisposable
+    public class MainMenuManager : IPostInitializable, IStartable, IDisposable
     {
         private readonly MainMenuManagerConfig _mainMenuManagerConfig;
         private readonly BlockManagerConfig _blockManagerConfig;
@@ -99,7 +99,12 @@ namespace FitMe.Scene.MainMenu
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
-        
+
+        public void PostInitialize()
+        {
+            GameAnalytics.Initialize();
+        }
+
         public void Start()
         {
             StartAsync().Forget();
@@ -107,7 +112,7 @@ namespace FitMe.Scene.MainMenu
 
         private async UniTaskVoid StartAsync()
         {
-            await _saveManager.SaveDataReady;
+            await _saveManager.WaitForSaveDataReady;
             var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
             saveData.IsFirstTimePlayer = false;
@@ -121,7 +126,6 @@ namespace FitMe.Scene.MainMenu
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
-            GameAnalytics.Initialize();
         }
 
         public void Dispose()
@@ -170,7 +174,7 @@ namespace FitMe.Scene.MainMenu
 
         private async UniTaskVoid ToGameplay()
         {
-            _energyManager.ChangeEnergy(-1);
+            _energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.MainMenuPlay);
             LevelManager.GameMode = GameMode.Classic;
             await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
         }
@@ -183,6 +187,7 @@ namespace FitMe.Scene.MainMenu
             }
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
+            bannerAdInstance.AdContext = "Banner";
             bannerAdInstance.TryShow();
         }
 

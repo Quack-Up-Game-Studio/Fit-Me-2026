@@ -112,6 +112,7 @@ namespace FitMe.Panel
             _adSubscription?.Dispose();
             _adSubscription = rewardedAd.OnUserEarnedReward
                 .Subscribe(_ => OnAdSuccess());
+            rewardedAd.AdContext = "Continue";
             rewardedAd.TryShow();
         }
         

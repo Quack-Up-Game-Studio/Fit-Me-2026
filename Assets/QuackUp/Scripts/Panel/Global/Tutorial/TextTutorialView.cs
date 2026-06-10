@@ -233,7 +233,11 @@ namespace FitMe.Panel.Tutorial
 
         private void ResetTokenSource(Promise<bool> promise)
         {
-            _cancellationTokenSource.Cancel();
+            if (_cancellationTokenSource is { IsCancellationRequested: false })
+            {
+                _cancellationTokenSource.Cancel();
+            }
+            _cancellationTokenSource.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Token.Register(() => promise.TrySetResult(false));
         }
@@ -246,7 +250,10 @@ namespace FitMe.Panel.Tutorial
                 _displayDataTokenSource = null;
                 return;
             }
-            _cancellationTokenSource.Cancel();
+            if (_cancellationTokenSource is { IsCancellationRequested: false })
+            {
+                _cancellationTokenSource.Cancel();
+            }
             characterSkeleton.AnimationState.ClearTrack(0);
             characterSkeleton.AnimationState.SetAnimation(0, animationWhenTouch, false);
             characterSkeleton.AnimationState.AddAnimation(0, defaultAnimation, true, 0);

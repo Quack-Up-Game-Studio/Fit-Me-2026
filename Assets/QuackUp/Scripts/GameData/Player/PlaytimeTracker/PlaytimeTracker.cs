@@ -29,7 +29,7 @@ namespace FitMe.GameData
 
         private async UniTaskVoid InitializeAsync()
         {
-            await _saveManager.SaveDataReady;
+            await _saveManager.WaitForSaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             StartTimer();
             Application.focusChanged += OnApplicationFocusChanged;

@@ -245,3 +245,4 @@ MonoBehaviour:
   <GameOverPanelId>k__BackingField: GameOver
   <GameplayPanelId>k__BackingField: Gameplay
   <ResultPanelId>k__BackingField: Result
+  <SettingsPanelId>k__BackingField: Pause

@@ -18,7 +18,8 @@ namespace FitMe.Scene
             IPublisher<StartCreateGridEvent> startCreateGridPublisher,
             IPublisher<DifficultyChangeEvent> difficultyChangePublisher,
             ISubscriber<LoadSceneStageEvent> loadSceneStageSubscriber,
-            ISubscriber<GameOverEvent> gameOverSubscriber)
+            ISubscriber<GameOverEvent> gameOverSubscriber,
+            ISubscriber<ContinueEvent> continueSubscriber)
         {
             MessageWrappers[typeof(SpawnWithBlockPresetEvent)] = new MessageWrapper<SpawnWithBlockPresetEvent>(
                 startSpawnBlockPublisher,
@@ -38,6 +39,9 @@ namespace FitMe.Scene
             MessageWrappers[typeof(GameOverEvent)] = new MessageWrapper<GameOverEvent>(
                 null,
                 gameOverSubscriber);
+            MessageWrappers[typeof(ContinueEvent)] = new MessageWrapper<ContinueEvent>(
+                null,
+                continueSubscriber);
         }
     }
 }

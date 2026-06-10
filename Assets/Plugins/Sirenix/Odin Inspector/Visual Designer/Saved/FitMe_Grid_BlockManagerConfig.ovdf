@@ -20,7 +20,7 @@ Position: $root:2
 	GroupName = "References"
 
 # $DGvRVyDJQGz3EWecgErbzP
-Position: $root:48
+Position: $root:42
 + [Sirenix.OdinInspector.FoldoutGroupAttribute]
 	GroupName = "Audio"
 
@@ -139,3 +139,39 @@ Position: $7h7pX9KLWqGdjJMMjxYgWD:12
 Position: $7h7pX9KLWqGdjJMMjxYgWD:13
 + [Sirenix.OdinInspector.ShowIfAttribute]
 	Condition = "UseDynamicDragOffset"
+
+# <MinDynamicDragOffsetY>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:12
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseDynamicDragOffset"
+
+# <MaxDynamicDragOffsetY>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:13
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseDynamicDragOffset"
+
+# <MinDynamicDragOffsetX>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:14
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseDynamicDragOffset"
+
+# <MaxDynamicDragOffsetX>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:15
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseDynamicDragOffset"
+
+# <DynamicOffsetX>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:12
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseDynamicDragOffset"
++ [Sirenix.OdinInspector.MinMaxSliderAttribute]
+	MaxValue = 10
+	ShowFields = True
+
+# <DynamicOffsetY>k__BackingField
+Position: $7h7pX9KLWqGdjJMMjxYgWD:13
++ [Sirenix.OdinInspector.ShowIfAttribute]
+	Condition = "UseDynamicDragOffset"
++ [Sirenix.OdinInspector.MinMaxSliderAttribute]
+	MaxValue = 10
+	ShowFields = True

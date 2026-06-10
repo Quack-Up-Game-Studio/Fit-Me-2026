@@ -1,5 +1,6 @@
 using System;
 using FitMe.GameData;
+using FitMe.Shared;
 using QuackUp.Utils;
 using R3;
 using VContainer;
@@ -55,12 +56,13 @@ namespace FitMe.Panel
             if (!rewardedAd.Enabled) return;
             _adSubscription = rewardedAd.OnUserEarnedReward
                 .Subscribe(_ => OnAdSuccess());
+            rewardedAd.AdContext = "RefillEnergy";
             rewardedAd.TryShow();
         }
         
         private void OnAdSuccess()
         {
-            _energyManager.ChangeEnergy(1);
+            _energyManager.ChangeEnergy(1, itemType: GAItemType.Ads, itemId: GAItemId.EnergyBarAds);
             _adSubscription?.Dispose();
         }
     }

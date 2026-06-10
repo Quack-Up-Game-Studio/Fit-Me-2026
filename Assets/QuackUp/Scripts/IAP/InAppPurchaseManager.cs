@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
+using FitMe.Shared;
+using GameAnalyticsSDK;
 using MessagePipe;
+using QuackUp.Save;
+using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
@@ -38,9 +42,11 @@ namespace QuackUp.IAP
     [Serializable]
     public class InAppPurchaseManager : IStartable, IDisposable
     {
-        private CatalogProvider _catalogProvider;
-        private EnergyManager _energyManager;
-        private AdsService _adsService;
+        private readonly EnergyManager _energyManager;
+        private readonly AdsService _adsService;
+        private readonly MessagePackSaveManager _saveManager;
+        private readonly ICloudSaveService _cloudSaveService;
+        private readonly ISubscriber<EndSubscriptionEvent> _endSubscriptionEvent;
 
         /// <summary>
         /// Event that called when the store is connected, products and purchases are fetched, and the IAP system is ready to use.
@@ -57,7 +63,7 @@ namespace QuackUp.IAP
         private IDisposable _subscriptions;
         private IDisposable _expirationTimer;
         private IDisposable _periodicCheckTimer;
-        private ISubscriber<EndSubscriptionEvent> _endSubscriptionEvent;
+        private CatalogProvider _catalogProvider;
         private bool _initializing;
         private StoreController StoreController => UnityIAPServices.StoreController();
 
@@ -76,18 +82,22 @@ namespace QuackUp.IAP
         private void DebugClearSubscriptions()
         {
             _confirmedSubscriptions.Clear();
-            EndOfSubscription();
+            EndSubscription();
         }
 
         [Inject]
-        public void Construct(
-            ISubscriber<EndSubscriptionEvent> endSubscriptionEvent,
+        public InAppPurchaseManager(
             EnergyManager energyManager,
-            AdsService adsService)
+            AdsService adsService,
+            MessagePackSaveManager saveManager,
+            ICloudSaveService cloudSaveService,
+            ISubscriber<EndSubscriptionEvent> endSubscriptionEvent)
         {
             _energyManager = energyManager;
-            _endSubscriptionEvent = endSubscriptionEvent;
             _adsService = adsService;
+            _saveManager = saveManager;
+            _cloudSaveService = cloudSaveService;
+            _endSubscriptionEvent = endSubscriptionEvent;
             Subscribe();
         }
 
@@ -95,7 +105,7 @@ namespace QuackUp.IAP
         {
             var disposableBuilder = Disposable.CreateBuilder();
             _endSubscriptionEvent
-                .Subscribe(_ => EndOfSubscription())
+                .Subscribe(_ => EndSubscription())
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
@@ -117,7 +127,14 @@ namespace QuackUp.IAP
         public void Start()
         {
             CreateCatalog();
-            Initialize().Forget();
+            StartTask().Forget();
+        }
+        
+        private async UniTaskVoid StartTask()
+        {
+            await Initialize();
+            await _saveManager.WaitForSaveDataReady;
+            UpdateAnalyticPlayerTier();
         }
 
         private void CreateCatalog()
@@ -173,14 +190,6 @@ namespace QuackUp.IAP
 
         private void SubscribeBeforeConnect()
         {
-            _connectSubscriptions.Dispose();
-            _connectSubscriptions = new DisposableBag();
-            Observable.FromEvent<StoreConnectionFailureDescription>(
-                    handler => StoreController.OnStoreDisconnected += handler,
-                    handler => StoreController.OnStoreDisconnected -= handler)
-                .Subscribe(OnStoreDisconnected)
-                .AddTo(ref _connectSubscriptions);
-            
             _purchaseSubscriptions.Dispose();
             _purchaseSubscriptions = new DisposableBag();
             Observable.FromEvent<Order>(
@@ -209,18 +218,41 @@ namespace QuackUp.IAP
 
         private async UniTask InitializeConnection()
         {
+            _connectSubscriptions.Dispose();
+            _connectSubscriptions = new DisposableBag();
+            var connectionTcs = new UniTaskCompletionSource<bool>();
+            Observable.FromEvent<StoreConnectionFailureDescription>(
+                    handler => StoreController.OnStoreDisconnected += handler,
+                    handler => StoreController.OnStoreDisconnected -= handler)
+                .Subscribe(x => OnStoreDisconnected(x, connectionTcs))
+                .AddTo(ref _connectSubscriptions);
+            Observable.FromEvent(
+                    handler => StoreController.OnStoreConnected += handler,
+                    handler => StoreController.OnStoreConnected -= handler)
+                .Subscribe(_ => OnStoreConnected(connectionTcs))
+                .AddTo(ref _connectSubscriptions);
             await StoreController.Connect();
-            IsConnected = true;
+            var result = await connectionTcs.Task;
+            IsConnected = result;
+            if (!result)
+            {
+                IsProductReady = false;
+                IsPurchaseReady = false;
+            }
         }
 
-        private void OnStoreDisconnected(StoreConnectionFailureDescription desc)
+        private void OnStoreConnected(UniTaskCompletionSource<bool> tcs)
         {
-            IsConnected = false;
-            IsProductReady = false;
-            IsPurchaseReady = false;
+            tcs.TrySetResult(true);
+            DebugUtils.Log($"IAP: Store connected");
+        }
+
+        private void OnStoreDisconnected(StoreConnectionFailureDescription desc, UniTaskCompletionSource<bool> tcs)
+        {
+            tcs.TrySetResult(false);
             DebugUtils.LogError($"IAP: Store connection failed: {desc.Message}");
             if (!desc.IsRetryable) return;
-            Debug.Log("IAP: Retrying store connection...");
+            DebugUtils.Log("IAP: Retrying store connection...");
             Initialize().Forget();
         }
 
@@ -311,15 +343,11 @@ namespace QuackUp.IAP
 
             if (HasActiveSubscription())
             {
-                DebugUtils.Log("IAP: Active subscription found, restoring benefits.");
-                _energyManager.SetInfiniteEnergy(true);
-                _adsService.SetEnableStateAll(false);
+                StartSubscription();
             }
             else
             {
-                DebugUtils.Log("IAP: No active subscription.");
-                _energyManager.SetInfiniteEnergy(false);
-                _adsService.SetEnableStateAll(true);
+                EndSubscription();
             }
 
             StartSubscriptionCheckTimer();
@@ -345,6 +373,7 @@ namespace QuackUp.IAP
             if (order is PendingOrder) return; //The order is still pending; it will be confirmed in OnPurchasePending, so we can skip processing here.
             var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
             var id = product?.definition.id;
+            var itemType = "Unknown";
             switch (id)
             {
 #if UNITY_EDITOR
@@ -355,22 +384,25 @@ namespace QuackUp.IAP
 #endif
                 case ProductIds.Energy2:
                     DebugUtils.Log("IAP: 3 energy granted.");
-                    _energyManager.ChangeEnergy(3, true);
+                    itemType = "Energy";
+                    _energyManager.ChangeEnergy(3, true, GAItemType.IAP, id);
                     break;
                 case ProductIds.Energy3:
                     DebugUtils.Log("IAP: 5 energy granted.");
-                    _energyManager.ChangeEnergy(5, true);
+                    itemType = "Energy";
+                    _energyManager.ChangeEnergy(5, true, GAItemType.IAP, id);
                     break;
                 case ProductIds.MaxEnergy:
+                    itemType = "Energy";
                     DebugUtils.Log("IAP: Max energy granted.");
-                    _energyManager.ChangeEnergy(_energyManager.Config.MaxEnergy, true);
+                    _energyManager.ChangeEnergy(_energyManager.Config.MaxEnergy, true, GAItemType.IAP, id);
                     break;
                 case ProductIds.MonthlyPass:
                 case ProductIds.QuarterlyPass:
                 case ProductIds.AnnuallyPass:
                     DebugUtils.Log($"IAP: {id} pass activated.");
-                    _energyManager.SetInfiniteEnergy(true);
-                    _adsService.SetEnableStateAll(false);
+                    itemType = "Subscription";
+                    StartSubscription();
                     _confirmedSubscriptions.Add(order.Info.PurchasedProductInfo.FirstOrDefault()?.subscriptionInfo);
                     StartExpirationTimer();
 #if UNITY_EDITOR
@@ -382,7 +414,21 @@ namespace QuackUp.IAP
                     DebugUtils.LogWarning($"IAP: Unknown product ID: {id}");
                     break;
             }
+            var currency = product?.metadata.isoCurrencyCode ?? "USD";
+            var priceDecimal = product?.metadata.localizedPrice ?? 0m;
+            var amount = IapCurrencyHelper.GetAmountInMinorUnits(priceDecimal, currency);
+            GameAnalytics.NewBusinessEvent(currency, amount, itemType, id, "Store");
             _onPurchaseSuccess?.OnNext(Unit.Default);
+            
+            //Save
+            var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            if (!saveObject) return;
+            var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
+            if (saveData == null) return;
+            if (saveData.HasPurchasedAtLeastOnce) return;
+            saveData.HasPurchasedAtLeastOnce = true;
+            _saveManager.Save(saveObject);
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
         }
 
         private void OnPurchaseFailed(FailedOrder order)
@@ -498,11 +544,20 @@ namespace QuackUp.IAP
             await InitializePurchases();
             if (HasActiveSubscription()) return;
             DebugUtils.Log("IAP: Subscription expired.");
-            EndOfSubscription();
+            EndSubscription();
         }
 
-        private void EndOfSubscription()
+        private void StartSubscription()
         {
+            UpdateAnalyticPlayerTier();
+            _energyManager.SetInfiniteEnergy(true);
+            _adsService.SetEnableStateAll(false);
+            DebugUtils.Log("IAP: Subscription started. Infinite energy granted.");
+        }
+
+        private void EndSubscription()
+        {
+            UpdateAnalyticPlayerTier();
             _energyManager.SetInfiniteEnergy(false);
             _adsService.SetEnableStateAll(true);
             DebugUtils.Log("IAP: Subscription ended. Infinite energy revoked.");
@@ -553,6 +608,26 @@ namespace QuackUp.IAP
             if (!IsIAPReady) return string.Empty;
             var product = StoreController.GetProductById(productId);
             return product?.metadata.localizedPriceString ?? string.Empty;
+        }
+
+        private void UpdateAnalyticPlayerTier()
+        {
+            var playerSaveData = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>()
+                .GetSaveData<PlayerRecordSaveData>();
+            if (playerSaveData == null) return;
+            var spender = playerSaveData.HasPurchasedAtLeastOnce;
+            if (HasActiveSubscription())
+            {
+                GameAnalytics.SetCustomDimension01(GACustomDimension01.Premium);
+            }
+            else if (spender)
+            {
+                GameAnalytics.SetCustomDimension01(GACustomDimension01.Spender);
+            }
+            else
+            {
+                GameAnalytics.SetCustomDimension01(GACustomDimension01.F2P);
+            }
         }
         #endregion
     }

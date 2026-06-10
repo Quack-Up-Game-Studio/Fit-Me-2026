@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
+using GameAnalyticsSDK;
 using MessagePipe;
 using QuackUp.Save;
 using QuackUp.SocialService;
@@ -59,7 +60,7 @@ namespace FitMe.GameData
 
         private async UniTaskVoid InitializeAsync()
         {
-            await _saveManager.SaveDataReady;
+            await _saveManager.WaitForSaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<EnergyManagerSaveObject>();
             var saveData = _saveObject.GetSaveData<EnergyManagerSaveData>();
             var playerSaveData = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>().GetSaveData<PlayerRecordSaveData>();
@@ -94,12 +95,12 @@ namespace FitMe.GameData
                     var changeAmount = Mathf.FloorToInt((float)(timeDifference / _config.EnergyRechargeTime));
                     var remains = TimeSpan.FromSeconds(timeDifference.TotalSeconds % _config.EnergyRechargeTime.TimeSpan.TotalSeconds);
                     saveData.LastEnergyUpdateTime = DateTime.UtcNow - remains;
-                    ChangeEnergy(changeAmount);
+                    ChangeEnergy(changeAmount, itemType: GAItemType.Recharge, itemId: GAItemId.PassiveRefill);
                 });
         }
 
         [Button("Change Energy")]
-        public void ChangeEnergy(int amount, bool allowOverflow = false)
+        public void ChangeEnergy(int amount, bool allowOverflow = false, string itemType = "Unknown", string itemId = "Unknown")
         {
             if (amount < 0 && _infiniteEnergy.Value)
             {
@@ -124,6 +125,11 @@ namespace FitMe.GameData
             saveData.CurrentEnergy = newEnergy;
             _saveManager.Save(_saveObject);
             _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
+            
+            /* Analytics */
+            var absoluteAmount = Mathf.Abs(amount);
+            var flowType = amount > 0 ? GAResourceFlowType.Source : GAResourceFlowType.Sink;
+            GameAnalytics.NewResourceEvent(flowType, GACurrency.Energy, absoluteAmount, itemType, itemId);
         }
         
         public bool HasEnoughEnergy(uint amount)

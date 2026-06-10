@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using GameAnalyticsSDK;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
 using R3;
@@ -18,6 +19,11 @@ namespace QuackUp.Utils
         protected IDisposable _adsRefreshTimer;
         protected IDisposable _adsEventSubscription;
         protected CancellationTokenSource _timerCts = new();
+        
+        /// <summary>
+        /// Additional context for analytics, such as placement or reason for showing the ad. Must be set before calling <see cref="TryShow"/>.
+        /// </summary>
+        public string AdContext { get; set; } = "Unknown";
         
         /// <summary>
         /// ใช้สำหรับเปิดปิดการแสดงโฆษณา (เช่น ผู้เล่นซื้อการลบโฆษณา หรือ ปิดโฆษณาชั่วคราวเพื่อทดสอบ)
@@ -52,8 +58,21 @@ namespace QuackUp.Utils
         protected virtual void CancelAdsSessionTimer()
         {
             _adsRefreshTimer?.Dispose();
-            _timerCts?.Cancel();
+            if (_timerCts is { IsCancellationRequested: false })
+            {
+                _timerCts.Cancel();
+            }
             _timerCts?.Dispose();
+            _timerCts = null;
+        }
+
+        protected virtual void ReportAdEvent(GAAdAction adAction, GAAdType adType, string unitId)
+        {
+            var customField = new Dictionary<string, object>()
+            {
+                { "AdContext", AdContext },
+            };
+            GameAnalytics.NewAdEvent(adAction, adType,"admob", unitId, customFields: customField);
         }
     }
 
@@ -119,6 +138,7 @@ namespace QuackUp.Utils
             var adaptiveSize =
                 AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(deviceWidth);
             _bannerView = new BannerView(AdaptiveUnitId, adaptiveSize, AdPosition.Bottom);
+            GameAnalyticsILRD.SubscribeAdMobImpressions(AdaptiveUnitId, _bannerView);
             RegisterAdEvents();
             _bannerView.LoadAd(new AdRequest());
         }
@@ -177,6 +197,11 @@ namespace QuackUp.Utils
                     h => _bannerView.OnBannerAdLoadFailed -= h)
                 .Subscribe(HandleAdLoadFailed)
                 .AddTo(ref builder);
+            Observable.FromEvent(
+                    h => _bannerView.OnAdClicked += h,
+                    h => _bannerView.OnAdClicked -= h)
+                .Subscribe(_ => HandleOnAdClicked())
+                .AddTo(ref builder);
             _adsEventSubscription = builder.Build();
         }
 
@@ -192,11 +217,18 @@ namespace QuackUp.Utils
                 _bannerView.Show();
             }
             CountdownAdSession();
+            ReportAdEvent(GAAdAction.Loaded, GAAdType.Banner, AdaptiveUnitId);
         }
         
         private void HandleAdLoadFailed(LoadAdError adError)
         {
             DebugUtils.LogError($"Failed to load banner ad: {adError.GetMessage()}");
+            ReportAdEvent(GAAdAction.FailedShow, GAAdType.Banner, AdaptiveUnitId);
+        }
+
+        private void HandleOnAdClicked()
+        {
+            ReportAdEvent(GAAdAction.Clicked, GAAdType.Banner, AdaptiveUnitId);
         }
     }
     
@@ -236,6 +268,7 @@ namespace QuackUp.Utils
                     return;
                 }
                 _rewardedAd = ad;
+                GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, _rewardedAd);
                 RegisterAdEvents();
                 CountdownAdSession();
             });
@@ -256,11 +289,13 @@ namespace QuackUp.Utils
                 {
                     _isRewardEarned = true;
                 });
+                ReportAdEvent(GAAdAction.Show, GAAdType.RewardedVideo, UnitId);
                 return true;
             }
         
             DebugUtils.Log("Ads is not ready yet.");
             Load();
+            ReportAdEvent(GAAdAction.FailedShow, GAAdType.RewardedVideo, UnitId);
             return false;
             
 #else // Simulate ad success in non-supported platforms
@@ -286,6 +321,11 @@ namespace QuackUp.Utils
                 h => _rewardedAd.OnAdFullScreenContentClosed -= h)
                 .Subscribe(_ => HandleAdClosed())
                 .AddTo(ref builder);
+            Observable.FromEvent(
+                h => _rewardedAd.OnAdClicked += h,
+                h => _rewardedAd.OnAdClicked -= h)
+                .Subscribe(_ => HandleAdClicked())
+                .AddTo(ref builder);
             _adsEventSubscription = builder.Build();
         }
         
@@ -296,10 +336,16 @@ namespace QuackUp.Utils
                 if (_isRewardEarned)
                 {
                     _onUserEarnedReward.OnNext(Unit.Default);
+                    ReportAdEvent(GAAdAction.RewardReceived, GAAdType.RewardedVideo, UnitId);
                 }
                 _onAdClosed.OnNext(Unit.Default);
             });
             Load();
+        }
+        
+        private void HandleAdClicked()
+        {
+            ReportAdEvent(GAAdAction.Clicked, GAAdType.RewardedVideo, UnitId);
         }
     }
     
@@ -333,6 +379,7 @@ namespace QuackUp.Utils
                 }
 
                 _interstitialAd = ad;
+                GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, _interstitialAd);
                 RegisterAdEvents();
                 CountdownAdSession();
             });
@@ -349,10 +396,12 @@ namespace QuackUp.Utils
             if (CanShowAd())
             {
                 _interstitialAd.Show();
+                ReportAdEvent(GAAdAction.Show, GAAdType.Interstitial, UnitId);
                 return true;
             }
             DebugUtils.LogWarning("Ads is not ready yet.");
             Load();
+            ReportAdEvent(GAAdAction.FailedShow, GAAdType.Interstitial, UnitId);
             return false;
             
 #else // Simulate ad success in non-supported platforms
@@ -377,6 +426,11 @@ namespace QuackUp.Utils
                     h => _interstitialAd.OnAdFullScreenContentClosed -= h)
                 .Subscribe(_ => HandleAdClosed())
                 .AddTo(ref builder);
+            Observable.FromEvent(
+                    h => _interstitialAd.OnAdClicked += h,
+                    h => _interstitialAd.OnAdClicked -= h)
+                .Subscribe(_ => HandleAdClicked())
+                .AddTo(ref builder);
             _adsEventSubscription = builder.Build();
         }
         
@@ -387,6 +441,11 @@ namespace QuackUp.Utils
                 _onAdClosed.OnNext(Unit.Default);
             });
             Load();
+        }
+        
+        private void HandleAdClicked()
+        {
+            ReportAdEvent(GAAdAction.Clicked, GAAdType.Interstitial, UnitId);
         }
     }
     

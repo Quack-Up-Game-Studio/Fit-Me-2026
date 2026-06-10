@@ -34,5 +34,6 @@ namespace FitMe.Scene
         [field: SerializeField] public string GameOverPanelId { get; private set; } = "GameOver";
         [field: SerializeField] public string GameplayPanelId { get; private set; } = "Gameplay";
         [field: SerializeField] public string ResultPanelId { get; private set; } = "Result";
+        [field: SerializeField] public string SettingsPanelId { get; private set; } = "Settings";
     }
 }

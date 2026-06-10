@@ -56,7 +56,7 @@ namespace QuackUp.Audio
 
         private async UniTaskVoid InitializeAsync()
         {
-            await _saveManager.SaveDataReady;
+            await _saveManager.WaitForSaveDataReady;
             Load();
         }
 

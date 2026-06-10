@@ -405,6 +405,7 @@ GameObject:
   - component: {fileID: 7650813347127772808}
   - component: {fileID: 6199036899430652055}
   - component: {fileID: 6270638674485685960}
+  - component: {fileID: 8428322203388349915}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -534,6 +535,30 @@ MonoBehaviour:
       Data3: -748454981
       Data4: 1977297278
     Path: event:/SFX/Menu/M01_Any Button
+--- !u!114 &8428322203388349915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3247877227966209675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ea1c41e4ebfbc60b87a9464dadc80d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.CustomTintButton
+  button: {fileID: 7650813347127772808}
+  childImages: []
+  useCustomColors: 0
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!1 &3261996798853745902
 GameObject:
   m_ObjectHideFlags: 0
@@ -759,6 +784,7 @@ GameObject:
   - component: {fileID: 681645422043821224}
   - component: {fileID: 721015811444107274}
   - component: {fileID: 5928589505434140266}
+  - component: {fileID: 7684105700336484459}
   m_Layer: 5
   m_Name: QuitButton
   m_TagString: Untagged
@@ -888,6 +914,30 @@ MonoBehaviour:
       Data3: -748454981
       Data4: 1977297278
     Path: event:/SFX/Menu/M01_Any Button
+--- !u!114 &7684105700336484459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3751034526098999589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ea1c41e4ebfbc60b87a9464dadc80d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.CustomTintButton
+  button: {fileID: 681645422043821224}
+  childImages: []
+  useCustomColors: 0
+  customColors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  autoTintOnDisabled: 0
 --- !u!1 &3766062845884529162
 GameObject:
   m_ObjectHideFlags: 0
@@ -1752,7 +1802,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 125
+  m_Spacing: 74.3
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1932,7 +1982,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 22}
-  m_SizeDelta: {x: 949, y: 1002.7}
+  m_SizeDelta: {x: 850, y: 1043}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2683289625366908982
 CanvasRenderer:
@@ -2167,7 +2217,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 0
+  m_Spacing: -168.4
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -2804,6 +2854,7 @@ GameObject:
   - component: {fileID: 7045198161135309153}
   - component: {fileID: 4348175513933521088}
   - component: {fileID: 7788060924233481055}
+  - component: {fileID: 409515450942258319}
   m_Layer: 5
   m_Name: Setting
   m_TagString: Untagged
@@ -2930,6 +2981,30 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &409515450942258319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8685291020218423533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6309d4a7957f24e5d94b08e67f40d4d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Coffee.UIMaterialPropertyInjector::Coffee.UIExtensions.UIMaterialPropertyInjector
+  m_ResetValuesOnEnable: 0
+  m_Animatable: 1
+  m_SharingGroupId: 0
+  m_Properties:
+  - m_PropertyName: _UnderlayColor
+    m_Type: 0
+    m_Int: 0
+    m_Float: 0
+    m_Color: {r: 0.85882354, g: 0.38823527, b: 0, a: 0.78431374}
+    m_Vector: {x: 0, y: 0, z: 0, w: 0}
+    m_Texture: {fileID: 0}
+    m_Injector: {fileID: 0}
 --- !u!1 &9027255247527172894
 GameObject:
   m_ObjectHideFlags: 0

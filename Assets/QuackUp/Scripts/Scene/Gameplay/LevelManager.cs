@@ -8,6 +8,7 @@ using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Shared;
 using FitMe.Panel;
+using GameAnalyticsSDK;
 using QuackUp.Audio;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
@@ -42,7 +43,11 @@ namespace FitMe.Scene
         public Observable<Unit> OnScoreUpdated => _onScoreUpdated;
 
         private AnimationCurve _difficultyCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
+        private int _levelNumber;
         private int _levelCycle;
+        private int _scoreLastLevel;
+        private int _fitMeLastLevel;
+        private bool _hasContinued;
         
         private readonly Subject<Unit> _onScoreUpdated = new();
         private readonly ReactiveProperty<bool> _isPaused = new(false);
@@ -67,6 +72,7 @@ namespace FitMe.Scene
         private IDisposable _subscriptions;
         private IDisposable _onResultSubscription;
         private IDisposable _onReturnToGameplaySubscription;
+        private IDisposable _onReturnToMainMenuSubscription;
         
         [Inject]
         public LevelManager(
@@ -131,6 +137,8 @@ namespace FitMe.Scene
                 .AddTo(ref disposableBuilder);
             _messageHub.Subscribe<GameOverEvent>(OnGameOverEvent)
                 .AddTo(ref disposableBuilder);
+            _messageHub.Subscribe<ContinueEvent>(OnContinueEvent)
+                .AddTo(ref  disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
         
@@ -139,6 +147,7 @@ namespace FitMe.Scene
             _subscriptions?.Dispose();
             _onResultSubscription?.Dispose();
             _onReturnToGameplaySubscription?.Dispose();
+            _onReturnToMainMenuSubscription?.Dispose();
         }
         
         public void Start()
@@ -147,7 +156,7 @@ namespace FitMe.Scene
 
             if (!_panelManager.TryGetPanel<ResultPanelViewModel>(_config.ResultPanelId, out var resultPanel))
             {
-                DebugUtils.LogError($"Result panel with ID {_config.ResultPanelId} not found in PanelManager.");
+                DebugUtils.LogError($"Panel with ID {_config.ResultPanelId} not found in PanelManager.");
                 return;
             }
             _onResultSubscription = resultPanel.OnResultVisible
@@ -155,12 +164,20 @@ namespace FitMe.Scene
             
             if (!_panelManager.TryGetPanel<GameOverPanelViewModel>(_config.GameOverPanelId, out var gameOverPanel))
             {
-                DebugUtils.LogError($"Result panel with ID {_config.GameOverPanelId} not found in PanelManager.");
+                DebugUtils.LogError($"Panel with ID {_config.GameOverPanelId} not found in PanelManager.");
                 return;
             }
             _onReturnToGameplaySubscription = gameOverPanel.OnReturnToGameplay
                 .Subscribe(_ => OnReturnToGameplay());
             _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
+            
+            if (!_panelManager.TryGetPanel<UniversalSettingsPanelViewModel>(_config.SettingsPanelId, out var settingsPanel))
+            {
+                DebugUtils.LogError($"Panel with ID {_config.SettingsPanelId} not found in PanelManager.");
+                return;
+            }
+            _onReturnToMainMenuSubscription = settingsPanel.ToMainMenuCommand
+                .Subscribe(_ => OnReturnToMainMenu());
             
             _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             DebugUtils.Log($"PlayerRecordSaveObject found: {_playerRecordSaveObject}");
@@ -169,6 +186,11 @@ namespace FitMe.Scene
                 _messageHub.Publish(new StartCreateGridEvent());
             else
                 _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
+            _levelNumber++;
+            
+            /* Analytics */
+            ReportStart();
+            
             _messageHub.Publish(new SpawnWithBlockPresetEvent(null));
             _messageHub.Publish(new DifficultyChangeEvent(0));
         }
@@ -267,6 +289,10 @@ namespace FitMe.Scene
             await _gridManager.ClearGrid(playSound: false);
             GridPreset = GetTutorialLevel();
             _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
+            _levelNumber++;
+            
+            /* Analytics */
+            ReportStart();
         }
 
         #endregion
@@ -291,16 +317,27 @@ namespace FitMe.Scene
         private void OnFit()
         {
             _orthographicCameraManager.Shake(_config.CameraFitShakeSettings, _config.CameraFitShakeStrengthFactor);
+            _scoreLastLevel = Score.Value;
+            _fitMeLastLevel = FitMe.Value;
+            
+            /* Analytics */
+            ReportComplete();
+            
             if (IsTutorial) return;
             ChangeDifficultyLevel();
             GridPreset = GameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
             _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
+            _levelNumber++;
+            
+            /* Analytics */
+            ReportStart();
         }
 
         private void OnSceneFinishIn()
         {
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
+            bannerAdInstance.AdContext = "Banner";
             bannerAdInstance.TryShow();
         }
         
@@ -352,6 +389,11 @@ namespace FitMe.Scene
             _isPaused.Value = pause;
         }
 
+        private void OnContinueEvent(ContinueEvent evt)
+        {
+            _hasContinued = true;
+        }
+
         private void OnGameOverEvent(GameOverEvent evt)
         {
             if (!evt.IsOver) return;
@@ -385,6 +427,11 @@ namespace FitMe.Scene
             SetGameState(Shared.GameState.PlaceBlock);
         }
 
+        private void OnReturnToMainMenu()
+        {
+            ReportFail("Quit");
+        }
+
         private void OnResult()
         {
             SetGameState(Shared.GameState.GameClear);
@@ -401,6 +448,10 @@ namespace FitMe.Scene
             _saveManager.Save(saveObject);
             _cloudSaveService.SaveToService(SaveToServiceParameters.Default); 
             ReportToLeaderboard().Forget();
+            
+            /* Analytics */
+            ReportFail("GameOver");
+            
         }
         
         private async UniTask ReportToLeaderboard()
@@ -415,5 +466,49 @@ namespace FitMe.Scene
                 .Build());
             await UniTask.WhenAll(reportScore, reportFitMe);
         }
+        
+        #region Analytics
+
+        private void ReportStart()
+        {
+            GameAnalytics.NewProgressionEvent(
+                GAProgressionStatus.Start, 
+                IsTutorial ? GAProgression01.Tutorial : GAProgression01.Classic, 
+                $"Level{_levelNumber}");
+        }
+
+        private void ReportComplete()
+        {
+            var customField = new Dictionary<string, object>()
+            {
+                { "TotalScore", Score.Value },
+                { "ScoreDelta", Score.Value - _scoreLastLevel },
+                { "FitMeDelta", FitMe.Value - _fitMeLastLevel },
+                { "HasContinued", _hasContinued ? 1 : 0},
+            };
+            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete,
+                IsTutorial ? GAProgression01.Tutorial : GAProgression01.Classic,
+                $"Level{_levelNumber}",
+                score: FitMe.Value,
+                customField);
+        }
+
+        private void ReportFail(string reason)
+        {
+            var customField = new Dictionary<string, object>()
+            {
+                { "FailReason", reason },
+                { "TotalScore", Score.Value },
+                { "ScoreDelta", Score.Value - _scoreLastLevel },
+                { "FitMeDelta", FitMe.Value - _fitMeLastLevel },
+                { "HasContinued", _hasContinued ? 1 : 0 },
+            };
+            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Fail,
+                IsTutorial ? GAProgression01.Tutorial : GAProgression01.Classic,
+                $"Level{_levelNumber}",
+                score: FitMe.Value,
+                customField);
+        }
+        #endregion
     }
 }

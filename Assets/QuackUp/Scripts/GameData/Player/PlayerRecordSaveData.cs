@@ -36,6 +36,9 @@ namespace FitMe.GameData
         [Key("LastWatchAdTimeStamp")]
         public DateTime LastWatchAdTimeStamp { get; set; } = DateTime.MinValue;
         
+        [Key("HasPurchasedAtLeastOnce")]                                                                                                                                                                                             
+        public bool HasPurchasedAtLeastOnce { get; set; } = false;    
+        
         [IgnoreMember]
         [ShowInInspector, DisplayAsString] private string DebugTotalPlayTime => TotalPlayTime.ToString(@"hh\:mm\:ss");
         

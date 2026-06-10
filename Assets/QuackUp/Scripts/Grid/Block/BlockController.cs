@@ -142,8 +142,19 @@ namespace FitMe.Grid
             if (_config.UseDynamicDragOffset)
             {
                 var normalizedY = Mathf.Clamp01(eventData.position.y / Mathf.Max(1f, Screen.height));
-                var dynamicY = Mathf.Lerp(_config.MinDynamicDragOffset, _config.MaxDynamicDragOffset, normalizedY);
+                var dynamicY = Mathf.Lerp(_config.DynamicOffsetY.x, _config.DynamicOffsetY.y, normalizedY);
+                
+                var middleX = Screen.width / 2f;
+                var normalizedX = (eventData.position.x - middleX) / Mathf.Max(1f, middleX);
+                normalizedX = Mathf.Clamp(normalizedX, -1f, 1f);
+                var dynamicX = Mathf.Lerp(_config.DynamicOffsetX.x, _config.DynamicOffsetX.y, Mathf.Abs(normalizedX));
+                if (normalizedX < 0f)
+                {
+                    dynamicX = -dynamicX;
+                }
+                
                 dragOffset.y = dynamicY;
+                dragOffset.x = dynamicX;
             }
             var position = (mousePosition - _mousePositionDifference) + dragOffset;
             _blockDragSequence.Stop();

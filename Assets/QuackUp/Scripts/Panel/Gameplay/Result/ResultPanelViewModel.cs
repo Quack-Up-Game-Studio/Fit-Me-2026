@@ -135,7 +135,7 @@ namespace FitMe.Panel
                 await _energyManager.ShowNotEnoughEnergyNotification();
                 return;
             }
-            _energyManager.ChangeEnergy(-1);
+            _energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.GameplayRestart);
             _displayResultPromise.Cancel();
             if (_scoreManager.FitMe.CurrentValue >= _forceAdsThreshold && 
                 _adsService.TryGetAdsInstance<InterstitialAdInstance>(out var interstitialAdInstance) && 
@@ -143,6 +143,7 @@ namespace FitMe.Panel
             {
                 _adSubscription = interstitialAdInstance.OnAdClosed
                     .Subscribe(_ => OnAdsClosed());
+                interstitialAdInstance.AdContext = "BetweenRetry";
                 interstitialAdInstance.TryShow();
             }
             else

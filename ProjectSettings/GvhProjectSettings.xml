@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <projectSettings>
+  <projectSetting name="com.google.external-dependency-managerAnalyticsCookie" value="43b92603d7b94ecfa0b2d28a18234b87" />
+  <projectSetting name="com.google.external-dependency-managerAnalyticsEnabled" value="True" />
   <projectSetting name="Google.VersionHandler.VerboseLoggingEnabled" value="True" />
   <projectSetting name="Google.VersionHandler.VersionHandlingEnabled" value="True" />
   <projectSetting name="GooglePlayServices.PromptBeforeAutoResolution" value="False" />
