@@ -187,7 +187,7 @@ namespace FitMe.Scene.MainMenu
             }
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
-            bannerAdInstance.AdContext = "Banner";
+            bannerAdInstance.AdContext = GAAdContext.MainMenuBanner;
             bannerAdInstance.TryShow();
         }
 

@@ -140,7 +140,7 @@ namespace FitMe.Panel
             _onRewardEarned?.Dispose();
             _onRewardEarned = rewardedAdInstance.OnUserEarnedReward
                 .Subscribe(_ => OnRewardEarned());
-            rewardedAdInstance.AdContext = "RefillEnergy";
+            rewardedAdInstance.AdContext = GAAdContext.RefillEnergy;
             rewardedAdInstance.TryShow();
         }
 

@@ -337,7 +337,7 @@ namespace FitMe.Scene
         {
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
-            bannerAdInstance.AdContext = "Banner";
+            bannerAdInstance.AdContext = IsTutorial ? GAAdContext.TutorialBanner : GAAdContext.GameplayBanner;
             bannerAdInstance.TryShow();
         }
         

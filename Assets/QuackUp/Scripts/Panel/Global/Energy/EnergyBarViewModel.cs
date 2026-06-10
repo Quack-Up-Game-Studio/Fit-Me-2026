@@ -56,7 +56,7 @@ namespace FitMe.Panel
             if (!rewardedAd.Enabled) return;
             _adSubscription = rewardedAd.OnUserEarnedReward
                 .Subscribe(_ => OnAdSuccess());
-            rewardedAd.AdContext = "RefillEnergy";
+            rewardedAd.AdContext = GAAdContext.RefillEnergy;
             rewardedAd.TryShow();
         }
         

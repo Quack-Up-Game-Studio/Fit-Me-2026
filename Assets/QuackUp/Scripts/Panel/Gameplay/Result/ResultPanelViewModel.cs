@@ -143,7 +143,7 @@ namespace FitMe.Panel
             {
                 _adSubscription = interstitialAdInstance.OnAdClosed
                     .Subscribe(_ => OnAdsClosed());
-                interstitialAdInstance.AdContext = "BetweenRetry";
+                interstitialAdInstance.AdContext = GAAdContext.SceneChange;
                 interstitialAdInstance.TryShow();
             }
             else

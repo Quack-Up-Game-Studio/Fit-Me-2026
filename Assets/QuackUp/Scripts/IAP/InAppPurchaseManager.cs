@@ -373,7 +373,6 @@ namespace QuackUp.IAP
             if (order is PendingOrder) return; //The order is still pending; it will be confirmed in OnPurchasePending, so we can skip processing here.
             var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
             var id = product?.definition.id;
-            var itemType = "Unknown";
             switch (id)
             {
 #if UNITY_EDITOR
@@ -384,24 +383,20 @@ namespace QuackUp.IAP
 #endif
                 case ProductIds.Energy2:
                     DebugUtils.Log("IAP: 3 energy granted.");
-                    itemType = "Energy";
                     _energyManager.ChangeEnergy(3, true, GAItemType.IAP, id);
                     break;
                 case ProductIds.Energy3:
                     DebugUtils.Log("IAP: 5 energy granted.");
-                    itemType = "Energy";
                     _energyManager.ChangeEnergy(5, true, GAItemType.IAP, id);
                     break;
                 case ProductIds.MaxEnergy:
-                    itemType = "Energy";
                     DebugUtils.Log("IAP: Max energy granted.");
                     _energyManager.ChangeEnergy(_energyManager.Config.MaxEnergy, true, GAItemType.IAP, id);
                     break;
                 case ProductIds.MonthlyPass:
                 case ProductIds.QuarterlyPass:
                 case ProductIds.AnnuallyPass:
-                    DebugUtils.Log($"IAP: {id} pass activated.");
-                    itemType = "Subscription";
+                    DebugUtils.Log($"IAP: {id} pass activated."); ;
                     StartSubscription();
                     _confirmedSubscriptions.Add(order.Info.PurchasedProductInfo.FirstOrDefault()?.subscriptionInfo);
                     StartExpirationTimer();
@@ -437,6 +432,7 @@ namespace QuackUp.IAP
             var currency = product?.metadata.isoCurrencyCode ?? "USD";
             var priceDecimal = product?.metadata.localizedPrice ?? 0m;
             var amount = IapCurrencyHelper.GetAmountInMinorUnits(priceDecimal, currency);
+            var itemType = product?.definition.type.ToString() ?? "Unknown";
             GameAnalytics.NewBusinessEvent(currency, amount, itemType, id, GACartType.Store);
         }
 

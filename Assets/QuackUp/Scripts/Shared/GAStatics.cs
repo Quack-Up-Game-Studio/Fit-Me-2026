@@ -53,4 +53,14 @@ namespace FitMe.Shared
     {
         public const string Store = "Store";
     }
+    
+    public static class GAAdContext
+    {
+        public const string Revive = "Revive";
+        public const string GameplayBanner = "GameplayBanner";
+        public const string TutorialBanner = "TutorialBanner";
+        public const string MainMenuBanner = "MainMenuBanner";
+        public const string RefillEnergy = "RefillEnergy";
+        public const string SceneChange = "SceneChange";
+    }
 }
