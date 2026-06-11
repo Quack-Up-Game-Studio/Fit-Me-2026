@@ -599,6 +599,8 @@ MonoBehaviour:
   <RotateClockwise>k__BackingField: 1
   <PickUpScaleMultiplier>k__BackingField: 1.2
   <SwitchIdleTimeRange>k__BackingField: {x: 30, y: 60}
+  <UseBlockDragTween>k__BackingField: 0
+  <UseBlockScaleTween>k__BackingField: 1
   <BlockDragTweenSettings>k__BackingField:
     duration: 0.25
     ease: 0
@@ -615,12 +617,34 @@ MonoBehaviour:
     useUnscaledTime: 0
     _useFixedUpdate: 0
     _updateType: 0
-  <BlockDragInertia>k__BackingField: 0.1
+  <BlockDragInertia>k__BackingField: 0
   <UseDynamicDragOffset>k__BackingField: 1
-  <MinDynamicDragOffsetY>k__BackingField: 0
-  <MaxDynamicDragOffsetY>k__BackingField: 5
-  <MinDynamicDragOffsetX>k__BackingField: 0
-  <MaxDynamicDragOffsetX>k__BackingField: 2.5
+  <DynamicDragOffsetCurve>k__BackingField:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  <DynamicOffsetX>k__BackingField: {x: 0, y: 2}
+  <DynamicOffsetY>k__BackingField: {x: 0, y: 5}
   <PlaceSucceedSfx>k__BackingField:
     Guid:
       Data1: 724217357

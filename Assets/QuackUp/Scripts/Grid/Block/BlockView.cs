@@ -14,7 +14,7 @@ using VContainer;
 namespace FitMe.Grid
 {
     [ShowOdinSerializedPropertiesInInspector]
-    public class BlockView : SerializedMonoBehaviour, IDisposable, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+    public class BlockView : SerializedMonoBehaviour, IDisposable, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region Inspectors
         [Title("References")]
@@ -217,16 +217,30 @@ namespace FitMe.Grid
             }
             transform.SetParent(null);
             var gridSize = _gridConfig.CellSize;
-            _pickUpTween = Tween.Scale(transform, gridSize, 0.2f);
+            if (_blockManagerConfig.UseBlockScaleTween)
+            {
+                _pickUpTween = Tween.Scale(transform, gridSize, 0.2f);
+            }
+            else
+            {
+                _pickUpTween.Stop();
+                transform.localScale = gridSize;
+            }
             CancelIdleTimer();
-            //_pickUpTween = Tween.Scale(transform, _originalScale * pickUpScaleMultiplier, 0.2f);
             skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.PickUpAnimation, true);
         }
         
         private void Place(Vector3 scale)
         {
             _pickUpTween.Stop();
-            _pickUpTween = Tween.Scale(transform, scale, 0.2f);
+            if (_blockManagerConfig.UseBlockScaleTween)
+            {
+                _pickUpTween = Tween.Scale(transform, scale, 0.2f);
+            }
+            else
+            {
+                transform.localScale = scale;
+            }
             skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
             StartIdleTimer();
         }
@@ -326,6 +340,16 @@ namespace FitMe.Grid
         private void Destroy()
         {
             Destroy(gameObject);
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            _blockController.PointerDownCommand.Execute(eventData);
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            _blockController.PointerUpCommand.Execute(eventData);
         }
 
         public void OnBeginDrag(PointerEventData eventData)

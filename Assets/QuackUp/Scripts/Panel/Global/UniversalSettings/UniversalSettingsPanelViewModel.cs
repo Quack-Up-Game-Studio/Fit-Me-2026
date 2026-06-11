@@ -19,16 +19,19 @@ namespace FitMe.Panel
 
         private readonly IAudioBusManager _audioBusManager;
         private readonly LoadSceneManager _loadSceneManager;
+        private readonly IGameStateManager _gameStateManager;
         private IDisposable _bindings;
         
         [Inject]
         public UniversalSettingsPanelViewModel(
             IAudioBusManager audioBusManager,
             LoadSceneManager loadSceneManager,
+            IGameStateManager gameStateManager,
             PanelManager panelManager) : base(panelManager)
         {
             _audioBusManager = audioBusManager;
             _loadSceneManager = loadSceneManager;
+            _gameStateManager = gameStateManager;
             Bind();
         }
         
@@ -80,6 +83,7 @@ namespace FitMe.Panel
         private void OnApplyChanges()
         {
             _audioBusManager.SaveChanges();
+            _gameStateManager.SetPause(false);
         }
 
         private async UniTask ToMainMenu()

@@ -41,9 +41,13 @@ namespace FitMe.Grid
         [field: SerializeField] public bool RotateClockwise { get; private set; } = true;
         [field: SerializeField] public float PickUpScaleMultiplier { get; private set; } = 1.2f;
         [field: SerializeField] public Vector2 SwitchIdleTimeRange { get; private set; } = new(30f, 60f);
+        [field: SerializeField] public float LongTapDuration { get; private set; } = 0.2f;
+        [field: SerializeField] public bool UseBlockDragTween { get; private set; } = true;
+        [field: SerializeField] public bool UseBlockScaleTween { get; private set; } = true;
         [field: SerializeField] public TweenSettings BlockDragTweenSettings { get; private set; }
         [field: SerializeField] public float BlockDragInertia { get; private set; } = 0.1f;
         [field: SerializeField] public bool UseDynamicDragOffset { get; private set; } = true;
+        [field: SerializeField] public AnimationCurve DynamicDragOffsetCurve { get; private set; } = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         [field: SerializeField] public Vector2 DynamicOffsetX { get; private set; } = new Vector2(0f, 2.5f);
         [field: SerializeField] public Vector2 DynamicOffsetY { get; private set; } = new Vector2(0f, 5f);
         
