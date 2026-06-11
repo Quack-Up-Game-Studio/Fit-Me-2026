@@ -36,6 +36,7 @@ namespace FitMe.Grid
         private Vector3 _originalPosition;
         private Vector3 _originalEulerAngles;
         private int _originalSortingLayer;
+        private int _originalSortingOrder;
         private Vector3 _mousePositionDifference;
         private Tween _transformTween;
         private BlockColor _blockColor;
@@ -71,6 +72,7 @@ namespace FitMe.Grid
             _originalPosition = transform.position;
             _originalEulerAngles = transform.eulerAngles;
             _originalSortingLayer = meshRenderer.sortingLayerID;
+            _originalSortingOrder = meshRenderer.sortingOrder;
             Bind();
             Initialize();
         }
@@ -211,19 +213,15 @@ namespace FitMe.Grid
         private void PickUp()
         {
             DebugUtils.Log("Block picked up");
-            if (_transformTween.isAlive)
-            {
-                _transformTween.Stop();
-            }
+            Tween.StopAll(transform);
             transform.SetParent(null);
-            var gridSize = _gridConfig.CellSize;
+            var gridSize = new Vector3(_gridConfig.CellSize.x, _gridConfig.CellSize.y, _originalScale.z);
             if (_blockManagerConfig.UseBlockScaleTween)
             {
                 _pickUpTween = Tween.Scale(transform, gridSize, 0.2f);
             }
             else
             {
-                _pickUpTween.Stop();
                 transform.localScale = gridSize;
             }
             CancelIdleTimer();
@@ -233,13 +231,14 @@ namespace FitMe.Grid
         private void Place(Vector3 scale)
         {
             _pickUpTween.Stop();
+            var targetScale = new Vector3(scale.x, scale.y, _originalScale.z);
             if (_blockManagerConfig.UseBlockScaleTween)
             {
-                _pickUpTween = Tween.Scale(transform, scale, 0.2f);
+                _pickUpTween = Tween.Scale(transform, targetScale, 0.2f);
             }
             else
             {
-                transform.localScale = scale;
+                transform.localScale = targetScale;
             }
             skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
             StartIdleTimer();
@@ -306,13 +305,14 @@ namespace FitMe.Grid
         /// </summary>
         private void ReturnToSpawn()
         {
-            if (_transformTween.isAlive)
-            {
-                _transformTween.Stop();
-            }
+            Tween.StopAll(transform);
             transform.SetParent(_originalParent);
-            //OnSetSortingLayer(_originalSortingLayer);
-            _transformTween = Tween.Position(transform, _originalPosition, 0.2f);
+            _transformTween = Tween.Position(transform, _originalPosition, 0.2f)
+                .OnComplete(this, target =>
+                {
+                    target.OnSetSortingLayer(_blockManagerConfig.SpawnSortingLayer);
+                    target.OnSetSortingOrder(target._originalSortingOrder);
+                });
             Tween.Rotation(transform, _originalEulerAngles, 0.2f);
             Place(_originalScale);
         }
@@ -328,13 +328,23 @@ namespace FitMe.Grid
         private async UniTask Rotate(RotateCommandData data)
         {
             _originalEulerAngles = data.Rotation.eulerAngles;
-            var gridSize = _gridConfig.CellSize;
+            var gridSize = new Vector3(_gridConfig.CellSize.x, _gridConfig.CellSize.y, _originalScale.z);
             var scaleSettings = new TweenSettings<Vector3>(transform.localScale, gridSize, 0.25f);
             var sequence = Sequence.Create(Tween.Rotation(transform, new TweenSettings<Quaternion>(data.Rotation, rotateTweenSettings)))
                 .Group(Tween.Scale(transform, scaleSettings))
                 .Chain(Tween.Scale(transform, scaleSettings.WithDirection(false)));
-            await sequence.ToUniTask();
-            data.Promise.TrySetResult(Unit.Default);
+            try
+            {
+                await sequence.ToUniTask();
+            }
+            catch (Exception)
+            {
+                // Handle cancellation safely when the tween is stopped early (e.g. on pickup)
+            }
+            finally
+            {
+                data.Promise.TrySetResult(Unit.Default);
+            }
         }
 
         private void Destroy()

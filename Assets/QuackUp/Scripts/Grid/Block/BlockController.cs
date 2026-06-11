@@ -172,7 +172,6 @@ namespace FitMe.Grid
                 if (!_isDragging)
                 {
                     _blockDragSequence.Stop();
-                    _blockInstance.ViewModel.SetSortingLayerCommand.Execute(_config.SpawnSortingLayer);
                     _blockInstance.ViewModel.BlockInteractionState.Value = BlockInteractionState.PlacedOnSpawn;
                     _mousePositionDifference = Vector3.zero;
                     _dragOffset = Vector2.zero;
@@ -348,7 +347,6 @@ namespace FitMe.Grid
             else
             {
                 _audioManager.PlayAudioOneShot(_config.PlaceFailSfx, Vector3.zero);
-                _blockInstance.ViewModel.SetSortingLayerCommand.Execute(_config.SpawnSortingLayer);
                 _blockInstance.ViewModel.BlockInteractionState.Value = BlockInteractionState.PlacedOnSpawn;
             }
             _mousePositionDifference = Vector3.zero;
