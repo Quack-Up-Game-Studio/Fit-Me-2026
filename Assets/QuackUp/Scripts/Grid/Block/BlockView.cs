@@ -25,6 +25,7 @@ namespace FitMe.Grid
         
         [Title("Tween")] 
         [SerializeField] private TweenSettings scaleTweenSettings;
+        [SerializeField] private TweenSettings rotateScaleTweenSettings;
         [SerializeField] private TweenSettings rotateTweenSettings;
         #endregion
 
@@ -329,7 +330,7 @@ namespace FitMe.Grid
         {
             _originalEulerAngles = data.Rotation.eulerAngles;
             var gridSize = new Vector3(_gridConfig.CellSize.x, _gridConfig.CellSize.y, _originalScale.z);
-            var scaleSettings = new TweenSettings<Vector3>(transform.localScale, gridSize, 0.25f);
+            var scaleSettings = new TweenSettings<Vector3>(transform.localScale, gridSize, rotateScaleTweenSettings);
             var sequence = Sequence.Create(Tween.Rotation(transform, new TweenSettings<Quaternion>(data.Rotation, rotateTweenSettings)))
                 .Group(Tween.Scale(transform, scaleSettings))
                 .Chain(Tween.Scale(transform, scaleSettings.WithDirection(false)));

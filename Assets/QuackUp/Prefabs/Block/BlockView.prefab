@@ -365,7 +365,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.BlockView
   serializationData:
-    SerializedFormat: 2
+    SerializedFormat: 0
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -377,7 +377,23 @@ MonoBehaviour:
   skeletonAnimation: {fileID: 6986726484017973002}
   obstacleSpriteRenderer: {fileID: 4775901797917017567}
   scaleTweenSettings:
-    duration: 0.5
+    duration: 0.25
+    ease: 0
+    customEase:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    cycles: 1
+    cycleMode: 0
+    startDelay: 0
+    endDelay: 0
+    useUnscaledTime: 0
+    _useFixedUpdate: 0
+    _updateType: 0
+  rotateScaleTweenSettings:
+    duration: 0.15
     ease: 0
     customEase:
       serializedVersion: 2
@@ -393,7 +409,7 @@ MonoBehaviour:
     _useFixedUpdate: 0
     _updateType: 0
   rotateTweenSettings:
-    duration: 0.25
+    duration: 0.15
     ease: 0
     customEase:
       serializedVersion: 2
