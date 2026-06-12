@@ -3243,6 +3243,7 @@ MonoBehaviour:
     - {fileID: 3989526417426172819}
     - {fileID: 11400000, guid: d0abbb28b780bdd968d943ed878c4027, type: 2}
     - {fileID: 8658512612834695708}
+    - {fileID: 165288, guid: a9d27d37bab3c447b8eb7a2a6756e952, type: 3}
     - {fileID: 11400000, guid: dbb40b9186271f97daac3e929c22b08e, type: 2}
     - {fileID: 11400000, guid: a989f0e4e4634b244babfb412b5ebfbc, type: 2}
     SerializedBytesString: 
@@ -3256,7 +3257,7 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 12
+      Data: 13
     - Name: 
       Entry: 7
       Data: 1|QuackUp.SceneManagement.LoadSceneManagerInstaller, QuackUp.SceneManagement
@@ -3378,6 +3379,15 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: 
+      Entry: 7
+      Data: 14|FitMe.GameAnalytics.GameAnalyticsInitializerInstaller, FitMe.GameAnalytics
+    - Name: gameAnalyticsObject
+      Entry: 10
+      Data: 9
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
       Entry: 13
       Data: 
     - Name: 
@@ -3385,12 +3395,12 @@ MonoBehaviour:
       Data: 
     - Name: platformSpecificInstallers
       Entry: 7
-      Data: 14|System.Collections.Generic.Dictionary`2[[UnityEngine.RuntimePlatform,
+      Data: 15|System.Collections.Generic.Dictionary`2[[UnityEngine.RuntimePlatform,
         UnityEngine.CoreModule],[QuackUp.Core.PlatformSpecificInstallerPreset, QuackUp.Core]],
         mscorlib
     - Name: comparer
       Entry: 7
-      Data: 15|System.Collections.Generic.EnumEqualityComparer`1[[UnityEngine.RuntimePlatform,
+      Data: 16|System.Collections.Generic.EnumEqualityComparer`1[[UnityEngine.RuntimePlatform,
         UnityEngine.CoreModule]], mscorlib
     - Name: 
       Entry: 12
@@ -3412,7 +3422,7 @@ MonoBehaviour:
       Data: 0
     - Name: $v
       Entry: 10
-      Data: 9
+      Data: 10
     - Name: 
       Entry: 8
       Data: 
@@ -3424,7 +3434,7 @@ MonoBehaviour:
       Data: 16
     - Name: $v
       Entry: 10
-      Data: 9
+      Data: 10
     - Name: 
       Entry: 8
       Data: 
@@ -3436,7 +3446,7 @@ MonoBehaviour:
       Data: 7
     - Name: $v
       Entry: 10
-      Data: 9
+      Data: 10
     - Name: 
       Entry: 8
       Data: 
@@ -3448,7 +3458,7 @@ MonoBehaviour:
       Data: 2
     - Name: $v
       Entry: 10
-      Data: 9
+      Data: 10
     - Name: 
       Entry: 8
       Data: 
@@ -3460,7 +3470,7 @@ MonoBehaviour:
       Data: 11
     - Name: $v
       Entry: 10
-      Data: 10
+      Data: 11
     - Name: 
       Entry: 8
       Data: 

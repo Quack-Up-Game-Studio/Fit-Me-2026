@@ -1,0 +1,10 @@
+OVDF v1.1
+FitMe.GameAnalytics.GameAnalyticsInitializerInstaller, FitMe.GameAnalytics
+
+# _title
++ [Sirenix.OdinInspector.HideLabelAttribute]
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "Game Analytics Initializer"
+
+# gameAnalyticsObject
++ [Sirenix.OdinInspector.RequiredAttribute]

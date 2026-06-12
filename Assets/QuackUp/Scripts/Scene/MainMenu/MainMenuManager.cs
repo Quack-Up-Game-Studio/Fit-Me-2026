@@ -20,7 +20,7 @@ using VContainer.Unity;
 
 namespace FitMe.Scene.MainMenu
 {
-    public class MainMenuManager : IPostInitializable, IStartable, IDisposable
+    public class MainMenuManager : IStartable, IDisposable
     {
         private readonly MainMenuManagerConfig _mainMenuManagerConfig;
         private readonly BlockManagerConfig _blockManagerConfig;
@@ -98,11 +98,6 @@ namespace FitMe.Scene.MainMenu
                 .Subscribe(_ => OnToShop())
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
-        }
-
-        public void PostInitialize()
-        {
-            GameAnalytics.Initialize();
         }
 
         public void Start()
