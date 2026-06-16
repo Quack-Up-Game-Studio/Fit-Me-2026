@@ -1,5 +1,4 @@
 using System;
-using FitMe.GameData;
 using QuackUp.Utils;
 using VContainer.Unity;
 using UnityEngine;
@@ -10,15 +9,15 @@ namespace QuackUp.Notification
     public class NotificationLifecycleManager : IStartable, IDisposable
     {
         private readonly NotificationService _notificationService;
-        private readonly EnergyManager _energyManager;
+        private readonly IEnergyProvider _energyProvider;
         private GameObject _pauseHandlerObject;
 
         private bool _isPaused;
 
-        public NotificationLifecycleManager(NotificationService notificationService, EnergyManager energyManager)
+        public NotificationLifecycleManager(NotificationService notificationService, IEnergyProvider energyProvider)
         {
             _notificationService = notificationService;
-            _energyManager = energyManager;
+            _energyProvider = energyProvider;
         }
 
         public void Start()
@@ -81,9 +80,9 @@ namespace QuackUp.Notification
             DebugUtils.Log("Application paused. Scheduling notifications.");
 
             // Schedule the notifications!
-            int currentEnergy = _energyManager.CurrentEnergy.Value;
-            int maxEnergy = _energyManager.Config.MaxEnergy;
-            float secondsPerEnergy = (float)_energyManager.Config.EnergyRechargeTime.TimeSpan.TotalSeconds;
+            int currentEnergy = _energyProvider.CurrentEnergy;
+            int maxEnergy = _energyProvider.MaxEnergy;
+            float secondsPerEnergy = _energyProvider.SecondsPerEnergy;
 
             _notificationService.ScheduleEnergyFullNotification(currentEnergy, maxEnergy, secondsPerEnergy);
             _notificationService.ScheduleDailyReminder();

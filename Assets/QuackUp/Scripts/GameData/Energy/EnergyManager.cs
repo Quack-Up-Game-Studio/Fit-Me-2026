@@ -15,7 +15,7 @@ using VContainer.Unity;
 namespace FitMe.GameData
 {
     [Serializable]
-    public class EnergyManager : IPostInitializable, IDisposable
+    public class EnergyManager : IPostInitializable, IDisposable, QuackUp.Notification.IEnergyProvider
     {
         /// <remarks>
         /// Use <see cref="ChangeEnergy"/> to change the energy value.
@@ -36,6 +36,10 @@ namespace FitMe.GameData
         private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
         
         public EnergyManagerConfig Config => _config;
+
+        int QuackUp.Notification.IEnergyProvider.CurrentEnergy => _currentEnergy.Value;
+        int QuackUp.Notification.IEnergyProvider.MaxEnergy => _config.MaxEnergy;
+        float QuackUp.Notification.IEnergyProvider.SecondsPerEnergy => (float)_config.EnergyRechargeTime.TimeSpan.TotalSeconds;
 
         private EnergyManagerSaveObject _saveObject;
         private IDisposable _energyTimer;
