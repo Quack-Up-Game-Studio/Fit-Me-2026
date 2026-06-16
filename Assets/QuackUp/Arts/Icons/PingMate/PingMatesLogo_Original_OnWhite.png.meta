@@ -1,0 +1,416 @@
+fileFormatVersion: 2
+guid: ef1e1b4dd26f99229a5282ce67db8700
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4407862986808105562
+    second: PingMatesLogo_Original_OnWhite_0
+  - first:
+      213: -4422064872772240268
+    second: PingMatesLogo_Original_OnWhite_1
+  - first:
+      213: 3845165027805600369
+    second: PingMatesLogo_Original_OnWhite_2
+  - first:
+      213: 5048950170101979016
+    second: PingMatesLogo_Original_OnWhite_3
+  - first:
+      213: -4764525206289216344
+    second: PingMatesLogo_Original_OnWhite_4
+  - first:
+      213: 9192889789430549868
+    second: PingMatesLogo_Original_OnWhite_5
+  - first:
+      213: -5706281308567942224
+    second: PingMatesLogo_Original_OnWhite_6
+  - first:
+      213: 1719718338657769453
+    second: PingMatesLogo_Original_OnWhite_7
+  - first:
+      213: 5154974336785151800
+    second: PingMatesLogo_Original_OnWhite_8
+  - first:
+      213: -1040330828274796554
+    second: PingMatesLogo_Original_OnWhite_9
+  - first:
+      213: 8845717951182543074
+    second: PingMatesLogo_Original_OnWhite_10
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_0
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 873
+        width: 843
+        height: 914
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5a1a4b5800eb2d30800000000000000
+      internalID: 4407862986808105562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_1
+      rect:
+        serializedVersion: 2
+        x: 1131
+        y: 847
+        width: 411
+        height: 471
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47c7da46d6ba1a2c0800000000000000
+      internalID: -4422064872772240268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_2
+      rect:
+        serializedVersion: 2
+        x: 571
+        y: 563
+        width: 176
+        height: 222
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17a9b116835cc5530800000000000000
+      internalID: 3845165027805600369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_3
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 743
+        width: 42
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8879391ed69711640800000000000000
+      internalID: 5048950170101979016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_4
+      rect:
+        serializedVersion: 2
+        x: 930
+        y: 563
+        width: 200
+        height: 222
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ac8cb3819101edb0800000000000000
+      internalID: -4764525206289216344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_5
+      rect:
+        serializedVersion: 2
+        x: 1217
+        y: 558
+        width: 226
+        height: 232
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6dc256be84b39f70800000000000000
+      internalID: 9192889789430549868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_6
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 698
+        width: 42
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0bb4b5e02673fc0b0800000000000000
+      internalID: -5706281308567942224
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_7
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 653
+        width: 42
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de7db61b7baadd710800000000000000
+      internalID: 1719718338657769453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_8
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 608
+        width: 42
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 837755ad8d52a8740800000000000000
+      internalID: 5154974336785151800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_9
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 563
+        width: 42
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f7fac3af900091f0800000000000000
+      internalID: -1040330828274796554
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PingMatesLogo_Original_OnWhite_10
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 279
+        width: 976
+        height: 275
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e818872c9d42ca70800000000000000
+      internalID: 8845717951182543074
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      PingMatesLogo_Original_OnWhite_0: 4407862986808105562
+      PingMatesLogo_Original_OnWhite_1: -4422064872772240268
+      PingMatesLogo_Original_OnWhite_10: 8845717951182543074
+      PingMatesLogo_Original_OnWhite_2: 3845165027805600369
+      PingMatesLogo_Original_OnWhite_3: 5048950170101979016
+      PingMatesLogo_Original_OnWhite_4: -4764525206289216344
+      PingMatesLogo_Original_OnWhite_5: 9192889789430549868
+      PingMatesLogo_Original_OnWhite_6: -5706281308567942224
+      PingMatesLogo_Original_OnWhite_7: 1719718338657769453
+      PingMatesLogo_Original_OnWhite_8: 5154974336785151800
+      PingMatesLogo_Original_OnWhite_9: -1040330828274796554
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

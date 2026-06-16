@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/QuackUp/Scenes/MainMenu.unity
     guid: ea756fcdf0bed2842bd0e10346cdb379
   - enabled: 1
-    path: Assets/QuackUp/Scenes/New Tutorial.unity
+    path: Assets/QuackUp/Scenes/Tutorial.unity
     guid: 8cc75dda63b96a9d4ac74d3896439767
   - enabled: 1
     path: Assets/QuackUp/Scenes/Gameplay.unity

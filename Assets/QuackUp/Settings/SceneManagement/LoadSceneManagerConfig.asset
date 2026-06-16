@@ -16,10 +16,11 @@ MonoBehaviour:
     SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects:
+    - {fileID: 102900000, guid: 01b5c927a82162614bd2cd725257d8ee, type: 3}
     - {fileID: 102900000, guid: ea756fcdf0bed2842bd0e10346cdb379, type: 3}
     - {fileID: 102900000, guid: f72f140b597b8c344a54f9dd7326b9e3, type: 3}
-    - {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
     - {fileID: 102900000, guid: c200760d613a86e458e05e3202ee98f2, type: 3}
+    - {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
     - {fileID: 102900000, guid: 8cc75dda63b96a9d4ac74d3896439767, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
@@ -46,7 +47,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 6
+      Data: 7
     - Name: 
       Entry: 7
       Data: 
@@ -61,7 +62,7 @@ MonoBehaviour:
       Data: 0
     - Name: _path
       Entry: 1
-      Data: Assets/QuackUp/Scenes/MainMenu.unity
+      Data: Assets/QuackUp/Scenes/SplashScreen.unity
     - Name: 
       Entry: 8
       Data: 
@@ -78,11 +79,11 @@ MonoBehaviour:
       Entry: 7
       Data: 3|Redcode.Extensions.SceneReference, Extensions
     - Name: _sceneObject
-      Entry: 6
-      Data: 
+      Entry: 10
+      Data: 1
     - Name: _path
       Entry: 1
-      Data: 
+      Data: Assets/QuackUp/Scenes/MainMenu.unity
     - Name: 
       Entry: 8
       Data: 
@@ -100,7 +101,7 @@ MonoBehaviour:
       Data: 4|Redcode.Extensions.SceneReference, Extensions
     - Name: _sceneObject
       Entry: 10
-      Data: 1
+      Data: 2
     - Name: _path
       Entry: 1
       Data: Assets/QuackUp/Scenes/LevelSelect.unity
@@ -121,10 +122,10 @@ MonoBehaviour:
       Data: 5|Redcode.Extensions.SceneReference, Extensions
     - Name: _sceneObject
       Entry: 10
-      Data: 2
+      Data: 3
     - Name: _path
       Entry: 1
-      Data: Assets/QuackUp/Scenes/Gameplay.unity
+      Data: Assets/QuackUp/Scenes/ModeSelect.unity
     - Name: 
       Entry: 8
       Data: 
@@ -142,10 +143,10 @@ MonoBehaviour:
       Data: 6|Redcode.Extensions.SceneReference, Extensions
     - Name: _sceneObject
       Entry: 10
-      Data: 3
+      Data: 2
     - Name: _path
       Entry: 1
-      Data: Assets/QuackUp/Scenes/ModeSelect.unity
+      Data: Assets/QuackUp/Scenes/LevelSelect.unity
     - Name: 
       Entry: 8
       Data: 
@@ -166,7 +167,28 @@ MonoBehaviour:
       Data: 4
     - Name: _path
       Entry: 1
-      Data: Assets/QuackUp/Scenes/New Tutorial.unity
+      Data: Assets/QuackUp/Scenes/Gameplay.unity
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 6
+    - Name: $v
+      Entry: 7
+      Data: 8|Redcode.Extensions.SceneReference, Extensions
+    - Name: _sceneObject
+      Entry: 10
+      Data: 5
+    - Name: _path
+      Entry: 1
+      Data: Assets/QuackUp/Scenes/Tutorial.unity
     - Name: 
       Entry: 8
       Data: 

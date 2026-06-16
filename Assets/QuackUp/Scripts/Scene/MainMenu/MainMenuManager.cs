@@ -1,12 +1,9 @@
 using System;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Panel;
 using FitMe.Shared;
-using GameAnalyticsSDK;
-using MessagePipe;
 using QuackUp.Audio;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
@@ -70,7 +67,7 @@ namespace FitMe.Scene.MainMenu
         {
             var disposableBuilder = Disposable.CreateBuilder();
             _gridManager.OnAboutToPlaceBlock
-                .Subscribe(x =>
+                .Subscribe(_ =>
                 {
                     if (!ShouldCancelPlacement()) return;
                     _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
@@ -92,7 +89,7 @@ namespace FitMe.Scene.MainMenu
                 .AddTo(ref disposableBuilder);
             _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage is LoadSceneStage.FinishIn)
-                .Subscribe(_ => OnSceneFinishIn())
+                .Subscribe(OnSceneFinishIn)
                 .AddTo(ref disposableBuilder);
             _outOfEnergyManager.OnToShop
                 .Subscribe(_ => OnToShop())
@@ -121,6 +118,11 @@ namespace FitMe.Scene.MainMenu
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
+            if (_outOfEnergyManager.OpenShopAcrossScene)
+            {
+                _outOfEnergyManager.OpenShopAcrossScene = false;
+                OnToShop();
+            }
         }
 
         public void Dispose()
@@ -174,9 +176,11 @@ namespace FitMe.Scene.MainMenu
             await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
         }
 
-        private void OnSceneFinishIn()
+        private void OnSceneFinishIn(LoadSceneStageEvent evt)
         {
-            if (_saveManager.IsSaveReady && !_energyManager.HasEnoughEnergy(1))
+            if (!_energyManager.HasEnoughEnergy(1) && 
+                !_outOfEnergyManager.OpenShopAcrossScene &&
+                evt.PreviousSceneType is not SceneType.Gameplay)
             {
                 _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
             }

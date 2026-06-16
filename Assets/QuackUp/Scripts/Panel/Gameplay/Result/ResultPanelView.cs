@@ -19,12 +19,14 @@ namespace FitMe.Panel
         [SerializeField] private GameObject newHighScoreBlock;
         [SerializeField] private GameObject newFitMeBlock;
         [SerializeField] private GameObject notEnoughEnergyBlock;
-        [SerializeField] private Button mainMenuButton;
+        [SerializeField] private UIButton3D mainMenuButton;
         [SerializeField] private UIButton3D retryButton;
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private TMP_Text fitText;
         [SerializeField] private ParticleSystem ringLight;
         [SerializeField] private CanvasGroup[] childCanvasGroups;
+        [SerializeField] private float scoreDisplayInterval = 1f;
+        [SerializeField] private float outOfEnergyPopUpDelay = 1f;
         
         [Title("Audios")]
         [SerializeField] EventReference newHighScoreSfx;
@@ -50,7 +52,7 @@ namespace FitMe.Panel
         {
             var  disposableBuilder = Disposable.CreateBuilder();
             
-            mainMenuButton.OnClickAsObservable()
+            mainMenuButton.Button.OnClickAsObservable()
                 .Subscribe(_ => OnMainMenu())
                 .AddTo(ref disposableBuilder);
             
@@ -122,10 +124,24 @@ namespace FitMe.Panel
                 fitText.gameObject.SetActive(true);
             });
             yourScoreBlock.SetActive(!data.IsNewHighScore);
-            await UniTask.WaitForSeconds(1f, cancellationToken: cancellationToken);
+            retryButton.Button.interactable = false;
+            retryButton.ApplyTint(ButtonSelectionState.Disabled);
+            mainMenuButton.Button.interactable = false;
+            mainMenuButton.ApplyTint(ButtonSelectionState.Disabled);
+            await UniTask.WaitForSeconds(scoreDisplayInterval, cancellationToken: cancellationToken);
             await ShowHighScore(data);
-            await UniTask.WaitForSeconds(1f, cancellationToken: cancellationToken);
+            await UniTask.WaitForSeconds(scoreDisplayInterval, cancellationToken: cancellationToken);
             await ShowFitMeScore(data);
+            if (!ViewModel.HasEnoughEnergy(1))
+            {
+                await UniTask.WaitForSeconds(outOfEnergyPopUpDelay, cancellationToken: cancellationToken);
+                var promise = new Promise<Unit>();
+                ViewModel.OutOfEnergyManager.TransitionInCommand.Execute(promise);
+                await promise.Task;
+            }
+            OnEnergyUpdated();
+            mainMenuButton.Button.interactable = true;
+            mainMenuButton.ApplyTint(ButtonSelectionState.Normal);
             data.Promise.TrySetResult(Unit.Default);
         }
         

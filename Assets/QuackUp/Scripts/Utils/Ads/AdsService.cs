@@ -108,6 +108,7 @@ namespace QuackUp.Utils
         
         private BannerView _bannerView;
         private bool _wasVisible;
+        private int _loadedWidth;
         public override bool CanShowAd() => Enabled && _bannerView is {IsDestroyed:  false};
         private bool _enabled = true;
 
@@ -134,6 +135,7 @@ namespace QuackUp.Utils
             DisposeAd();
             // Get the device safe width in density-independent pixels.
             var deviceWidth = MobileAds.Utils.GetDeviceSafeWidth();
+            _loadedWidth = deviceWidth;
             // Define the anchored adaptive ad size.
             var adaptiveSize =
                 AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(deviceWidth);
@@ -145,6 +147,7 @@ namespace QuackUp.Utils
 
         public override bool TryShow()
         {
+            DebugUtils.Log($"BannerAdInstance: TryShow called. _bannerView is null: {_bannerView == null}, CanShowAd: {CanShowAd()}, Enabled: {Enabled}");
             if (_bannerView == null || _bannerView.IsDestroyed)
             {
                 DebugUtils.LogWarning("Banner ad is not loaded yet.");
@@ -153,6 +156,27 @@ namespace QuackUp.Utils
                 return false;
             }
             if (!CanShowAd()) return false;
+
+            var currentDeviceWidth = MobileAds.Utils.GetDeviceSafeWidth();
+            if (_loadedWidth <= 0 && currentDeviceWidth > 0)
+            {
+                DebugUtils.Log($"BannerAdInstance: Loaded width was {_loadedWidth}, current width is {currentDeviceWidth}. Reloading banner with valid width.");
+                _wasVisible = true;
+                Load();
+                return false;
+            }
+
+#if UNITY_EDITOR
+            // Editor dummy client workaround - Hide() to Show() bug
+            if (!_wasVisible)
+            {
+                DebugUtils.Log("BannerAdInstance: Editor dummy client workaround - reloading banner to show it.");
+                _wasVisible = true;
+                Load();
+                return false;
+            }
+#endif
+
             // if (_bannerView == null || _bannerView.IsDestroyed)
             // {
             //     Load();
@@ -170,6 +194,7 @@ namespace QuackUp.Utils
 
         public bool TryHide()
         {
+            DebugUtils.Log($"BannerAdInstance: TryHide called. _bannerView is null: {_bannerView == null}, CanShowAd: {CanShowAd()}, Enabled: {Enabled}");
             if (!CanShowAd()) return false;
             _bannerView.Hide();
             _wasVisible = false;
@@ -207,13 +232,15 @@ namespace QuackUp.Utils
 
         private void HandleAdLoaded()
         {
-            DebugUtils.Log("Banner ad loaded successfully.");
+            DebugUtils.Log($"BannerAdInstance: HandleAdLoaded called. _wasVisible is: {_wasVisible}");
             if (!_wasVisible)
             {
+                DebugUtils.Log("BannerAdInstance: _wasVisible is false, calling Hide()");
                 _bannerView.Hide();
             }
             else
             {
+                DebugUtils.Log("BannerAdInstance: _wasVisible is true, calling Show()");
                 _bannerView.Show();
             }
             CountdownAdSession();

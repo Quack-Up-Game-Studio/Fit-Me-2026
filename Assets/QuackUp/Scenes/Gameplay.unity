@@ -2824,7 +2824,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &347676319
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7606,6 +7606,7 @@ GameObject:
   - component: {fileID: 1067048283}
   - component: {fileID: 1067048285}
   - component: {fileID: 1067048284}
+  - component: {fileID: 1067048286}
   m_Layer: 5
   m_Name: FitCount
   m_TagString: Untagged
@@ -7732,6 +7733,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1067048282}
   m_CullTransparentMesh: 1
+--- !u!114 &1067048286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1067048282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6309d4a7957f24e5d94b08e67f40d4d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Coffee.UIMaterialPropertyInjector::Coffee.UIExtensions.UIMaterialPropertyInjector
+  m_ResetValuesOnEnable: 0
+  m_Animatable: 1
+  m_SharingGroupId: 0
+  m_Properties:
+  - m_PropertyName: _OutlineColor
+    m_Type: 0
+    m_Int: 0
+    m_Float: 0
+    m_Color: {r: 0.9411765, g: 0.4, b: 0.16470589, a: 1}
+    m_Vector: {x: 0, y: 0, z: 0, w: 0}
+    m_Texture: {fileID: 0}
+    m_Injector: {fileID: 0}
 --- !u!1 &1081198249
 GameObject:
   m_ObjectHideFlags: 0
@@ -8252,13 +8277,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.UIButton3D
   button: {fileID: 1157418559}
   childImages: []
-  useCustomColors: 0
+  useCustomColors: 1
   customColors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   autoTintOnDisabled: 0
@@ -11532,7 +11557,7 @@ MonoBehaviour:
   newHighScoreBlock: {fileID: 1502147656}
   newFitMeBlock: {fileID: 143637280}
   notEnoughEnergyBlock: {fileID: 1569578712}
-  mainMenuButton: {fileID: 1157418559}
+  mainMenuButton: {fileID: 1157418562}
   retryButton: {fileID: 152614619}
   scoreText: {fileID: 822654856}
   fitText: {fileID: 1704565338}
@@ -11542,6 +11567,8 @@ MonoBehaviour:
   - {fileID: 1795960118}
   - {fileID: 2053941693}
   - {fileID: 1591456790}
+  scoreDisplayInterval: 1
+  outOfEnergyPopUpDelay: 1
   newHighScoreSfx:
     Guid:
       Data1: 1826474676

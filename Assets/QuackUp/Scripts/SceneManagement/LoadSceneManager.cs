@@ -51,6 +51,7 @@ namespace QuackUp.SceneManagement
 
     public enum SceneType
     {
+        Splash,
         MainMenu,
         Loading,
         LevelSelect,

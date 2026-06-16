@@ -30,7 +30,6 @@ namespace FitMe.Panel
         public const string AdCountKey = "AdCount";
         
         private IDisposable _onRewardEarned;
-        private IDisposable _bindings;
         private IDisposable _adsTimer;
         
         public ReadOnlyReactiveProperty<int> RemainingAdCount => _remainingAdCount.ToReadOnlyReactiveProperty();
@@ -45,6 +44,8 @@ namespace FitMe.Panel
         [ShowInInspector] private UTimeSpan DebugTimeUntilNextWatchAd => _timeUntilNextWatchAd.Value;
         
         private PlayerRecordSaveObject _saveObject;
+
+        public  bool OpenShopAcrossScene { get; set; }
 
         [Button(nameof(TestTransition))]
         private void TestTransition(bool direction)
@@ -78,16 +79,17 @@ namespace FitMe.Panel
 
         public void Start()
         {
-            InitializeAsync().Forget();
+            StartAsync().Forget();
         }
 
-        private async UniTaskVoid InitializeAsync()
+        private async UniTaskVoid StartAsync()
         {
             await _saveManager.WaitForSaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = _saveObject.GetSaveData<PlayerRecordSaveData>();
             _remainingAdCount.Value = saveData.IsFirstTimePlayer ? _maxAdCount : saveData.CurrentRemainingAd;
             _saveManager.Save(_saveObject);
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
             StartAdsTimer();
         }
 
@@ -161,7 +163,6 @@ namespace FitMe.Panel
         public void Dispose()
         {
             _onRewardEarned?.Dispose();
-            _bindings?.Dispose();
             _adsTimer?.Dispose();
         }
     }

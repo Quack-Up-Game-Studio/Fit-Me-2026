@@ -38,7 +38,8 @@ namespace FitMe.Panel
         public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
         public ReadOnlyReactiveProperty<bool> InfiniteEnergy => _energyManager.InfiniteEnergy;
         public bool HasEnoughEnergy(uint amount) => _energyManager.HasEnoughEnergy(amount);
-        
+        public OutOfEnergyManager OutOfEnergyManager { get; private set; }
+
         public IAudioManager AudioManager { get; private set; }
 
         private readonly LoadSceneManager _loadSceneManager;
@@ -62,6 +63,7 @@ namespace FitMe.Panel
             LoadSceneManager loadSceneManager,
             EnergyManager energyManager,
             AdsService adsService,
+            OutOfEnergyManager outOfEnergyManager,
             IScoreManager scoreManager,
             IAudioManager audioManager,
             [Key(ForceAdsThresholdKey)] int forceAdsThreshold)
@@ -71,6 +73,7 @@ namespace FitMe.Panel
             _scoreManager = scoreManager;
             _energyManager = energyManager;
             _adsService = adsService;
+            OutOfEnergyManager = outOfEnergyManager;
             AudioManager = audioManager;
             _forceAdsThreshold = forceAdsThreshold;
             Bind();
@@ -94,6 +97,13 @@ namespace FitMe.Panel
             FitText = _scoreManager.FitMe
                 .Select(fit => fit.ToString("N0")) 
                 .ToReadOnlyReactiveProperty();
+            OutOfEnergyManager.OnToShop
+                .Subscribe(_ =>
+                {
+                    OutOfEnergyManager.OpenShopAcrossScene = true;
+                    ToMainMenuCommand.Execute(Unit.Default);
+                })
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
@@ -132,7 +142,7 @@ namespace FitMe.Panel
         {
             if (!_energyManager.HasEnoughEnergy(1))
             {
-                await _energyManager.ShowNotEnoughEnergyNotification();
+                //await _energyManager.ShowNotEnoughEnergyNotification();
                 return;
             }
             _energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.GameplayRestart);
