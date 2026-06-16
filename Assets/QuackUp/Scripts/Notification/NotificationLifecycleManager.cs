@@ -1,4 +1,5 @@
 using System;
+using FitMe.GameData;
 using QuackUp.Utils;
 using VContainer.Unity;
 using UnityEngine;
@@ -9,13 +10,15 @@ namespace QuackUp.Notification
     public class NotificationLifecycleManager : IStartable, IDisposable
     {
         private readonly NotificationService _notificationService;
+        private readonly EnergyManager _energyManager;
         private GameObject _pauseHandlerObject;
 
         private bool _isPaused;
 
-        public NotificationLifecycleManager(NotificationService notificationService)
+        public NotificationLifecycleManager(NotificationService notificationService, EnergyManager energyManager)
         {
             _notificationService = notificationService;
+            _energyManager = energyManager;
         }
 
         public void Start()
@@ -77,17 +80,11 @@ namespace QuackUp.Notification
 
             DebugUtils.Log("Application paused. Scheduling notifications.");
 
-            // Read energy values from PlayerPrefs saved by EnergyManager
-            int currentEnergy = PlayerPrefs.GetInt("Notification_CurrentEnergy", -1);
-            int maxEnergy = PlayerPrefs.GetInt("Notification_MaxEnergy", -1);
-            float secondsPerEnergy = PlayerPrefs.GetFloat("Notification_SecondsPerEnergy", -1f);
-            float timeUntilNextRecharge = PlayerPrefs.GetFloat("Notification_TimeUntilNextRecharge", -1f);
+            int currentEnergy = _energyManager.CurrentEnergy.Value;
+            int maxEnergy = _energyManager.Config.MaxEnergy;
+            float secondsPerEnergy = (float)_energyManager.Config.EnergyRechargeTime.TimeSpan.TotalSeconds;
 
-            if (currentEnergy >= 0 && maxEnergy > 0 && secondsPerEnergy > 0)
-            {
-                _notificationService.ScheduleEnergyFullNotification(currentEnergy, maxEnergy, secondsPerEnergy, timeUntilNextRecharge);
-            }
-
+            _notificationService.ScheduleEnergyFullNotification(currentEnergy, maxEnergy, secondsPerEnergy);
             _notificationService.ScheduleDailyReminder();
         }
 
