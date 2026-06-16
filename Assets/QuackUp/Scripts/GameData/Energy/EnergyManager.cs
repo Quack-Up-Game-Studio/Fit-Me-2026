@@ -15,7 +15,7 @@ using VContainer.Unity;
 namespace FitMe.GameData
 {
     [Serializable]
-    public class EnergyManager : IPostInitializable, IDisposable, QuackUp.Notification.IEnergyProvider
+    public class EnergyManager : IPostInitializable, IDisposable
     {
         /// <remarks>
         /// Use <see cref="ChangeEnergy"/> to change the energy value.
@@ -36,10 +36,6 @@ namespace FitMe.GameData
         private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
         
         public EnergyManagerConfig Config => _config;
-
-        int QuackUp.Notification.IEnergyProvider.CurrentEnergy => _currentEnergy.Value;
-        int QuackUp.Notification.IEnergyProvider.MaxEnergy => _config.MaxEnergy;
-        float QuackUp.Notification.IEnergyProvider.SecondsPerEnergy => (float)_config.EnergyRechargeTime.TimeSpan.TotalSeconds;
 
         private EnergyManagerSaveObject _saveObject;
         private IDisposable _energyTimer;
@@ -71,11 +67,15 @@ namespace FitMe.GameData
             _currentEnergy.Value = playerSaveData.IsFirstTimePlayer ? _config.MaxEnergy : saveData.CurrentEnergy;
             _saveManager.Save(_saveObject);
             StartEnergyTimer();
+            Application.focusChanged += OnApplicationFocusChanged;
+            Application.quitting += OnApplicationQuitting;
         }
 
         public void Dispose()
         {
             _energyTimer?.Dispose();
+            Application.focusChanged -= OnApplicationFocusChanged;
+            Application.quitting -= OnApplicationQuitting;
         }
         
         private void StartEnergyTimer()
@@ -146,6 +146,28 @@ namespace FitMe.GameData
         public void SetInfiniteEnergy(bool value)
         {
             _infiniteEnergy.Value = value;
+        }
+
+        private void OnApplicationFocusChanged(bool hasFocus)
+        {
+            if (!hasFocus)
+            {
+                UpdatePlayerPrefs();
+            }
+        }
+
+        private void OnApplicationQuitting()
+        {
+            UpdatePlayerPrefs();
+        }
+
+        private void UpdatePlayerPrefs()
+        {
+            PlayerPrefs.SetInt("Notification_CurrentEnergy", _currentEnergy.Value);
+            PlayerPrefs.SetInt("Notification_MaxEnergy", _config.MaxEnergy);
+            PlayerPrefs.SetFloat("Notification_SecondsPerEnergy", (float)_config.EnergyRechargeTime.TimeSpan.TotalSeconds);
+            PlayerPrefs.SetFloat("Notification_TimeUntilNextRecharge", (float)_timeUntilNextRecharge.Value.TotalSeconds);
+            PlayerPrefs.Save();
         }
 
         public async UniTask ShowNotEnoughEnergyNotification()

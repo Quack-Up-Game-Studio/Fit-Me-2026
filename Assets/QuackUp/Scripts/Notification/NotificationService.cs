@@ -95,13 +95,21 @@ namespace QuackUp.Notification
 #endif
         }
 
-        public void ScheduleEnergyFullNotification(int currentEnergy, int maxEnergy, float secondsPerEnergy)
+        public void ScheduleEnergyFullNotification(int currentEnergy, int maxEnergy, float secondsPerEnergy, float timeUntilNextRecharge = -1f)
         {
             // ถ้าพลังงานเต็มอยู่แล้ว ก็ไม่ต้องทำอะไรค่ะ
             if (currentEnergy >= maxEnergy) return;
 
             int missingEnergy = maxEnergy - currentEnergy;
-            float totalSecondsNeeded = missingEnergy * secondsPerEnergy;
+            float totalSecondsNeeded;
+            if (timeUntilNextRecharge >= 0f && timeUntilNextRecharge <= secondsPerEnergy)
+            {
+                totalSecondsNeeded = (missingEnergy - 1) * secondsPerEnergy + timeUntilNextRecharge;
+            }
+            else
+            {
+                totalSecondsNeeded = missingEnergy * secondsPerEnergy;
+            }
 
             DateTime fullChargeTime = DateTime.Now.AddSeconds(totalSecondsNeeded);
 

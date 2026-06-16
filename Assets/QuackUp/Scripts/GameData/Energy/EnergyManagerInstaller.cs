@@ -27,7 +27,7 @@ namespace FitMe.GameData
         public override void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(config);
-            builder.RegisterEntryPoint<EnergyManager>().AsSelf().As<QuackUp.Notification.IEnergyProvider>();
+            builder.RegisterEntryPoint<EnergyManager>().AsSelf();
             builder.RegisterBuildCallback(x =>
             {
                 var manager = x.Resolve<EnergyManager>();

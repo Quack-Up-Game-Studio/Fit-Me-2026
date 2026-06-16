@@ -9,15 +9,13 @@ namespace QuackUp.Notification
     public class NotificationLifecycleManager : IStartable, IDisposable
     {
         private readonly NotificationService _notificationService;
-        private readonly IEnergyProvider _energyProvider;
         private GameObject _pauseHandlerObject;
 
         private bool _isPaused;
 
-        public NotificationLifecycleManager(NotificationService notificationService, IEnergyProvider energyProvider)
+        public NotificationLifecycleManager(NotificationService notificationService)
         {
             _notificationService = notificationService;
-            _energyProvider = energyProvider;
         }
 
         public void Start()
@@ -79,12 +77,17 @@ namespace QuackUp.Notification
 
             DebugUtils.Log("Application paused. Scheduling notifications.");
 
-            // Schedule the notifications!
-            int currentEnergy = _energyProvider.CurrentEnergy;
-            int maxEnergy = _energyProvider.MaxEnergy;
-            float secondsPerEnergy = _energyProvider.SecondsPerEnergy;
+            // Read energy values from PlayerPrefs saved by EnergyManager
+            int currentEnergy = PlayerPrefs.GetInt("Notification_CurrentEnergy", -1);
+            int maxEnergy = PlayerPrefs.GetInt("Notification_MaxEnergy", -1);
+            float secondsPerEnergy = PlayerPrefs.GetFloat("Notification_SecondsPerEnergy", -1f);
+            float timeUntilNextRecharge = PlayerPrefs.GetFloat("Notification_TimeUntilNextRecharge", -1f);
 
-            _notificationService.ScheduleEnergyFullNotification(currentEnergy, maxEnergy, secondsPerEnergy);
+            if (currentEnergy >= 0 && maxEnergy > 0 && secondsPerEnergy > 0)
+            {
+                _notificationService.ScheduleEnergyFullNotification(currentEnergy, maxEnergy, secondsPerEnergy, timeUntilNextRecharge);
+            }
+
             _notificationService.ScheduleDailyReminder();
         }
 
