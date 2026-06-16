@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/QuackUp/Scenes/SplashScreen.unity
+    guid: 01b5c927a82162614bd2cd725257d8ee
+  - enabled: 1
     path: Assets/QuackUp/Scenes/MainMenu.unity
     guid: ea756fcdf0bed2842bd0e10346cdb379
   - enabled: 1
