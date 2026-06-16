@@ -1,4 +1,5 @@
 using System;
+using QuackUp.Notification;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -41,6 +42,10 @@ namespace FitMe.Panel
             builder.RegisterInstance(config);
             builder.RegisterInstance(notificationParentTransform).Keyed(NotificationManager.NotificationParentKey);
             builder.Register<NotificationManager>(Lifetime.Singleton);
+            
+            builder.Register<NotificationService>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<NotificationLifecycleManager>().AsSelf();
+
             builder.RegisterBuildCallback(x =>
             {
                 var manager = x.Resolve<NotificationManager>();

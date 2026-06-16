@@ -68,6 +68,36 @@ namespace QuackUp.Notification
 #endif
         }
 
+        public void ScheduleEnergyFullNotification(int currentEnergy, int maxEnergy, float secondsPerEnergy)
+        {
+            // ถ้าพลังงานเต็มอยู่แล้ว ก็ไม่ต้องทำอะไรค่ะ
+            if (currentEnergy >= maxEnergy) return;
+
+            int missingEnergy = maxEnergy - currentEnergy;
+            float totalSecondsNeeded = missingEnergy * secondsPerEnergy;
+
+            DateTime fullChargeTime = DateTime.Now.AddSeconds(totalSecondsNeeded);
+
+            ScheduleNotification(
+                "Energy Fully Charged! ⚡",
+                "Your energy bar is full. Get back to fitting blocks and beat your high score!",
+                fullChargeTime,
+                EnergyChannelId
+            );
+        }
+
+        public void ScheduleDailyReminder()
+        {
+            DateTime tomorrow = DateTime.Now.AddDays(1);
+
+            ScheduleNotification(
+                "Block-Fitting Time! 🧩",
+                "It's time for your daily block-fitting puzzle. Come beat your high score!",
+                tomorrow,
+                ReminderChannelId
+            );
+        }
+
         /// <summary>
         /// ยกเลิกการแจ้งเตือนที่ตั้งเวลาไว้ทั้งหมด (มีประโยชน์มากเวลาที่ผู้เล่นเปิดเกมขึ้นมาค่ะ)
         /// </summary>
