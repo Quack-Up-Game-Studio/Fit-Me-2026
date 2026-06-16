@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using MessagePipe;
+using QuackUp.Notification;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
@@ -27,6 +28,7 @@ namespace QuackUp.Core
             {
                 installer.Install(builder);
             }
+            new NotificationOutsideInstaller().Install(builder);
             if (platformSpecificInstallers.TryGetValue(Application.platform, out var platformInstallers))
             {
                 foreach (var installer in platformInstallers.PlatformSpecificInstallers)
