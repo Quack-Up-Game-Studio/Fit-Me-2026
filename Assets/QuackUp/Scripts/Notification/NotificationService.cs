@@ -5,43 +5,23 @@ using Unity.Notifications.Android;
 using Unity.Notifications.iOS;
 #endif
 using UnityEngine;
+using VContainer;
 
-namespace QuackUp.Notification
+namespace FitMe.Notification
 {
     public class NotificationService
     {
-        private const string EnergyChannelId = "energy_updates";
-        private const string ReminderChannelId = "daily_reminders";
+        private readonly NotificationConfig _config;
 
-        private struct NotificationMessage
+        private const int EnergyNotificationId = 1;
+        private const string EnergyNotificationIdentifier = "energy_full";
+        private const int ReminderNotificationId = 2;
+        private const string ReminderNotificationIdentifier = "daily_reminder";
+
+        [Inject]
+        public NotificationService(NotificationConfig config)
         {
-            public string Title { get; }
-            public string Body { get; }
-
-            public NotificationMessage(string title, string body)
-            {
-                Title = title;
-                Body = body;
-            }
-        }
-
-        private static readonly NotificationMessage[] _energyFullMessages = new[]
-        {
-            new NotificationMessage("⚡ Energy Full!", "Your energy is fully recharged. Ready to play?"),
-            new NotificationMessage("Fully Charged! 🔋", "Your energy is maxed out. Let's go!"),
-            new NotificationMessage("Ding! Fully reloaded 🔋", "Grab your phone, All your energy is waiting for you!")
-        };
-
-        private static readonly NotificationMessage[] _dailyReminderMessages = new[]
-        {
-            new NotificationMessage("New High Score? 🏆", "Can you beat your best? Play a quick round!"),
-            new NotificationMessage("Break time? ☕", "Kick back and come join the fun!"),
-            new NotificationMessage("Game On! 🎮", "Take a quick break and set a new record today."),
-            new NotificationMessage("Just dropping by! 👋", "Come play a quick round. We saved your spot!")
-        };
-
-        public NotificationService()
-        {
+            _config = config;
             InitializeChannels();
         }
 
@@ -50,28 +30,23 @@ namespace QuackUp.Notification
 #if UNITY_ANDROID
             var energyChannel = new AndroidNotificationChannel()
             {
-                Id = EnergyChannelId,
-                Name = "Energy Status",
+                Id = _config.energyChannel.channelId,
+                Name = _config.energyChannel.channelName,
                 Importance = Importance.Default,
-                Description = "Notifies you when your energy is fully charged."
+                Description = _config.energyChannel.channelDescription
             };
             AndroidNotificationCenter.RegisterNotificationChannel(energyChannel);
 
             var reminderChannel = new AndroidNotificationChannel()
             {
-                Id = ReminderChannelId,
-                Name = "Daily Reminders",
+                Id = _config.reminderChannel.channelId,
+                Name = _config.reminderChannel.channelName,
                 Importance = Importance.Default,
-                Description = "Friendly daily reminders to keep fitting blocks!"
+                Description = _config.reminderChannel.channelDescription
             };
             AndroidNotificationCenter.RegisterNotificationChannel(reminderChannel);
 #endif
         }
-        
-        private const int EnergyNotificationId = 1;
-        private const string EnergyNotificationIdentifier = "energy_full";
-        private const int ReminderNotificationId = 2;
-        private const string ReminderNotificationIdentifier = "daily_reminder";
 
         public void ScheduleNotification(string title, string text, DateTime fireTime, string channelId, int id, string identifier)
         {
@@ -122,7 +97,6 @@ namespace QuackUp.Notification
 
         public void ScheduleEnergyFullNotification(int currentEnergy, int maxEnergy, float secondsPerEnergy, double? overrideTimeUntilNext = null)
         {
-            // ถ้าพลังงานเต็มอยู่แล้ว ก็ไม่ต้องทำอะไรและลบตัวเก่าทิ้งค่ะ
             if (currentEnergy >= maxEnergy)
             {
                 CancelNotification(EnergyNotificationId, EnergyNotificationIdentifier);
@@ -148,13 +122,14 @@ namespace QuackUp.Notification
 
             DateTime fullChargeTime = DateTime.Now.AddSeconds(totalSecondsNeeded);
 
-            var message = _energyFullMessages[UnityEngine.Random.Range(0, _energyFullMessages.Length)];
+            if (_config.energyFullMessages == null || _config.energyFullMessages.Length == 0) return;
+            var message = _config.energyFullMessages[UnityEngine.Random.Range(0, _config.energyFullMessages.Length)];
 
             ScheduleNotification(
-                message.Title,
-                message.Body,
+                message.title,
+                message.body,
                 fullChargeTime,
-                EnergyChannelId,
+                _config.energyChannel.channelId,
                 EnergyNotificationId,
                 EnergyNotificationIdentifier
             );
@@ -164,21 +139,19 @@ namespace QuackUp.Notification
         {
             DateTime tomorrow = DateTime.Now.AddDays(1);
 
-            var message = _dailyReminderMessages[UnityEngine.Random.Range(0, _dailyReminderMessages.Length)];
+            if (_config.dailyReminderMessages == null || _config.dailyReminderMessages.Length == 0) return;
+            var message = _config.dailyReminderMessages[UnityEngine.Random.Range(0, _config.dailyReminderMessages.Length)];
 
             ScheduleNotification(
-                message.Title,
-                message.Body,
+                message.title,
+                message.body,
                 tomorrow,
-                ReminderChannelId,
+                _config.reminderChannel.channelId,
                 ReminderNotificationId,
                 ReminderNotificationIdentifier
             );
         }
 
-        /// <summary>
-        /// ยกเลิกการแจ้งเตือนที่ตั้งเวลาไว้ทั้งหมด (มีประโยชน์มากเวลาที่ผู้เล่นเปิดเกมขึ้นมาค่ะ)
-        /// </summary>
         public void CancelAllNotifications()
         {
 #if UNITY_ANDROID

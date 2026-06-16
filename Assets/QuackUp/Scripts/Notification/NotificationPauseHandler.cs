@@ -1,19 +1,20 @@
+using R3;
 using UnityEngine;
 
-namespace QuackUp.Notification
+namespace FitMe.Notification
 {
     public class NotificationPauseHandler : MonoBehaviour
     {
-        private NotificationLifecycleManager _lifecycleManager;
-
-        public void Construct(NotificationLifecycleManager lifecycleManager)
-        {
-            _lifecycleManager = lifecycleManager;
-        }
+        public readonly Subject<bool> OnPauseChanged = new();
 
         private void OnApplicationPause(bool pauseStatus)
         {
-            _lifecycleManager?.OnApplicationPauseChanged(pauseStatus);
+            OnPauseChanged.OnNext(pauseStatus);
+        }
+
+        private void OnDestroy()
+        {
+            OnPauseChanged.OnCompleted();
         }
     }
 }

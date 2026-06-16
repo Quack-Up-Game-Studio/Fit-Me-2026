@@ -6,14 +6,14 @@ using VContainer.Unity;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace QuackUp.Notification
+namespace FitMe.Notification
 {
     public class NotificationLifecycleManager : IStartable, IDisposable
     {
         private readonly NotificationService _notificationService;
         private readonly EnergyManager _energyManager;
         private GameObject _pauseHandlerObject;
-        private IDisposable _energySubscription;
+        private readonly CompositeDisposable _disposables = new();
 
         private bool _isPaused;
 
@@ -33,7 +33,7 @@ namespace QuackUp.Notification
             _notificationService.ScheduleDailyReminder();
 
             // Subscribe to energy changes to pre-schedule energy full notifications instantly
-            _energySubscription = _energyManager.CurrentEnergy
+            _energyManager.CurrentEnergy
                 .Subscribe(currentEnergy =>
                 {
                     int maxEnergy = _energyManager.Config.MaxEnergy;
@@ -41,10 +41,24 @@ namespace QuackUp.Notification
                     double timeUntilNext = _energyManager.TimeUntilNextRecharge.CurrentValue.TotalSeconds;
                     
                     _notificationService.ScheduleEnergyFullNotification(currentEnergy, maxEnergy, secondsPerEnergy, timeUntilNext);
-                });
+                })
+                .AddTo(_disposables);
 
-            Application.focusChanged += OnApplicationFocusChanged;
-            Application.quitting += OnApplicationQuitting;
+            // Subscribe to Application.focusChanged using R3 Observable.FromEvent
+            Observable.FromEvent<Action<bool>, bool>(
+                h => h,
+                h => Application.focusChanged += h,
+                h => Application.focusChanged -= h)
+                .Subscribe(OnApplicationFocusChanged)
+                .AddTo(_disposables);
+
+            // Subscribe to Application.quitting using R3 Observable.FromEvent
+            Observable.FromEvent(
+                h => Application.quitting += h,
+                h => Application.quitting -= h)
+                .Subscribe(_ => OnApplicationQuitting())
+                .AddTo(_disposables);
+
             CreatePauseHandler();
         }
 
@@ -56,7 +70,9 @@ namespace QuackUp.Notification
             };
             Object.DontDestroyOnLoad(_pauseHandlerObject);
             var handler = _pauseHandlerObject.AddComponent<NotificationPauseHandler>();
-            handler.Construct(this);
+            handler.OnPauseChanged
+                .Subscribe(OnApplicationPauseChanged)
+                .AddTo(_disposables);
         }
 
         private void OnApplicationFocusChanged(bool hasFocus)
@@ -71,7 +87,7 @@ namespace QuackUp.Notification
             }
         }
 
-        public void OnApplicationPauseChanged(bool isPaused)
+        private void OnApplicationPauseChanged(bool isPaused)
         {
             if (isPaused)
             {
@@ -126,11 +142,7 @@ namespace QuackUp.Notification
 
         private void Cleanup()
         {
-            _energySubscription?.Dispose();
-            _energySubscription = null;
-
-            Application.focusChanged -= OnApplicationFocusChanged;
-            Application.quitting -= OnApplicationQuitting;
+            _disposables.Dispose();
             if (_pauseHandlerObject != null)
             {
                 Object.Destroy(_pauseHandlerObject);

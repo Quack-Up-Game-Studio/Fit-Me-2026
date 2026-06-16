@@ -3242,6 +3242,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: d0abbb28b780bdd968d943ed878c4027, type: 2}
     - {fileID: 8658512612834695708}
     - {fileID: 165288, guid: a9d27d37bab3c447b8eb7a2a6756e952, type: 3}
+    - {fileID: 11400000, guid: bf0d7c0f0580479ab43e74f17ce71bb4, type: 2}
     - {fileID: 11400000, guid: dbb40b9186271f97daac3e929c22b08e, type: 2}
     - {fileID: 11400000, guid: a989f0e4e4634b244babfb412b5ebfbc, type: 2}
     SerializedBytesString: 
@@ -3375,7 +3376,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 14|QuackUp.Notification.NotificationOutsideInstaller, QuackUp.Notification
+      Data: 14|FitMe.Notification.NotificationOutsideInstaller, FitMe.Notification
+    - Name: config
+      Entry: 10
+      Data: 8
     - Name: 
       Entry: 8
       Data: 
@@ -3414,7 +3418,7 @@ MonoBehaviour:
       Data: 0
     - Name: $v
       Entry: 10
-      Data: 8
+      Data: 9
     - Name: 
       Entry: 8
       Data: 
@@ -3426,7 +3430,7 @@ MonoBehaviour:
       Data: 16
     - Name: $v
       Entry: 10
-      Data: 8
+      Data: 9
     - Name: 
       Entry: 8
       Data: 
@@ -3438,7 +3442,7 @@ MonoBehaviour:
       Data: 7
     - Name: $v
       Entry: 10
-      Data: 8
+      Data: 9
     - Name: 
       Entry: 8
       Data: 
@@ -3450,7 +3454,7 @@ MonoBehaviour:
       Data: 2
     - Name: $v
       Entry: 10
-      Data: 8
+      Data: 9
     - Name: 
       Entry: 8
       Data: 
@@ -3462,7 +3466,7 @@ MonoBehaviour:
       Data: 11
     - Name: $v
       Entry: 10
-      Data: 9
+      Data: 10
     - Name: 
       Entry: 8
       Data: 

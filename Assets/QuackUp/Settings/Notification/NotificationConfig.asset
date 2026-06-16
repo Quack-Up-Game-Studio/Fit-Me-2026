@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc6b162b71be4d8f828a2a0a6d0c48e2, type: 3}
+  m_Name: NotificationConfig
+  m_EditorClassIdentifier: FitMe.Notification::FitMe.Notification.NotificationConfig
+  energyChannel:
+    channelId: energy_updates
+    channelName: Energy Status
+    channelDescription: Notifies you when your energy is fully charged.
+  reminderChannel:
+    channelId: daily_reminders
+    channelName: Daily Reminders
+    channelDescription: Friendly daily reminders to keep fitting blocks!
+  energyFullMessages:
+  - title: "\u26A1 Energy Full!"
+    body: Your energy is fully recharged. Ready to play?
+  - title: "Fully Charged! \U0001F50B"
+    body: Your energy is maxed out. Let's go!
+  - title: "Ding! Fully reloaded \U0001F50B"
+    body: Grab your phone, All your energy is waiting for you!
+  dailyReminderMessages:
+  - title: "New High Score? \U0001F3C6"
+    body: Can you beat your best? Play a quick round!
+  - title: "Break time? \u2615"
+    body: Kick back and come join the fun!
+  - title: "Game On! \U0001F3AE"
+    body: Take a quick break and set a new record today.
+  - title: "Just dropping by! \U0001F44B"
+    body: Come play a quick round. We saved your spot!
