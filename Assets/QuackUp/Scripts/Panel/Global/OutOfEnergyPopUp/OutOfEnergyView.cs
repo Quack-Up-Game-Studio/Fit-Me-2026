@@ -104,6 +104,7 @@ namespace FitMe.Panel
         private async UniTask TransitionIn(Promise<Unit> promise, CancellationToken token)
         {
             canvasGroup.blocksRaycasts = true;
+            OnRemainingAdCountChanged(_viewModel.RemainingAdCount.CurrentValue);
             await Transition(true, token);
             canvasGroup.interactable = true;
             promise.TrySetResult(Unit.Default);
