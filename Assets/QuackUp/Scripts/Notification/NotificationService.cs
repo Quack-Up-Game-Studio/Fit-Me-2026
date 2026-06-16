@@ -10,6 +10,33 @@ namespace QuackUp.Notification
         private const string EnergyChannelId = "energy_updates";
         private const string ReminderChannelId = "daily_reminders";
 
+        private struct NotificationMessage
+        {
+            public string Title { get; }
+            public string Body { get; }
+
+            public NotificationMessage(string title, string body)
+            {
+                Title = title;
+                Body = body;
+            }
+        }
+
+        private static readonly NotificationMessage[] _energyFullMessages = new[]
+        {
+            new NotificationMessage("⚡ Energy Full!", "Your energy is fully recharged. Ready to play?"),
+            new NotificationMessage("Fully Charged! 🔋", "Your energy is maxed out. Let's go!"),
+            new NotificationMessage("Ding! Fully reloaded 🔋", "Grab your phone, All your energy is waiting for you!")
+        };
+
+        private static readonly NotificationMessage[] _dailyReminderMessages = new[]
+        {
+            new NotificationMessage("New High Score? 🏆", "Can you beat your best? Play a quick round!"),
+            new NotificationMessage("Break time? ☕", "Kick back and come join the fun!"),
+            new NotificationMessage("Game On! 🎮", "Take a quick break and set a new record today."),
+            new NotificationMessage("Just dropping by! 👋", "Come play a quick round. We saved your spot!")
+        };
+
         public NotificationService()
         {
             InitializeChannels();
@@ -78,9 +105,11 @@ namespace QuackUp.Notification
 
             DateTime fullChargeTime = DateTime.Now.AddSeconds(totalSecondsNeeded);
 
+            var message = _energyFullMessages[UnityEngine.Random.Range(0, _energyFullMessages.Length)];
+
             ScheduleNotification(
-                "Energy Fully Charged! ⚡",
-                "Your energy bar is full. Get back to fitting blocks and beat your high score!",
+                message.Title,
+                message.Body,
                 fullChargeTime,
                 EnergyChannelId
             );
@@ -90,9 +119,11 @@ namespace QuackUp.Notification
         {
             DateTime tomorrow = DateTime.Now.AddDays(1);
 
+            var message = _dailyReminderMessages[UnityEngine.Random.Range(0, _dailyReminderMessages.Length)];
+
             ScheduleNotification(
-                "Block-Fitting Time! 🧩",
-                "It's time for your daily block-fitting puzzle. Come beat your high score!",
+                message.Title,
+                message.Body,
                 tomorrow,
                 ReminderChannelId
             );
