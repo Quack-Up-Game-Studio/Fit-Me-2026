@@ -1,6 +1,9 @@
 using System;
+#if UNITY_ANDROID
 using Unity.Notifications.Android;
+#elif UNITY_IOS
 using Unity.Notifications.iOS;
+#endif
 using UnityEngine;
 
 namespace QuackUp.Notification
@@ -65,7 +68,12 @@ namespace QuackUp.Notification
 #endif
         }
         
-        public void ScheduleNotification(string title, string text, DateTime fireTime, string channelId)
+        private const int EnergyNotificationId = 1;
+        private const string EnergyNotificationIdentifier = "energy_full";
+        private const int ReminderNotificationId = 2;
+        private const string ReminderNotificationIdentifier = "daily_reminder";
+
+        public void ScheduleNotification(string title, string text, DateTime fireTime, string channelId, int id, string identifier)
         {
 #if UNITY_ANDROID
             var notification = new AndroidNotification
@@ -76,32 +84,67 @@ namespace QuackUp.Notification
                 SmallIcon = "icon_small",
                 LargeIcon = "icon_large"
             };
-            AndroidNotificationCenter.SendNotification(notification, channelId);
+            AndroidNotificationCenter.SendNotificationWithExplicitID(notification, channelId, id);
 #elif UNITY_IOS
+            TimeSpan delay = fireTime - DateTime.Now;
+            if (delay.TotalSeconds <= 0)
+            {
+                delay = TimeSpan.FromSeconds(1);
+            }
+
             var timeTrigger = new iOSNotificationTimeIntervalTrigger
             {
-                TimeInterval = fireTime - DateTime.Now,
+                TimeInterval = delay,
                 Repeats = false
             };
 
             var notification = new iOSNotification
             {
+                Identifier = identifier,
                 Title = title,
                 Body = text,
-                ShowInForeground = true,
+                ShowInForeground = false,
                 Trigger = timeTrigger
             };
             iOSNotificationCenter.ScheduleNotification(notification);
 #endif
         }
 
-        public void ScheduleEnergyFullNotification(int currentEnergy, int maxEnergy, float secondsPerEnergy)
+        public void CancelNotification(int id, string identifier)
         {
-            // ถ้าพลังงานเต็มอยู่แล้ว ก็ไม่ต้องทำอะไรค่ะ
-            if (currentEnergy >= maxEnergy) return;
+#if UNITY_ANDROID
+            AndroidNotificationCenter.CancelNotification(id);
+#elif UNITY_IOS
+            iOSNotificationCenter.RemoveScheduledNotification(identifier);
+            iOSNotificationCenter.RemoveDeliveredNotification(identifier);
+#endif
+        }
+
+        public void ScheduleEnergyFullNotification(int currentEnergy, int maxEnergy, float secondsPerEnergy, double? overrideTimeUntilNext = null)
+        {
+            // ถ้าพลังงานเต็มอยู่แล้ว ก็ไม่ต้องทำอะไรและลบตัวเก่าทิ้งค่ะ
+            if (currentEnergy >= maxEnergy)
+            {
+                CancelNotification(EnergyNotificationId, EnergyNotificationIdentifier);
+                return;
+            }
 
             int missingEnergy = maxEnergy - currentEnergy;
-            float totalSecondsNeeded = missingEnergy * secondsPerEnergy;
+            double totalSecondsNeeded;
+            
+            if (overrideTimeUntilNext.HasValue)
+            {
+                double timeUntilNext = overrideTimeUntilNext.Value;
+                if (timeUntilNext <= 0 || timeUntilNext > secondsPerEnergy)
+                {
+                    timeUntilNext = secondsPerEnergy;
+                }
+                totalSecondsNeeded = timeUntilNext + (missingEnergy - 1) * secondsPerEnergy;
+            }
+            else
+            {
+                totalSecondsNeeded = missingEnergy * secondsPerEnergy;
+            }
 
             DateTime fullChargeTime = DateTime.Now.AddSeconds(totalSecondsNeeded);
 
@@ -111,7 +154,9 @@ namespace QuackUp.Notification
                 message.Title,
                 message.Body,
                 fullChargeTime,
-                EnergyChannelId
+                EnergyChannelId,
+                EnergyNotificationId,
+                EnergyNotificationIdentifier
             );
         }
 
@@ -125,7 +170,9 @@ namespace QuackUp.Notification
                 message.Title,
                 message.Body,
                 tomorrow,
-                ReminderChannelId
+                ReminderChannelId,
+                ReminderNotificationId,
+                ReminderNotificationIdentifier
             );
         }
 

@@ -1,6 +1,7 @@
 using System;
 using FitMe.GameData;
 using QuackUp.Utils;
+using R3;
 using VContainer.Unity;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -12,6 +13,7 @@ namespace QuackUp.Notification
         private readonly NotificationService _notificationService;
         private readonly EnergyManager _energyManager;
         private GameObject _pauseHandlerObject;
+        private IDisposable _energySubscription;
 
         private bool _isPaused;
 
@@ -26,6 +28,20 @@ namespace QuackUp.Notification
             DebugUtils.Log("NotificationLifecycleManager initialized. Cancelling all active notifications.");
             // Cancel any notifications currently scheduled when player opens/resumes the game
             _notificationService.CancelAllNotifications();
+
+            // Pre-schedule initial daily reminder so we always have one in queue
+            _notificationService.ScheduleDailyReminder();
+
+            // Subscribe to energy changes to pre-schedule energy full notifications instantly
+            _energySubscription = _energyManager.CurrentEnergy
+                .Subscribe(currentEnergy =>
+                {
+                    int maxEnergy = _energyManager.Config.MaxEnergy;
+                    float secondsPerEnergy = (float)_energyManager.Config.EnergyRechargeTime.TimeSpan.TotalSeconds;
+                    double timeUntilNext = _energyManager.TimeUntilNextRecharge.CurrentValue.TotalSeconds;
+                    
+                    _notificationService.ScheduleEnergyFullNotification(currentEnergy, maxEnergy, secondsPerEnergy, timeUntilNext);
+                });
 
             Application.focusChanged += OnApplicationFocusChanged;
             Application.quitting += OnApplicationQuitting;
@@ -80,11 +96,12 @@ namespace QuackUp.Notification
 
             DebugUtils.Log("Application paused. Scheduling notifications.");
 
-            int currentEnergy = _energyManager.CurrentEnergy.Value;
+            int currentEnergy = _energyManager.CurrentEnergy.CurrentValue;
             int maxEnergy = _energyManager.Config.MaxEnergy;
             float secondsPerEnergy = (float)_energyManager.Config.EnergyRechargeTime.TimeSpan.TotalSeconds;
+            double timeUntilNext = _energyManager.TimeUntilNextRecharge.CurrentValue.TotalSeconds;
 
-            _notificationService.ScheduleEnergyFullNotification(currentEnergy, maxEnergy, secondsPerEnergy);
+            _notificationService.ScheduleEnergyFullNotification(currentEnergy, maxEnergy, secondsPerEnergy, timeUntilNext);
             _notificationService.ScheduleDailyReminder();
         }
 
@@ -97,6 +114,9 @@ namespace QuackUp.Notification
 
             // Cancel all notifications when returning to the game
             _notificationService.CancelAllNotifications();
+
+            // Re-schedule daily reminder immediately in case of swipe/force close during gameplay
+            _notificationService.ScheduleDailyReminder();
         }
 
         public void Dispose()
@@ -106,6 +126,9 @@ namespace QuackUp.Notification
 
         private void Cleanup()
         {
+            _energySubscription?.Dispose();
+            _energySubscription = null;
+
             Application.focusChanged -= OnApplicationFocusChanged;
             Application.quitting -= OnApplicationQuitting;
             if (_pauseHandlerObject != null)

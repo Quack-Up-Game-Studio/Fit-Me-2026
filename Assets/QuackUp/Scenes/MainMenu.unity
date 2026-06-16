@@ -6591,8 +6591,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Madduck Game Studio.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 625306eb5d3ea0043a4eeb4619ebf831, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: 625306eb5d3ea0043a4eeb4619ebf831, type: 2}
+  m_fontAsset: {fileID: 0}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -12637,8 +12637,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: no
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 0}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -17534,8 +17534,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Made With
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 625306eb5d3ea0043a4eeb4619ebf831, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: 625306eb5d3ea0043a4eeb4619ebf831, type: 2}
+  m_fontAsset: {fileID: 0}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -19356,8 +19356,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Yes
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: ec4454f36b9142549863fb2f0f525bcf, type: 2}
+  m_fontAsset: {fileID: 0}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -23886,8 +23886,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Made By
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 625306eb5d3ea0043a4eeb4619ebf831, type: 2}
-  m_sharedMaterial: {fileID: -2065754007991695277, guid: 625306eb5d3ea0043a4eeb4619ebf831, type: 2}
+  m_fontAsset: {fileID: 0}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
