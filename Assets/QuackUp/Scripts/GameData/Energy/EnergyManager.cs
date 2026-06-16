@@ -67,11 +67,15 @@ namespace FitMe.GameData
             _currentEnergy.Value = playerSaveData.IsFirstTimePlayer ? _config.MaxEnergy : saveData.CurrentEnergy;
             _saveManager.Save(_saveObject);
             StartEnergyTimer();
+            Application.focusChanged += OnApplicationFocusChanged;
+            Application.quitting += OnApplicationQuitting;
         }
 
         public void Dispose()
         {
             _energyTimer?.Dispose();
+            Application.focusChanged -= OnApplicationFocusChanged;
+            Application.quitting -= OnApplicationQuitting;
         }
         
         private void StartEnergyTimer()
@@ -142,6 +146,28 @@ namespace FitMe.GameData
         public void SetInfiniteEnergy(bool value)
         {
             _infiniteEnergy.Value = value;
+        }
+
+        private void OnApplicationFocusChanged(bool hasFocus)
+        {
+            if (!hasFocus)
+            {
+                UpdatePlayerPrefs();
+            }
+        }
+
+        private void OnApplicationQuitting()
+        {
+            UpdatePlayerPrefs();
+        }
+
+        private void UpdatePlayerPrefs()
+        {
+            PlayerPrefs.SetInt("Notification_CurrentEnergy", _currentEnergy.Value);
+            PlayerPrefs.SetInt("Notification_MaxEnergy", _config.MaxEnergy);
+            PlayerPrefs.SetFloat("Notification_SecondsPerEnergy", (float)_config.EnergyRechargeTime.TimeSpan.TotalSeconds);
+            PlayerPrefs.SetFloat("Notification_TimeUntilNextRecharge", (float)_timeUntilNextRecharge.Value.TotalSeconds);
+            PlayerPrefs.Save();
         }
 
         public async UniTask ShowNotEnoughEnergyNotification()

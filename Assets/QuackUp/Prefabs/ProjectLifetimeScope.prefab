@@ -3239,8 +3239,6 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 2d52b47cf6ec4962e873f5e0d20f1cc8, type: 2}
     - {fileID: 11400000, guid: b90f06e68dacac831ad715d9153ac335, type: 2}
     - {fileID: 11400000, guid: 56618cd220cfb6841a8892baa7acd477, type: 2}
-    - {fileID: 11400000, guid: 5cbae03cbf7cc1145b8c227100061b6c, type: 2}
-    - {fileID: 3989526417426172819}
     - {fileID: 11400000, guid: d0abbb28b780bdd968d943ed878c4027, type: 2}
     - {fileID: 8658512612834695708}
     - {fileID: 165288, guid: a9d27d37bab3c447b8eb7a2a6756e952, type: 3}
@@ -3299,40 +3297,28 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 5|FitMe.Panel.NotificationManagerInstaller, FitMe.Panel
+      Data: 5|QuackUp.Utils.AdsServiceInstaller, QuackUp.Utils
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 6|FitMe.GameData.PlaytimeTrackerInstaller, FitMe.GameData
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 7|FitMe.GameData.EnergyManagerInstaller, FitMe.GameData
     - Name: config
       Entry: 10
       Data: 5
-    - Name: notificationParentTransform
-      Entry: 10
-      Data: 6
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 6|QuackUp.Utils.AdsServiceInstaller, QuackUp.Utils
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 7|FitMe.GameData.PlaytimeTrackerInstaller, FitMe.GameData
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 8|FitMe.GameData.EnergyManagerInstaller, FitMe.GameData
-    - Name: config
-      Entry: 10
-      Data: 7
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 9|QuackUp.Utils.VsyncAndFramerateControllerInstaller, QuackUp.Utils
+      Data: 8|QuackUp.Utils.VsyncAndFramerateControllerInstaller, QuackUp.Utils
     - Name: vsyncCount
       Entry: 3
       Data: 0
@@ -3347,25 +3333,25 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 10|QuackUp.IAP.InAppPurchaseInstaller, QuackUp.IAP
+      Data: 9|QuackUp.IAP.InAppPurchaseInstaller, QuackUp.IAP
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 11|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
+      Data: 10|FitMe.Panel.ButtonSoundHandlerInstaller, FitMe.Panel
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 12|FitMe.Panel.OutOfEnergyInstaller, FitMe.Panel
+      Data: 11|FitMe.Panel.OutOfEnergyInstaller, FitMe.Panel
     - Name: outOfEnergyView
       Entry: 10
-      Data: 8
+      Data: 6
     - Name: adCooldown
       Entry: 7
-      Data: 13|UniLabs.Time.UTimeSpan, QuackUp.Utils
+      Data: 12|UniLabs.Time.UTimeSpan, QuackUp.Utils
     - Name: _TimeSpan
       Entry: 1
       Data: 00:15:00
@@ -3380,10 +3366,16 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 14|FitMe.GameAnalytics.GameAnalyticsInitializerInstaller, FitMe.GameAnalytics
+      Data: 13|FitMe.GameAnalytics.GameAnalyticsInitializerInstaller, FitMe.GameAnalytics
     - Name: gameAnalyticsObject
       Entry: 10
-      Data: 9
+      Data: 7
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 14|QuackUp.Notification.NotificationOutsideInstaller, QuackUp.Notification
     - Name: 
       Entry: 8
       Data: 
@@ -3422,7 +3414,7 @@ MonoBehaviour:
       Data: 0
     - Name: $v
       Entry: 10
-      Data: 10
+      Data: 8
     - Name: 
       Entry: 8
       Data: 
@@ -3434,7 +3426,7 @@ MonoBehaviour:
       Data: 16
     - Name: $v
       Entry: 10
-      Data: 10
+      Data: 8
     - Name: 
       Entry: 8
       Data: 
@@ -3446,7 +3438,7 @@ MonoBehaviour:
       Data: 7
     - Name: $v
       Entry: 10
-      Data: 10
+      Data: 8
     - Name: 
       Entry: 8
       Data: 
@@ -3458,7 +3450,7 @@ MonoBehaviour:
       Data: 2
     - Name: $v
       Entry: 10
-      Data: 10
+      Data: 8
     - Name: 
       Entry: 8
       Data: 
@@ -3470,7 +3462,7 @@ MonoBehaviour:
       Data: 11
     - Name: $v
       Entry: 10
-      Data: 11
+      Data: 9
     - Name: 
       Entry: 8
       Data: 

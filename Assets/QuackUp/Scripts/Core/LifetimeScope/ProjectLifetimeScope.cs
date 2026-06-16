@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using MessagePipe;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;

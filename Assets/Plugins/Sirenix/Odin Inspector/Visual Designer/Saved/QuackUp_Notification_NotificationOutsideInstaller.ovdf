@@ -1,0 +1,7 @@
+OVDF v1.1
+QuackUp.Notification.NotificationOutsideInstaller, QuackUp.Notification
+
+# _title
++ [Sirenix.OdinInspector.TitleAttribute]
+	Title = "NotificationOutside"
+	Subtitle = "Title"
