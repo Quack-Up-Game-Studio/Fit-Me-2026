@@ -32,7 +32,7 @@ namespace FitMe.Notification
             {
                 Id = _config.energyChannel.channelId,
                 Name = _config.energyChannel.channelName,
-                Importance = Importance.Default,
+                Importance = Importance.High, // Use High to show head-up banner and play sound
                 Description = _config.energyChannel.channelDescription
             };
             AndroidNotificationCenter.RegisterNotificationChannel(energyChannel);
@@ -41,7 +41,7 @@ namespace FitMe.Notification
             {
                 Id = _config.reminderChannel.channelId,
                 Name = _config.reminderChannel.channelName,
-                Importance = Importance.Default,
+                Importance = Importance.High, // Use High to show head-up banner and play sound
                 Description = _config.reminderChannel.channelDescription
             };
             AndroidNotificationCenter.RegisterNotificationChannel(reminderChannel);
@@ -137,7 +137,7 @@ namespace FitMe.Notification
 
         public void ScheduleDailyReminder()
         {
-            DateTime tomorrow = DateTime.Now.AddDays(1);
+            DateTime fireTime = DateTime.Now.AddHours(_config.dailyReminderDelayHours);
 
             if (_config.dailyReminderMessages == null || _config.dailyReminderMessages.Length == 0) return;
             var message = _config.dailyReminderMessages[UnityEngine.Random.Range(0, _config.dailyReminderMessages.Length)];
@@ -145,7 +145,7 @@ namespace FitMe.Notification
             ScheduleNotification(
                 message.title,
                 message.body,
-                tomorrow,
+                fireTime,
                 _config.reminderChannel.channelId,
                 ReminderNotificationId,
                 ReminderNotificationIdentifier

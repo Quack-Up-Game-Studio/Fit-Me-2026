@@ -20,6 +20,7 @@ MonoBehaviour:
     channelId: daily_reminders
     channelName: Daily Reminders
     channelDescription: Friendly daily reminders to keep fitting blocks!
+  dailyReminderDelayHours: 24
   energyFullMessages:
   - title: "\u26A1 Energy Full!"
     body: Your energy is fully recharged. Ready to play?

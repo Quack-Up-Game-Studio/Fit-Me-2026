@@ -36,6 +36,10 @@ namespace FitMe.Notification
             channelDescription = "Friendly daily reminders to keep fitting blocks!"
         };
 
+        [Header("Daily Reminder Settings")]
+        [Tooltip("Delay in hours for the daily reminder. Default is 24 hours. Set to a small value (e.g., 0.0166 for 1 minute) for testing.")]
+        public float dailyReminderDelayHours = 24f;
+
         [Header("Energy Notification Messages")]
         public NotificationMessage[] energyFullMessages = new[]
         {
