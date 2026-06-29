@@ -1,9 +1,9 @@
 {
-    "m_SelectedDeviceId": "121522543G009338",
+    "m_SelectedDeviceId": "a9130acf",
     "m_SelectedProcess": {
-        "deviceId": "121522543G009338",
+        "deviceId": "a9130acf",
         "name": "com.MadduckGameStudio.FitMe",
-        "processId": 32459,
+        "processId": 28975,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -156,6 +156,12 @@
             "deviceId": "a9130acf",
             "name": "com.MadduckGameStudio.FitMe",
             "processId": 3924,
+            "exited": false
+        },
+        {
+            "deviceId": "a9130acf",
+            "name": "com.MadduckGameStudio.FitMe",
+            "processId": 28975,
             "exited": false
         },
         {
