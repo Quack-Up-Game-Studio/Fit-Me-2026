@@ -83,7 +83,7 @@ namespace QuackUp.Utils
             get
             {
 #if UNITY_ANDROID
-                return "ca-app-pub-3940256099942544/6300978111";
+                return "ca-app-pub-1737894207840657/4242862875";
 #elif UNITY_IOS
                 return "ca-app-pub-3940256099942544/2934735716";
 #else
@@ -97,7 +97,7 @@ namespace QuackUp.Utils
             get
             {
 #if UNITY_ANDROID
-                return "ca-app-pub-3940256099942544/9214589741";
+                return "ca-app-pub-1737894207840657/4242862875";
 #elif UNITY_IOS
                 return "ca-app-pub-3940256099942544/2435281174";
 #else
@@ -266,7 +266,7 @@ namespace QuackUp.Utils
             get
             {
 #if UNITY_ANDROID
-                return "ca-app-pub-3940256099942544/5224354917";
+                return "ca-app-pub-1737894207840657/9545846120";
 #elif UNITY_IOS
                 return "ca-app-pub-3940256099942544/1712485313";
 #else
