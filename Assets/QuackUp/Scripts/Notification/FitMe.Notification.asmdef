@@ -6,7 +6,8 @@
         "GUID:11c1da7ad5eea0631bd966b09402e5f3",
         "GUID:1a36bf411a3f1ac7d9572518a65f5ffc",
         "Unity.Notifications.Android",
-        "Unity.Notifications.iOS"
+        "Unity.Notifications.iOS",
+        "GUID:2bafac87e7f4b9b418d9448d219b01ab"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

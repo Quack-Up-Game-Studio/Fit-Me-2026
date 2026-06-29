@@ -106,7 +106,6 @@ namespace FitMe.Grid
         #region Interactions
         private void OnPointerDown(PointerEventData eventData)
         {
-            if (!AllowDrag) return;
             if (_dragWhileRotating) return;
             if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock ||
                 _gameStateManager.IsPaused.CurrentValue) return;
@@ -118,6 +117,7 @@ namespace FitMe.Grid
             _isDragging = false;
             _isPickedUp = false;
             
+            if (!AllowDrag) return;
             StartLongTapTimer(eventData).Forget();
         }
 

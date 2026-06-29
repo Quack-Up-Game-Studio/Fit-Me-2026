@@ -4,7 +4,6 @@ MetaGuid:266b2f25d18740809a8c750d70ce92b8
 
 # preset
 + [Sirenix.OdinInspector.InlineEditorAttribute]
-+ [Sirenix.OdinInspector.RequiredAttribute]
 
 # grid
 + [Sirenix.OdinInspector.RequiredAttribute]
@@ -17,3 +16,6 @@ MetaGuid:266b2f25d18740809a8c750d70ce92b8
 Position: $root:0
 + [Sirenix.OdinInspector.ShowIfAttribute]
 	Condition = "@preset.PresetGridType == GridType.Custom"
+
+# blockPreset
++ [Sirenix.OdinInspector.InlineEditorAttribute]

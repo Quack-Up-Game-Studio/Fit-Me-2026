@@ -35,6 +35,11 @@ namespace FitMe.Grid
         [field: SerializeField]
         public int ComboThreshold { get; private set; } = 3;
         
+        [field: SerializeField]
+        public float CustomGridPositionOffsetX { get; private set; } = 0;
+        [field: SerializeField]
+        public float CustomGridPositionOffsetY { get; private set; } = 0;
+        
         [field: SerializeField] private List<GridPreset> gridPresets = new();
         public IReadOnlyList<GridPreset> GridPresets => gridPresets;
         

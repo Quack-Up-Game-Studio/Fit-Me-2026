@@ -389,11 +389,20 @@ namespace FitMe.Grid
             CurrentOffset = offset;
             if (CurrentGridSize.x % 2 != 0)
             {
-                _grid.transform.SetPositionX(-_grid.cellSize.x / 2f);
+                _grid.transform.SetPositionX(-_grid.cellSize.x / 2f + _config.CustomGridPositionOffsetX);
             }
             else
             {
-                _grid.transform.SetPositionX(0f);
+                _grid.transform.SetPositionX(0f + _config.CustomGridPositionOffsetX);
+            }
+
+            if (CurrentGridSize.y % 2 != 0)
+            {
+                _grid.transform.SetPositionY(_grid.cellSize.y / 2f + _config.CustomGridPositionOffsetY);
+            }
+            else
+            {
+                _grid.transform.SetPositionY(0f + _config.CustomGridPositionOffsetY);
             }
         }
         
