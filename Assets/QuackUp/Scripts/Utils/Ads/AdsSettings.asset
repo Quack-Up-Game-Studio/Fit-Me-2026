@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35ea93f047ebbaf4a8bbb160e67ac340, type: 3}
+  m_Name: AdsSettings
+  m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.AdsSettings
+  isTestMode: 1
+  androidBannerTestId: ca-app-pub-3940256099942544/6300978111
+  androidBannerProdId: ca-app-pub-1737894207840657/4242862875
+  iosBannerTestId: ca-app-pub-3940256099942544/2934735716
+  iosBannerProdId: ca-app-pub-3940256099942544/2934735716
+  androidAdaptiveBannerTestId: ca-app-pub-3940256099942544/6300978111
+  androidAdaptiveBannerProdId: ca-app-pub-1737894207840657/4242862875
+  iosAdaptiveBannerTestId: ca-app-pub-3940256099942544/2435281174
+  iosAdaptiveBannerProdId: ca-app-pub-3940256099942544/2435281174
+  androidRewardedTestId: ca-app-pub-3940256099942544/5224354917
+  androidRewardedProdId: ca-app-pub-1737894207840657/9545846120
+  iosRewardedTestId: ca-app-pub-3940256099942544/1712485313
+  iosRewardedProdId: ca-app-pub-3940256099942544/1712485313
+  androidInterstitialTestId: ca-app-pub-3940256099942544/1033173712
+  androidInterstitialProdId: ca-app-pub-3940256099942544/1033173712
+  iosInterstitialTestId: ca-app-pub-3940256099942544/4411468910
+  iosInterstitialProdId: ca-app-pub-3940256099942544/4411468910

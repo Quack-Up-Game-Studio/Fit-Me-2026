@@ -6,6 +6,7 @@ using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
 using R3;
 using Sirenix.Utilities;
+using VContainer;
 using VContainer.Unity;
 
 namespace QuackUp.Utils
@@ -13,12 +14,19 @@ namespace QuackUp.Utils
     public abstract class AdsInstance : IDisposable
     {
         // Event บอกว่าโฆษณาปิดแล้ว (ไม่ว่าจะได้รางวัลหรือไม่)
+        protected readonly AdsSettings _adsSettings;
         public Observable<Unit> OnAdClosed => _onAdClosed;
         protected readonly Subject<Unit> _onAdClosed = new();
         
         protected IDisposable _adsRefreshTimer;
         protected IDisposable _adsEventSubscription;
         protected CancellationTokenSource _timerCts = new();
+        
+        [Inject]
+        public AdsInstance(AdsSettings adsSettings)
+        {
+            _adsSettings = adsSettings;
+        }
         
         /// <summary>
         /// Additional context for analytics, such as placement or reason for showing the ad. Must be set before calling <see cref="TryShow"/>.
@@ -78,33 +86,10 @@ namespace QuackUp.Utils
 
     public class BannerAdInstance : AdsInstance
     {
-        public static string UnitId
-        {
-            get
-            {
-#if UNITY_ANDROID
-                return "ca-app-pub-1737894207840657/4242862875";
-#elif UNITY_IOS
-                return "ca-app-pub-3940256099942544/2934735716";
-#else
-                return "ca-app-pub-3940256099942544/6300978111";
-#endif
-            }
-        }
-        
-        public static string AdaptiveUnitId
-        {
-            get
-            {
-#if UNITY_ANDROID
-                return "ca-app-pub-1737894207840657/4242862875";
-#elif UNITY_IOS
-                return "ca-app-pub-3940256099942544/2435281174";
-#else
-                return "ca-app-pub-3940256099942544/9214589741";
-#endif
-            }
-        }
+        public BannerAdInstance(AdsSettings adsSettings) : base(adsSettings) {}
+
+        public string UnitId => _adsSettings.BannerUnitId;
+        public string AdaptiveUnitId => _adsSettings.AdaptiveBannerUnitId;
         
         private BannerView _bannerView;
         private bool _wasVisible;
@@ -261,19 +246,9 @@ namespace QuackUp.Utils
     
     public class RewardedAdInstance : AdsInstance
     {
-        public static string UnitId
-        {
-            get
-            {
-#if UNITY_ANDROID
-                return "ca-app-pub-1737894207840657/9545846120";
-#elif UNITY_IOS
-                return "ca-app-pub-3940256099942544/1712485313";
-#else
-                return "ca-app-pub-3940256099942544/5224354917";
-#endif
-            }
-        }
+        public RewardedAdInstance(AdsSettings adsSettings) : base(adsSettings) {}
+
+        public string UnitId => _adsSettings.RewardedUnitId;
         
         // Event เพื่อบอกภายนอกว่า "ได้รางวัลแล้วนะ"
         public Observable<Unit> OnUserEarnedReward => _onUserEarnedReward;
@@ -378,19 +353,9 @@ namespace QuackUp.Utils
     
     public class InterstitialAdInstance : AdsInstance
     {
-        public static string UnitId
-        {
-            get
-            {
-#if UNITY_ANDROID
-                return "ca-app-pub-3940256099942544/1033173712";
-#elif UNITY_IOS
-                return "ca-app-pub-3940256099942544/4411468910";
-#else
-                return "ca-app-pub-3940256099942544/1033173712";
-#endif
-            }
-        }
+        public InterstitialAdInstance(AdsSettings adsSettings) : base(adsSettings) {}
+
+        public string UnitId => _adsSettings.InterstitialUnitId;
         
         private InterstitialAd _interstitialAd;
         public override bool CanShowAd() => Enabled && _interstitialAd != null && _interstitialAd.CanShowAd();
@@ -479,6 +444,13 @@ namespace QuackUp.Utils
     public class AdsService : IStartable, IDisposable
     {
         private readonly Dictionary<Type, AdsInstance> _adsInstances = new();
+        private readonly AdsSettings _adsSettings;
+
+        [Inject]
+        public AdsService(AdsSettings adsSettings)
+        {
+            _adsSettings = adsSettings;
+        }
 
         public void Start()
         {
@@ -501,13 +473,13 @@ namespace QuackUp.Utils
 
         private void InitializeAd()
         {
-            var rewardedAdInstance = new RewardedAdInstance();
+            var rewardedAdInstance = new RewardedAdInstance(_adsSettings);
             rewardedAdInstance.Load();
             _adsInstances[typeof(RewardedAdInstance)] = rewardedAdInstance;
-            var interstitialAdInstance = new InterstitialAdInstance();
+            var interstitialAdInstance = new InterstitialAdInstance(_adsSettings);
             interstitialAdInstance.Load();
             _adsInstances[typeof(InterstitialAdInstance)] = interstitialAdInstance;
-            var bannerAdInstance = new BannerAdInstance();
+            var bannerAdInstance = new BannerAdInstance(_adsSettings);
             bannerAdInstance.Load();
             _adsInstances[typeof(BannerAdInstance)] = bannerAdInstance;
         }
