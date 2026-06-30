@@ -1,4 +1,5 @@
 using System;
+using QuackUp.GoogleAdMob;
 using System.Linq;
 using FitMe.Shared;
 using QuackUp.Utils;

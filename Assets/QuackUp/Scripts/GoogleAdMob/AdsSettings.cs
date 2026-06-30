@@ -1,8 +1,10 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace QuackUp.Utils
+namespace QuackUp.GoogleAdMob
 {
+    [MovedFrom("QuackUp.Utils")]
     [CreateAssetMenu(fileName = "AdsSettings", menuName = "QuackUp/Ads/AdsSettings")]
     public class AdsSettings : ScriptableObject
     {

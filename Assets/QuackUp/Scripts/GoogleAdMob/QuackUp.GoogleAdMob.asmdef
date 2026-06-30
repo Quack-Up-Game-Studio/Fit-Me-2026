@@ -1,0 +1,19 @@
+{
+    "name": "QuackUp.GoogleAdMob",
+    "rootNamespace": "QuackUp.GoogleAdMob",
+    "references": [
+        "GUID:11c1da7ad5eea0631bd966b09402e5f3",
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
+        "GUID:77221876cc6b8244180b96e320b1bcd4",
+        "GUID:f8c64bb88d959406689053ae3f31183d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

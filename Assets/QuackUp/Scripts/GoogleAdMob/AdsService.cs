@@ -8,8 +8,10 @@ using R3;
 using Sirenix.Utilities;
 using VContainer;
 using VContainer.Unity;
+using UnityEngine.Scripting.APIUpdating;
+using QuackUp.Utils;
 
-namespace QuackUp.Utils
+namespace QuackUp.GoogleAdMob
 {
     public abstract class AdsInstance : IDisposable
     {
@@ -474,6 +476,7 @@ namespace QuackUp.Utils
         }
     }
     
+    [MovedFrom("QuackUp.Utils")]
     public class AdsService : IStartable, IDisposable
     {
         public ReadOnlyReactiveProperty<bool> AdsEnabled => _adsEnabled;

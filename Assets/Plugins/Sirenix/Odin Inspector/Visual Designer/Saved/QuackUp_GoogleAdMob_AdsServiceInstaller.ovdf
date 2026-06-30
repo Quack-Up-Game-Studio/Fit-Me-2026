@@ -1,5 +1,5 @@
 OVDF v1.1
-QuackUp.Utils.AdsServiceInstaller, QuackUp.Utils
+QuackUp.GoogleAdMob.AdsServiceInstaller, QuackUp.GoogleAdMob
 
 # _title
 + [Sirenix.OdinInspector.TitleAttribute]
