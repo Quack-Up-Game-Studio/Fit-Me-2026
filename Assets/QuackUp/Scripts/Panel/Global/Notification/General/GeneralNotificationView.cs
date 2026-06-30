@@ -1,4 +1,5 @@
 using System;
+using Debug = QuackUp.Utils.DebugUtils;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
 using JetBrains.Annotations;

@@ -11,7 +11,7 @@ using Redcode.Extensions;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
-using Debug = UnityEngine.Debug;
+using Debug = QuackUp.Utils.DebugUtils;
 using STOP_MODE = FMOD.Studio.STOP_MODE;
 
 namespace QuackUp.Audio

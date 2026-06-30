@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using Debug = QuackUp.Utils.DebugUtils;
 using UnityEngine;
 using UnityEngine.Networking;
 

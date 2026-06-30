@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Debug = QuackUp.Utils.DebugUtils;
 using Newtonsoft.Json.Linq;
 using Sirenix.OdinInspector;
 
@@ -49,7 +50,7 @@ namespace QuackUp.Save
                 saveDirectory = path;
             }
 #else
-            UnityEngine.Debug.LogWarning("SelectSaveLocation is only available in the Unity Editor.");
+            Debug.LogWarning("SelectSaveLocation is only available in the Unity Editor.");
 #endif
         }
         

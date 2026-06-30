@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Debug = QuackUp.Utils.DebugUtils;
 using FMOD.Studio;
 using FMODUnity;
 using QuackUp.Utils;

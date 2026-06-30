@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Debug = QuackUp.Utils.DebugUtils;
 using PrimeTween;
 using QuackUp.Utils;
 using UnityEngine;

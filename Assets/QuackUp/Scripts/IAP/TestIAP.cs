@@ -1,4 +1,5 @@
 using UnityEngine;
+using Debug = QuackUp.Utils.DebugUtils;
 using UnityEngine.UI;
 using VContainer;
 

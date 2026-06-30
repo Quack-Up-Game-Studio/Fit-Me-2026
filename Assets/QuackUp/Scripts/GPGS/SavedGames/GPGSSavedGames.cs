@@ -1,5 +1,6 @@
 #if UNITY_ANDROID
 using System;
+using Debug = QuackUp.Utils.DebugUtils;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GooglePlayGames;
