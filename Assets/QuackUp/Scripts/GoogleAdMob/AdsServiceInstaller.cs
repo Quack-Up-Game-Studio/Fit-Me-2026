@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using VContainer;
 using VContainer.Unity;
+using QuackUp.Utils;
 
 [assembly: Sirenix.Serialization.BindTypeNameToType("QuackUp.Utils.AdsServiceInstaller, QuackUp.Utils", typeof(QuackUp.GoogleAdMob.AdsServiceInstaller))]
 
