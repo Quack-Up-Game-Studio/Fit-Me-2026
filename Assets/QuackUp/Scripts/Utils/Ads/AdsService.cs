@@ -94,14 +94,21 @@ namespace QuackUp.Utils
         private BannerView _bannerView;
         private bool _wasVisible;
         private int _loadedWidth;
-        public override bool CanShowAd() => Enabled && _bannerView is {IsDestroyed:  false};
+        public override bool CanShowAd() => Enabled && AllowShow && _bannerView is {IsDestroyed:  false};
         private bool _enabled = true;
+        private bool _allowShow;
 
         public override bool Enabled
         {
             get => _enabled;
             set
             {
+                if (!AllowShow)
+                {
+                    TryHide();
+                    _enabled = value;
+                    return;
+                }
                 if (!value)
                 {
                     TryHide();
@@ -111,6 +118,32 @@ namespace QuackUp.Utils
                 {
                     _enabled = true;
                     TryShow();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Indicates whether the banner ad is allowed to be shown. This has to be set manually from the class that handle ads and scene loading.
+        /// </summary>
+        public bool AllowShow
+        {
+            get => _allowShow;
+            set
+            {
+                if (!Enabled)
+                {
+                    TryHide();
+                    _allowShow = value;
+                    return;
+                }
+                if (!value)
+                {
+                    TryHide();
+                    _allowShow = false;
+                }
+                else
+                {
+                    _allowShow = true;
                 }
             }
         }
@@ -181,7 +214,7 @@ namespace QuackUp.Utils
         {
             DebugUtils.Log($"BannerAdInstance: TryHide called. _bannerView is null: {_bannerView == null}, CanShowAd: {CanShowAd()}, Enabled: {Enabled}");
             if (!CanShowAd()) return false;
-            _bannerView.Hide();
+            _bannerView?.Hide();
             _wasVisible = false;
             return true;
         }
@@ -443,6 +476,8 @@ namespace QuackUp.Utils
     
     public class AdsService : IStartable, IDisposable
     {
+        public ReadOnlyReactiveProperty<bool> AdsEnabled => _adsEnabled;
+        private readonly ReactiveProperty<bool> _adsEnabled = new(true);
         private readonly Dictionary<Type, AdsInstance> _adsInstances = new();
         private readonly AdsSettings _adsSettings;
 
@@ -506,6 +541,7 @@ namespace QuackUp.Utils
             {
                 instance.Enabled = state;
             }
+            _adsEnabled.Value = state;
         }
     }
 }

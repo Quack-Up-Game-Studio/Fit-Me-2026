@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using FitMe.Shared;
+using QuackUp.Utils;
 using R3;
 using VContainer;
 
@@ -14,6 +15,8 @@ namespace FitMe.Panel
         
         private readonly ReactiveProperty<GameMode> _currentGameMode = new(GameMode.Classic);
         private readonly ReactiveProperty<LeaderboardStatus> _status = new(LeaderboardStatus.Loading);
+        public ReadOnlyReactiveProperty<bool> AdsEnabled => _adsService.AdsEnabled;
+        private readonly AdsService _adsService;
         private IDisposable _bindings;
         private IDisposable _nestedBindings;
         
@@ -21,10 +24,12 @@ namespace FitMe.Panel
         
         public LeaderboardPanelViewModel(
             [Key(PanelManagerInstaller.NestedPanelId)] PanelManager nestedPanelManager,
-            PanelManager panelManager) 
+            PanelManager panelManager,
+            AdsService adsService) 
             : base(panelManager)
         {
             _nestedPanelManager = nestedPanelManager;
+            _adsService = adsService;
             Bind();
         }
         

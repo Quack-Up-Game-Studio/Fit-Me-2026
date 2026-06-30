@@ -23,12 +23,15 @@ namespace FitMe.Panel
         [SerializeField] private RectTransform logoRect;
         [SerializeField] private TweenSettings<Vector3> logoBubbleSettings;
         [SerializeField] private GeneralFloatingUIElement placeBlockHint;
+        [SerializeField] private GameObject loadingOverlay;
+        [SerializeField] private RectTransform buttonLayoutGroup;
+        [SerializeField] private Vector2 adsEnableButtonPosition;
+        [SerializeField] private Vector2 adsDisableButtonPosition;
 
         [SerializeField] private string challengePanelId = "Challenge";
         [SerializeField] private string settingsPanelId = "Settings";
         [SerializeField] private string leaderboardPanelId = "Leaderboard";
         [SerializeField] private string shopPanelId = "Shop";
-        [SerializeField] private GameObject loadingOverlay;
         
         private MainMenuPanelViewModel ViewModel => (MainMenuPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
@@ -102,6 +105,12 @@ namespace FitMe.Panel
                     {
                         HideHint().Forget();
                     }
+                })
+                .AddTo(ref disposableBuilder);
+            ViewModel.AdsEnabled
+                .Subscribe(enable =>
+                {
+                    buttonLayoutGroup.anchoredPosition = enable ? adsEnableButtonPosition : adsDisableButtonPosition;
                 })
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();

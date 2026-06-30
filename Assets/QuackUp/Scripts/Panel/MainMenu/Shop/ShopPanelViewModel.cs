@@ -2,6 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
 using QuackUp.IAP;
+using QuackUp.Utils;
 using R3;
 using VContainer;
 
@@ -40,16 +41,20 @@ namespace FitMe.Panel
         public bool HasActiveSubscription() => _inAppPurchaseManager.HasActiveSubscription();
         public string GetPrice(string productId) => _inAppPurchaseManager.GetLocalizedPrice(productId);
         public bool IsIAPReady => _inAppPurchaseManager.IsIAPReady;
+        public ReadOnlyReactiveProperty<bool> AdsEnabled => _adsService.AdsEnabled;
         private IPublisher<EndSubscriptionEvent> _endSubscriptionPublisher;
         private readonly InAppPurchaseManager _inAppPurchaseManager;
+        private readonly AdsService _adsService;
         private IDisposable _bindings;
 
         public ShopPanelViewModel(
             PanelManager panelManager,
-            InAppPurchaseManager inAppPurchaseManager
+            InAppPurchaseManager inAppPurchaseManager,
+            AdsService adsService
             ) : base(panelManager)
         {
             _inAppPurchaseManager = inAppPurchaseManager;
+            _adsService = adsService;
             Bind();
         }
 

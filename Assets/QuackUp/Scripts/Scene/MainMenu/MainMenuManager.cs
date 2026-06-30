@@ -187,6 +187,7 @@ namespace FitMe.Scene.MainMenu
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
             bannerAdInstance.AdContext = GAAdContext.MainMenuBanner;
+            bannerAdInstance.AllowShow = true;
             bannerAdInstance.TryShow();
         }
 
@@ -195,6 +196,7 @@ namespace FitMe.Scene.MainMenu
             _audioManager.StopAudio(_bgmReference);
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
+            bannerAdInstance.AllowShow = false;
             bannerAdInstance.DestroyView();
         }   
     }

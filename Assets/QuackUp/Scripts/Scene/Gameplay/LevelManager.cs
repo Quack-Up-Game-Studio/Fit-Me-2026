@@ -339,6 +339,7 @@ namespace FitMe.Scene
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
             bannerAdInstance.AdContext = IsTutorial ? GAAdContext.TutorialBanner : GAAdContext.GameplayBanner;
+            bannerAdInstance.AllowShow = true;
             bannerAdInstance.TryShow();
         }
         
@@ -347,6 +348,7 @@ namespace FitMe.Scene
             _audioManager.StopAudio(_bgmReference);
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
+            bannerAdInstance.AllowShow = false;
             bannerAdInstance.DestroyView();
         }
         

@@ -24,6 +24,9 @@ namespace FitMe.Panel
         [SerializeField] private Button subManagerButton;
         [SerializeField] private GameObject uiGroup;
         [SerializeField] private CanvasGroup[] childCanvasGroups;
+        [SerializeField] private RectTransform buttonLayoutGroup;
+        [SerializeField] private Vector2 adsEnableButtonPosition;
+        [SerializeField] private Vector2 adsDisableButtonPosition;
         
         [Title("Consume Item Buttons")]
         [SerializeField] private ButtonInfo[] _consumableItemButton;
@@ -88,6 +91,12 @@ namespace FitMe.Panel
                     .Subscribe(_ => OnBuyButtonClicked(productId))
                     .AddTo(ref disposableBuilder);
             }
+            ViewModel.AdsEnabled
+                .Subscribe(enable =>
+                {
+                    buttonLayoutGroup.anchoredPosition = enable ? adsEnableButtonPosition : adsDisableButtonPosition;
+                })
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
 

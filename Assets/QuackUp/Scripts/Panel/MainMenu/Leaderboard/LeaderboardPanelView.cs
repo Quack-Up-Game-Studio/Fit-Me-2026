@@ -11,6 +11,9 @@ namespace FitMe.Panel
     {
         [SerializeField] private Button closeButton;
         [SerializeField] private TMP_Text statusText;
+        [SerializeField] private RectTransform buttonLayoutGroup;
+        [SerializeField] private Vector2 adsEnableButtonPosition;
+        [SerializeField] private Vector2 adsDisableButtonPosition;
         // [SerializeField] private Button classicTabButton;
         // [SerializeField] private Button levelShapeTabButton;
         
@@ -32,6 +35,12 @@ namespace FitMe.Panel
                 .AddTo(ref disposableBuilder);
             ViewModel.Status
                 .Subscribe(OnStatusChanged)
+                .AddTo(ref disposableBuilder);
+            ViewModel.AdsEnabled
+                .Subscribe(enable =>
+                {
+                    buttonLayoutGroup.anchoredPosition = enable ? adsEnableButtonPosition : adsDisableButtonPosition;
+                })
                 .AddTo(ref disposableBuilder);
             // classicTabButton.OnClickAsObservable()
             //     .Subscribe(_ => ChangeGameModeTab(GameMode.Classic))

@@ -24,6 +24,7 @@ namespace FitMe.Panel
         public ReadOnlyReactiveProperty<int> CurrentEnergy => _energyManager.CurrentEnergy;
         public ReadOnlyReactiveProperty<bool> InfiniteEnergy => _energyManager.InfiniteEnergy;
         public bool HasEnoughEnergy(uint amount) => _energyManager.HasEnoughEnergy(amount);
+        public ReadOnlyReactiveProperty<bool> AdsEnabled => _adsService.AdsEnabled;
         
         public ReadOnlyReactiveProperty<bool> ShowPlaceBlockHint => _showPlaceBlockHint;
         private readonly ReactiveProperty<bool> _showPlaceBlockHint = new(false);
@@ -32,6 +33,7 @@ namespace FitMe.Panel
         private readonly MessagePackSaveManager _saveManager;
         private readonly EnergyManager _energyManager;
         private readonly OutOfEnergyManager _outOfEnergyManager;
+        private readonly AdsService _adsService;
         private readonly ISubscriber<BlockSpawnedEvent> _blockSpawnedSubscriber;
         private IDisposable _bindings;
         private IDisposable _blockBindings;
@@ -42,11 +44,13 @@ namespace FitMe.Panel
             EnergyManager energyManager,
             MessagePackSaveManager saveManager,
             OutOfEnergyManager outOfEnergyManager,
+            AdsService adsService,
             ISubscriber<BlockSpawnedEvent> blockSpawnedSubscriber) : base(panelManager)
         {
             _saveManager  = saveManager;
             _energyManager = energyManager;
             _outOfEnergyManager = outOfEnergyManager;
+            _adsService = adsService;
             _blockSpawnedSubscriber = blockSpawnedSubscriber;
             Bind();
         }

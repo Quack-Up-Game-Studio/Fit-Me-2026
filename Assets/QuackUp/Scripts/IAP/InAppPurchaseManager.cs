@@ -73,7 +73,7 @@ namespace QuackUp.IAP
         [ShowInInspector, ReadOnly] public bool IsPurchaseReady { get; private set; }
         private readonly List<SubscriptionInfo> _confirmedSubscriptions = new();
         [ShowInInspector, ReadOnly] private IReadOnlyList<string> DebugConfirmedSubscriptions =>
-            _confirmedSubscriptions.Select(x => x.GetProductId()).ToList();
+            _confirmedSubscriptions.Select(x => x?.GetProductId()).ToList();
 
         [Button("Debug Initialize")]
         private void DebugInitialize() => Initialize().Forget();
