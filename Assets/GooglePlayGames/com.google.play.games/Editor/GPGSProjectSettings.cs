@@ -77,9 +77,13 @@ namespace GooglePlayGames.Editor
                 while (!rd.EndOfStream)
                 {
                     string line = rd.ReadLine();
-                    if (line == null || line.Trim().Length == 0)
+                    if (line == null)
                     {
                         break;
+                    }
+                    if (line.Trim().Length == 0)
+                    {
+                        continue;
                     }
 
                     line = line.Trim();
