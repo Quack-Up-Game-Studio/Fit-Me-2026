@@ -1734,9 +1734,9 @@ RectTransform:
   - {fileID: 1678965721}
   m_Father: {fileID: 1563769991}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 550.65, y: -93}
   m_SizeDelta: {x: 294.2, y: 186}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &152614616
@@ -8177,9 +8177,9 @@ RectTransform:
   - {fileID: 204887328}
   m_Father: {fileID: 1563769991}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 183.55, y: -93}
   m_SizeDelta: {x: 294.2, y: 186}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1157418559
@@ -11039,7 +11039,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1787313449
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11696,7 +11696,6 @@ MonoBehaviour:
       Data: 
   hasNestedPanelManager: 0
   _resultPanelView: {fileID: 1787313453}
-  forcedAdsFitMeThreshold: 0
 --- !u!1 &1795960112
 GameObject:
   m_ObjectHideFlags: 0

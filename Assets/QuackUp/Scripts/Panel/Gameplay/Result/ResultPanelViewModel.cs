@@ -10,6 +10,7 @@ using QuackUp.Utils;
 using R3;
 using UnityEngine.SceneManagement;
 using VContainer;
+using DisposableBag = R3.DisposableBag;
 
 namespace FitMe.Panel
 {
@@ -47,16 +48,13 @@ namespace FitMe.Panel
         private readonly EnergyManager _energyManager;
         private readonly AdsService _adsService;
         private readonly IScoreManager _scoreManager;
-        private readonly int _forceAdsThreshold;
 
         private int _scoreBeforeSave;
         private int _fitMeBeforeSave;
         private Promise<Unit> _displayResultPromise;
         private PlayerRecordSaveObject _saveObject;
         private IDisposable _bindings;
-        private IDisposable _adSubscription;
-        
-        public const string ForceAdsThresholdKey = "ForceAdsThresholdKey";
+        private DisposableBag _adSubscription;
         
         [Inject]
         public ResultPanelViewModel(
@@ -66,8 +64,7 @@ namespace FitMe.Panel
             AdsService adsService,
             OutOfEnergyManager outOfEnergyManager,
             IScoreManager scoreManager,
-            IAudioManager audioManager,
-            [Key(ForceAdsThresholdKey)] int forceAdsThreshold)
+            IAudioManager audioManager)
             : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
@@ -76,7 +73,6 @@ namespace FitMe.Panel
             _adsService = adsService;
             OutOfEnergyManager = outOfEnergyManager;
             AudioManager = audioManager;
-            _forceAdsThreshold = forceAdsThreshold;
             Bind();
         }
         
@@ -112,7 +108,7 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
-            _adSubscription?.Dispose();
+            _adSubscription.Dispose();
             ScoreText?.Dispose();
             FitText?.Dispose();
         }
@@ -136,7 +132,22 @@ namespace FitMe.Panel
         private async UniTask OnMainMenu()
         {
             _displayResultPromise.Cancel();
-            await _loadSceneManager.LoadScene(SceneType.MainMenu, LoadSceneMode.Single, false);
+            if (_adsService.TryGetAdsInstance<InterstitialAdInstance>(out var interstitialAdInstance) && 
+                interstitialAdInstance.Enabled)
+            {
+                _adSubscription.Dispose();
+                _adSubscription = new();
+                interstitialAdInstance.OnAdClosed
+                    .Merge(interstitialAdInstance.OnAdFailed)
+                    .Subscribe(_ => OnAdsClosedOrFailed(SceneType.MainMenu))
+                    .AddTo(ref _adSubscription);
+                interstitialAdInstance.AdContext = GAAdContext.SceneChange;
+                interstitialAdInstance.TryShow();
+            }
+            else
+            {
+                await _loadSceneManager.LoadScene(SceneType.MainMenu, LoadSceneMode.Single, false);
+            }
         }
         
         private async UniTask OnRetry()
@@ -148,12 +159,15 @@ namespace FitMe.Panel
             }
             _energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.GameplayRestart);
             _displayResultPromise.Cancel();
-            if (_scoreManager.FitMe.CurrentValue >= _forceAdsThreshold && 
-                _adsService.TryGetAdsInstance<InterstitialAdInstance>(out var interstitialAdInstance) && 
+            if (_adsService.TryGetAdsInstance<InterstitialAdInstance>(out var interstitialAdInstance) && 
                 interstitialAdInstance.Enabled)
             {
-                _adSubscription = interstitialAdInstance.OnAdClosed
-                    .Subscribe(_ => OnAdsClosed());
+                _adSubscription.Dispose();
+                _adSubscription = new();
+                interstitialAdInstance.OnAdClosed
+                    .Merge(interstitialAdInstance.OnAdFailed)
+                    .Subscribe(_ => OnAdsClosedOrFailed(SceneType.Gameplay))
+                    .AddTo(ref _adSubscription);
                 interstitialAdInstance.AdContext = GAAdContext.SceneChange;
                 interstitialAdInstance.TryShow();
             }
@@ -163,10 +177,10 @@ namespace FitMe.Panel
             }
         }
 
-        private void OnAdsClosed()
+        private void OnAdsClosedOrFailed(SceneType sceneType)
         {
-            _adSubscription?.Dispose();
-            _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false).Forget();
+            _adSubscription.Dispose();
+            _loadSceneManager.LoadScene(sceneType, LoadSceneMode.Single, false).Forget();
         }
     }
 }

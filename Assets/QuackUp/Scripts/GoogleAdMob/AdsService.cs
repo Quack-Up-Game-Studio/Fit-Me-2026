@@ -19,6 +19,8 @@ namespace QuackUp.GoogleAdMob
         protected readonly AdsSettings _adsSettings;
         public Observable<Unit> OnAdClosed => _onAdClosed;
         protected readonly Subject<Unit> _onAdClosed = new();
+        public Observable<Unit> OnAdFailed => _onAdFailed;
+        protected readonly Subject<Unit> _onAdFailed = new();
         
         protected IDisposable _adsRefreshTimer;
         protected IDisposable _adsEventSubscription;
@@ -173,9 +175,14 @@ namespace QuackUp.GoogleAdMob
                 DebugUtils.LogWarning("Banner ad is not loaded yet.");
                 _wasVisible = true;
                 Load();
+                _onAdFailed?.OnNext(Unit.Default);
                 return false;
             }
-            if (!CanShowAd()) return false;
+            if (!CanShowAd())
+            {
+                _onAdFailed?.OnNext(Unit.Default);
+                return false;
+            }
 
             var currentDeviceWidth = MobileAds.Utils.GetDeviceSafeWidth();
             if (_loadedWidth <= 0 && currentDeviceWidth > 0)
@@ -183,6 +190,7 @@ namespace QuackUp.GoogleAdMob
                 DebugUtils.Log($"BannerAdInstance: Loaded width was {_loadedWidth}, current width is {currentDeviceWidth}. Reloading banner with valid width.");
                 _wasVisible = true;
                 Load();
+                _onAdFailed?.OnNext(Unit.Default);
                 return false;
             }
 
@@ -193,6 +201,7 @@ namespace QuackUp.GoogleAdMob
                 DebugUtils.Log("BannerAdInstance: Editor dummy client workaround - reloading banner to show it.");
                 _wasVisible = true;
                 Load();
+                _onAdFailed?.OnNext(Unit.Default);
                 return false;
             }
 #endif
@@ -271,6 +280,8 @@ namespace QuackUp.GoogleAdMob
         {
             DebugUtils.LogError($"Failed to load banner ad: {adError.GetMessage()}");
             ReportAdEvent(GAAdAction.FailedShow, GAAdType.Banner, AdaptiveUnitId);
+            _onAdFailed?.OnNext(Unit.Default);
+            Load();
         }
 
         private void HandleOnAdClicked()
@@ -317,6 +328,7 @@ namespace QuackUp.GoogleAdMob
             if (!Enabled)
             {
                 DebugUtils.LogWarning("Ads is disabled");
+                _onAdFailed?.OnNext(Unit.Default);
                 return false;
             }
             if (CanShowAd())
@@ -333,6 +345,7 @@ namespace QuackUp.GoogleAdMob
             DebugUtils.Log("Ads is not ready yet.");
             Load();
             ReportAdEvent(GAAdAction.FailedShow, GAAdType.RewardedVideo, UnitId);
+            _onAdFailed?.OnNext(Unit.Default);
             return false;
             
 #else // Simulate ad success in non-supported platforms
@@ -363,6 +376,11 @@ namespace QuackUp.GoogleAdMob
                 h => _rewardedAd.OnAdClicked -= h)
                 .Subscribe(_ => HandleAdClicked())
                 .AddTo(ref builder);
+            Observable.FromEvent<AdError>(
+                    h => _rewardedAd.OnAdFullScreenContentFailed += h,
+                    h => _rewardedAd.OnAdFullScreenContentFailed -= h)
+                .Subscribe(OnAdFullScreenContentFailed)
+                .AddTo(ref builder);
             _adsEventSubscription = builder.Build();
         }
         
@@ -383,6 +401,14 @@ namespace QuackUp.GoogleAdMob
         private void HandleAdClicked()
         {
             ReportAdEvent(GAAdAction.Clicked, GAAdType.RewardedVideo, UnitId);
+        }
+        
+        private void OnAdFullScreenContentFailed(AdError error)
+        {
+            DebugUtils.LogError($"Rewarded ad failed to show: {error.GetMessage()}");
+            ReportAdEvent(GAAdAction.FailedShow, GAAdType.RewardedVideo, UnitId);
+            _onAdFailed?.OnNext(Unit.Default);
+            Load();
         }
     }
     
@@ -418,6 +444,7 @@ namespace QuackUp.GoogleAdMob
             if (!Enabled)
             {
                 DebugUtils.LogWarning("Ads is disabled");
+                _onAdFailed?.OnNext(Unit.Default);
                 return false;
             }
             if (CanShowAd())
@@ -429,6 +456,7 @@ namespace QuackUp.GoogleAdMob
             DebugUtils.LogWarning("Ads is not ready yet.");
             Load();
             ReportAdEvent(GAAdAction.FailedShow, GAAdType.Interstitial, UnitId);
+            _onAdFailed?.OnNext(Unit.Default);
             return false;
             
 #else // Simulate ad success in non-supported platforms
@@ -458,6 +486,11 @@ namespace QuackUp.GoogleAdMob
                     h => _interstitialAd.OnAdClicked -= h)
                 .Subscribe(_ => HandleAdClicked())
                 .AddTo(ref builder);
+            Observable.FromEvent<AdError>(
+                    h => _interstitialAd.OnAdFullScreenContentFailed += h,
+                    h => _interstitialAd.OnAdFullScreenContentFailed -= h)
+                .Subscribe(OnAdFullScreenContentFailed)
+                .AddTo(ref builder);
             _adsEventSubscription = builder.Build();
         }
         
@@ -474,10 +507,18 @@ namespace QuackUp.GoogleAdMob
         {
             ReportAdEvent(GAAdAction.Clicked, GAAdType.Interstitial, UnitId);
         }
+        
+        private void OnAdFullScreenContentFailed(AdError error)
+        {
+            DebugUtils.LogError($"Rewarded ad failed to show: {error.GetMessage()}");
+            ReportAdEvent(GAAdAction.FailedShow, GAAdType.RewardedVideo, UnitId);
+            _onAdFailed?.OnNext(Unit.Default);
+            Load();
+        }
     }
     
     [MovedFrom("QuackUp.Utils")]
-    public class AdsService : IStartable, IDisposable
+    public class AdsService : IPostInitializable, IDisposable
     {
         public ReadOnlyReactiveProperty<bool> AdsEnabled => _adsEnabled;
         private readonly ReactiveProperty<bool> _adsEnabled = new(true);
@@ -490,7 +531,7 @@ namespace QuackUp.GoogleAdMob
             _adsSettings = adsSettings;
         }
 
-        public void Start()
+        public void PostInitialize()
         {
 #if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             //MobileAds.RaiseAdEventsOnUnityMainThread = true;
