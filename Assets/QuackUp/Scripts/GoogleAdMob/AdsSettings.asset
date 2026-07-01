@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35ea93f047ebbaf4a8bbb160e67ac340, type: 3}
   m_Name: AdsSettings
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.AdsSettings
-  isTestMode: 1
+  isTestMode: 0
   androidBannerTestId: ca-app-pub-3940256099942544/6300978111
-  androidBannerProdId: ca-app-pub-1737894207840657/4242862875
+  androidBannerProdId: ca-app-pub-1737894207840657/5082361310
   iosBannerTestId: ca-app-pub-3940256099942544/2934735716
   iosBannerProdId: ca-app-pub-3940256099942544/2934735716
-  androidAdaptiveBannerTestId: ca-app-pub-3940256099942544/6300978111
+  androidAdaptiveBannerTestId: ca-app-pub-3940256099942544/9214589741
   androidAdaptiveBannerProdId: ca-app-pub-1737894207840657/4242862875
   iosAdaptiveBannerTestId: ca-app-pub-3940256099942544/2435281174
   iosAdaptiveBannerProdId: ca-app-pub-3940256099942544/2435281174
@@ -26,6 +26,6 @@ MonoBehaviour:
   iosRewardedTestId: ca-app-pub-3940256099942544/1712485313
   iosRewardedProdId: ca-app-pub-3940256099942544/1712485313
   androidInterstitialTestId: ca-app-pub-3940256099942544/1033173712
-  androidInterstitialProdId: ca-app-pub-3940256099942544/1033173712
+  androidInterstitialProdId: ca-app-pub-1737894207840657/7472299473
   iosInterstitialTestId: ca-app-pub-3940256099942544/4411468910
   iosInterstitialProdId: ca-app-pub-3940256099942544/4411468910
