@@ -183,6 +183,37 @@ namespace GooglePlayGames.Editor
                 return;
             }
 
+            // Merge any existing keys from the file on disk to prevent accidental wiping
+            if (File.Exists(mFile))
+            {
+                try
+                {
+                    using (StreamReader rd = new StreamReader(mFile))
+                    {
+                        while (!rd.EndOfStream)
+                        {
+                            string line = rd.ReadLine();
+                            if (line == null) break;
+                            if (line.Trim().Length == 0) continue;
+                            string[] p = line.Trim().Split(new char[] { '=' }, 2);
+                            if (p.Length >= 2)
+                            {
+                                string key = p[0].Trim();
+                                string val = p[1].Trim();
+                                if (!mDict.ContainsKey(key))
+                                {
+                                    mDict[key] = val;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (System.IO.IOException)
+                {
+                    // Ignore read errors during save merging
+                }
+            }
+
             StreamWriter wr = new StreamWriter(mFile, false);
             foreach (string key in mDict.Keys)
             {
