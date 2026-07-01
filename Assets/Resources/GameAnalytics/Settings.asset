@@ -30,7 +30,7 @@ MonoBehaviour:
   secretKey:
   - 61fb9723fde971d9acf5f8d81bca8a7040328889
   Build:
-  - 0.14.4-devbuild.1+android
+  - 1.0.0+android
   SelectedPlatformOrganization:
   - Ping Mate
   SelectedPlatformStudio:
@@ -98,7 +98,7 @@ MonoBehaviour:
   IncludeGooglePlay: 1
   FpsCriticalThreshold: 20
   FpsCirticalSubmitInterval: 1
-  PlatformFoldOut: 00
+  PlatformFoldOut: 01
   CustomDimensions01FoldOut: 1
   CustomDimensions02FoldOut: 0
   CustomDimensions03FoldOut: 0
