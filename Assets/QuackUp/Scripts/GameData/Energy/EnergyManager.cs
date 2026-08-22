@@ -129,7 +129,7 @@ namespace FitMe.GameData
             /* Analytics */
             var absoluteAmount = Mathf.Abs(amount);
             var flowType = amount > 0 ? GAResourceFlowType.Source : GAResourceFlowType.Sink;
-            GameAnalytics.NewResourceEvent(flowType, GACurrency.Energy, absoluteAmount, itemType, itemId);
+            GameAnalyticsSDK.GameAnalytics.NewResourceEvent(flowType, GACurrency.Energy, absoluteAmount, itemType, itemId);
         }
         
         public bool HasEnoughEnergy(uint amount)

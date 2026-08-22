@@ -162,7 +162,9 @@ namespace QuackUp.GoogleAdMob
             var adaptiveSize =
                 AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(deviceWidth);
             _bannerView = new BannerView(AdaptiveUnitId, adaptiveSize, AdPosition.Bottom);
+#if UNITY_ANDROID
             GameAnalyticsILRD.SubscribeAdMobImpressions(AdaptiveUnitId, _bannerView);
+#endif
             RegisterAdEvents();
             _bannerView.LoadAd(new AdRequest());
         }
@@ -316,7 +318,9 @@ namespace QuackUp.GoogleAdMob
                     return;
                 }
                 _rewardedAd = ad;
+#if UNITY_ANDROID
                 GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, _rewardedAd);
+#endif
                 RegisterAdEvents();
                 CountdownAdSession();
             });
@@ -432,7 +436,9 @@ namespace QuackUp.GoogleAdMob
                 }
 
                 _interstitialAd = ad;
+#if UNITY_ANDROID
                 GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, _interstitialAd);
+#endif
                 RegisterAdEvents();
                 CountdownAdSession();
             });

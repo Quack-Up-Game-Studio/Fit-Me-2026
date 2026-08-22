@@ -475,7 +475,7 @@ namespace FitMe.Scene
 
         private void ReportStart()
         {
-            GameAnalytics.NewProgressionEvent(
+            GameAnalyticsSDK.GameAnalytics.NewProgressionEvent(
                 GAProgressionStatus.Start, 
                 IsTutorial ? GAProgression01.Tutorial : GAProgression01.Classic, 
                 $"Level{_levelNumber}");
@@ -490,7 +490,8 @@ namespace FitMe.Scene
                 { "FitMeDelta", FitMe.Value - _fitMeLastLevel },
                 { "HasContinued", _hasContinued ? 1 : 0},
             };
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete,
+            
+            GameAnalyticsSDK.GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete,
                 IsTutorial ? GAProgression01.Tutorial : GAProgression01.Classic,
                 $"Level{_levelNumber}",
                 score: FitMe.Value,
@@ -507,7 +508,7 @@ namespace FitMe.Scene
                 { "FitMeDelta", FitMe.Value - _fitMeLastLevel },
                 { "HasContinued", _hasContinued ? 1 : 0 },
             };
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Fail,
+            GameAnalyticsSDK.GameAnalytics.NewProgressionEvent(GAProgressionStatus.Fail,
                 IsTutorial ? GAProgression01.Tutorial : GAProgression01.Classic,
                 $"Level{_levelNumber}",
                 score: FitMe.Value,

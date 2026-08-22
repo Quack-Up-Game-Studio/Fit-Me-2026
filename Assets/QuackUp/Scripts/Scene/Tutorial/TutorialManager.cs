@@ -69,14 +69,14 @@ namespace FitMe.Scene
             saveData.CompletedTutorial = true;
             _saveManager.Save(saveObject);
             _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, GAProgression01.Tutorial);
+            GameAnalyticsSDK.GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, GAProgression01.Tutorial);
             _loadSceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single, false).Forget();
         }
 
         public void Start()
         {
             _stateMachine.StartTutorial(_overrideStart);
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Start, GAProgression01.Tutorial);
+            GameAnalyticsSDK.GameAnalytics.NewProgressionEvent(GAProgressionStatus.Start, GAProgression01.Tutorial);
         }
     }
 }
