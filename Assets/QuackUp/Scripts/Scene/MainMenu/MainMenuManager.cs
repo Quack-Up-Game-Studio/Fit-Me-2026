@@ -67,6 +67,7 @@ namespace FitMe.Scene.MainMenu
         private void Subscribe()
         {
             var disposableBuilder = Disposable.CreateBuilder();
+#if !UNITY_STANDALONE //Disable out of energy popup on standalone for testing purposes
             _gridManager.OnAboutToPlaceBlock
                 .Subscribe(_ =>
                 {
@@ -74,6 +75,7 @@ namespace FitMe.Scene.MainMenu
                     _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
                 })
                 .AddTo(ref disposableBuilder);
+#endif
             _gridManager.OnAboutToPlaceBlock
                 .Subscribe(x =>
                 {
@@ -122,7 +124,9 @@ namespace FitMe.Scene.MainMenu
             if (_outOfEnergyManager.OpenShopAcrossScene)
             {
                 _outOfEnergyManager.OpenShopAcrossScene = false;
+#if !UNITY_STANDALONE
                 OnToShop();
+#endif
             }
         }
 
@@ -179,12 +183,14 @@ namespace FitMe.Scene.MainMenu
 
         private void OnSceneFinishIn(LoadSceneStageEvent evt)
         {
+#if !UNITY_STANDALONE //Disable out of energy popup on standalone for testing purposes
             if (!_energyManager.HasEnoughEnergy(1) && 
                 !_outOfEnergyManager.OpenShopAcrossScene &&
                 evt.PreviousSceneType is not SceneType.Gameplay)
             {
                 _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
             }
+#endif
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
             bannerAdInstance.AdContext = GAAdContext.MainMenuBanner;

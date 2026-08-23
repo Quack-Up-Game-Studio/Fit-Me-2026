@@ -67,6 +67,9 @@ namespace FitMe.GameData
             _currentEnergy.Value = playerSaveData.IsFirstTimePlayer ? _config.MaxEnergy : saveData.CurrentEnergy;
             _saveManager.Save(_saveObject);
             StartEnergyTimer();
+#if UNITY_STANDALONE
+            SetInfiniteEnergy(true); //NOTE: For testing purposes, we set infinite energy on standalone builds.
+#endif
         }
 
         public void Dispose()
@@ -142,6 +145,9 @@ namespace FitMe.GameData
         public void SetInfiniteEnergy(bool value)
         {
             _infiniteEnergy.Value = value;
+#if UNITY_STANDALONE
+            _infiniteEnergy.Value = true; //NOTE: For testing purposes, we set infinite energy on standalone builds.
+#endif
         }
 
 

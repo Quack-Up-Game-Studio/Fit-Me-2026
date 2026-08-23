@@ -409,6 +409,8 @@ namespace FitMe.Scene
         private void GameOver()
         {
             SetGameState(Shared.GameState.GameOver);
+            
+#if !UNITY_STANDALONE
             _panelManager.TryGetPanel<GameOverPanelViewModel>(_config.GameOverPanelId, out var gameOverPanelViewModel);
             if (gameOverPanelViewModel.RemainingContinueCount.CurrentValue <= 0)
             {
@@ -424,6 +426,13 @@ namespace FitMe.Scene
                 {
                     crossFadeType = CrossfadeType.InOnly
                 }).Forget();
+#else
+            _panelManager.Crossfade(_config.GameplayPanelId, _config.ResultPanelId, 
+                new CrossfadeSettings
+                {
+                    crossFadeType = CrossfadeType.InOnly
+                }).Forget();
+#endif
         }
 
         private void OnReturnToGameplay()

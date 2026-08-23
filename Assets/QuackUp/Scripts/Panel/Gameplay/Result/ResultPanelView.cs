@@ -132,6 +132,7 @@ namespace FitMe.Panel
             await ShowHighScore(data);
             await UniTask.WaitForSeconds(scoreDisplayInterval, cancellationToken: cancellationToken);
             await ShowFitMeScore(data);
+#if !UNITY_STANDALONE //Disable out of energy popup on standalone for testing purposes
             if (!ViewModel.HasEnoughEnergy(1))
             {
                 await UniTask.WaitForSeconds(outOfEnergyPopUpDelay, cancellationToken: cancellationToken);
@@ -139,6 +140,7 @@ namespace FitMe.Panel
                 ViewModel.OutOfEnergyManager.TransitionInCommand.Execute(promise);
                 await promise.Task;
             }
+#endif
             OnEnergyUpdated();
             mainMenuButton.Button.interactable = true;
             mainMenuButton.ApplyTint(ButtonSelectionState.Normal);

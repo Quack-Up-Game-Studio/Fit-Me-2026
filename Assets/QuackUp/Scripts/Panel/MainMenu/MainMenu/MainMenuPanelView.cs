@@ -164,6 +164,15 @@ namespace FitMe.Panel
             _logoTween.Stop();
             _logoTween = Tween.Scale(logoRect, logoBubbleSettings);
             OnEnergyUpdated();
+            
+#if UNITY_STANDALONE
+            shopButton.interactable = false; //disable shop button on desktop platforms
+            shopButton.image.color = ColorBlock.defaultColorBlock.disabledColor;
+            watchAdsButton.Button.interactable = false; //disable watch ads button on desktop platforms
+            watchAdsButton.ApplyTint(ButtonSelectionState.Disabled);
+            leaderboardButton.interactable = false; //disable leaderboard button on desktop platforms
+            leaderboardButton.gameObject.SetActive(false);
+#endif
         }
         
         private async UniTask ShowHint()
@@ -197,6 +206,10 @@ namespace FitMe.Panel
         private void OnEnergyUpdated()
         {
             var interactable = !ViewModel.HasEnoughEnergy(1) && ViewModel.RemainingAdCount.CurrentValue > 0;
+            
+#if UNITY_STANDALONE
+            interactable = false; //disable watch ads button on desktop platforms
+#endif
             watchAdsButton.Button.interactable = interactable;
             watchAdsButton.ApplyTint(interactable ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
         }
@@ -208,6 +221,10 @@ namespace FitMe.Panel
                 timeUntilNextAdText.text = string.Empty;
             }
             var interactable = count > 0 && !ViewModel.HasEnoughEnergy(1);
+            
+#if UNITY_STANDALONE
+            interactable = false; //disable watch ads button on desktop platforms
+#endif
             watchAdsButton.Button.interactable = interactable;
             watchAdsButton.ApplyTint(interactable ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
         }
@@ -222,6 +239,9 @@ namespace FitMe.Panel
             //round up to the nearest second for display purposes
             var roundedTime = TimeSpan.FromSeconds(Mathf.Ceil((float)time.TotalSeconds));
             timeUntilNextAdText.text = $"{roundedTime:mm\\:ss}";
+#if UNITY_STANDALONE
+            timeUntilNextAdText.text = string.Empty; //disable watch ads button on desktop platforms
+#endif
         }
         
         private void OnTutorialCompletionChanged(bool completed)
