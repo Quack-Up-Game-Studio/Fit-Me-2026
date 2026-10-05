@@ -2,7 +2,9 @@
 using Sirenix.OdinInspector;
 using Debug = QuackUp.Utils.DebugUtils;
 using Sirenix.Serialization;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace QuackUp.Save

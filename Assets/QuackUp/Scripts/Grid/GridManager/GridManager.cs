@@ -13,7 +13,9 @@ using R3;
 using Redcode.Extensions;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using VContainer;
 using Random = UnityEngine.Random;

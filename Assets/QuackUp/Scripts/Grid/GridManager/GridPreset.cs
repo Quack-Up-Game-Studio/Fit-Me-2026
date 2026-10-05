@@ -6,8 +6,8 @@ using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 #if UNITY_EDITOR
 using Sirenix.Utilities.Editor;
-#endif
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Serialization;
 

@@ -2,7 +2,9 @@
 // Copyright (c) UniLabs
 
 using System;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace UniLabs.Utilities
 {
