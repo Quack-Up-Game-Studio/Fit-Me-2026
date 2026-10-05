@@ -142,6 +142,7 @@ namespace FitMe.Grid
         private readonly ILevelManager _levelManager;
         
         private IDisposable _subscriptions;
+        private bool _isDisposed;
         
         private List<CellInstance> _previousValidationCells = new();
         private List<List<BlockInstance>> _allContacts = new();
@@ -149,6 +150,8 @@ namespace FitMe.Grid
         public IReadOnlyObservableList<GridBlockData> BlocksOnGrid => _blockOnGrid;
         public Observable<Unit> OnCellsCreated => _onCellsCreated;
         private readonly Subject<Unit> _onCellsCreated = new();
+        // Borrowed for this synchronous placement attempt only. Subscribers may
+        // Cancel() during the callback; they must not retain or dispose the source.
         public Observable<(BlockInstance instance, CancellationTokenSource placeCancellation)> OnAboutToPlaceBlock => _onAboutToPlaceBlock;
         private readonly Subject<(BlockInstance instance, CancellationTokenSource placeCancellation)> _onAboutToPlaceBlock = new();
         public Observable<BlockInstance> OnBlockPlaced => _onBlockPlaced;
@@ -207,10 +210,18 @@ namespace FitMe.Grid
 
         public void Dispose()
         {
+            if (_isDisposed) return;
+            _isDisposed = true;
+
+            _subscriptions?.Dispose();
+            _blockOnGrid.ForEach(x => x.Subscription?.Dispose());
+            _onCellsCreated.Dispose();
+            _onAboutToPlaceBlock.Dispose();
+            _onBlockPlaced.Dispose();
             _onScoreAdded.Dispose();
             _onFitCheck.Dispose();
-            _subscriptions.Dispose();
-            _blockOnGrid.ForEach(x => x.Subscription?.Dispose());
+            _onAboutToClearGrid.Dispose();
+            _onClearGrid.Dispose();
         }
 
         #region Events
@@ -496,7 +507,7 @@ namespace FitMe.Grid
                 }
                 cells.Add(cell);
             }
-            var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = new CancellationTokenSource();
             _onAboutToPlaceBlock.OnNext((blockInstance, cancellationTokenSource));
             if (cancellationTokenSource.IsCancellationRequested)
             {

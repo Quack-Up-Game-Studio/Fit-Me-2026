@@ -1,0 +1,25 @@
+{
+  "name": "FitMe.Grid.Tests",
+  "rootNamespace": "FitMe.Grid.Tests",
+  "references": [
+    "FitMe.Grid",
+    "QuackUp.Utils",
+    "QuackUp.Audio",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll",
+    "Sirenix.Serialization.dll",
+    "R3.dll",
+    "ObservableCollections.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
