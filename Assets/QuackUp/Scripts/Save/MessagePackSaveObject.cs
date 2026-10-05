@@ -119,17 +119,25 @@ namespace QuackUp.Save
          ShowInInspector] private InspectorPlaceholder _debugTitle;
         [ButtonGroup("Save&Load")]
         [Button("Test Save", ButtonSizes.Large)]
+#if UNITY_EDITOR
         protected virtual void TestSave()
         {
             DebugSave();
         }
-        
+#else
+        protected virtual void TestSave() { }
+#endif
+
         [ButtonGroup("Save&Load")]
         [Button("Test Load", ButtonSizes.Large)]
+#if UNITY_EDITOR
         protected virtual void TestLoad()
         {
             DebugLoad();
         }
+#else
+        protected virtual void TestLoad() { }
+#endif
         
         [ButtonGroup("Save&Load")]
         [Button("Test Reset", ButtonSizes.Large)]
@@ -184,7 +192,7 @@ namespace QuackUp.Save
         {
             options ??= DefaultSerializerOptions;
             bytes = null;
-            if (!SemVersion.TryParse(Application.version, out _))
+            if (!SemVersion.TryParse(Application.version, SemVersionStyles.Any, out _))
             {
                 Debug.LogError("Application version is not in valid SemVer format. Aborting serialization.");
                 return false;
@@ -212,6 +220,7 @@ namespace QuackUp.Save
             SaveInternal();
         }
         
+#if UNITY_EDITOR
         private void DebugSave()
         {
             if (SaveSeparately)
@@ -251,6 +260,7 @@ namespace QuackUp.Save
             }
             DebugSaveManager.Instance.SaveManager.Load(this);
         }
+#endif
         
         private void LoadInternal()
         {
@@ -313,9 +323,10 @@ namespace QuackUp.Save
                 Debug.LogWarning("No current save version specified. No migration needed.");
                 return deserializedSave;
             }
-            SemVersion.TryParse(saveData.Version, out var currentVersion);
-            SemVersion.TryParse(deserializedSave.Version, out var deserializedVersion);
-            if (SemVersion.ComparePrecedence(currentVersion, deserializedVersion) == 0)
+            SemVersion.TryParse(saveData.Version, SemVersionStyles.Any, out var currentVersion);
+            SemVersion.TryParse(deserializedSave.Version, SemVersionStyles.Any, out var deserializedVersion);
+            if (currentVersion == null || deserializedVersion == null
+                || SemVersion.ComparePrecedence(currentVersion, deserializedVersion) == 0)
             {
                 Debug.Log("Save version matches current version. No migration needed.");
                 return deserializedSave;

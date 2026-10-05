@@ -256,18 +256,49 @@ namespace QuackUp.Save
         
         private void ZipAndSave(string entryName, byte[] data)
         {
-            var zipPath = Path.ChangeExtension(_config.CurrentSaveSettings.GetFullSavePath(), ".sav");
-            
+            var finalPath = Path.ChangeExtension(_config.CurrentSaveSettings.GetFullSavePath(), ".sav");
+            var tmpPath = finalPath + ".copy.tmp";
+            var bakPath = finalPath + ".bak";
+
             try
             {
-                if (!Directory.Exists(zipPath))
+                var dir = Path.GetDirectoryName(finalPath)!;
+                if (!Directory.Exists(dir))
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(zipPath)!);
+                    Directory.CreateDirectory(dir);
                 }
-                using (var zipArchive = ZipFile.Open(zipPath, ZipArchiveMode.Update))
+
+                // Atomic write: mutate a temp copy of the archive, then swap it in.
+                // The on-disk zip is never open for writing during the update, so a
+                // crash mid-save leaves the previous archive intact.
+                if (File.Exists(finalPath))
+                {
+                    File.Copy(finalPath, tmpPath, true);
+                }
+
+                var updatingExisting = File.Exists(tmpPath);
+                ZipArchiveMode mode = updatingExisting ? ZipArchiveMode.Update : ZipArchiveMode.Create;
+                ZipArchive zipArchive;
+                try
+                {
+                    zipArchive = ZipFile.Open(tmpPath, mode);
+                }
+                catch (InvalidDataException)
+                {
+                    // Corrupt base archive: rebuild from scratch — the previous
+                    // file is unreadable anyway, so nothing valid is lost.
+                    if (File.Exists(tmpPath))
+                    {
+                        File.Delete(tmpPath);
+                    }
+                    updatingExisting = false;
+                    zipArchive = ZipFile.Open(tmpPath, ZipArchiveMode.Create);
+                }
+
+                using (zipArchive)
                 {
                     var finalName = Path.ChangeExtension(entryName, ".bin");
-                    if (zipArchive.GetEntry(finalName) != null)
+                    if (updatingExisting)
                     {
                         zipArchive.GetEntry(finalName)?.Delete();
                     }
@@ -276,11 +307,33 @@ namespace QuackUp.Save
                     using var writer = new BinaryWriter(entryStream);
                     writer.Write(data);
                 }
-                Debug.Log($"ZIP file created successfully: {zipPath}");
+
+                if (File.Exists(finalPath))
+                {
+                    File.Replace(tmpPath, finalPath, bakPath);
+                    File.Delete(bakPath);
+                }
+                else
+                {
+                    File.Move(tmpPath, finalPath);
+                }
+
+                Debug.Log($"ZIP file created successfully: {finalPath}");
             }
             catch (Exception ex)
             {
                 Debug.LogError($"Error creating ZIP file: {ex.Message}");
+                try
+                {
+                    if (File.Exists(tmpPath))
+                    {
+                        File.Delete(tmpPath);
+                    }
+                }
+                catch
+                {
+                    // Best-effort cleanup; the original error is reported below.
+                }
                 throw;
             }
         }
@@ -306,8 +359,10 @@ namespace QuackUp.Save
             }
             catch (Exception ex)
             {
+                // Corruption policy: keep in-memory data and report loudly; never
+                // propagate the exception up through LoadAll/Initialize.
                 Debug.LogError($"Error loading ZIP file: {ex.Message}");
-                throw;
+                return null;
             }
         }
         

@@ -7,6 +7,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
+#if UNITY_EDITOR
 namespace QuackUp.Save
 {
     [CreateAssetMenu(fileName = "DebugSaveManager", menuName = "QuackUp/Save/DebugSaveManager", order = 0)]
@@ -41,8 +42,7 @@ namespace QuackUp.Save
             _saveManager = new MessagePackSaveManager(saveConfig);
             Debug.Log("Save Manager initialized.");
         }
-        
-#if UNITY_EDITOR
+
         [MenuItem("Tools/Save Manager")]
         public static void OpenDebugSaveManager()
         {
@@ -60,12 +60,12 @@ namespace QuackUp.Save
             AssetDatabase.SaveAssets();
             Instance = asset;
         }
-#endif
-        
+
         private void OnEnable()
         {
             Instance = this;
         }
-        
+
     }
 }
+#endif

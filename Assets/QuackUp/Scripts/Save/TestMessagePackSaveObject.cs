@@ -28,6 +28,13 @@ namespace QuackUp.Save
 
         [SerializeField] private int additionalTestInt;
 
+        public TestMessagePackMigrationResolver(string sourceVersion, string targetVersion, int additionalTestInt)
+        {
+            SourceVersion = sourceVersion;
+            TargetVersion = targetVersion;
+            this.additionalTestInt = additionalTestInt;
+        }
+
         public ExpandoObject Migrate(ExpandoObject expando)
         {
             IDictionary<string, object> dict = expando;
@@ -51,6 +58,15 @@ namespace QuackUp.Save
     [CreateAssetMenu(fileName = "TestMessagePackSaveObject", menuName = "QuackUp/Save/TestMessagePackSaveObject", order = 0)]
     public class TestMessagePackSaveObject : MessagePackSaveObject<TestMessagePackSaveData>
     {
-        
+        public TestMessagePackSaveData TestData
+        {
+            get => saveData;
+            set => saveData = value;
+        }
+
+        public void SetResolvers(params TestMessagePackMigrationResolver[] resolvers)
+        {
+            migrationResolvers = new List<ISaveMigrationResolver<TestMessagePackSaveData>>(resolvers);
+        }
     }
 }

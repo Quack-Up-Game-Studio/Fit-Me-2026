@@ -1,0 +1,28 @@
+{
+    "name": "QuackUp.Save.Tests",
+    "rootNamespace": "QuackUp.Save.Tests",
+    "references": [
+        "QuackUp.Save",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "MessagePack"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "Sirenix.Serialization.dll",
+        "MessagePack.dll",
+        "Semver.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

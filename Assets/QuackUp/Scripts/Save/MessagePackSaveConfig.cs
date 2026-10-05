@@ -21,13 +21,21 @@ namespace QuackUp.Save
         public SaveSettings CurrentSaveSettings
         {
             get
-            { 
+            {
 #if UNITY_EDITOR
-                return debugMode ? debugSaveSettings : releaseSaveSettings; 
+                return debugMode ? debugSaveSettings : releaseSaveSettings;
 #else
-                return releaseSaveSettings; 
+                return releaseSaveSettings;
 #endif
             }
+        }
+
+        /// <summary>Test-only factory: builds a config wired to the given settings (EditMode tests).</summary>
+        public static MessagePackSaveConfig CreateForTests(SaveSettings settings)
+        {
+            var config = CreateInstance<MessagePackSaveConfig>();
+            config.debugSaveSettings = settings;
+            return config;
         }
     }
 }
