@@ -85,6 +85,13 @@ fmod_editor.log
 .idea/
 .vscode/
 
+# Agent workspaces and linked git worktrees
+.worktrees/
+.hermes/
+
+# Local runtime test artifacts (runtime-generated, not source)
+Assets/TestSave/
+
 # OS-specific files
 .DS_Store
 .DS_Store?
