@@ -129,8 +129,8 @@ namespace QuackUp.Utils
             var targetIndex = states.Keys.ToList().IndexOf(key);
             for (var i = startIndex; i <= targetIndex; i++)
             {
-                var nextState = states[targetIndex];
-                await ChangeStateInternal(nextState, targetIndex, key);
+                var nextState = states[i];
+                await ChangeStateInternal(nextState, i, key);
             }
             _pendingTransition?.Invoke();
         }
@@ -174,7 +174,7 @@ namespace QuackUp.Utils
             targetIndex = Mathf.Clamp(targetIndex, 0, states.Count - 1);
             for (var i = startIndex; i <= targetIndex; i++)
             {
-                var nextState = states[targetIndex];
+                var nextState = states[i];
                 await ChangeStateInternal(nextState, i);
             }
             _pendingTransition?.Invoke();
@@ -220,7 +220,7 @@ namespace QuackUp.Utils
             var targetIndex = states.Keys.ToList().IndexOf(key);
             for (var i = startIndex; i >= targetIndex; i--)
             {
-                var previousState = states[targetIndex];
+                var previousState = states[i];
                 await ChangeStateInternal(previousState, i);
             }
             _pendingTransition?.Invoke();
@@ -239,7 +239,7 @@ namespace QuackUp.Utils
             }
             var startIndex = CurrentStateIndex - 1;
             var targetIndex = Mathf.Clamp(index, 0, states.Count - 1);
-            for (var i = startIndex; i >= index; i--)
+            for (var i = startIndex; i >= targetIndex; i--)
             {
                 var previousState = states[i];
                 await ChangeStateInternal(previousState, i);
@@ -264,7 +264,7 @@ namespace QuackUp.Utils
             targetIndex = Mathf.Clamp(targetIndex, 0, states.Count - 1);
             for (var i = startIndex; i >= targetIndex; i--)
             {
-                var previousState = states[targetIndex];
+                var previousState = states[i];
                 await ChangeStateInternal(previousState, i);
             }
             _pendingTransition?.Invoke();
@@ -305,7 +305,7 @@ namespace QuackUp.Utils
             }
             var targetIndex = Mathf.Clamp(index, 0, states.Count - 1);
             var targetState = states[targetIndex];
-            await ChangeStateInternal(targetState, index);
+            await ChangeStateInternal(targetState, targetIndex);
             _pendingTransition?.Invoke();
         }
 
@@ -318,7 +318,7 @@ namespace QuackUp.Utils
             _pendingTransition = null;
             if (_isTransitioning)
             {
-                _pendingTransition = () => JumpTo(offset).Forget();
+                _pendingTransition = () => JumpBy(offset).Forget();
                 return;
             }
             var targetIndex = CurrentStateIndex + offset;
