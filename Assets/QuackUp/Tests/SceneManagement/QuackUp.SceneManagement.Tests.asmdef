@@ -1,0 +1,44 @@
+{
+  "name": "QuackUp.SceneManagement.Tests",
+  "references": [
+    "QuackUp.SceneManagement",
+    "QuackUp.Audio",
+    "QuackUp.Utils",
+    "Extensions",
+    "UniTask",
+    "MessagePipe",
+    "VContainer",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner",
+    "FitMe.Scene",
+    "FitMe.Grid",
+    "FitMe.Panel",
+    "FitMe.GameData",
+    "FitMe.Shared",
+    "FitMe.Achievement",
+    "QuackUp.GoogleAdMob",
+    "QuackUp.Save",
+    "QuackUp.SocialService",
+    "R3",
+    "ObservableCollections",
+    "FMODUnity",
+    "PrimeTween.Runtime",
+    "Unity.ugui"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll",
+    "Sirenix.Serialization.dll",
+    "MessagePack.dll",
+    "Semver.dll",
+    "R3.dll",
+    "ObservableCollections.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ]
+}

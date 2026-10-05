@@ -68,7 +68,8 @@ namespace QuackUp.SceneManagement
         StartLoading,
         FinishLoading,
         StartIn,
-        FinishIn
+        FinishIn,
+        CancelledBeforeLoad = 6
     }
 
         #endregion
@@ -106,9 +107,33 @@ namespace QuackUp.SceneManagement
         private readonly IPublisher<LoadSceneStageEvent> _loadSceneStageEventPublisher;
 
         private IDisposable _subscriptions;
-        private Tween _fadeTween;
-        private AsyncOperation _asyncOperation;
-        private CancellationTokenSource _loadSceneCts;
+        private readonly ISceneLoadBackend _backend;
+        private Request _request;
+        private bool _disposed;
+
+        private sealed class Request
+        {
+            public readonly CancellationTokenSource Cancellation = new CancellationTokenSource();
+            public readonly SceneType Previous, Next, EffectiveScene;
+            public readonly string Path;
+            public readonly LoadSceneMode Mode;
+            public readonly int SourceHandle;
+            public ISceneLoadOperation Operation;
+            public Exception CallbackError;
+            public bool RevealStarted;
+            public IDisposable Loaded, ActiveChanged;
+            public readonly UniTaskCompletionSource Revealed = new UniTaskCompletionSource();
+            public readonly UniTaskCompletionSource Stopped = new UniTaskCompletionSource();
+            public Request(SceneType previous, SceneType next, SceneType effectiveScene, string path, LoadSceneMode mode, int sourceHandle)
+            { Previous = previous; Next = next; EffectiveScene = effectiveScene; Path = path; Mode = mode; SourceHandle = sourceHandle; }
+            public void Detach()
+            {
+                var loaded = Loaded; Loaded = null;
+                var active = ActiveChanged; ActiveChanged = null;
+                try { loaded?.Dispose(); }
+                finally { active?.Dispose(); }
+            }
+        }
         #endregion
 
         #region Injection
@@ -119,9 +144,11 @@ namespace QuackUp.SceneManagement
             IAudioManager audioManager,
             ITransitionable transitionScreen,
             ISubscriber<LoadSceneEvent> loadSceneEventSubscriber,
-            IPublisher<LoadSceneStageEvent> loadSceneStageEventPublisher)
+            IPublisher<LoadSceneStageEvent> loadSceneStageEventPublisher,
+            ISceneLoadBackend backend)
         {
             _config = config;
+            _backend = backend;
             _audioManager = audioManager;
             _loadSceneEventSubscriber = loadSceneEventSubscriber;
             _loadSceneStageEventPublisher = loadSceneStageEventPublisher;
@@ -135,8 +162,8 @@ namespace QuackUp.SceneManagement
 
         public void Start()
         {
-            if (FirstSceneLoaded) return;
-            var currentSceneName = SceneManager.GetActiveScene().path;
+            if (_disposed || FirstSceneLoaded) return;
+            var currentSceneName = _backend.GetScenePath(_backend.GetActiveSceneHandle());
             _config.TryGetSceneType(currentSceneName, out var sceneType);
             CurrentSceneType = sceneType ?? SceneType.MainMenu;
             PreviousSceneType = CurrentSceneType;
@@ -159,7 +186,27 @@ namespace QuackUp.SceneManagement
 
         public void Dispose()
         {
-            _subscriptions.Dispose();
+            if (_disposed) return;
+            _disposed = true;
+            var request = _request;
+            try { _subscriptions?.Dispose(); }
+            finally
+            {
+                if (request != null)
+                {
+                    try { request.Detach(); }
+                    finally
+                    {
+                        try { request.Cancellation.Cancel(); }
+                        finally
+                        {
+                            if (request.Operation != null) request.Operation.AllowSceneActivation = true;
+                            request.Stopped.TrySetResult();
+                            request.Revealed.TrySetResult();
+                        }
+                    }
+                }
+            }
         }
 
         #endregion
@@ -177,7 +224,7 @@ namespace QuackUp.SceneManagement
         
         public void ReloadScene(LoadSceneMode loadSceneMode, bool useLoadingScene)
         {
-            var currentSceneName = SceneManager.GetActiveScene().path;
+            var currentSceneName = _backend.GetScenePath(_backend.GetActiveSceneHandle());
             var sceneType = _config.SceneReferences.FirstOrDefault(x => x.Value.Path == currentSceneName).Key;
             if (sceneType == default)
             {
@@ -189,110 +236,206 @@ namespace QuackUp.SceneManagement
         
         public async UniTask LoadScene(SceneType sceneType, LoadSceneMode loadSceneMode, bool useLoadingScene)
         {
-            if (_asyncOperation is { isDone: false } || _fadeTween.isAlive) return;
-            string sceneName;
-            if (_config.SceneReferences.TryGetValue(sceneType, out var sceneReference))
-            {
-                sceneName = sceneReference.Path;
-            }
-            else
+            if (_disposed || _request != null) return;
+            if (!_config.SceneReferences.TryGetValue(sceneType, out var reference))
             {
                 Debug.LogError($"Scene {sceneType} not found in the dictionary.");
                 return;
             }
-            NextScene = sceneName;
-            LoadSceneMode = loadSceneMode;
-            PreviousSceneType = CurrentSceneType;
-            NextSceneType = sceneType;
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.StartOut, PreviousSceneType, NextSceneType));
-            _audioManager.PlayAudioOneShot(_config.TransitionSfx, Vector3.zero);
-            await _currentTransitionScreen.TransitionIn();
-            OnFadeOutComplete(useLoadingScene);
-        }
-
-        private void OnFadeOutComplete(bool useLoadingScene)
-        {
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishOut, PreviousSceneType, NextSceneType));
+            var path = reference.Path;
             if (useLoadingScene)
             {
-                string loadingScene;
-                if (_config.SceneReferences.TryGetValue(SceneType.Loading, out var loadingSceneReference))
-                {
-                    loadingScene = loadingSceneReference.Path;
-                }
-                else
+                if (!_config.SceneReferences.TryGetValue(SceneType.Loading, out var loading))
                 {
                     Debug.LogError("Loading scene not found in the dictionary.");
                     return;
                 }
-                _loadSceneCts = new CancellationTokenSource();
-                NextScene = loadingScene;
+                // Existing feature loads only the loading scene, not a second destination.
+                path = loading.Path;
             }
-            else
+            var request = new Request(CurrentSceneType, sceneType, useLoadingScene ? SceneType.Loading : sceneType, path, loadSceneMode, _backend.GetActiveSceneHandle());
+            _request = request;
+            NextScene = reference.Path;
+            LoadSceneMode = request.Mode;
+            PreviousSceneType = request.Previous;
+            NextSceneType = request.Next;
+            var handedOff = false;
+            try
             {
-                _loadSceneCts = new CancellationTokenSource();
+                Publish(request, LoadSceneStage.StartOut);
+                _audioManager.PlayAudioOneShot(_config.TransitionSfx, Vector3.zero);
+                request.Cancellation.Token.ThrowIfCancellationRequested();
+                await _currentTransitionScreen.TransitionIn(request.Cancellation.Token);
+                request.Cancellation.Token.ThrowIfCancellationRequested();
+                Publish(request, LoadSceneStage.FinishOut);
+                request.Cancellation.Token.ThrowIfCancellationRequested();
+                NextScene = request.Path;
+                handedOff = true;
+                RunLoad(request).Forget();
             }
-
-            LoadSceneAsync(_loadSceneCts.Token).Forget();
-        }
-        
-        private async UniTask LoadSceneAsync(CancellationToken cancellationToken = default)
-        {
-            SceneManager.activeSceneChanged += UnloadScene;
-            _asyncOperation = SceneManager.LoadSceneAsync(NextScene, LoadSceneMode);
-            if (_asyncOperation == null)
+            catch (OperationCanceledException) when (request.Cancellation.IsCancellationRequested)
             {
-                DebugUtils.LogError("Async operation is null.");
-                return;
+                await Recover(request);
             }
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.StartLoading, PreviousSceneType, NextSceneType));
-            _asyncOperation.allowSceneActivation = false;
-            if (!_config.MinimumLoadingScreenDuration)
+            catch (Exception error)
             {
-                await UniTask.WaitUntil(() => _asyncOperation.progress >= 0.9f, cancellationToken: cancellationToken);
+                try { await Recover(request); }
+                catch
+                {
+                    UniTask.FromException(error).Forget();
+                    throw;
+                }
+                throw;
             }
-            else
+            finally
             {
-                await UniTask.WhenAll(UniTask.WaitUntil(() => _asyncOperation.progress >= 0.9f, cancellationToken: cancellationToken),
-                    UniTask.WaitForSeconds(_config.LoadingScreenDuration, ignoreTimeScale: true, cancellationToken: cancellationToken));
+                if (!handedOff) Release(request);
             }
-            CurrentSceneType = _config.SceneReferences.First(x => x.Value.Path == NextScene).Key;
-            _asyncOperation.allowSceneActivation = true;
-            SceneManager.sceneLoaded += SetActiveScene;
-            FirstSceneLoaded = true;
-            Time.timeScale = 1f;
-            _asyncOperation = null;
-        }
-        
-        private void SetActiveScene(Scene scene, LoadSceneMode mode)
-        {
-            SceneManager.sceneLoaded -= SetActiveScene;
-            SceneManager.SetActiveScene(scene);
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishLoading, PreviousSceneType, NextSceneType));
         }
 
-        public void CancelLoadScene()
+        private void Publish(Request request, LoadSceneStage stage)
         {
-            _loadSceneCts?.Cancel();
+            if (!_disposed && request.CallbackError == null)
+                _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(stage, request.Previous, request.Next));
         }
 
-        private void UnloadScene(Scene lastScene, Scene current)
+        private async UniTask Recover(Request request)
         {
-            SceneManager.activeSceneChanged -= UnloadScene;
-            UnloadSceneUniTask(lastScene).Forget();
+            if (_disposed) return;
+            await UniTask.WhenAny(ObserveView(_currentTransitionScreen.TransitionOut()), request.Stopped.Task);
+            if (!_disposed)
+                _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(
+                    LoadSceneStage.CancelledBeforeLoad, request.Previous, request.Previous));
         }
 
-        private async UniTaskVoid UnloadSceneUniTask(Scene lastScene)
+        private async UniTask ObserveView(UniTask task)
         {
-            Debug.Log("Unloading " + lastScene.name);
-            if (LoadSceneMode == LoadSceneMode.Additive)
+            try { await task; }
+            catch (Exception error)
             {
-                await SceneManager.UnloadSceneAsync(lastScene);
+                if (!_disposed) throw;
+                // A detached borrowed view can still fault after shutdown. Observe it.
+                UniTask.FromException(error).Forget();
             }
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.StartIn, PreviousSceneType, NextSceneType));
-            await _currentTransitionScreen.TransitionOut();
-            _loadSceneStageEventPublisher.Publish(new LoadSceneStageEvent(LoadSceneStage.FinishIn, PreviousSceneType, NextSceneType));
         }
+
+        private async UniTask RunLoad(Request request)
+        {
+            try
+            {
+                request.Cancellation.Token.ThrowIfCancellationRequested();
+                request.ActiveChanged = _backend.SubscribeActiveChanged((previous, current) =>
+                {
+                    try
+                    {
+                        if (_disposed || _backend.GetScenePath(current) != request.Path) return;
+                        request.ActiveChanged?.Dispose();
+                        request.ActiveChanged = null;
+                        request.RevealStarted = true;
+                        Reveal(request, previous).Forget();
+                    }
+                    catch (Exception error) { request.CallbackError ??= error; }
+                });
+                request.Operation = _backend.BeginLoad(request.Path, request.Mode);
+                if (request.Operation == null) throw new InvalidOperationException("Async operation is null.");
+                request.Operation.AllowSceneActivation = false;
+                request.Loaded = _backend.SubscribeLoaded((scene, mode) =>
+                {
+                    try
+                    {
+                        if (_disposed || mode != request.Mode || _backend.GetScenePath(scene) != request.Path) return;
+                        request.Loaded?.Dispose();
+                        request.Loaded = null;
+                        CurrentSceneType = request.EffectiveScene;
+                        FirstSceneLoaded = true;
+                        Time.timeScale = 1f;
+                        _backend.SetActiveScene(scene);
+                        Publish(request, LoadSceneStage.FinishLoading);
+                    }
+                    catch (Exception error)
+                    {
+                        request.CallbackError = error;
+                        if (!request.RevealStarted) request.Revealed.TrySetResult();
+                    }
+                });
+                Publish(request, LoadSceneStage.StartLoading);
+                try
+                {
+                    if (!_config.MinimumLoadingScreenDuration)
+                        await UniTask.WaitUntil(() => request.Operation.Progress >= 0.9f,
+                            cancellationToken: request.Cancellation.Token);
+                    else
+                        await UniTask.WhenAll(UniTask.WaitUntil(() => request.Operation.Progress >= 0.9f,
+                                cancellationToken: request.Cancellation.Token),
+                            UniTask.WaitForSeconds(_config.LoadingScreenDuration, ignoreTimeScale: true,
+                                cancellationToken: request.Cancellation.Token));
+                }
+                catch (OperationCanceledException) when (request.Cancellation.IsCancellationRequested) { }
+                if (!_disposed)
+                {
+                    CurrentSceneType = request.EffectiveScene;
+                    FirstSceneLoaded = true;
+                    Time.timeScale = 1f;
+                }
+                request.Operation.AllowSceneActivation = true;
+                await request.Operation.WaitForCompletion();
+                if (request.RevealStarted || request.CallbackError == null) await request.Revealed.Task;
+                if (request.CallbackError != null)
+                    System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(request.CallbackError).Throw();
+            }
+            catch (Exception error)
+            {
+                request.CallbackError ??= error;
+                if (request.Operation != null)
+                {
+                    request.Operation.AllowSceneActivation = true;
+                    await request.Operation.WaitForCompletion();
+                    if (!_disposed)
+                    {
+                        if (request.RevealStarted) await request.Revealed.Task;
+                        else
+                        {
+                            if (request.Mode == LoadSceneMode.Additive) await _backend.UnloadScene(request.SourceHandle);
+                            if (!_disposed)
+                                await UniTask.WhenAny(ObserveView(_currentTransitionScreen.TransitionOut()), request.Stopped.Task);
+                        }
+                    }
+                }
+                else await Recover(request);
+                throw;
+            }
+            finally
+            {
+                Release(request);
+            }
+        }
+
+        private async UniTask Reveal(Request request, int source)
+        {
+            try
+            {
+                if (request.Mode == LoadSceneMode.Additive) await _backend.UnloadScene(source);
+                if (_disposed) return;
+                Publish(request, LoadSceneStage.StartIn);
+                if (_disposed) return;
+                await _currentTransitionScreen.TransitionOut();
+                Publish(request, LoadSceneStage.FinishIn);
+            }
+            catch (Exception error) { request.CallbackError = error; }
+            finally { request.Revealed.TrySetResult(); }
+        }
+
+        private void Release(Request request)
+        {
+            try { request.Detach(); }
+            finally
+            {
+                request.Cancellation.Dispose();
+                if (ReferenceEquals(_request, request)) _request = null;
+            }
+        }
+
+        public void CancelLoadScene() => _request?.Cancellation.Cancel();
         #endregion
     }
 }

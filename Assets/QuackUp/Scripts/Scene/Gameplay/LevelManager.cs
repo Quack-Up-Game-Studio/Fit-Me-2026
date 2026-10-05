@@ -137,6 +137,16 @@ namespace FitMe.Scene
                 .Where(x => x.Stage is LoadSceneStage.FinishIn)
                 .Subscribe(_ => OnSceneFinishIn())
                 .AddTo(ref disposableBuilder);
+            _messageHub.GetObservable<LoadSceneStageEvent>()
+                .Where(x => x.Stage == LoadSceneStage.CancelledBeforeLoad &&
+                    x.PreviousSceneType == (IsTutorial ? SceneType.Tutorial : SceneType.Gameplay) &&
+                    x.NextSceneType == x.PreviousSceneType)
+                .Subscribe(_ =>
+                {
+                    _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
+                    OnSceneFinishIn(); // Banner only: no level/tutorial initialization.
+                })
+                .AddTo(ref disposableBuilder);
             _messageHub.Subscribe<GameOverEvent>(OnGameOverEvent)
                 .AddTo(ref disposableBuilder);
             _messageHub.Subscribe<ContinueEvent>(OnContinueEvent)

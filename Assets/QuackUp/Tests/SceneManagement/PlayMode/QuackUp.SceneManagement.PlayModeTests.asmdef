@@ -1,0 +1,29 @@
+{
+  "name": "QuackUp.SceneManagement.PlayModeTests",
+  "rootNamespace": "QuackUp.SceneManagement.PlayModeTests",
+  "references": [
+    "QuackUp.SceneManagement",
+    "QuackUp.Audio",
+    "QuackUp.Utils",
+    "Extensions",
+    "UniTask",
+    "MessagePipe",
+    "VContainer",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll",
+    "Sirenix.Serialization.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

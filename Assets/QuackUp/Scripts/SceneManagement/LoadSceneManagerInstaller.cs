@@ -50,6 +50,7 @@ namespace QuackUp.SceneManagement
             builder.RegisterInstance(config).AsSelf();
             builder.RegisterComponent(transitionScreen)
                 .As<ITransitionable>();
+            builder.Register<UnitySceneLoadBackend>(Lifetime.Singleton).As<ISceneLoadBackend>();
             builder.RegisterEntryPoint<LoadSceneManager>().AsSelf();
             builder.RegisterBuildCallback(x =>
             {

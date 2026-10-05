@@ -92,6 +92,15 @@ namespace FitMe.Scene.MainMenu
                 .Where(x => x.Stage is LoadSceneStage.FinishIn)
                 .Subscribe(OnSceneFinishIn)
                 .AddTo(ref disposableBuilder);
+            _messageHub.GetObservable<LoadSceneStageEvent>()
+                .Where(x => x.Stage == LoadSceneStage.CancelledBeforeLoad &&
+                    x.PreviousSceneType == SceneType.MainMenu && x.NextSceneType == SceneType.MainMenu)
+                .Subscribe(_ =>
+                {
+                    _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
+                    ShowBanner();
+                })
+                .AddTo(ref disposableBuilder);
             _outOfEnergyManager.OnToShop
                 .Subscribe(_ => OnToShop())
                 .AddTo(ref disposableBuilder);
@@ -185,6 +194,11 @@ namespace FitMe.Scene.MainMenu
             {
                 _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
             }
+            ShowBanner();
+        }
+
+        private void ShowBanner()
+        {
             if (!_adsService.TryGetAdsInstance<BannerAdInstance>(out var bannerAdInstance)) return;
             if (!bannerAdInstance.Enabled) return;
             bannerAdInstance.AdContext = GAAdContext.MainMenuBanner;

@@ -59,9 +59,9 @@ namespace QuackUp.SceneManagement
 
         public async UniTask TransitionIn(CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             canvasGroup.blocksRaycasts = true;
             canvasGroup.interactable = true;
-            cancellationToken.Register(CancelTransition);
             background.color = background.color.WithA(backgroundFadeInSettings.startValue);
             _blockSequence = Sequence.Create();
             var duration = combinedTime / blockTweens.Count;
@@ -83,12 +83,14 @@ namespace QuackUp.SceneManagement
             }
             _ = _blockSequence.Group(blockSequence);
             _ = _blockSequence.Chain(Tween.Alpha(background, backgroundFadeInSettings));
-            await _blockSequence.ToUniTask(cancellationToken: cancellationToken);
+            var sequence = _blockSequence;
+            using var registration = cancellationToken.Register(() => CancelTransition(sequence));
+            await sequence.ToUniTask(cancellationToken: cancellationToken);
         }
 
         public async UniTask TransitionOut(CancellationToken cancellationToken = default)
         {
-            cancellationToken.Register(CancelTransition);
+            cancellationToken.ThrowIfCancellationRequested();
             var reverseTweens = new List<BlockTween>(blockTweens);
             reverseTweens.Reverse();
             _blockSequence = Sequence.Create();
@@ -111,14 +113,16 @@ namespace QuackUp.SceneManagement
                 _ = blockSequence.Chain(Tween.UIAnchoredPosition(blockTween.block, settings.WithDirection(false)));
             }
             _ = _blockSequence.Group(blockSequence);
-            await _blockSequence.ToUniTask(cancellationToken: cancellationToken);
+            var sequence = _blockSequence;
+            using var registration = cancellationToken.Register(() => CancelTransition(sequence));
+            await sequence.ToUniTask(cancellationToken: cancellationToken);
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
         }
 
-        private void CancelTransition()
+        private void CancelTransition(Sequence sequence)
         {
-            _blockSequence.Stop();
+            sequence.Stop();
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
         }

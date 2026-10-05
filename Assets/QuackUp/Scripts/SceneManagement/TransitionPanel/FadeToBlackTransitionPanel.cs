@@ -25,29 +25,37 @@ namespace QuackUp.SceneManagement
         
         public async UniTask TransitionIn(CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             canvasGroup.blocksRaycasts = true;
-            cancellationToken.Register(CancelTransition);
             canvasGroup.alpha = tweenSettings.startValue;
             _transitionSequence = Sequence.Create()
                 .Group(Tween.Alpha(canvasGroup, tweenSettings.WithDirection(true)));
-            await _transitionSequence.ToYieldInstruction().ToUniTask(cancellationToken: cancellationToken);
-            canvasGroup.blocksRaycasts = false;
+            var sequence = _transitionSequence;
+            using var registration = cancellationToken.Register(() =>
+            {
+                sequence.Complete();
+                canvasGroup.blocksRaycasts = false;
+            });
+            try { await sequence.ToYieldInstruction().ToUniTask(cancellationToken: cancellationToken); }
+            finally { canvasGroup.blocksRaycasts = false; }
         }
 
         public async UniTask TransitionOut(CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             canvasGroup.blocksRaycasts = true;
-            cancellationToken.Register(CancelTransition);
             _transitionSequence = Sequence.Create()
                 .Group(Tween.Alpha(canvasGroup, tweenSettings.WithDirection(false)));
-            await _transitionSequence.ToYieldInstruction().ToUniTask(cancellationToken: cancellationToken);
-            canvasGroup.blocksRaycasts = false;
+            var sequence = _transitionSequence;
+            using var registration = cancellationToken.Register(() =>
+            {
+                sequence.Complete();
+                canvasGroup.blocksRaycasts = false;
+            });
+            try { await sequence.ToYieldInstruction().ToUniTask(cancellationToken: cancellationToken); }
+            finally { canvasGroup.blocksRaycasts = false; }
         }
 
-        private void CancelTransition()
-        {
-            _transitionSequence.Complete();
-            canvasGroup.blocksRaycasts = false;
-        }
+
     }
 }
