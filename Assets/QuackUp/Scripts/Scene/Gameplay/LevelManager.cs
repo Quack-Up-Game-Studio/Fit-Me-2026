@@ -160,34 +160,39 @@ namespace FitMe.Scene
             _onResultSubscription?.Dispose();
             _onReturnToGameplaySubscription?.Dispose();
             _onReturnToMainMenuSubscription?.Dispose();
+            Score.Dispose();
+            FitMe.Dispose();
+            _onScoreUpdated.Dispose();
+            _isPaused.Dispose();
+            _gameState.Dispose();
         }
         
         public void Start()
         {
-            CheckGameMode();
-
             if (!_panelManager.TryGetPanel<ResultPanelViewModel>(_config.ResultPanelId, out var resultPanel))
             {
                 DebugUtils.LogError($"Panel with ID {_config.ResultPanelId} not found in PanelManager.");
                 return;
             }
-            _onResultSubscription = resultPanel.OnResultVisible
-                .Subscribe(_ => OnResult());
-            
+
             if (!_panelManager.TryGetPanel<GameOverPanelViewModel>(_config.GameOverPanelId, out var gameOverPanel))
             {
                 DebugUtils.LogError($"Panel with ID {_config.GameOverPanelId} not found in PanelManager.");
                 return;
             }
-            _onReturnToGameplaySubscription = gameOverPanel.OnReturnToGameplay
-                .Subscribe(_ => OnReturnToGameplay());
-            _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
-            
+
             if (!_panelManager.TryGetPanel<UniversalSettingsPanelViewModel>(_config.SettingsPanelId, out var settingsPanel))
             {
                 DebugUtils.LogError($"Panel with ID {_config.SettingsPanelId} not found in PanelManager.");
                 return;
             }
+
+            CheckGameMode();
+            _onResultSubscription = resultPanel.OnResultVisible
+                .Subscribe(_ => OnResult());
+            _onReturnToGameplaySubscription = gameOverPanel.OnReturnToGameplay
+                .Subscribe(_ => OnReturnToGameplay());
+            _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
             _onReturnToMainMenuSubscription = settingsPanel.ToMainMenuCommand
                 .Subscribe(_ => OnReturnToMainMenu());
             

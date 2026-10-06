@@ -1,0 +1,22 @@
+{
+  "name": "FitMe.Tutorial.Tests",
+  "rootNamespace": "FitMe.Tutorial.Tests",
+  "references": [
+    "FitMe.Tutorial",
+    "FitMe.Panel",
+    "QuackUp.Utils",
+    "UniTask",
+    "R3",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll", "Sirenix.Serialization.dll", "R3.dll"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

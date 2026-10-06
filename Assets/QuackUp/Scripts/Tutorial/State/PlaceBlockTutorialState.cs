@@ -24,6 +24,7 @@ namespace FitMe.Tutorial
         private DisposableBag _blockPlacedSubscription;
         
         private CancellationTokenSource _hintCts = new();
+        private CancellationTokenSource _hideCts;
         
         [Inject]
         public void SetBlockSubscription(BlockManager blockManager, ISubscriber<BlockSpawnedEvent> blockSpawnedEvent)
@@ -68,15 +69,36 @@ namespace FitMe.Tutorial
         private async UniTask HideHint()
         {
             CancelHint();
-            var token = _hintCts.Token;
-            await placeBlockHint.TransitionOut(token);
+            var tokenSource = _hintCts;
+            _hintCts = null;
+            _hideCts = tokenSource;
+            try
+            {
+                await placeBlockHint.TransitionOut(tokenSource.Token);
+            }
+            finally
+            {
+                if (ReferenceEquals(_hideCts, tokenSource)) _hideCts = null;
+                tokenSource.Dispose();
+            }
         }
         
         private void CancelHint()
         {
-            _hintCts?.Cancel();
-            _hintCts?.Dispose();
+            var tokenSource = _hintCts;
             _hintCts = new CancellationTokenSource();
+            CancelAndDispose(tokenSource);
+
+            tokenSource = _hideCts;
+            _hideCts = null;
+            CancelAndDispose(tokenSource);
+        }
+
+        private static void CancelAndDispose(CancellationTokenSource tokenSource)
+        {
+            if (tokenSource == null) return;
+            try { tokenSource.Cancel(); }
+            finally { tokenSource.Dispose(); }
         }
 
         private void OnBlockInteractionStateChanged(BlockInteractionState state)
@@ -100,13 +122,19 @@ namespace FitMe.Tutorial
         public override async UniTask Exit()
         {
             await base.Exit();
+            HideHint().Forget();
             Dispose();
         }
 
         public void Dispose()
         {
+            var tokenSource = _hintCts;
+            _hintCts = null;
+            CancelAndDispose(tokenSource);
             _blockSpawnedSubscription?.Dispose();
+            _blockSpawnedSubscription = null;
             _blockPlacedSubscription.Dispose();
+            _blockPlacedSubscription = default;
         }
     }
 }

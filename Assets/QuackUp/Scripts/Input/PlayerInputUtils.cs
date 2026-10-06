@@ -91,7 +91,7 @@ namespace QuackUp.Input
             public SerializableReactiveProperty<bool> IsUpAfterHeld { get; private set; } = new(false);
             public InputBinding? InputBinding { get; private set; }
             private bool _heldLastTime;
-            private CancellationTokenSource _cts = new();
+            private CancellationTokenSource _pulseCts;
 
             public void BindPressButton(InputAction.CallbackContext context)
             {
@@ -101,8 +101,7 @@ namespace QuackUp.Input
                 IsHeld.Value = context.performed;
                 IsUpAfterHeld.Value = context.canceled;
                 _heldLastTime = context.performed;
-                _cts = new();
-                ButtonPressTask(_cts.Token).Forget();
+                StartButtonPressTask();
             }
             
             public void BindPassThroughButton(InputAction.CallbackContext context)
@@ -114,8 +113,7 @@ namespace QuackUp.Input
                 IsHeld.Value = down;
                 IsUpAfterHeld.Value = !down;
                 _heldLastTime = down;
-                _cts = new();
-                ButtonPressTask(_cts.Token).Forget();
+                StartButtonPressTask();
             }
             
             public void BindPassThroughVector2(InputAction.CallbackContext context)
@@ -127,8 +125,7 @@ namespace QuackUp.Input
                 IsHeld.Value = down;
                 IsUpAfterHeld.Value = !down;
                 _heldLastTime = down;
-                _cts = new();
-                ButtonPressTask(_cts.Token).Forget();
+                StartButtonPressTask();
             }
 
             public void BindHoldButton(InputAction.CallbackContext context)
@@ -142,8 +139,7 @@ namespace QuackUp.Input
                         IsUp.Value = false;
                         IsUpAfterHeld.Value = false;
                         _heldLastTime = false;
-                        _cts = new();
-                        ButtonPressTask(_cts.Token).Forget();
+                        StartButtonPressTask();
                         break;
                     case { performed: true }:
                         IsDown.Value = false;
@@ -157,20 +153,63 @@ namespace QuackUp.Input
                         IsHeld.Value = false;
                         IsUp.Value = true;
                         IsUpAfterHeld.Value = _heldLastTime;
-                        _cts = new();
-                        ButtonPressTask(_cts.Token).Forget();
+                        StartButtonPressTask();
                         break;
                 }
             }
-            
-            private async UniTaskVoid ButtonPressTask(CancellationToken token)
+
+            public void CancelPendingPulse()
             {
-                await UniTask.WaitForEndOfFrame(token);
-                IsDown.Value = false;
-                if (!IsHeld.Value)
+                CancelPendingPulse(true);
+            }
+
+            private void CancelPendingPulse(bool resetState)
+            {
+                var source = _pulseCts;
+                _pulseCts = null;
+                if (source != null)
                 {
-                    IsUp.Value = false;
-                    IsUpAfterHeld.Value = false;
+                    try { source.Cancel(); }
+                    finally { source.Dispose(); }
+                }
+
+                if (!resetState) return;
+                IsDown.Value = false;
+                IsUp.Value = false;
+                IsHeld.Value = false;
+                IsUpAfterHeld.Value = false;
+                _heldLastTime = false;
+            }
+
+            private void StartButtonPressTask()
+            {
+                CancelPendingPulse(false);
+                var source = new CancellationTokenSource();
+                _pulseCts = source;
+                ButtonPressTask(source).Forget();
+            }
+
+            private async UniTaskVoid ButtonPressTask(CancellationTokenSource source)
+            {
+                try
+                {
+                    await UniTask.WaitForEndOfFrame(source.Token);
+                    if (!ReferenceEquals(_pulseCts, source)) return;
+                    IsDown.Value = false;
+                    if (!IsHeld.Value)
+                    {
+                        IsUp.Value = false;
+                        IsUpAfterHeld.Value = false;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    // Cancellation is expected when the input action is disabled or superseded.
+                }
+                finally
+                {
+                    if (ReferenceEquals(_pulseCts, source)) _pulseCts = null;
+                    source.Dispose();
                 }
             }
         }

@@ -50,29 +50,27 @@ namespace FitMe.Panel
 
         private async UniTask TransitionIn(Promise<Unit> promise)
         {
-            promise.CancellationToken.Register(CancelTransition);
-            await Transition(true);
+            var sequence = Transition(true);
+            using var registration = promise.CancellationToken.Register(sequence.Complete);
+            await sequence.ToUniTask();
             promise.TrySetResult(Unit.Default);
         }
         
         private async UniTask TransitionOut(Promise<Unit> promise)
         {
-            promise.CancellationToken.Register(CancelTransition);
-            await Transition(false);
+            var sequence = Transition(false);
+            using var registration = promise.CancellationToken.Register(sequence.Complete);
+            await sequence.ToUniTask();
             promise.TrySetResult(Unit.Default);
         }
 
-        private UniTask Transition(bool direction)
+        private Sequence Transition(bool direction)
         {
             _currentTransition = Sequence.Create()
                 .Group(Tween.Alpha(dragMeToPlaySpriteRenderer, alphaTweenSettings.WithDirection(direction))
                 .Group(Tween.Alpha(glowSpriteRenderer, alphaTweenSettings.WithDirection(direction))));
-            return _currentTransition.ToUniTask();
+            return _currentTransition;
         }
 
-        private void CancelTransition()
-        {
-            _currentTransition.Complete();
-        }
     }
 }

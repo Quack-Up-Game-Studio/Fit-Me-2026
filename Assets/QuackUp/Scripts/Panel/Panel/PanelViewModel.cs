@@ -114,6 +114,12 @@ namespace FitMe.Panel
         public virtual void Dispose()
         {
             _bindings?.Dispose();
+            VisibilityState.Dispose();
+            TransitionState.Dispose();
+            InputState.Dispose();
+            TransitionInCommand.Dispose();
+            TransitionOutCommand.Dispose();
+            CrossfadeCommand.Dispose();
         }
 
         protected virtual void OnVisible()

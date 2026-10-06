@@ -61,19 +61,33 @@ namespace FitMe.Panel
                     Debug.LogWarning("AlphaTransition: Unsupported component type for alpha transition.");
                     break;
             }
-            cancellationToken.Register(() => CancelTransition(cancelBehavior));
-            return _transitionSequence;
+            var sequence = _transitionSequence;
+            CancellationTokenRegistration registration = default;
+            registration = cancellationToken.Register(() =>
+            {
+                try { CancelTransition(sequence, cancelBehavior); }
+                finally { registration.Dispose(); }
+            });
+            if (sequence.isAlive)
+            {
+                sequence.OnComplete(() => registration.Dispose());
+            }
+            else
+            {
+                registration.Dispose();
+            }
+            return sequence;
         }
 
-        private void CancelTransition(CancelBehavior cancelBehavior)
+        private void CancelTransition(Sequence sequence, CancelBehavior cancelBehavior)
         {
             switch (cancelBehavior)
             {
                 case CancelBehavior.Stop:
-                    _transitionSequence.Stop();
+                    sequence.Stop();
                     break;
                 case CancelBehavior.Complete:
-                    _transitionSequence.Complete();
+                    sequence.Complete();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(cancelBehavior), cancelBehavior, null);

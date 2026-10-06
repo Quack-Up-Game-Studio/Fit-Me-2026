@@ -1,4 +1,5 @@
 #if UNITY_ANDROID
+using System;
 using Cysharp.Threading.Tasks;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
@@ -8,7 +9,7 @@ using VContainer.Unity;
 
 namespace QuackUp.GPGS
 {
-    public class GPGSAuthenticationManager : IInitializable
+    public class GPGSAuthenticationManager : IInitializable, IDisposable
     {
 
         public Observable<SignInStatus> OnAuthenticationResult => _onAuthenticationResult;
@@ -25,6 +26,11 @@ namespace QuackUp.GPGS
 #endif
         }
         
+        public void Dispose()
+        {
+            _onAuthenticationResult.Dispose();
+        }
+
         public void Initialize()
         {
             if (!_config.AutoAuthenticateOnStart) return;

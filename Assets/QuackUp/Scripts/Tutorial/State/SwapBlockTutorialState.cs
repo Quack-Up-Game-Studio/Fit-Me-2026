@@ -18,7 +18,8 @@ namespace FitMe.Tutorial
         private BlockManager _blockManager;
         
         private CancellationTokenSource _hintCts = new();
-        
+        private CancellationTokenSource _hideCts;
+
         [Inject]
         public void SetBlockManager(BlockManager blockManager)
         {
@@ -61,20 +62,45 @@ namespace FitMe.Tutorial
         private async UniTask HideHint()
         {
             CancelHint();
-            var token = _hintCts.Token;
-            await swapBlockHint.TransitionOut(token);
+            var tokenSource = _hintCts;
+            _hintCts = null;
+            _hideCts = tokenSource;
+            try
+            {
+                await swapBlockHint.TransitionOut(tokenSource.Token);
+            }
+            finally
+            {
+                if (ReferenceEquals(_hideCts, tokenSource)) _hideCts = null;
+                tokenSource.Dispose();
+            }
         }
         
         private void CancelHint()
         {
-            _hintCts?.Cancel();
-            _hintCts?.Dispose();
+            var tokenSource = _hintCts;
             _hintCts = new CancellationTokenSource();
+            CancelAndDispose(tokenSource);
+
+            tokenSource = _hideCts;
+            _hideCts = null;
+            CancelAndDispose(tokenSource);
+        }
+
+        private static void CancelAndDispose(CancellationTokenSource tokenSource)
+        {
+            if (tokenSource == null) return;
+            try { tokenSource.Cancel(); }
+            finally { tokenSource.Dispose(); }
         }
 
         public void Dispose()
         {
+            var tokenSource = _hintCts;
+            _hintCts = null;
+            CancelAndDispose(tokenSource);
             _subscription?.Dispose();
+            _subscription = null;
         }
     }
 }

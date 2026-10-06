@@ -44,11 +44,12 @@ namespace QuackUp.GoogleAdMob
 
         public abstract bool CanShowAd();
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             DisposeAd();
             CancelAdsSessionTimer();
             _onAdClosed.Dispose();
+            _onAdFailed.Dispose();
         }
         
         public abstract void Load();
@@ -363,6 +364,12 @@ namespace QuackUp.GoogleAdMob
             _rewardedAd = null;
         }
 
+        public override void Dispose()
+        {
+            base.Dispose();
+            _onUserEarnedReward.Dispose();
+        }
+
         protected override void RegisterAdEvents()
         {
             var builder = Disposable.CreateBuilder();
@@ -524,6 +531,7 @@ namespace QuackUp.GoogleAdMob
         private readonly ReactiveProperty<bool> _adsEnabled = new(true);
         private readonly Dictionary<Type, AdsInstance> _adsInstances = new();
         private readonly AdsSettings _adsSettings;
+        private bool _isDisposed;
 
         [Inject]
         public AdsService(AdsSettings adsSettings)
@@ -533,6 +541,7 @@ namespace QuackUp.GoogleAdMob
 
         public void PostInitialize()
         {
+            if (_isDisposed) return;
 #if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             //MobileAds.RaiseAdEventsOnUnityMainThread = true;
             var requestConfiguration = new RequestConfiguration
@@ -552,6 +561,7 @@ namespace QuackUp.GoogleAdMob
 
         private void InitializeAd()
         {
+            if (_isDisposed) return;
             var rewardedAdInstance = new RewardedAdInstance(_adsSettings);
             rewardedAdInstance.Load();
             _adsInstances[typeof(RewardedAdInstance)] = rewardedAdInstance;
@@ -565,7 +575,11 @@ namespace QuackUp.GoogleAdMob
 
         public void Dispose()
         {
+            if (_isDisposed) return;
+            _isDisposed = true;
             _adsInstances.Values.ForEach(instance => instance?.Dispose());
+            _adsInstances.Clear();
+            _adsEnabled.Dispose();
         }
         
         public bool TryGetAdsInstance<T>(out T adsInstance) where T : AdsInstance

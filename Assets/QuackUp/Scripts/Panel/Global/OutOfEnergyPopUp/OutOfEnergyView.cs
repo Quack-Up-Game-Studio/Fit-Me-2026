@@ -118,14 +118,15 @@ namespace FitMe.Panel
             promise.TrySetResult(Unit.Default);
         }
 
-        private UniTask Transition(bool direction, CancellationToken token)
+        private async UniTask Transition(bool direction, CancellationToken token)
         {
-            token.Register(() => _transitionSequence.Complete());
             _transitionSequence.Complete();
-            _transitionSequence = Sequence.Create()
+            var sequence = Sequence.Create()
                 .Group(Tween.Alpha(backgroundImage, backgroundAlphaTweenSettings.WithDirection(direction)))
                 .Group(Tween.Scale(panelTransform, scaleTweenSettings.WithDirection(direction)));
-            return _transitionSequence.ToUniTask(cancellationToken: token);
+            _transitionSequence = sequence;
+            using var registration = token.Register(sequence.Complete);
+            await sequence.ToUniTask(cancellationToken: token);
         }
     }
 }

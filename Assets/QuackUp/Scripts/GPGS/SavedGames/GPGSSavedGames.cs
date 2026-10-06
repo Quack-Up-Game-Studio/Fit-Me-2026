@@ -55,7 +55,9 @@ namespace QuackUp.GPGS
 
         public void Dispose()
         {
-            _subscriptions.Dispose();
+            _subscriptions?.Dispose();
+            _subscriptions = null;
+            _onLoadFromService.Dispose();
         }
 
         private void OnFinishedAuthentication(SignInStatus status)

@@ -18,7 +18,7 @@ namespace QuackUp.Save
 {
 
     [Serializable]
-    public class MessagePackSaveManager : IInitializable
+    public class MessagePackSaveManager : IInitializable, IDisposable
     {
         private readonly MessagePackSaveConfig _config;
         [OdinSerialize, ReadOnly] private Dictionary<string, MessagePackSaveObject> _saveObjects = new();
@@ -433,6 +433,12 @@ namespace QuackUp.Save
             }
 
             return deserializedData;
+        }
+
+        public void Dispose()
+        {
+            _onSaveResult.Dispose();
+            _onLoadResult.Dispose();
         }
     }
 }

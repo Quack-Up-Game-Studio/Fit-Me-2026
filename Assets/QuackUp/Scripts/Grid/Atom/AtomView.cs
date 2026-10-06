@@ -94,6 +94,9 @@ namespace FitMe.Grid
         public void Dispose()
         {
             _bindings?.Dispose();
+            _parentBlockSubscriptions?.Dispose();
+            _bindings = null;
+            _parentBlockSubscriptions = null;
         }
     }
 }

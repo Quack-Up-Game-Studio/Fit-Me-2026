@@ -89,7 +89,26 @@ namespace FitMe.Panel.Tutorial
 
         public void Dispose()
         {
-            _bindings.Dispose();
+            var bindings = _bindings;
+            _bindings = null;
+            var displayDataTokenSource = _displayDataTokenSource;
+            _displayDataTokenSource = null;
+            var cancellationTokenSource = _cancellationTokenSource;
+            _cancellationTokenSource = null;
+
+            try { bindings?.Dispose(); }
+            finally
+            {
+                try { CancelAndDispose(displayDataTokenSource); }
+                finally { CancelAndDispose(cancellationTokenSource); }
+            }
+        }
+
+        private static void CancelAndDispose(CancellationTokenSource tokenSource)
+        {
+            if (tokenSource == null) return;
+            try { tokenSource.Cancel(); }
+            finally { tokenSource.Dispose(); }
         }
 
         private void OnDestroy()
@@ -99,18 +118,19 @@ namespace FitMe.Panel.Tutorial
         
         private async UniTask OnBlockInputChanged(bool blockInput, Promise<bool> promise)
         {
-            _cancellationTokenSource.Token.Register(() =>
-            {
-                _backgroundSequence.Complete();
-                promise.TrySetResult(false);
-            });
             if (blockInput)
             {
                 background.raycastTarget = true;
             }
-            _backgroundSequence = Sequence.Create()
+            var sequence = Sequence.Create()
                 .Group(Tween.Alpha(background, backgroundAlphaTweenSettings.WithDirection(blockInput)));
-            await _backgroundSequence.ToUniTask();
+            _backgroundSequence = sequence;
+            using var registration = _cancellationTokenSource.Token.Register(() =>
+            {
+                sequence.Complete();
+                promise.TrySetResult(false);
+            });
+            await sequence.ToUniTask();
             if (!blockInput) background.raycastTarget = false;
             promise.TrySetResult(true);
         }
@@ -200,28 +220,26 @@ namespace FitMe.Panel.Tutorial
             tutorialText.SetText(string.Empty);
             carveWindowRect.gameObject.SetActive(_viewModel.TutorialData.HasCarveWindow);
             character.gameObject.SetActive(_viewModel.TutorialData.HasCharacter);
-            cancellationToken.Register(() =>
-            {
-                _showSequence.Stop();
-            });
             var characterTweenSettings = scaleTweenSettings;
             characterTweenSettings.endValue = _viewModel.TutorialData.CharacterSize != null ? 
                 new Vector3(_viewModel.TutorialData.CharacterSize.Value.x, _viewModel.TutorialData.CharacterSize.Value.y, 1) : 
                 scaleTweenSettings.endValue;
             var characterTween = Tween.Scale(character.transform, characterTweenSettings.WithDirection(direction));
             var panelTween = Tween.Scale(panelRect.transform, scaleTweenSettings.WithDirection(direction));
-            _showSequence = Sequence.Create().Group(characterTween);
+            var sequence = Sequence.Create().Group(characterTween);
             if (direction)
             {
                 characterSkeleton.AnimationState.ClearTrack(0);
                 characterSkeleton.AnimationState.SetAnimation(0, defaultAnimation, true);
-                _ = _showSequence.Chain(panelTween);
+                _ = sequence.Chain(panelTween);
             }
             else
             {
-                _ = _showSequence.Group(panelTween);
+                _ = sequence.Group(panelTween);
             }
-            await _showSequence.ToUniTask();
+            _showSequence = sequence;
+            using var registration = cancellationToken.Register(sequence.Stop);
+            await sequence.ToUniTask();
             if (!direction)
             {
                 panelRect.localScale = Vector3.zero;
@@ -246,8 +264,9 @@ namespace FitMe.Panel.Tutorial
         {
             if (_displayDataTokenSource != null)
             {
-                _displayDataTokenSource.Cancel();
+                var tokenSource = _displayDataTokenSource;
                 _displayDataTokenSource = null;
+                CancelAndDispose(tokenSource);
                 return;
             }
             if (_cancellationTokenSource is { IsCancellationRequested: false })
@@ -263,23 +282,25 @@ namespace FitMe.Panel.Tutorial
         private async UniTask TweenPanelInset(CancellationToken cancellationToken)
         {
             if (_viewModel.TutorialData.PanelInset == null) return;
-            cancellationToken.Register(() => _panelInsetSequence.Complete());
             var inset = _viewModel.TutorialData.PanelInset;
-            _panelInsetSequence = Sequence.Create()
+            var sequence = Sequence.Create()
                 .Group(Tween.UIOffsetMax(panelRect, new(inset.Value.OffsetMax, insetTweenSettings)))
                 .Group(Tween.UIOffsetMin(panelRect, new(inset.Value.OffsetMin, insetTweenSettings)));
-            await _panelInsetSequence.ToUniTask();
+            _panelInsetSequence = sequence;
+            using var registration = cancellationToken.Register(sequence.Complete);
+            await sequence.ToUniTask();
         }
 
         private async UniTask TweenCarveWindowInset(CancellationToken cancellationToken)
         {
             if (!_viewModel.TutorialData.HasCarveWindow || _viewModel.TutorialData.CarveWindowInset == null) return;
-            cancellationToken.Register(() => _carveWindowSequence.Complete());
             var inset = _viewModel.TutorialData.CarveWindowInset;
-            _carveWindowSequence = Sequence.Create()
+            var sequence = Sequence.Create()
                 .Group(Tween.UIOffsetMax(carveWindowRect, new(inset.Value.OffsetMax, carveWindowTweenSettings)))
                 .Group(Tween.UIOffsetMin(carveWindowRect, new(inset.Value.OffsetMin, carveWindowTweenSettings)));
-            await _carveWindowSequence.ToUniTask();
+            _carveWindowSequence = sequence;
+            using var registration = cancellationToken.Register(sequence.Complete);
+            await sequence.ToUniTask();
         }
 
         private async UniTask TweenCharacter(CancellationToken cancellationToken)
@@ -292,7 +313,6 @@ namespace FitMe.Panel.Tutorial
                 position == null &&
                 rotation == null) return;
             var sequence = Sequence.Create();
-            cancellationToken.Register(() => _characterSequence.Complete());
             if (size != null)
             {
                 _ = sequence.Group(Tween.Scale(character, new TweenSettings<Vector3>(size.Value, characterSizeTweenSettings)));
@@ -306,6 +326,7 @@ namespace FitMe.Panel.Tutorial
                 _ = sequence.Group(Tween.Rotation(character, new TweenSettings<Vector3>(rotation.Value, characterRotationTweenSettings)));
             }
             _characterSequence = sequence;
+            using var registration = cancellationToken.Register(sequence.Complete);
             await sequence.ToUniTask();
         }
     }

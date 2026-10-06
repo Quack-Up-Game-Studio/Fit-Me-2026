@@ -55,7 +55,7 @@ namespace FitMe.Panel
 
         private async UniTask OnShow(string text, Promise<Unit> promise, CancellationToken cancellationToken)
         {
-            cancellationToken.Register(() => promise.TrySetResult(Unit.Default));
+            using var registration = cancellationToken.Register(() => promise.TrySetResult(Unit.Default));
             popUpText.text = text;
             await TransitionIn(cancellationToken);
             await UniTask.WaitForSeconds(stayDuration, cancellationToken: cancellationToken);
@@ -78,11 +78,15 @@ namespace FitMe.Panel
             return Transition(false, cancellationToken);
         }
 
-        private UniTask Transition(bool direction, CancellationToken cancellationToken = default)
+        private async UniTask Transition(bool direction, CancellationToken cancellationToken = default)
         {
-            cancellationToken.Register(() =>
+            var sequence = Sequence.Create()
+                .Group(Tween.Alpha(canvasGroup, fadeTweenSettings.WithDirection(direction)))
+                .Group(Tween.Scale(transform, scaleTweenSettings.WithDirection(direction)));
+            _scaleSequence = sequence;
+            using var registration = cancellationToken.Register(() =>
             {
-                _scaleSequence.Stop();
+                sequence.Stop();
                 if (_particlesInstance)
                 {
                     _particlesInstance.Stop();
@@ -92,10 +96,7 @@ namespace FitMe.Panel
                 transform.localScale = scaleTweenSettings.startValue;
                 canvasGroup.alpha = fadeTweenSettings.startValue;
             });
-            _scaleSequence = Sequence.Create()
-                .Group(Tween.Alpha(canvasGroup, fadeTweenSettings.WithDirection(direction)))
-                .Group(Tween.Scale(transform, scaleTweenSettings.WithDirection(direction)));
-            return _scaleSequence.ToUniTask();
+            await sequence.ToUniTask();
         }
     }
 }

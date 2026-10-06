@@ -38,11 +38,20 @@ namespace QuackUp.Utils
                 return;
             }
             var tcs = new UniTaskCompletionSource();
-            cancellationToken.Register(() => tcs.TrySetCanceled());
             trackEntry.Complete += TrackEntryOnComplete;
             trackEntry.Interrupt += TrackEntryOnInterrupt;
             trackEntry.Dispose += TrackEntryOnDispose;
-            await tcs.Task;
+            try
+            {
+                using var registration = cancellationToken.Register(() => tcs.TrySetCanceled());
+                await tcs.Task;
+            }
+            finally
+            {
+                trackEntry.Complete -= TrackEntryOnComplete;
+                trackEntry.Interrupt -= TrackEntryOnInterrupt;
+                trackEntry.Dispose -= TrackEntryOnDispose;
+            }
             return;
             
             void TrackEntryOnComplete(TrackEntry trackEntry1)
@@ -80,12 +89,22 @@ namespace QuackUp.Utils
         {
             if (trackEntry is null) return;
             var tcs = new UniTaskCompletionSource();
-            cancellationToken.Register(() => tcs.TrySetCanceled());
             trackEntry.Event += TrackEntryOnEvent;
             trackEntry.Complete += TrackEntryOnComplete;
             trackEntry.Interrupt += TrackEntryOnInterrupt;
             trackEntry.Dispose += TrackEntryOnDispose;
-            await tcs.Task;
+            try
+            {
+                using var registration = cancellationToken.Register(() => tcs.TrySetCanceled());
+                await tcs.Task;
+            }
+            finally
+            {
+                trackEntry.Event -= TrackEntryOnEvent;
+                trackEntry.Complete -= TrackEntryOnComplete;
+                trackEntry.Interrupt -= TrackEntryOnInterrupt;
+                trackEntry.Dispose -= TrackEntryOnDispose;
+            }
             return;
             
             void TrackEntryOnEvent(TrackEntry trackEntry1, Event e)

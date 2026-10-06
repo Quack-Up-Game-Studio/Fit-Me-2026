@@ -58,9 +58,9 @@ namespace FitMe.Panel
             _cancelBehavior = cancelBehavior;
         }
 
-        public UniTask Transition(CancellationToken cancellationToken = default)
+        public async UniTask Transition(CancellationToken cancellationToken = default)
         {
-            cancellationToken.Register(() =>
+            using var registration = cancellationToken.Register(() =>
             {
                 switch (_cancelBehavior)
                 {
@@ -74,7 +74,7 @@ namespace FitMe.Panel
                         throw new ArgumentOutOfRangeException();
                 }
             });
-            return _transitionSequence.ToUniTask();
+            await _transitionSequence.ToUniTask();
         }
     }
     
@@ -90,7 +90,6 @@ namespace FitMe.Panel
         [TableList(DrawScrollView = false)]
         public List<TransitionData> transition = new();
         
-        private Sequence _transitionSequence;
         private bool _isInitialized;
         
         public void Initialize(ITransitionObjectProvider provider)
@@ -115,37 +114,37 @@ namespace FitMe.Panel
             {
                 return;
             }
-            cancellationToken.Register(CancelTransition);
-            _transitionSequence = !overrideDefaultCycles ? Sequence.Create() : Sequence.Create(cycles, cycleMode);
+            var sequence = !overrideDefaultCycles ? Sequence.Create() : Sequence.Create(cycles, cycleMode);
             foreach (var data in transition)
             {
-                var transitionSequence = data.transition?.Transition();
-                if (transitionSequence == null) continue;
+                var childSequence = data.transition?.Transition();
+                if (childSequence == null) continue;
                 switch (data.transitionGroupType)
                 {
                     case TransitionGroupType.Group:
-                        _ = _transitionSequence.Group(transitionSequence.Value);
+                        _ = sequence.Group(childSequence.Value);
                         break;
                     case TransitionGroupType.Chain:
-                        _ = _transitionSequence.Chain(transitionSequence.Value);
+                        _ = sequence.Chain(childSequence.Value);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                if (data.delay > 0) _ = _transitionSequence.ChainDelay(data.delay);
+                if (data.delay > 0) _ = sequence.ChainDelay(data.delay);
             }
-            await _transitionSequence.ToUniTask();
+            using var registration = cancellationToken.Register(() => CancelTransition(sequence));
+            await sequence.ToUniTask();
         }
 
-        private void CancelTransition()
+        private void CancelTransition(Sequence transitionSequence)
         {
             switch (cancelBehavior)
             {
                 case CancelBehavior.Stop:
-                    _transitionSequence.Stop();
+                    transitionSequence.Stop();
                     break;
                 case CancelBehavior.Complete:
-                    _transitionSequence.Complete();
+                    transitionSequence.Complete();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

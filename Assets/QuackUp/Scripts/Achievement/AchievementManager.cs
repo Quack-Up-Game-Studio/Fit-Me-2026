@@ -54,14 +54,21 @@ namespace FitMe.Achievement
         public void Dispose()
         {
             _resetSubscription?.Dispose();
+            _resetSubscription = null;
+            DisposeAchievements();
+        }
+
+        private void DisposeAchievements()
+        {
             foreach (var achievement in _achievements.Values)
             {
-                achievement.subscription.Dispose();
-                if (achievement.achievement is IDisposable disposableAchievement) 
+                achievement.subscription?.Dispose();
+                if (achievement.achievement is IDisposable disposableAchievement)
                 {
                     disposableAchievement.Dispose();
                 }
             }
+            _achievements.Clear();
         }
         
         public void Start()
@@ -88,7 +95,7 @@ namespace FitMe.Achievement
         {
             var saveData = _saveObject.GetSaveData<AchievementSaveData>();
             if (saveData == null) return;
-            _achievements.Clear();
+            DisposeAchievements();
             _presetsById = _config.AchievementPresets.ToDictionary(x => x.AchievementId, x => x);
             var tempPresetsById = new Dictionary<string, AchievementPreset>(_presetsById);
             foreach (var saveAchievement in saveData.Achievements)

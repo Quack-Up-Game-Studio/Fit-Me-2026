@@ -113,7 +113,12 @@ namespace QuackUp.Input
         private void OnDisable()
         {
             Unsubscribe();
+            _playerInputAction?.UI.Disable();
+            PauseGameButton.CancelPendingPulse();
+            _anyButtonPressListener?.Dispose();
+            _anyButtonPressListener = null;
             _currentControlSchemeSubscription?.Dispose();
+            _currentControlSchemeSubscription = null;
         }
 
         private void RegisterInputAction()
@@ -148,16 +153,26 @@ namespace QuackUp.Input
 
         private void Unsubscribe()
         {
-            _playerInputAction.Player.Disable();
-            //_anyButtonPressListener?.Dispose();
+            _playerInputAction?.Player.Disable();
+            InteractButton.CancelPendingPulse();
+            JerkBaitButton.CancelPendingPulse();
+            Action0Button.CancelPendingPulse();
+            Action1Button.CancelPendingPulse();
+            ReelingButton.CancelPendingPulse();
+            SecretResetButton.CancelPendingPulse();
+            BaitButton.CancelPendingPulse();
+            ConfirmBaitButton.CancelPendingPulse();
         }
 
         private void OnDestroy()
         {
+            _anyButtonPressListener?.Dispose();
+            _currentControlSchemeSubscription?.Dispose();
+            if (_playerInputAction == null) return;
             _playerInputAction.Player.Disable();
             _playerInputAction.UI.Disable();
-            _playerInputAction?.Dispose();
-            _anyButtonPressListener?.Dispose();
+            _playerInputAction.Dispose();
+            _playerInputAction = null;
         }
 
         #endregion

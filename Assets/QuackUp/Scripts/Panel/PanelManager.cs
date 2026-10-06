@@ -167,8 +167,8 @@ namespace FitMe.Panel
             toPanel.VisibilityState.Value = VisibilityState.Visible;
             if (playTransition)
             {
-                var transitionPromise = new Promise<Unit>();
-                cancellationToken.Register(() => transitionPromise.Cancel());
+                using var transitionPromise = new Promise<Unit>();
+                using var registration = cancellationToken.Register(transitionPromise.Cancel);
                 toPanel.TransitionInCommand.Execute(new TransitionCommandData(transitionPromise, fromPanelId));
                 await transitionPromise.Task;
             }
@@ -182,8 +182,8 @@ namespace FitMe.Panel
             fromPanel.InputState.Value = InputState.Inactive;
             if (playTransition)
             {
-                var transitionPromise = new Promise<Unit>();
-                cancellationToken.Register(() => transitionPromise.Cancel());
+                using var transitionPromise = new Promise<Unit>();
+                using var registration = cancellationToken.Register(transitionPromise.Cancel);
                 fromPanel.TransitionOutCommand.Execute(new TransitionCommandData(transitionPromise, toPanelId));
                 await transitionPromise.Task;
             }

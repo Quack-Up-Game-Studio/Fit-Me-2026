@@ -113,7 +113,7 @@ namespace FitMe.Panel
         private async UniTask OnDisplayResult(DisplayResultCommandData data)
         {
             var cancellationToken = data.Promise.CancellationToken;
-            cancellationToken.Register(() =>
+            using var registration = cancellationToken.Register(() =>
             {
                 _newHighScoreScaleTween.Complete();
                 _newFitMeScaleTween.Complete();
