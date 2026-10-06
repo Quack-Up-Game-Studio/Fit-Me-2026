@@ -1,6 +1,7 @@
 using System.IO;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using QuackUp.Save;
 
 namespace QuackUp.Save.Tests
@@ -28,6 +29,7 @@ namespace QuackUp.Save.Tests
             WriteGarbageZip();
             SaveObject.TestData = new TestMessagePackSaveData { Version = Application.version, testInt = 9 };
 
+            LogAssert.Expect(LogType.Error, "Error loading ZIP file: Central Directory corrupt.");
             Assert.DoesNotThrow(() => Manager.Load("testEntry"), "corrupt archive must not throw (policy: keep data + LogError)");
             Assert.AreEqual(9, SaveObject.TestData.testInt, "in-memory data kept");
         }

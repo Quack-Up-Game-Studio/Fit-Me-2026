@@ -376,6 +376,7 @@ namespace QuackUp.SceneManagement.Tests
         [Test]
         public void InvalidDestination_AndDisposedOwner_DoNotAcquireRequest()
         {
+            LogAssert.Expect(LogType.Error, "Scene Tutorial not found in the dictionary.");
             _manager.LoadScene(SceneType.Tutorial, LoadSceneMode.Single, false).Forget();
             Assert.That(_transition.Covers, Is.Zero);
             Assert.That(_stages.Events, Is.Empty);
