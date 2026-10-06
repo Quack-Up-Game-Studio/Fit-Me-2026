@@ -13,6 +13,7 @@ namespace QuackUp.Utils
 {
     public struct DifficultyChangeEvent
     {
+        public const string MessageHubKey = "LevelManagerMessageHub";
         public readonly float Difficulty;
 
         public DifficultyChangeEvent(float difficulty)
@@ -42,10 +43,10 @@ namespace QuackUp.Utils
         private IDisposable _subscriptions;
         
         [Inject]
-        private void Construct(ISubscriber<DifficultyChangeEvent> difficultySubscriber)
+        private void Construct([Key(DifficultyChangeEvent.MessageHubKey)] IMessageHub messageHub)
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            difficultySubscriber.Subscribe(evt => UpdateBackGround(evt.Difficulty))
+            messageHub.Subscribe<DifficultyChangeEvent>(evt => UpdateBackGround(evt.Difficulty))
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }

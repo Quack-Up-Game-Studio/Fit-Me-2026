@@ -9,7 +9,7 @@ namespace FitMe.Scene
 {
     public class LevelManagerMessageHub : MessageHub
     {
-        public const string MessageHubKey = "LevelManagerMessageHub";
+        public const string MessageHubKey = DifficultyChangeEvent.MessageHubKey;
         
         [Inject]
         public LevelManagerMessageHub(
@@ -17,6 +17,7 @@ namespace FitMe.Scene
             IPublisher<SpawnWithGridPresetEvent> startSpawnPublisher,
             IPublisher<StartCreateGridEvent> startCreateGridPublisher,
             IPublisher<DifficultyChangeEvent> difficultyChangePublisher,
+            ISubscriber<DifficultyChangeEvent> difficultyChangeSubscriber,
             ISubscriber<LoadSceneStageEvent> loadSceneStageSubscriber,
             ISubscriber<GameOverEvent> gameOverSubscriber,
             ISubscriber<ContinueEvent> continueSubscriber)
@@ -32,7 +33,7 @@ namespace FitMe.Scene
                 null);
             MessageWrappers[typeof(DifficultyChangeEvent)] = new MessageWrapper<DifficultyChangeEvent>(
                 difficultyChangePublisher,
-                null);
+                difficultyChangeSubscriber);
             MessageWrappers[typeof(LoadSceneStageEvent)] = new MessageWrapper<LoadSceneStageEvent>(
                 null,
                 loadSceneStageSubscriber);
