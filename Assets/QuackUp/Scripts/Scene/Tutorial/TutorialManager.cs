@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using FitMe.Shared;
 using FitMe.Tutorial;
-using GameAnalyticsSDK;
+using QuackUp.Analytics;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
 using QuackUp.SocialService;
@@ -23,6 +23,7 @@ namespace FitMe.Scene
         private readonly LoadSceneManager _loadSceneManager;
         private readonly MessagePackSaveManager  _saveManager;
         private readonly ICloudSaveService _cloudSaveService;
+        private readonly IAnalyticsService _analyticsService;
         private readonly string _overrideStart;
         private IDisposable _subscriptions;
         
@@ -35,6 +36,7 @@ namespace FitMe.Scene
             LoadSceneManager loadSceneManager,
             MessagePackSaveManager saveManager,
             ICloudSaveService cloudSaveService,
+            IAnalyticsService analyticsService,
             [Key(OverrideStartKey)] string startKey)
         {
             levelManager.IsTutorial = true;
@@ -42,6 +44,7 @@ namespace FitMe.Scene
             _loadSceneManager = loadSceneManager;
             _saveManager = saveManager;
             _cloudSaveService = cloudSaveService;
+            _analyticsService = analyticsService;
             _overrideStart = startKey;
             Subscribe();
         }
@@ -69,14 +72,14 @@ namespace FitMe.Scene
             saveData.CompletedTutorial = true;
             _saveManager.Save(saveObject);
             _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, GAProgression01.Tutorial);
+            _analyticsService.TrackProgression(ProgressionStatus.Complete, GAProgression01.Tutorial);
             _loadSceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single, false).Forget();
         }
 
         public void Start()
         {
             _stateMachine.StartTutorial(_overrideStart);
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Start, GAProgression01.Tutorial);
+            _analyticsService.TrackProgression(ProgressionStatus.Start, GAProgression01.Tutorial);
         }
     }
 }

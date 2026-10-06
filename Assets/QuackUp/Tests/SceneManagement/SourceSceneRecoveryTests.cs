@@ -28,7 +28,7 @@ namespace QuackUp.SceneManagement.Tests
             var mainConfig = ScriptableObject.CreateInstance<MainMenuManagerConfig>();
             var levelConfig = ScriptableObject.CreateInstance<LevelManagerConfig>();
             var grid = new GridManager(go.AddComponent<UnityEngine.Grid>(), gridConfig, null, null, hub);
-            var ads = new AdsService(null);
+            var ads = new AdsService(null, null);
             var banner = new Banner();
             ((Dictionary<Type, AdsInstance>)typeof(AdsService).GetField("_adsInstances",
                 BindingFlags.Instance | BindingFlags.NonPublic).GetValue(ads))[typeof(BannerAdInstance)] = banner;
@@ -36,7 +36,7 @@ namespace QuackUp.SceneManagement.Tests
             var popups = 0;
             using var popupSubscription = outOfEnergy.TransitionInCommand.Subscribe(_ => popups++);
             object consumer = level
-                ? new LevelManager(levelConfig, new AudioManagerMock(), hub, grid, null, null, null, ads, null, null, null)
+                ? new LevelManager(levelConfig, new AudioManagerMock(), hub, grid, null, null, null, ads, null, null, null, null)
                 : new MainMenuManager(mainConfig, null, grid, null, null, null, null, ads, outOfEnergy, new AudioManagerMock(), hub);
             if (consumer is LevelManager manager) manager.IsTutorial = source == SceneType.Tutorial;
             try
@@ -68,7 +68,7 @@ namespace QuackUp.SceneManagement.Tests
         private sealed class Banner : BannerAdInstance
         {
             public int Shows;
-            public Banner() : base(null) { }
+            public Banner() : base(null, null) { }
             public override bool TryShow() { Shows++; return true; }
             public override void Load() { }
         }

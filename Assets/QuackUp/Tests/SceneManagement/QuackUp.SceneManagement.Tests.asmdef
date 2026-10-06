@@ -17,6 +17,7 @@
     "FitMe.Shared",
     "FitMe.Achievement",
     "QuackUp.GoogleAdMob",
+    "QuackUp.Analytics",
     "QuackUp.Save",
     "QuackUp.SocialService",
     "R3",

@@ -10,7 +10,7 @@ using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Shared;
 using FitMe.Panel;
-using GameAnalyticsSDK;
+using QuackUp.Analytics;
 using QuackUp.Audio;
 using QuackUp.Save;
 using QuackUp.SceneManagement;
@@ -65,6 +65,7 @@ namespace FitMe.Scene
         private readonly OrthographicCameraManager _orthographicCameraManager;
         private readonly ILeaderboardService _leaderboardService;
         private readonly ICloudSaveService _cloudSaveService;
+        private readonly IAnalyticsService _analyticsService;
         
         private List<GridPreset> _presets;
         private Queue<GridPreset> _tutorialPresets;
@@ -88,7 +89,8 @@ namespace FitMe.Scene
             AdsService adsService,
             OrthographicCameraManager orthographicCameraManager,
             ILeaderboardService leaderboardService,
-            ICloudSaveService cloudSaveService)
+            ICloudSaveService cloudSaveService,
+            IAnalyticsService analyticsService)
         {
             _config = config;
             _audioManager = audioManager;
@@ -101,6 +103,7 @@ namespace FitMe.Scene
             _orthographicCameraManager = orthographicCameraManager;
             _leaderboardService = leaderboardService;
             _cloudSaveService = cloudSaveService;
+            _analyticsService = analyticsService;
             Initialize();
             Subscribe();
         }
@@ -490,8 +493,7 @@ namespace FitMe.Scene
 
         private void ReportStart()
         {
-            GameAnalytics.NewProgressionEvent(
-                GAProgressionStatus.Start, 
+            _analyticsService.TrackProgression(ProgressionStatus.Start,
                 IsTutorial ? GAProgression01.Tutorial : GAProgression01.Classic, 
                 $"Level{_levelNumber}");
         }
@@ -505,10 +507,10 @@ namespace FitMe.Scene
                 { "FitMeDelta", FitMe.Value - _fitMeLastLevel },
                 { "HasContinued", _hasContinued ? 1 : 0},
             };
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete,
+            _analyticsService.TrackProgression(ProgressionStatus.Complete,
                 IsTutorial ? GAProgression01.Tutorial : GAProgression01.Classic,
                 $"Level{_levelNumber}",
-                score: FitMe.Value,
+                FitMe.Value,
                 customField);
         }
 
@@ -522,10 +524,10 @@ namespace FitMe.Scene
                 { "FitMeDelta", FitMe.Value - _fitMeLastLevel },
                 { "HasContinued", _hasContinued ? 1 : 0 },
             };
-            GameAnalytics.NewProgressionEvent(GAProgressionStatus.Fail,
+            _analyticsService.TrackProgression(ProgressionStatus.Fail,
                 IsTutorial ? GAProgression01.Tutorial : GAProgression01.Classic,
                 $"Level{_levelNumber}",
-                score: FitMe.Value,
+                FitMe.Value,
                 customField);
         }
         #endregion

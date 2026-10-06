@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using GameAnalyticsSDK;
+using QuackUp.Analytics;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
 using R3;
@@ -20,6 +20,7 @@ namespace QuackUp.GoogleAdMob
         private const int MaximumLoadRetryExponent = 5;
         // Event บอกว่าโฆษณาปิดแล้ว (ไม่ว่าจะได้รางวัลหรือไม่)
         protected readonly AdsSettings _adsSettings;
+        protected readonly IAnalyticsService _analyticsService;
         public Observable<Unit> OnAdClosed => _onAdClosed;
         protected readonly Subject<Unit> _onAdClosed = new();
         public Observable<Unit> OnAdFailed => _onAdFailed;
@@ -34,9 +35,10 @@ namespace QuackUp.GoogleAdMob
         private bool _isDisposed;
         
         [Inject]
-        public AdsInstance(AdsSettings adsSettings)
+        public AdsInstance(AdsSettings adsSettings, IAnalyticsService analyticsService)
         {
             _adsSettings = adsSettings;
+            _analyticsService = analyticsService;
         }
         
         /// <summary>
@@ -134,19 +136,15 @@ namespace QuackUp.GoogleAdMob
             CancelPendingLoadRetry();
         }
 
-        protected virtual void ReportAdEvent(GAAdAction adAction, GAAdType adType, string unitId)
+        protected virtual void ReportAdEvent(AdAction adAction, AdType adType, string unitId)
         {
-            var customField = new Dictionary<string, object>()
-            {
-                { "AdContext", AdContext },
-            };
-            GameAnalytics.NewAdEvent(adAction, adType,"admob", unitId, customFields: customField);
+            _analyticsService.TrackAdEvent(adAction, adType, unitId, AdContext);
         }
     }
 
     public class BannerAdInstance : AdsInstance
     {
-        public BannerAdInstance(AdsSettings adsSettings) : base(adsSettings) {}
+        public BannerAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService) : base(adsSettings, analyticsService) {}
 
         public string UnitId => _adsSettings.BannerUnitId;
         public string AdaptiveUnitId => _adsSettings.AdaptiveBannerUnitId;
@@ -219,7 +217,7 @@ namespace QuackUp.GoogleAdMob
             var adaptiveSize =
                 AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(deviceWidth);
             _bannerView = new BannerView(AdaptiveUnitId, adaptiveSize, AdPosition.Bottom);
-            GameAnalyticsILRD.SubscribeAdMobImpressions(AdaptiveUnitId, _bannerView);
+            _analyticsService.SubscribeAdMobImpressions(AdaptiveUnitId, _bannerView);
             RegisterAdEvents();
             _bannerView.LoadAd(new AdRequest());
         }
@@ -303,7 +301,7 @@ namespace QuackUp.GoogleAdMob
                     h => _bannerView.OnBannerAdLoaded -= h)
                 .Subscribe(_ =>
                 {
-                    ReportAdEvent(GAAdAction.Loaded, GAAdType.Banner, AdaptiveUnitId);
+                    ReportAdEvent(AdAction.Loaded, AdType.Banner, AdaptiveUnitId);
                     ExecuteOnUnityMainThread(HandleAdLoaded);
                 })
                 .AddTo(ref builder);
@@ -312,7 +310,7 @@ namespace QuackUp.GoogleAdMob
                     h => _bannerView.OnBannerAdLoadFailed -= h)
                 .Subscribe(adError =>
                 {
-                    ReportAdEvent(GAAdAction.FailedShow, GAAdType.Banner, AdaptiveUnitId);
+                    ReportAdEvent(AdAction.FailedShow, AdType.Banner, AdaptiveUnitId);
                     ExecuteOnUnityMainThread(() => HandleAdLoadFailed(adError));
                 })
                 .AddTo(ref builder);
@@ -352,13 +350,13 @@ namespace QuackUp.GoogleAdMob
 
         private void HandleOnAdClicked()
         {
-            ReportAdEvent(GAAdAction.Clicked, GAAdType.Banner, AdaptiveUnitId);
+            ReportAdEvent(AdAction.Clicked, AdType.Banner, AdaptiveUnitId);
         }
     }
     
     public class RewardedAdInstance : AdsInstance
     {
-        public RewardedAdInstance(AdsSettings adsSettings) : base(adsSettings) {}
+        public RewardedAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService) : base(adsSettings, analyticsService) {}
 
         public string UnitId => _adsSettings.RewardedUnitId;
         
@@ -383,7 +381,7 @@ namespace QuackUp.GoogleAdMob
                     });
                     return;
                 }
-                GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, ad);
+                _analyticsService.SubscribeAdMobImpressions(UnitId, ad);
                 ExecuteOnUnityMainThread(() =>
                 {
                     if (IsDisposed)
@@ -414,19 +412,19 @@ namespace QuackUp.GoogleAdMob
                 _rewardedAd.Show(_ =>
                 {
                     if (Interlocked.Exchange(ref rewardCallbackHandled, 1) != 0) return;
-                    ReportAdEvent(GAAdAction.RewardReceived, GAAdType.RewardedVideo, UnitId);
+                    ReportAdEvent(AdAction.RewardReceived, AdType.RewardedVideo, UnitId);
                     ExecuteOnUnityMainThread(() =>
                     {
                         if (!IsDisposed) _onUserEarnedReward.OnNext(Unit.Default);
                     });
                 });
-                ReportAdEvent(GAAdAction.Show, GAAdType.RewardedVideo, UnitId);
+                ReportAdEvent(AdAction.Show, AdType.RewardedVideo, UnitId);
                 return true;
             }
         
             DebugUtils.Log("Ads is not ready yet.");
             Load();
-            ReportAdEvent(GAAdAction.FailedShow, GAAdType.RewardedVideo, UnitId);
+            ReportAdEvent(AdAction.FailedShow, AdType.RewardedVideo, UnitId);
             _onAdFailed?.OnNext(Unit.Default);
             return false;
             
@@ -469,7 +467,7 @@ namespace QuackUp.GoogleAdMob
                     h => _rewardedAd.OnAdFullScreenContentFailed -= h)
                 .Subscribe(error =>
                 {
-                    ReportAdEvent(GAAdAction.FailedShow, GAAdType.RewardedVideo, UnitId);
+                    ReportAdEvent(AdAction.FailedShow, AdType.RewardedVideo, UnitId);
                     ExecuteOnUnityMainThread(() => OnAdFullScreenContentFailed(error));
                 })
                 .AddTo(ref builder);
@@ -485,7 +483,7 @@ namespace QuackUp.GoogleAdMob
         
         private void HandleAdClicked()
         {
-            ReportAdEvent(GAAdAction.Clicked, GAAdType.RewardedVideo, UnitId);
+            ReportAdEvent(AdAction.Clicked, AdType.RewardedVideo, UnitId);
         }
         
         private void OnAdFullScreenContentFailed(AdError error)
@@ -499,7 +497,7 @@ namespace QuackUp.GoogleAdMob
     
     public class InterstitialAdInstance : AdsInstance
     {
-        public InterstitialAdInstance(AdsSettings adsSettings) : base(adsSettings) {}
+        public InterstitialAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService) : base(adsSettings, analyticsService) {}
 
         public string UnitId => _adsSettings.InterstitialUnitId;
         
@@ -518,7 +516,7 @@ namespace QuackUp.GoogleAdMob
                     });
                     return;
                 }
-                GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, ad);
+                _analyticsService.SubscribeAdMobImpressions(UnitId, ad);
                 ExecuteOnUnityMainThread(() =>
                 {
                     if (IsDisposed)
@@ -545,12 +543,12 @@ namespace QuackUp.GoogleAdMob
             if (CanShowAd())
             {
                 _interstitialAd.Show();
-                ReportAdEvent(GAAdAction.Show, GAAdType.Interstitial, UnitId);
+                ReportAdEvent(AdAction.Show, AdType.Interstitial, UnitId);
                 return true;
             }
             DebugUtils.LogWarning("Ads is not ready yet.");
             Load();
-            ReportAdEvent(GAAdAction.FailedShow, GAAdType.Interstitial, UnitId);
+            ReportAdEvent(AdAction.FailedShow, AdType.Interstitial, UnitId);
             _onAdFailed?.OnNext(Unit.Default);
             return false;
             
@@ -586,7 +584,7 @@ namespace QuackUp.GoogleAdMob
                     h => _interstitialAd.OnAdFullScreenContentFailed -= h)
                 .Subscribe(error =>
                 {
-                    ReportAdEvent(GAAdAction.FailedShow, GAAdType.Interstitial, UnitId);
+                    ReportAdEvent(AdAction.FailedShow, AdType.Interstitial, UnitId);
                     ExecuteOnUnityMainThread(() => OnAdFullScreenContentFailed(error));
                 })
                 .AddTo(ref builder);
@@ -602,7 +600,7 @@ namespace QuackUp.GoogleAdMob
         
         private void HandleAdClicked()
         {
-            ReportAdEvent(GAAdAction.Clicked, GAAdType.Interstitial, UnitId);
+            ReportAdEvent(AdAction.Clicked, AdType.Interstitial, UnitId);
         }
         
         private void OnAdFullScreenContentFailed(AdError error)
@@ -621,12 +619,14 @@ namespace QuackUp.GoogleAdMob
         private readonly ReactiveProperty<bool> _adsEnabled = new(true);
         private readonly Dictionary<Type, AdsInstance> _adsInstances = new();
         private readonly AdsSettings _adsSettings;
+        private readonly IAnalyticsService _analyticsService;
         private bool _isDisposed;
 
         [Inject]
-        public AdsService(AdsSettings adsSettings)
+        public AdsService(AdsSettings adsSettings, IAnalyticsService analyticsService)
         {
             _adsSettings = adsSettings;
+            _analyticsService = analyticsService;
         }
 
         public void PostInitialize()
@@ -648,13 +648,13 @@ namespace QuackUp.GoogleAdMob
         private void InitializeAd()
         {
             if (_isDisposed) return;
-            var rewardedAdInstance = new RewardedAdInstance(_adsSettings);
+            var rewardedAdInstance = new RewardedAdInstance(_adsSettings, _analyticsService);
             rewardedAdInstance.Load();
             _adsInstances[typeof(RewardedAdInstance)] = rewardedAdInstance;
-            var interstitialAdInstance = new InterstitialAdInstance(_adsSettings);
+            var interstitialAdInstance = new InterstitialAdInstance(_adsSettings, _analyticsService);
             interstitialAdInstance.Load();
             _adsInstances[typeof(InterstitialAdInstance)] = interstitialAdInstance;
-            var bannerAdInstance = new BannerAdInstance(_adsSettings);
+            var bannerAdInstance = new BannerAdInstance(_adsSettings, _analyticsService);
             bannerAdInstance.Load();
             _adsInstances[typeof(BannerAdInstance)] = bannerAdInstance;
         }

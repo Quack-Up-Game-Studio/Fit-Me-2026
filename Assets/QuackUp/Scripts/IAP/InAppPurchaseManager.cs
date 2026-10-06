@@ -5,8 +5,8 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using FitMe.Shared;
-using GameAnalyticsSDK;
 using MessagePipe;
+using QuackUp.Analytics;
 using QuackUp.Save;
 using QuackUp.SocialService;
 using QuackUp.Utils;
@@ -45,6 +45,7 @@ namespace QuackUp.IAP
         private readonly AdsService _adsService;
         private readonly MessagePackSaveManager _saveManager;
         private readonly ICloudSaveService _cloudSaveService;
+        private readonly IAnalyticsService _analyticsService;
         /// <summary>
         /// Event that called when the store is connected, products and purchases are fetched, and the IAP system is ready to use.
         /// </summary>
@@ -87,12 +88,14 @@ namespace QuackUp.IAP
             EnergyManager energyManager,
             AdsService adsService,
             MessagePackSaveManager saveManager,
-            ICloudSaveService cloudSaveService)
+            ICloudSaveService cloudSaveService,
+            IAnalyticsService analyticsService)
         {
             _energyManager = energyManager;
             _adsService = adsService;
             _saveManager = saveManager;
             _cloudSaveService = cloudSaveService;
+            _analyticsService = analyticsService;
         }
 
         public void Dispose()
@@ -418,7 +421,7 @@ namespace QuackUp.IAP
             var priceDecimal = product?.metadata.localizedPrice ?? 0m;
             var amount = IapCurrencyHelper.GetAmountInMinorUnits(priceDecimal, currency);
             var itemType = product?.definition.type.ToString() ?? "Unknown";
-            GameAnalytics.NewBusinessEvent(currency, amount, itemType, id, GACartType.Store);
+            _analyticsService.TrackBusinessEvent(currency, amount, itemType, id, GACartType.Store);
         }
 
         private void OnPurchaseFailed(FailedOrder order)
@@ -608,15 +611,15 @@ namespace QuackUp.IAP
             var spender = playerSaveData.HasPurchasedAtLeastOnce;
             if (HasActiveSubscription())
             {
-                GameAnalytics.SetCustomDimension01(GACustomDimension01.Premium);
+                _analyticsService.SetPlayerTier(GACustomDimension01.Premium);
             }
             else if (spender)
             {
-                GameAnalytics.SetCustomDimension01(GACustomDimension01.Spender);
+                _analyticsService.SetPlayerTier(GACustomDimension01.Spender);
             }
             else
             {
-                GameAnalytics.SetCustomDimension01(GACustomDimension01.F2P);
+                _analyticsService.SetPlayerTier(GACustomDimension01.F2P);
             }
         }
         #endregion

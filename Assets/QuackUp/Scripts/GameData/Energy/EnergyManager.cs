@@ -1,8 +1,8 @@
 using System;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
-using GameAnalyticsSDK;
 using MessagePipe;
+using QuackUp.Analytics;
 using QuackUp.Save;
 using QuackUp.SocialService;
 using QuackUp.Utils;
@@ -34,6 +34,7 @@ namespace FitMe.GameData
         private readonly EnergyManagerConfig _config;
         private readonly ICloudSaveService _cloudSaveService;
         private readonly IMessageHub _notificationMessageHub;
+        private readonly IAnalyticsService _analyticsService;
         
         public EnergyManagerConfig Config => _config;
 
@@ -45,12 +46,14 @@ namespace FitMe.GameData
             EnergyManagerConfig config,
             MessagePackSaveManager saveManager,
             ICloudSaveService cloudSaveService,
-            [Key(NotificationMessageHub.MessageHubKey)] IMessageHub notificationMessageHub)
+            [Key(NotificationMessageHub.MessageHubKey)] IMessageHub notificationMessageHub,
+            IAnalyticsService analyticsService)
         {
             _config = config;
             _saveManager = saveManager;
             _cloudSaveService = cloudSaveService;
             _notificationMessageHub = notificationMessageHub;
+            _analyticsService = analyticsService;
         }
 
         public void PostInitialize()
@@ -128,8 +131,8 @@ namespace FitMe.GameData
             
             /* Analytics */
             var absoluteAmount = Mathf.Abs(amount);
-            var flowType = amount > 0 ? GAResourceFlowType.Source : GAResourceFlowType.Sink;
-            GameAnalytics.NewResourceEvent(flowType, GACurrency.Energy, absoluteAmount, itemType, itemId);
+            var flowType = amount > 0 ? ResourceFlowType.Source : ResourceFlowType.Sink;
+            _analyticsService.TrackResourceFlow(flowType, GACurrency.Energy, absoluteAmount, itemType, itemId);
         }
         
         public bool HasEnoughEnergy(uint amount)
