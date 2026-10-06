@@ -3,7 +3,11 @@
   "rootNamespace": "FitMe.Panel.Tests",
   "references": [
     "FitMe.Panel",
+    "FitMe.Shared",
+    "QuackUp.Audio",
+    "QuackUp.Utils",
     "R3",
+    "UniTask",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],
@@ -11,7 +15,7 @@
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": true,
-  "precompiledReferences": ["nunit.framework.dll", "R3.dll"],
+  "precompiledReferences": ["nunit.framework.dll", "R3.dll", "Sirenix.Serialization.dll"],
   "autoReferenced": false,
   "defineConstraints": ["UNITY_INCLUDE_TESTS"],
   "versionDefines": [],

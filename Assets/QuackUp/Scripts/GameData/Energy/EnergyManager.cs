@@ -33,7 +33,7 @@ namespace FitMe.GameData
         private readonly MessagePackSaveManager _saveManager;
         private readonly EnergyManagerConfig _config;
         private readonly ICloudSaveService _cloudSaveService;
-        private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayEventPublisher;
+        private readonly IMessageHub _notificationMessageHub;
         
         public EnergyManagerConfig Config => _config;
 
@@ -45,12 +45,12 @@ namespace FitMe.GameData
             EnergyManagerConfig config,
             MessagePackSaveManager saveManager,
             ICloudSaveService cloudSaveService,
-            IPublisher<NotificationDisplayEvent> notificationDisplayEventPublisher)
+            [Key(NotificationMessageHub.MessageHubKey)] IMessageHub notificationMessageHub)
         {
             _config = config;
             _saveManager = saveManager;
             _cloudSaveService = cloudSaveService;
-            _notificationDisplayEventPublisher = notificationDisplayEventPublisher;
+            _notificationMessageHub = notificationMessageHub;
         }
 
         public void PostInitialize()
@@ -148,7 +148,7 @@ namespace FitMe.GameData
         public async UniTask ShowNotEnoughEnergyNotification()
         {
             var promise = new Promise<Unit>();
-            _notificationDisplayEventPublisher.Publish(new NotificationDisplayEvent(
+            _notificationMessageHub.Publish(new NotificationDisplayEvent(
                 NotificationType.General, 
                 new GeneralNotificationData 
                 { 

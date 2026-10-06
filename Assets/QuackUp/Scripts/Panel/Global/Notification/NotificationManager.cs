@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
 using FMODUnity;
-using MessagePipe;
 using QuackUp.Audio;
 using QuackUp.Utils;
 using R3;
@@ -39,7 +38,7 @@ namespace FitMe.Panel
         private readonly Transform _notificationParentTransform;
         private readonly NotificationManagerConfig _config;
         private readonly IAudioManager _audioManager;
-        private readonly ISubscriber<NotificationDisplayEvent> _notificationSubscriber;
+        private readonly IMessageHub _notificationMessageHub;
         
         private readonly Queue<NotificationDisplayEvent> _notificationQueue = new();
         private bool _showingNotification;
@@ -50,18 +49,18 @@ namespace FitMe.Panel
             [Key(NotificationParentKey)] Transform notificationParentTransform,
             NotificationManagerConfig config,
             IAudioManager audioManager,
-            ISubscriber<NotificationDisplayEvent> notificationSubscriber)
+            [Key(NotificationMessageHub.MessageHubKey)] IMessageHub notificationMessageHub)
         {
             _notificationParentTransform = notificationParentTransform;
             _config = config;
             _audioManager = audioManager;
-            _notificationSubscriber = notificationSubscriber;
+            _notificationMessageHub = notificationMessageHub;
             Subscribe();
         }
         
         private void Subscribe()
         {
-            _notificationSubscription = _notificationSubscriber.Subscribe(EnqueueNotification);
+            _notificationSubscription = _notificationMessageHub.Subscribe<NotificationDisplayEvent>(EnqueueNotification);
         }
 
         public void Dispose()
@@ -85,6 +84,7 @@ namespace FitMe.Panel
             if (!_config.NotificationPrefabDictionary.TryGetValue(notificationEvent.notificationType, out var prefabData))
             {
                 Debug.LogWarning($"No notification prefab found for type: {notificationEvent.notificationType}");
+                notificationEvent.CompletionPromise?.TrySetResult(Unit.Default);
                 _showingNotification = false;
                 return;
             }

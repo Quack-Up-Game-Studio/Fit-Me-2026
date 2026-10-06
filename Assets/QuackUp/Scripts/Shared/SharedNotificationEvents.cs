@@ -1,11 +1,13 @@
 using System;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
+using MessagePipe;
 using QuackUp.Utils;
 using R3;
 using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
+using VContainer;
 
 namespace FitMe.Shared
 {
@@ -49,5 +51,18 @@ namespace FitMe.Shared
         [CanBeNull] public Sprite icon;
     }
     
+    public class NotificationMessageHub : MessageHub
+    {
+        public const string MessageHubKey = "NotificationMessageHub";
+
+        [Inject]
+        public NotificationMessageHub(
+            IPublisher<NotificationDisplayEvent> notificationPublisher,
+            ISubscriber<NotificationDisplayEvent> notificationSubscriber)
+        {
+            MessageWrappers[typeof(NotificationDisplayEvent)] =
+                new MessageWrapper<NotificationDisplayEvent>(notificationPublisher, notificationSubscriber);
+        }
+    }
     
 }

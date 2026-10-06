@@ -2,7 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using FitMe.Grid;
 using FitMe.Shared;
-using MessagePipe;
+using QuackUp.Utils;
 using R3;
 using UnityEngine;
 using VContainer;
@@ -17,13 +17,15 @@ namespace FitMe.Tutorial
         
         private GridManager _gridManager;
         private DisposableBag _subscription;
-        private ISubscriber<NoPlaceableBlockEvent> _noPlaceableBlockEvent;
+        private IMessageHub _messageHub;
         
         [Inject]
-        public void SetUpGridManager(GridManager gridManager, ISubscriber<NoPlaceableBlockEvent> noPlaceableBlockEvent)
+        public void SetUpGridManager(
+            GridManager gridManager,
+            [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub)
         {
             _gridManager = gridManager;
-            _noPlaceableBlockEvent = noPlaceableBlockEvent;
+            _messageHub = messageHub;
         }
 
         public override async UniTask Enter()
@@ -35,8 +37,8 @@ namespace FitMe.Tutorial
                 .Where(x => x.FitType is FitType.FitMe)
                 .Subscribe(_ => StateMachine.Next().Forget())
                 .AddTo(ref _subscription);
-            _noPlaceableBlockEvent
-                .Subscribe(_ => StateMachine.JumpTo(jumpToWhenFail).Forget())
+            _messageHub
+                .Subscribe<NoPlaceableBlockEvent>(_ => StateMachine.JumpTo(jumpToWhenFail).Forget())
                 .AddTo(ref _subscription);
         }
         

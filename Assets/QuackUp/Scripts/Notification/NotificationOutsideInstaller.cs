@@ -1,4 +1,5 @@
 using System;
+using FitMe.Shared;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -16,6 +17,8 @@ namespace FitMe.Notification
         public void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(config);
+            builder.Register<IMessageHub, NotificationMessageHub>(Lifetime.Singleton)
+                .Keyed(NotificationMessageHub.MessageHubKey);
             builder.Register<NotificationService>(Lifetime.Singleton);
             builder.RegisterEntryPoint<NotificationLifecycleManager>().AsSelf();
         }

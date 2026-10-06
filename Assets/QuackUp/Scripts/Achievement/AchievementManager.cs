@@ -28,7 +28,7 @@ namespace FitMe.Achievement
     {
         private readonly MessagePackSaveManager _saveManager;
         private readonly AchievementManagerConfig _config;
-        private readonly IPublisher<NotificationDisplayEvent> _notificationDisplayPublisher;
+        private readonly IMessageHub _notificationMessageHub;
         private readonly ICloudSaveService _cloudSaveService;
         private readonly Dictionary<string, AchievementInstance> _achievements = new();
         private Dictionary<string, AchievementPreset> _presetsById = new();
@@ -42,12 +42,12 @@ namespace FitMe.Achievement
         public AchievementManager(
             MessagePackSaveManager saveManager,
             AchievementManagerConfig config,
-            IPublisher<NotificationDisplayEvent> notificationDisplayPublisher,
+            [Key(NotificationMessageHub.MessageHubKey)] IMessageHub notificationMessageHub,
             ICloudSaveService cloudSaveService)
         {
             _saveManager = saveManager;
             _config = config;
-            _notificationDisplayPublisher = notificationDisplayPublisher;
+            _notificationMessageHub = notificationMessageHub;
             _cloudSaveService = cloudSaveService;
         }
 
@@ -168,7 +168,7 @@ namespace FitMe.Achievement
 
         private void OnComplete(IAchievement achievement)
         {
-            _notificationDisplayPublisher.Publish(new NotificationDisplayEvent(NotificationType.Challenge, new AchievementNotificationData(achievement)));
+            _notificationMessageHub.Publish(new NotificationDisplayEvent(NotificationType.Challenge, new AchievementNotificationData(achievement)));
             _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
         }
     }
