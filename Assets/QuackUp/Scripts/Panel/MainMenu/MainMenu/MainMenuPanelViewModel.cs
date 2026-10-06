@@ -3,7 +3,6 @@ using QuackUp.GoogleAdMob;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using FitMe.Grid;
-using MessagePipe;
 using QuackUp.Save;
 using QuackUp.Utils;
 using R3;
@@ -35,7 +34,7 @@ namespace FitMe.Panel
         private readonly EnergyManager _energyManager;
         private readonly OutOfEnergyManager _outOfEnergyManager;
         private readonly AdsService _adsService;
-        private readonly ISubscriber<BlockSpawnedEvent> _blockSpawnedSubscriber;
+        private readonly IMessageHub _messageHub;
         private IDisposable _bindings;
         private IDisposable _blockBindings;
         
@@ -46,13 +45,13 @@ namespace FitMe.Panel
             MessagePackSaveManager saveManager,
             OutOfEnergyManager outOfEnergyManager,
             AdsService adsService,
-            ISubscriber<BlockSpawnedEvent> blockSpawnedSubscriber) : base(panelManager)
+            [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub) : base(panelManager)
         {
             _saveManager  = saveManager;
             _energyManager = energyManager;
             _outOfEnergyManager = outOfEnergyManager;
             _adsService = adsService;
-            _blockSpawnedSubscriber = blockSpawnedSubscriber;
+            _messageHub = messageHub;
             Bind();
         }
 
@@ -77,8 +76,8 @@ namespace FitMe.Panel
             WatchAdCommand
                 .Subscribe(_ => _outOfEnergyManager.WatchAds())
                 .AddTo(ref disposableBuilder);
-            _blockSpawnedSubscriber
-                .Subscribe(OnBlockSpawned)
+            _messageHub
+                .Subscribe<BlockSpawnedEvent>(OnBlockSpawned)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }

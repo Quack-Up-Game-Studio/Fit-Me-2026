@@ -1,6 +1,5 @@
 using System;
 using FitMe.Grid;
-using MessagePipe;
 using QuackUp.Utils;
 using R3;
 using VContainer;
@@ -12,23 +11,23 @@ namespace FitMe.Panel
         public ReactiveCommand<Promise<Unit>> TransitionInCommand { get; } = new();
         public ReactiveCommand<Promise<Unit>> TransitionOutCommand { get; } = new();
 
-        private readonly ISubscriber<BlockSpawnedEvent> _blockSpawnedSubscriber;
+        private readonly IMessageHub _messageHub;
         private IDisposable _bindings;
         private IDisposable _blockBindings;
         private Promise<Unit> _currentTransitionPromise;
         
         [Inject]
-        public DragMeToPlayViewModel(ISubscriber<BlockSpawnedEvent> blockSpawnedSubscriber)
+        public DragMeToPlayViewModel([Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub)
         {
-            _blockSpawnedSubscriber = blockSpawnedSubscriber;
+            _messageHub = messageHub;
             Bind();
         }
         
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _blockSpawnedSubscriber
-                .Subscribe(OnBlockSpawned)
+            _messageHub
+                .Subscribe<BlockSpawnedEvent>(OnBlockSpawned)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }

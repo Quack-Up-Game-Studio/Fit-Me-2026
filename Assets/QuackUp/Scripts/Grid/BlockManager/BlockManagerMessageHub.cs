@@ -14,6 +14,7 @@ namespace FitMe.Grid
         public BlockManagerMessageHub(
             ISubscriber<SpawnWithBlockPresetEvent> startSpawnSubscription,
             IPublisher<BlockSpawnedEvent> blockSpawnedPublisher,
+            ISubscriber<BlockSpawnedEvent> blockSpawnedSubscriber,
             IPublisher<NoPlaceableBlockEvent> noPlaceableBlockPublisher,
             IPublisher<GameOverEvent> gameOverPublisher,
             IPublisher<ContinueEvent> continuePublisher,
@@ -24,7 +25,7 @@ namespace FitMe.Grid
                 startSpawnSubscription);
             MessageWrappers[typeof(BlockSpawnedEvent)] = new MessageWrapper<BlockSpawnedEvent>(
                 blockSpawnedPublisher,
-                null);
+                blockSpawnedSubscriber);
             MessageWrappers[typeof(NoPlaceableBlockEvent)] = new MessageWrapper<NoPlaceableBlockEvent>(
                 noPlaceableBlockPublisher,
                 null);
