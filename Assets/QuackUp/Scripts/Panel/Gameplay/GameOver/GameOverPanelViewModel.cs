@@ -1,8 +1,8 @@
 using System;
+using FitMe.Grid;
 using QuackUp.GoogleAdMob;
 using FitMe.GameData;
 using FitMe.Shared;
-using MessagePipe;
 using QuackUp.IAP;
 using QuackUp.Utils;
 using R3;
@@ -29,8 +29,8 @@ namespace FitMe.Panel
         private readonly InAppPurchaseManager _inAppPurchaseManager;
         private readonly int _maxContinueCount;
         private readonly bool _enableAds = true;
-        private readonly IPublisher<ClearGridEvent> _clearGridEventPublisher;
-        private readonly IPublisher<ContinueEvent> _continueEventPublisher;
+        private readonly IMessageHub _gridManagerMessageHub;
+        private readonly IMessageHub _blockManagerMessageHub;
         
         private float _maxCountdownTime;
         private float _countdownTime;
@@ -48,8 +48,8 @@ namespace FitMe.Panel
             InAppPurchaseManager inAppPurchaseManager,
             [Key(MaxContinueCountId)] int maxContinueCount,
             [Key(CountdownTimeId)] float maxCountdownTime,
-            IPublisher<ClearGridEvent> clearGridEventPublisher,
-            IPublisher<ContinueEvent> continueEventPublisher) : base(panelManager)
+            [Key(GridManagerMessageHub.GridManagerMessageHubKey)] IMessageHub gridManagerMessageHub,
+            [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub blockManagerMessageHub) : base(panelManager)
         {
             _adsService = adsService;
             _inAppPurchaseManager = inAppPurchaseManager;
@@ -61,8 +61,8 @@ namespace FitMe.Panel
             _countdownTime = _maxCountdownTime;
             _countdownTimePercent.Value = _maxCountdownTime;
             
-            _clearGridEventPublisher = clearGridEventPublisher;
-            _continueEventPublisher = continueEventPublisher;
+            _gridManagerMessageHub = gridManagerMessageHub;
+            _blockManagerMessageHub = blockManagerMessageHub;
             
             Bind();
         }
@@ -133,8 +133,8 @@ namespace FitMe.Panel
         private void ReturnToGameplay()
         {
             _onReturnToGameplay.OnNext(Unit.Default);
-            _continueEventPublisher.Publish(new ContinueEvent());
-            _clearGridEventPublisher.Publish(new ClearGridEvent(shouldClearGrid: true, shouldDestroyObstacles: false));
+            _blockManagerMessageHub.Publish(new ContinueEvent());
+            _gridManagerMessageHub.Publish(new ClearGridEvent(shouldClearGrid: true, shouldDestroyObstacles: false));
             _countdownTimer.Dispose();
         }
 
