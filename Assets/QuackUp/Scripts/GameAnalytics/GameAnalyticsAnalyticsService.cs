@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using GameAnalyticsSDK;
-using GoogleMobileAds.Api;
 using QuackUp.Analytics;
 
 namespace FitMe.GameAnalytics
@@ -56,24 +55,6 @@ namespace FitMe.GameAnalytics
             var customFields = new Dictionary<string, object> { { "AdContext", placement } };
             GameAnalyticsSDK.GameAnalytics.NewAdEvent(ToProviderAction(action), ToProviderAdType(type), "admob", unitId,
                 customFields: customFields);
-        }
-
-        public void SubscribeAdMobImpressions(string unitId, object ad)
-        {
-            switch (ad)
-            {
-                case BannerView banner:
-                    GameAnalyticsILRD.SubscribeAdMobImpressions(unitId, banner);
-                    break;
-                case InterstitialAd interstitial:
-                    GameAnalyticsILRD.SubscribeAdMobImpressions(unitId, interstitial);
-                    break;
-                case RewardedAd rewarded:
-                    GameAnalyticsILRD.SubscribeAdMobImpressions(unitId, rewarded);
-                    break;
-                default:
-                    throw new ArgumentException($"Unsupported AdMob ad instance: {ad?.GetType().FullName ?? "null"}", nameof(ad));
-            }
         }
 
         private static GAProgressionStatus ToProviderStatus(ProgressionStatus status) => status switch

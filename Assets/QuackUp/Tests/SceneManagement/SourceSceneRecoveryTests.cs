@@ -28,7 +28,7 @@ namespace QuackUp.SceneManagement.Tests
             var mainConfig = ScriptableObject.CreateInstance<MainMenuManagerConfig>();
             var levelConfig = ScriptableObject.CreateInstance<LevelManagerConfig>();
             var grid = new GridManager(go.AddComponent<UnityEngine.Grid>(), gridConfig, null, null, hub);
-            var ads = new AdsService(null, null);
+            var ads = new AdsService(null, null, null);
             var banner = new Banner();
             ((Dictionary<Type, AdsInstance>)typeof(AdsService).GetField("_adsInstances",
                 BindingFlags.Instance | BindingFlags.NonPublic).GetValue(ads))[typeof(BannerAdInstance)] = banner;
@@ -68,7 +68,7 @@ namespace QuackUp.SceneManagement.Tests
         private sealed class Banner : BannerAdInstance
         {
             public int Shows;
-            public Banner() : base(null, null) { }
+            public Banner() : base(null, null, null) { }
             public override bool TryShow() { Shows++; return true; }
             public override void Load() { }
         }

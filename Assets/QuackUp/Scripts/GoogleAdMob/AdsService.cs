@@ -21,6 +21,7 @@ namespace QuackUp.GoogleAdMob
         // Event บอกว่าโฆษณาปิดแล้ว (ไม่ว่าจะได้รางวัลหรือไม่)
         protected readonly AdsSettings _adsSettings;
         protected readonly IAnalyticsService _analyticsService;
+        protected readonly IAdMobImpressionRevenueBridge _adMobImpressionRevenueBridge;
         public Observable<Unit> OnAdClosed => _onAdClosed;
         protected readonly Subject<Unit> _onAdClosed = new();
         public Observable<Unit> OnAdFailed => _onAdFailed;
@@ -35,10 +36,12 @@ namespace QuackUp.GoogleAdMob
         private bool _isDisposed;
         
         [Inject]
-        public AdsInstance(AdsSettings adsSettings, IAnalyticsService analyticsService)
+        public AdsInstance(AdsSettings adsSettings, IAnalyticsService analyticsService,
+            IAdMobImpressionRevenueBridge adMobImpressionRevenueBridge)
         {
             _adsSettings = adsSettings;
             _analyticsService = analyticsService;
+            _adMobImpressionRevenueBridge = adMobImpressionRevenueBridge;
         }
         
         /// <summary>
@@ -144,7 +147,9 @@ namespace QuackUp.GoogleAdMob
 
     public class BannerAdInstance : AdsInstance
     {
-        public BannerAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService) : base(adsSettings, analyticsService) {}
+        public BannerAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService,
+            IAdMobImpressionRevenueBridge adMobImpressionRevenueBridge)
+            : base(adsSettings, analyticsService, adMobImpressionRevenueBridge) {}
 
         public string UnitId => _adsSettings.BannerUnitId;
         public string AdaptiveUnitId => _adsSettings.AdaptiveBannerUnitId;
@@ -217,7 +222,7 @@ namespace QuackUp.GoogleAdMob
             var adaptiveSize =
                 AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(deviceWidth);
             _bannerView = new BannerView(AdaptiveUnitId, adaptiveSize, AdPosition.Bottom);
-            _analyticsService.SubscribeAdMobImpressions(AdaptiveUnitId, _bannerView);
+            _adMobImpressionRevenueBridge.SubscribeAdMobImpressions(AdaptiveUnitId, _bannerView);
             RegisterAdEvents();
             _bannerView.LoadAd(new AdRequest());
         }
@@ -356,7 +361,9 @@ namespace QuackUp.GoogleAdMob
     
     public class RewardedAdInstance : AdsInstance
     {
-        public RewardedAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService) : base(adsSettings, analyticsService) {}
+        public RewardedAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService,
+            IAdMobImpressionRevenueBridge adMobImpressionRevenueBridge)
+            : base(adsSettings, analyticsService, adMobImpressionRevenueBridge) {}
 
         public string UnitId => _adsSettings.RewardedUnitId;
         
@@ -381,7 +388,7 @@ namespace QuackUp.GoogleAdMob
                     });
                     return;
                 }
-                _analyticsService.SubscribeAdMobImpressions(UnitId, ad);
+                _adMobImpressionRevenueBridge.SubscribeAdMobImpressions(UnitId, ad);
                 ExecuteOnUnityMainThread(() =>
                 {
                     if (IsDisposed)
@@ -497,7 +504,9 @@ namespace QuackUp.GoogleAdMob
     
     public class InterstitialAdInstance : AdsInstance
     {
-        public InterstitialAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService) : base(adsSettings, analyticsService) {}
+        public InterstitialAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService,
+            IAdMobImpressionRevenueBridge adMobImpressionRevenueBridge)
+            : base(adsSettings, analyticsService, adMobImpressionRevenueBridge) {}
 
         public string UnitId => _adsSettings.InterstitialUnitId;
         
@@ -516,7 +525,7 @@ namespace QuackUp.GoogleAdMob
                     });
                     return;
                 }
-                _analyticsService.SubscribeAdMobImpressions(UnitId, ad);
+                _adMobImpressionRevenueBridge.SubscribeAdMobImpressions(UnitId, ad);
                 ExecuteOnUnityMainThread(() =>
                 {
                     if (IsDisposed)
@@ -620,13 +629,16 @@ namespace QuackUp.GoogleAdMob
         private readonly Dictionary<Type, AdsInstance> _adsInstances = new();
         private readonly AdsSettings _adsSettings;
         private readonly IAnalyticsService _analyticsService;
+        private readonly IAdMobImpressionRevenueBridge _adMobImpressionRevenueBridge;
         private bool _isDisposed;
 
         [Inject]
-        public AdsService(AdsSettings adsSettings, IAnalyticsService analyticsService)
+        public AdsService(AdsSettings adsSettings, IAnalyticsService analyticsService,
+            IAdMobImpressionRevenueBridge adMobImpressionRevenueBridge)
         {
             _adsSettings = adsSettings;
             _analyticsService = analyticsService;
+            _adMobImpressionRevenueBridge = adMobImpressionRevenueBridge;
         }
 
         public void PostInitialize()
@@ -648,13 +660,13 @@ namespace QuackUp.GoogleAdMob
         private void InitializeAd()
         {
             if (_isDisposed) return;
-            var rewardedAdInstance = new RewardedAdInstance(_adsSettings, _analyticsService);
+            var rewardedAdInstance = new RewardedAdInstance(_adsSettings, _analyticsService, _adMobImpressionRevenueBridge);
             rewardedAdInstance.Load();
             _adsInstances[typeof(RewardedAdInstance)] = rewardedAdInstance;
-            var interstitialAdInstance = new InterstitialAdInstance(_adsSettings, _analyticsService);
+            var interstitialAdInstance = new InterstitialAdInstance(_adsSettings, _analyticsService, _adMobImpressionRevenueBridge);
             interstitialAdInstance.Load();
             _adsInstances[typeof(InterstitialAdInstance)] = interstitialAdInstance;
-            var bannerAdInstance = new BannerAdInstance(_adsSettings, _analyticsService);
+            var bannerAdInstance = new BannerAdInstance(_adsSettings, _analyticsService, _adMobImpressionRevenueBridge);
             bannerAdInstance.Load();
             _adsInstances[typeof(BannerAdInstance)] = bannerAdInstance;
         }

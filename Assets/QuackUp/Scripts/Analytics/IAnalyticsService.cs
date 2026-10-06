@@ -51,6 +51,5 @@ namespace QuackUp.Analytics
 
         void TrackAdEvent(AdAction action, AdType type, string unitId, string placement);
 
-        void SubscribeAdMobImpressions(string unitId, object ad);
     }
 }

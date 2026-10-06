@@ -5,6 +5,7 @@ using VContainer;
 using VContainer.Unity;
 using QuackUp.Utils;
 using QuackUp.Analytics;
+using QuackUp.GoogleAdMob;
 
 namespace FitMe.GameAnalytics
 {
@@ -17,6 +18,7 @@ namespace FitMe.GameAnalytics
         public void Install(IContainerBuilder builder)
         {
             builder.Register<IAnalyticsService, GameAnalyticsAnalyticsService>(Lifetime.Singleton);
+            builder.Register<IAdMobImpressionRevenueBridge, GameAnalyticsAdMobImpressionRevenueBridge>(Lifetime.Singleton);
             builder.RegisterEntryPoint(_ => new GameAnalyticsInitializer(gameAnalyticsObject),
                     Lifetime.Singleton)
                 .AsSelf();
