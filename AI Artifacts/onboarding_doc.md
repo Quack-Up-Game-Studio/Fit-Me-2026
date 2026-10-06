@@ -315,10 +315,9 @@ Instead of declaring settings (such as speeds, scores, or prefabs) directly on M
   ```
 
 ### E. Centralized Scene Loading and Transitions (`LoadSceneManager`)
-To keep individual scenes completely decoupled, never call Unity's raw `SceneManager.LoadScene` directly.
-* **Event-driven Loading**: Trigger scene loads by publishing a `LoadSceneEvent` (specifying target `SceneType`, mode, and whether to use a loading screen).
+Use the injected `LoadSceneManager` for gameplay scene transitions; do not call Unity's raw `SceneManager.LoadScene` from gameplay code. The accepted request API is `LoadSceneManager.LoadScene(sceneType, mode, useLoadingScene)`.
 * **Centralized Transitions**: The `LoadSceneManager` processes the request, plays transition SFX via `IAudioManager`, and runs screen-fade animations using the active `ITransitionable` (e.g., `FadeToBlackTransitionPanel` or `BlockCascadeScreen`).
-* **Unified Lifecycle Broadcasts**: Throughout the load process, it publishes `LoadSceneStageEvent` events (`StartOut`, `FinishOut`, `StartLoading`, `FinishLoading`, `StartIn`, `FinishIn`) allowing other systems to react dynamically (e.g., pausing gameplay, cleaning up cache, or resetting inputs).
+* **Direct Request, Broadcast Stages**: Call `LoadScene` directly on the injected manager. The manager continues publishing `LoadSceneStageEvent` (`StartOut`, `FinishOut`, `StartLoading`, `FinishLoading`, `StartIn`, `FinishIn`, and pre-load cancellation) so interested systems can react at lifecycle milestones.
 
 ### F. UniTask-Powered State Machine (`ExtendedStateMachine`)
 For systems requiring complex, multi-step sequential logic (such as `TutorialStateMachine`), we use a custom state machine.

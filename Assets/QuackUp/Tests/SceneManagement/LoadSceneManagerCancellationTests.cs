@@ -24,7 +24,6 @@ namespace QuackUp.SceneManagement.Tests
         private Backend _backend;
         private Transition _transition;
         private Stages _stages;
-        private Subscriber _subscriber;
         private bool _returned;
         private Exception _error;
 
@@ -45,9 +44,8 @@ namespace QuackUp.SceneManagement.Tests
             _backend = new Backend(paths[0], paths[1]);
             _transition = new Transition();
             _stages = new Stages();
-            _subscriber = new Subscriber();
             _manager = new LoadSceneManager(_config, new AudioManagerMock(), _transition,
-                _subscriber, _stages, _backend);
+                _stages, _backend);
             _manager.Start();
             _stages.Events.Clear();
         }
@@ -121,7 +119,6 @@ namespace QuackUp.SceneManagement.Tests
             _manager.Dispose();
             Assert.That(_backend.Operation.AllowSceneActivation, Is.True, "Disposal must never park native activation.");
             Assert.That(_backend.Subscriptions, Is.Zero);
-            Assert.That(_subscriber.Count, Is.Zero);
             _backend.Operation.Complete.TrySetResult();
             yield return null;
             Assert.That(_transition.Reveals, Is.Zero, "Disposed owner must not access the borrowed view.");
@@ -371,7 +368,6 @@ namespace QuackUp.SceneManagement.Tests
             Assert.That(_returned, Is.True, _error?.ToString());
             Assert.That(_transition.Reveals, Is.Zero);
             Assert.That(_backend.Loads, Is.Zero);
-            Assert.That(_subscriber.Count, Is.Zero);
             Assert.Throws<ObjectDisposedException>(() => { var handle = token.WaitHandle; });
             _manager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false).Forget();
             Assert.That(_transition.Covers, Is.EqualTo(1));
@@ -464,7 +460,6 @@ namespace QuackUp.SceneManagement.Tests
             _backend.Operation.Complete.TrySetResult();
             yield return null;
             Assert.That(_backend.Subscriptions, Is.Zero);
-            Assert.That(_subscriber.Count, Is.Zero);
             Assert.That(_stages.Events.Any(x => x.Stage == LoadSceneStage.FinishIn), Is.False);
             Assert.Throws<ObjectDisposedException>(() => { var handle = token.WaitHandle; });
             Assert.That(_error, Is.Null);
@@ -601,12 +596,7 @@ namespace QuackUp.SceneManagement.Tests
             public Action<LoadSceneStageEvent> OnPublish;
             public void Publish(LoadSceneStageEvent message) { Events.Add(message); OnPublish?.Invoke(message); }
         }
-        private sealed class Subscriber : ISubscriber<LoadSceneEvent>
-        {
-            public int Count;
-            public IDisposable Subscribe(IMessageHandler<LoadSceneEvent> handler, params MessageHandlerFilter<LoadSceneEvent>[] filters)
-            { Count++; return new Subscription(() => Count--); }
-        }
+
         private sealed class Subscription : IDisposable
         {
             private Action _dispose;

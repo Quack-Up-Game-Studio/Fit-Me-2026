@@ -1,6 +1,6 @@
 # Scene Loading Lifecycle Contract
 
-**Status:** implemented and tested on `refactor/scene-loading-lifecycle`; not yet integrated into root `Dev`.
+**Status:** integrated into root `Dev` as `2a88d818`; P1-A separately removes the unused `LoadSceneEvent` request pipeline while preserving the existing `useLoadingScene` behavior.
 
 This note documents the stage-aware cancellation and ownership contract for `LoadSceneManager`. See the associated 3a checklist and saved scene plan for scope and checkpoint evidence.
 

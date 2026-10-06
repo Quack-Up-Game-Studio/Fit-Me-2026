@@ -19,19 +19,6 @@ namespace QuackUp.SceneManagement
 {
 
     #region Events
-    public struct LoadSceneEvent
-    {
-        public readonly SceneType sceneType;
-        public readonly LoadSceneMode loadSceneMode;
-        public readonly bool useLoadingScene;
-        
-        public LoadSceneEvent(SceneType sceneType, LoadSceneMode loadSceneMode, bool useLoadingScene)
-        {
-            this.sceneType = sceneType;
-            this.loadSceneMode = loadSceneMode;
-            this.useLoadingScene = useLoadingScene;
-        }
-    }
     public struct LoadingSceneAnimationFinishedEvent { }
     public struct LoadSceneStageEvent
     {
@@ -103,10 +90,7 @@ namespace QuackUp.SceneManagement
         private readonly LoadSceneManagerConfig _config;
         private readonly IAudioManager _audioManager;
         private readonly ITransitionable _currentTransitionScreen;
-        private readonly ISubscriber<LoadSceneEvent> _loadSceneEventSubscriber;
         private readonly IPublisher<LoadSceneStageEvent> _loadSceneStageEventPublisher;
-
-        private IDisposable _subscriptions;
         private readonly ISceneLoadBackend _backend;
         private Request _request;
         private bool _disposed;
@@ -143,17 +127,14 @@ namespace QuackUp.SceneManagement
             LoadSceneManagerConfig config,
             IAudioManager audioManager,
             ITransitionable transitionScreen,
-            ISubscriber<LoadSceneEvent> loadSceneEventSubscriber,
             IPublisher<LoadSceneStageEvent> loadSceneStageEventPublisher,
             ISceneLoadBackend backend)
         {
             _config = config;
             _backend = backend;
             _audioManager = audioManager;
-            _loadSceneEventSubscriber = loadSceneEventSubscriber;
             _loadSceneStageEventPublisher = loadSceneStageEventPublisher;
             _currentTransitionScreen = transitionScreen;
-            Subscribe();
         }
 
         #endregion
@@ -173,52 +154,26 @@ namespace QuackUp.SceneManagement
 
         #endregion
 
-        #region Subscription
-
-        private void Subscribe()
-        {
-            var disposableBuilder = Disposable.CreateBuilder();
-            _loadSceneEventSubscriber.Subscribe(OnLoadSceneEvent)
-                .AddTo(ref disposableBuilder);
-            
-            _subscriptions = disposableBuilder.Build();
-        }
-
         public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
             var request = _request;
-            try { _subscriptions?.Dispose(); }
-            finally
+            if (request != null)
             {
-                if (request != null)
+                try { request.Detach(); }
+                finally
                 {
-                    try { request.Detach(); }
+                    try { request.Cancellation.Cancel(); }
                     finally
                     {
-                        try { request.Cancellation.Cancel(); }
-                        finally
-                        {
-                            if (request.Operation != null) request.Operation.AllowSceneActivation = true;
-                            request.Stopped.TrySetResult();
-                            request.Revealed.TrySetResult();
-                        }
+                        if (request.Operation != null) request.Operation.AllowSceneActivation = true;
+                        request.Stopped.TrySetResult();
+                        request.Revealed.TrySetResult();
                     }
                 }
             }
         }
-
-        #endregion
-
-        #region Events
-
-        private void OnLoadSceneEvent(LoadSceneEvent loadSceneEvent)
-        {
-            LoadScene(loadSceneEvent.sceneType, loadSceneEvent.loadSceneMode, loadSceneEvent.useLoadingScene).Forget();
-        }
-
-        #endregion
         
         #region Scene Loading
         

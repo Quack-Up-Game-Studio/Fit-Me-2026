@@ -153,7 +153,6 @@ namespace QuackUp.SceneManagement.PlayModeTests
 
             var transition = new ControlledTransition();
             var stages = new StageRecorder();
-            var subscriber = new LoadSubscriber();
             LoadSceneManager manager = null;
             LoadSceneManagerConfig config = null;
             var originalTimeScale = Time.timeScale;
@@ -176,7 +175,7 @@ namespace QuackUp.SceneManagement.PlayModeTests
                 SetConfig(config, "LoadingScreenDuration", 60f);
                 Assert.That(config.SceneReferences[SceneType.Gameplay].Path, Is.EqualTo(EmptySceneFixtures.Destination));
                 var backend = new ObservedBackend();
-                manager = CreateManager(config, transition, subscriber, stages, backend);
+                manager = CreateManager(config, transition, stages, backend);
                 if (cancelCommitted)
                     stages.OnPublish = message =>
                     {
@@ -257,7 +256,6 @@ namespace QuackUp.SceneManagement.PlayModeTests
                     "Public return occurs after StartLoading and before native activation/reveal callbacks.");
                 Assert.That(stages.Events.All(x => x.PreviousSceneType == SceneType.MainMenu &&
                     x.NextSceneType == SceneType.Gameplay), Is.True);
-                Assert.That(subscriber.SubscriptionCount, Is.EqualTo(1));
                 TestContext.Out.WriteLine("NATIVE_CHARACTERIZATION mode=" + mode + " timeline=" + string.Join(" -> ", stages.Timeline));
                 TestContext.Out.WriteLine("NATIVE_SCENE active=" + destination.path + " sourceLoaded=false revealCompleted=true");
             }
@@ -271,13 +269,12 @@ namespace QuackUp.SceneManagement.PlayModeTests
                 Time.timeScale = originalTimeScale;
                 EmptySceneFixtures.RestoreBuildSettings();
             }
-            Assert.That(subscriber.SubscriptionCount, Is.Zero, "Manager must release MessagePipe subscription.");
         }
 
         // Deliberately isolated construction point for the parent's later backend injection.
         private static LoadSceneManager CreateManager(LoadSceneManagerConfig config, ITransitionable transition,
-            ISubscriber<LoadSceneEvent> subscriber, IPublisher<LoadSceneStageEvent> publisher, ISceneLoadBackend backend)
-            => new LoadSceneManager(config, new AudioManagerMock(), transition, subscriber, publisher, backend);
+            IPublisher<LoadSceneStageEvent> publisher, ISceneLoadBackend backend)
+            => new LoadSceneManager(config, new AudioManagerMock(), transition, publisher, backend);
 
         private static void SetConfig<T>(LoadSceneManagerConfig config, string property, T value)
         {
@@ -348,31 +345,6 @@ namespace QuackUp.SceneManagement.PlayModeTests
             public UniTask UnloadScene(int handle) => _native.UnloadScene(handle);
             public IDisposable SubscribeLoaded(Action<int, LoadSceneMode> callback) => _native.SubscribeLoaded(callback);
             public IDisposable SubscribeActiveChanged(Action<int, int> callback) => _native.SubscribeActiveChanged(callback);
-        }
-
-        private sealed class LoadSubscriber : ISubscriber<LoadSceneEvent>
-        {
-            private readonly List<IMessageHandler<LoadSceneEvent>> _handlers =
-                new List<IMessageHandler<LoadSceneEvent>>();
-            public int SubscriptionCount => _handlers.Count;
-            public IDisposable Subscribe(IMessageHandler<LoadSceneEvent> handler,
-                params MessageHandlerFilter<LoadSceneEvent>[] filters)
-            {
-                if (filters.Length != 0) throw new NotSupportedException("Fixture has no filter pipeline.");
-                _handlers.Add(handler);
-                return new Subscription(() => _handlers.Remove(handler));
-            }
-            public void Publish(LoadSceneEvent message)
-            {
-                foreach (var handler in _handlers.ToArray()) handler.Handle(message);
-            }
-        }
-
-        private sealed class Subscription : IDisposable
-        {
-            private Action _dispose;
-            public Subscription(Action dispose) { _dispose = dispose; }
-            public void Dispose() { var dispose = _dispose; _dispose = null; dispose?.Invoke(); }
         }
     }
 }

@@ -119,7 +119,7 @@ Here is how our architectural stack compares to standard Unity conventions, and 
 3. **No Loading Lifecycle**: Checking if a scene has finished loading in an ad-hoc manner makes it difficult for other independent systems (like audio players or input managers) to prepare for the new scene.
 
 #### How LoadSceneManager & ITransitionable Fix It:
-* **Event-Driven Loading**: Systems only publish a simple `LoadSceneEvent`. The centralized `LoadSceneManager` listens to this event and manages the entire loading sequence.
+* **Direct Manager Request**: Systems call the injected `LoadSceneManager.LoadScene(...)` API; the deprecated `LoadSceneEvent` request pipeline is not used.
 * **Abstracted Transitions**: Visual transitions are separated from scene loading code. Any screen transition panel implements `ITransitionable`, allowing you to swap a simple fade effect with a complex screen pattern slide seamlessly.
 * **Stage Lifecycles**: Throughout loading, the manager publishes stage events (`StartOut`, `FinishOut`, `StartLoading`, `FinishLoading`, `StartIn`, `FinishIn`) through VContainer, allowing independent modules to hook into specific loading milestones easily.
 
