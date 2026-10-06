@@ -66,7 +66,7 @@ namespace QuackUp.Utils
             }
             else
             {
-                throw new InvalidOperationException($"No subscribers for message type {type}");
+                throw new InvalidOperationException($"No publishers for message type {type}");
             }
         }
         
@@ -74,7 +74,7 @@ namespace QuackUp.Utils
         {
             var type = typeof(TMessage);
             if (!MessageWrappers.TryGetValue(type, out var wrapper))
-                throw new InvalidOperationException($"No publishers for message type {type}");
+                throw new InvalidOperationException($"No subscribers for message type {type}");
             var typedWrapper = (MessageWrapper<TMessage>)wrapper;
             return typedWrapper.Subscribe(action);
         }
