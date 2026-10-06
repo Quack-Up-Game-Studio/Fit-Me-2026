@@ -24,8 +24,6 @@ using UnityEngine.Purchasing.Security;
 
 namespace QuackUp.IAP
 {
-    public struct EndSubscriptionEvent { }
-    
     public static class ProductIds
     {
         public const string MonthlyPass   = "monthlypass";
@@ -47,8 +45,6 @@ namespace QuackUp.IAP
         private readonly AdsService _adsService;
         private readonly MessagePackSaveManager _saveManager;
         private readonly ICloudSaveService _cloudSaveService;
-        private readonly ISubscriber<EndSubscriptionEvent> _endSubscriptionEvent;
-
         /// <summary>
         /// Event that called when the store is connected, products and purchases are fetched, and the IAP system is ready to use.
         /// </summary>
@@ -91,24 +87,12 @@ namespace QuackUp.IAP
             EnergyManager energyManager,
             AdsService adsService,
             MessagePackSaveManager saveManager,
-            ICloudSaveService cloudSaveService,
-            ISubscriber<EndSubscriptionEvent> endSubscriptionEvent)
+            ICloudSaveService cloudSaveService)
         {
             _energyManager = energyManager;
             _adsService = adsService;
             _saveManager = saveManager;
             _cloudSaveService = cloudSaveService;
-            _endSubscriptionEvent = endSubscriptionEvent;
-            Subscribe();
-        }
-
-        private void Subscribe()
-        {
-            var disposableBuilder = Disposable.CreateBuilder();
-            _endSubscriptionEvent
-                .Subscribe(_ => EndSubscription())
-                .AddTo(ref disposableBuilder);
-            _subscriptions = disposableBuilder.Build();
         }
 
         public void Dispose()

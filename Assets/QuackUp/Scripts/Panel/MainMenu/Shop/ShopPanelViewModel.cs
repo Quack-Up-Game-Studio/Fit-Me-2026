@@ -1,7 +1,6 @@
 using System;
 using QuackUp.GoogleAdMob;
 using Cysharp.Threading.Tasks;
-using MessagePipe;
 using QuackUp.IAP;
 using QuackUp.Utils;
 using R3;
@@ -43,7 +42,6 @@ namespace FitMe.Panel
         public string GetPrice(string productId) => _inAppPurchaseManager.GetLocalizedPrice(productId);
         public bool IsIAPReady => _inAppPurchaseManager.IsIAPReady;
         public ReadOnlyReactiveProperty<bool> AdsEnabled => _adsService.AdsEnabled;
-        private IPublisher<EndSubscriptionEvent> _endSubscriptionPublisher;
         private readonly InAppPurchaseManager _inAppPurchaseManager;
         private readonly AdsService _adsService;
         private IDisposable _bindings;
