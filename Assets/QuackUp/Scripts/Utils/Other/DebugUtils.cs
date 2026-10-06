@@ -17,7 +17,7 @@ namespace QuackUp.Utils
             Debug.LogWarning(message);
         }
         
-        [Conditional("ENABLE_DEBUG")]
+        // Error diagnostics remain available in release builds.
         public static void LogError(object message)
         {
             Debug.LogError(message);
