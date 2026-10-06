@@ -4,7 +4,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using FitMe.Grid;
 using FitMe.Panel;
-using MessagePipe;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
@@ -19,7 +18,7 @@ namespace FitMe.Tutorial
         [SerializeField] private GeneralFloatingUIElement rotateBlockHint;
         
         private BlockManager _blockManager;
-        private ISubscriber<BlockSpawnedEvent> _blockSpawnedEvent;
+        private IMessageHub _messageHub;
         private IDisposable _blockSpawnedSubscription;
         private DisposableBag _blockRotateSubscription;
         
@@ -27,17 +26,17 @@ namespace FitMe.Tutorial
         private CancellationTokenSource _hideCts;
         
         [Inject]
-        public void SetBlockManager(BlockManager blockManager, ISubscriber<BlockSpawnedEvent> blockSpawnedEvent)
+        public void SetBlockManager(BlockManager blockManager, [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub)
         {
             _blockManager  = blockManager;
-            _blockSpawnedEvent = blockSpawnedEvent;
+            _messageHub = messageHub;
             rotateBlockHint.gameObject.SetActive(false);
         }
         
         public override async UniTask Enter()
         {
-            _blockSpawnedSubscription = _blockSpawnedEvent
-                .Subscribe(x => OnBlockSpawned(x.BlockInstances));
+            _blockSpawnedSubscription = _messageHub
+                .Subscribe<BlockSpawnedEvent>(x => OnBlockSpawned(x.BlockInstances));
             OnBlockSpawned(_blockManager.BlockOnHand);
             rotateBlockHint.Initialize();
             await base.Enter();
