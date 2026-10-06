@@ -15,6 +15,9 @@ namespace QuackUp.GoogleAdMob
 {
     public abstract class AdsInstance : IDisposable
     {
+        private const int InitialLoadRetryDelaySeconds = 2;
+        private const int MaximumLoadRetryDelaySeconds = 60;
+        private const int MaximumLoadRetryExponent = 5;
         // Event บอกว่าโฆษณาปิดแล้ว (ไม่ว่าจะได้รางวัลหรือไม่)
         protected readonly AdsSettings _adsSettings;
         public Observable<Unit> OnAdClosed => _onAdClosed;
@@ -25,6 +28,10 @@ namespace QuackUp.GoogleAdMob
         protected IDisposable _adsRefreshTimer;
         protected IDisposable _adsEventSubscription;
         protected CancellationTokenSource _timerCts = new();
+        private IDisposable _loadRetryTimer;
+        private CancellationTokenSource _loadRetryCts;
+        private int _loadRetryAttempt;
+        private bool _isDisposed;
         
         [Inject]
         public AdsInstance(AdsSettings adsSettings)
@@ -46,8 +53,11 @@ namespace QuackUp.GoogleAdMob
 
         public virtual void Dispose()
         {
+            if (_isDisposed) return;
+            _isDisposed = true;
             DisposeAd();
             CancelAdsSessionTimer();
+            CancelPendingLoadRetry();
             _onAdClosed.Dispose();
             _onAdFailed.Dispose();
         }
@@ -61,11 +71,12 @@ namespace QuackUp.GoogleAdMob
         {
             CancelAdsSessionTimer();
             _timerCts = new CancellationTokenSource();
-            _adsRefreshTimer = Observable.Timer(TimeSpan.FromHours(1), TimeProvider.System, _timerCts.Token)
-                .Subscribe(_ => 
+            var cancellationToken = _timerCts.Token;
+            _adsRefreshTimer = Observable.Timer(TimeSpan.FromHours(1), TimeProvider.System, cancellationToken)
+                .Subscribe(_ => ExecuteOnUnityMainThread(() =>
                 {
-                    Load();
-                });
+                    if (!cancellationToken.IsCancellationRequested && !_isDisposed) Load();
+                }));
         }
 
         protected virtual void CancelAdsSessionTimer()
@@ -77,6 +88,50 @@ namespace QuackUp.GoogleAdMob
             }
             _timerCts?.Dispose();
             _timerCts = null;
+        }
+
+        protected static void ExecuteOnUnityMainThread(Action action)
+        {
+            if (action != null) MobileAdsEventExecutor.ExecuteInUpdate(action);
+        }
+
+        protected bool IsDisposed => _isDisposed;
+
+        protected void ScheduleLoadRetry(Action retry)
+        {
+            if (_isDisposed || retry == null) return;
+
+            CancelPendingLoadRetry();
+            var exponent = Math.Min(_loadRetryAttempt, MaximumLoadRetryExponent);
+            var delaySeconds = Math.Min(InitialLoadRetryDelaySeconds * (1 << exponent), MaximumLoadRetryDelaySeconds);
+            _loadRetryAttempt = Math.Min(_loadRetryAttempt + 1, MaximumLoadRetryExponent);
+
+            _loadRetryCts = new CancellationTokenSource();
+            var cancellationToken = _loadRetryCts.Token;
+            _loadRetryTimer = Observable.Timer(TimeSpan.FromSeconds(delaySeconds), TimeProvider.System, cancellationToken)
+                .Subscribe(_ => ExecuteOnUnityMainThread(() =>
+                {
+                    if (cancellationToken.IsCancellationRequested || _isDisposed) return;
+                    CancelPendingLoadRetry();
+                    retry();
+                }));
+        }
+
+        protected void CancelPendingLoadRetry()
+        {
+            _loadRetryTimer?.Dispose();
+            _loadRetryTimer = null;
+            var retryCts = _loadRetryCts;
+            _loadRetryCts = null;
+            if (retryCts == null) return;
+            if (!retryCts.IsCancellationRequested) retryCts.Cancel();
+            retryCts.Dispose();
+        }
+
+        protected void ResetLoadRetry()
+        {
+            _loadRetryAttempt = 0;
+            CancelPendingLoadRetry();
         }
 
         protected virtual void ReportAdEvent(GAAdAction adAction, GAAdType adType, string unitId)
@@ -155,6 +210,7 @@ namespace QuackUp.GoogleAdMob
 
         public override void Load()
         {
+            CancelPendingLoadRetry();
             DisposeAd();
             // Get the device safe width in density-independent pixels.
             var deviceWidth = MobileAds.Utils.GetDeviceSafeWidth();
@@ -245,12 +301,20 @@ namespace QuackUp.GoogleAdMob
             Observable.FromEvent(
                     h => _bannerView.OnBannerAdLoaded += h,
                     h => _bannerView.OnBannerAdLoaded -= h)
-                .Subscribe(_ => HandleAdLoaded())
+                .Subscribe(_ =>
+                {
+                    ReportAdEvent(GAAdAction.Loaded, GAAdType.Banner, AdaptiveUnitId);
+                    ExecuteOnUnityMainThread(HandleAdLoaded);
+                })
                 .AddTo(ref builder);
             Observable.FromEvent<LoadAdError>(
                     h => _bannerView.OnBannerAdLoadFailed += h,
                     h => _bannerView.OnBannerAdLoadFailed -= h)
-                .Subscribe(HandleAdLoadFailed)
+                .Subscribe(adError =>
+                {
+                    ReportAdEvent(GAAdAction.FailedShow, GAAdType.Banner, AdaptiveUnitId);
+                    ExecuteOnUnityMainThread(() => HandleAdLoadFailed(adError));
+                })
                 .AddTo(ref builder);
             Observable.FromEvent(
                     h => _bannerView.OnAdClicked += h,
@@ -262,6 +326,8 @@ namespace QuackUp.GoogleAdMob
 
         private void HandleAdLoaded()
         {
+            if (IsDisposed) return;
+            ResetLoadRetry();
             DebugUtils.Log($"BannerAdInstance: HandleAdLoaded called. _wasVisible is: {_wasVisible}");
             if (!_wasVisible)
             {
@@ -274,15 +340,14 @@ namespace QuackUp.GoogleAdMob
                 _bannerView.Show();
             }
             CountdownAdSession();
-            ReportAdEvent(GAAdAction.Loaded, GAAdType.Banner, AdaptiveUnitId);
         }
         
         private void HandleAdLoadFailed(LoadAdError adError)
         {
+            if (IsDisposed) return;
             DebugUtils.LogError($"Failed to load banner ad: {adError.GetMessage()}");
-            ReportAdEvent(GAAdAction.FailedShow, GAAdType.Banner, AdaptiveUnitId);
             _onAdFailed?.OnNext(Unit.Default);
-            Load();
+            ScheduleLoadRetry(Load);
         }
 
         private void HandleOnAdClicked()
@@ -302,7 +367,6 @@ namespace QuackUp.GoogleAdMob
         private readonly Subject<Unit> _onUserEarnedReward = new();
         
         private RewardedAd _rewardedAd;
-        private bool _isRewardEarned;
 
         public override bool CanShowAd() => Enabled && _rewardedAd != null && _rewardedAd.CanShowAd();
 
@@ -313,13 +377,24 @@ namespace QuackUp.GoogleAdMob
             {
                 if (error != null || ad == null)
                 {
-                    DebugUtils.LogError($"Failed to load rewarded ad: {error?.GetMessage()}");
+                    ExecuteOnUnityMainThread(() =>
+                    {
+                        if (!IsDisposed) DebugUtils.LogError($"Failed to load rewarded ad: {error?.GetMessage()}");
+                    });
                     return;
                 }
-                _rewardedAd = ad;
-                GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, _rewardedAd);
-                RegisterAdEvents();
-                CountdownAdSession();
+                GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, ad);
+                ExecuteOnUnityMainThread(() =>
+                {
+                    if (IsDisposed)
+                    {
+                        ad.Destroy();
+                        return;
+                    }
+                    _rewardedAd = ad;
+                    RegisterAdEvents();
+                    CountdownAdSession();
+                });
             });
         }
 
@@ -334,10 +409,16 @@ namespace QuackUp.GoogleAdMob
             }
             if (CanShowAd())
             {
-                _isRewardEarned = false;
-                _rewardedAd.Show(reward =>
+                var rewardCallbackHandled = 0;
+                // Reward delivery is tied to the SDK's earned-reward callback, not ad-close ordering.
+                _rewardedAd.Show(_ =>
                 {
-                    _isRewardEarned = true;
+                    if (Interlocked.Exchange(ref rewardCallbackHandled, 1) != 0) return;
+                    ReportAdEvent(GAAdAction.RewardReceived, GAAdType.RewardedVideo, UnitId);
+                    ExecuteOnUnityMainThread(() =>
+                    {
+                        if (!IsDisposed) _onUserEarnedReward.OnNext(Unit.Default);
+                    });
                 });
                 ReportAdEvent(GAAdAction.Show, GAAdType.RewardedVideo, UnitId);
                 return true;
@@ -376,7 +457,7 @@ namespace QuackUp.GoogleAdMob
             Observable.FromEvent(
                 h => _rewardedAd.OnAdFullScreenContentClosed += h,
                 h => _rewardedAd.OnAdFullScreenContentClosed -= h)
-                .Subscribe(_ => HandleAdClosed())
+                .Subscribe(_ => ExecuteOnUnityMainThread(HandleAdClosed))
                 .AddTo(ref builder);
             Observable.FromEvent(
                 h => _rewardedAd.OnAdClicked += h,
@@ -386,22 +467,19 @@ namespace QuackUp.GoogleAdMob
             Observable.FromEvent<AdError>(
                     h => _rewardedAd.OnAdFullScreenContentFailed += h,
                     h => _rewardedAd.OnAdFullScreenContentFailed -= h)
-                .Subscribe(OnAdFullScreenContentFailed)
+                .Subscribe(error =>
+                {
+                    ReportAdEvent(GAAdAction.FailedShow, GAAdType.RewardedVideo, UnitId);
+                    ExecuteOnUnityMainThread(() => OnAdFullScreenContentFailed(error));
+                })
                 .AddTo(ref builder);
             _adsEventSubscription = builder.Build();
         }
         
         private void HandleAdClosed()
         {
-            MobileAdsEventExecutor.ExecuteInUpdate(() =>
-            {
-                if (_isRewardEarned)
-                {
-                    _onUserEarnedReward.OnNext(Unit.Default);
-                    ReportAdEvent(GAAdAction.RewardReceived, GAAdType.RewardedVideo, UnitId);
-                }
-                _onAdClosed.OnNext(Unit.Default);
-            });
+            if (IsDisposed) return;
+            _onAdClosed.OnNext(Unit.Default);
             Load();
         }
         
@@ -412,8 +490,8 @@ namespace QuackUp.GoogleAdMob
         
         private void OnAdFullScreenContentFailed(AdError error)
         {
+            if (IsDisposed) return;
             DebugUtils.LogError($"Rewarded ad failed to show: {error.GetMessage()}");
-            ReportAdEvent(GAAdAction.FailedShow, GAAdType.RewardedVideo, UnitId);
             _onAdFailed?.OnNext(Unit.Default);
             Load();
         }
@@ -434,14 +512,24 @@ namespace QuackUp.GoogleAdMob
             {
                 if (error != null || ad == null)
                 {
-                    DebugUtils.LogError($"Failed to load interstitial ad: {error?.GetMessage()}");
+                    ExecuteOnUnityMainThread(() =>
+                    {
+                        if (!IsDisposed) DebugUtils.LogError($"Failed to load interstitial ad: {error?.GetMessage()}");
+                    });
                     return;
                 }
-
-                _interstitialAd = ad;
-                GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, _interstitialAd);
-                RegisterAdEvents();
-                CountdownAdSession();
+                GameAnalyticsILRD.SubscribeAdMobImpressions(UnitId, ad);
+                ExecuteOnUnityMainThread(() =>
+                {
+                    if (IsDisposed)
+                    {
+                        ad.Destroy();
+                        return;
+                    }
+                    _interstitialAd = ad;
+                    RegisterAdEvents();
+                    CountdownAdSession();
+                });
             });
         }
         
@@ -486,7 +574,7 @@ namespace QuackUp.GoogleAdMob
             Observable.FromEvent(
                     h => _interstitialAd.OnAdFullScreenContentClosed += h,
                     h => _interstitialAd.OnAdFullScreenContentClosed -= h)
-                .Subscribe(_ => HandleAdClosed())
+                .Subscribe(_ => ExecuteOnUnityMainThread(HandleAdClosed))
                 .AddTo(ref builder);
             Observable.FromEvent(
                     h => _interstitialAd.OnAdClicked += h,
@@ -496,17 +584,19 @@ namespace QuackUp.GoogleAdMob
             Observable.FromEvent<AdError>(
                     h => _interstitialAd.OnAdFullScreenContentFailed += h,
                     h => _interstitialAd.OnAdFullScreenContentFailed -= h)
-                .Subscribe(OnAdFullScreenContentFailed)
+                .Subscribe(error =>
+                {
+                    ReportAdEvent(GAAdAction.FailedShow, GAAdType.Interstitial, UnitId);
+                    ExecuteOnUnityMainThread(() => OnAdFullScreenContentFailed(error));
+                })
                 .AddTo(ref builder);
             _adsEventSubscription = builder.Build();
         }
         
         private void HandleAdClosed()
         {
-            MobileAdsEventExecutor.ExecuteInUpdate(() =>
-            {
-                _onAdClosed.OnNext(Unit.Default);
-            });
+            if (IsDisposed) return;
+            _onAdClosed.OnNext(Unit.Default);
             Load();
         }
         
@@ -517,8 +607,8 @@ namespace QuackUp.GoogleAdMob
         
         private void OnAdFullScreenContentFailed(AdError error)
         {
-            DebugUtils.LogError($"Rewarded ad failed to show: {error.GetMessage()}");
-            ReportAdEvent(GAAdAction.FailedShow, GAAdType.RewardedVideo, UnitId);
+            if (IsDisposed) return;
+            DebugUtils.LogError($"Interstitial ad failed to show: {error.GetMessage()}");
             _onAdFailed?.OnNext(Unit.Default);
             Load();
         }
@@ -543,17 +633,13 @@ namespace QuackUp.GoogleAdMob
         {
             if (_isDisposed) return;
 #if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
-            //MobileAds.RaiseAdEventsOnUnityMainThread = true;
             var requestConfiguration = new RequestConfiguration
             {
                 TagForChildDirectedTreatment = TagForChildDirectedTreatment.True,
                 MaxAdContentRating = MaxAdContentRating.G
             };
             MobileAds.SetRequestConfiguration(requestConfiguration);
-            MobileAds.Initialize(status => 
-            {
-                InitializeAd();
-            });
+            MobileAds.Initialize(status => MobileAdsEventExecutor.ExecuteInUpdate(InitializeAd));
 #else
                 InitializeAd();
 #endif
