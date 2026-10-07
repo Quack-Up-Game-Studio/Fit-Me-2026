@@ -28,6 +28,101 @@ namespace QuackUp.Save.Tests
         }
 
         [Test]
+        public void Migration_AfterStartupReset_TargetsApplicationVersion()
+        {
+            WriteZipWithEntry(new TestMessagePackSaveData { Version = "0.9.0", testInt = 7 });
+            SaveObject.SetResolvers(new TestMessagePackMigrationResolver("0.9.0", Application.version, 3));
+
+            Manager.Initialize();
+
+            Assert.AreEqual(10, SaveObject.TestData.testInt, "startup reset must not bypass migration");
+            Assert.AreEqual(Application.version, SaveObject.TestData.Version);
+        }
+
+        [Test]
+        public void Migration_EquivalentGraphVersions_ConnectAcrossSteps()
+        {
+            WriteZipWithEntry(new TestMessagePackSaveData { Version = "0.8", testInt = 7 });
+            SaveObject.SetResolvers(
+                new TestMessagePackMigrationResolver("0.8.0", "0.9+first", 3),
+                new TestMessagePackMigrationResolver("0.9.0+second", Application.version, 5));
+
+            Manager.Load("testEntry");
+
+            Assert.AreEqual(15, SaveObject.TestData.testInt, "equivalent graph nodes must connect");
+            Assert.AreEqual(Application.version, SaveObject.TestData.Version);
+        }
+
+        [Test]
+        public void Migration_CloudZipRead_AfterReset_UsesApplicationTarget()
+        {
+            WriteZipWithEntry(new TestMessagePackSaveData { Version = "0.9.0", testInt = 7 });
+            SaveObject.SetResolvers(new TestMessagePackMigrationResolver("0.9.0", Application.version, 3));
+            SaveObject.Reset();
+
+            var candidate = Manager.DeserializeSaveDataFromZipBytes(File.ReadAllBytes(ZipPath));
+            Assert.AreEqual(0, SaveObject.TestData.testInt, "candidate evaluation must not apply cloud data");
+            Manager.LoadFromDeserializedData(candidate);
+
+            Assert.AreEqual(10, SaveObject.TestData.testInt);
+            Assert.AreEqual(Application.version, SaveObject.TestData.Version);
+        }
+
+        [Test]
+        public void Migration_StaleInMemoryVersion_DoesNotChangeTarget()
+        {
+            WriteZipWithEntry(new TestMessagePackSaveData { Version = "0.9.0", testInt = 7 });
+            SaveObject.SetResolvers(new TestMessagePackMigrationResolver("0.9.0", Application.version, 3));
+            SaveObject.TestData = new TestMessagePackSaveData { Version = "0.8.0", testInt = 99 };
+
+            Manager.Load("testEntry");
+
+            Assert.AreEqual(10, SaveObject.TestData.testInt);
+            Assert.AreEqual(Application.version, SaveObject.TestData.Version);
+        }
+
+        [Test]
+        public void Migration_ShortestPath_WinsOverEarlierLongerPath()
+        {
+            WriteZipWithEntry(new TestMessagePackSaveData { Version = "0.8", testInt = 7 });
+            SaveObject.SetResolvers(
+                new TestMessagePackMigrationResolver("0.8.0", "0.9", 100),
+                new TestMessagePackMigrationResolver("0.9.0", Application.version, 100),
+                new TestMessagePackMigrationResolver("0.8", Application.version, 3));
+
+            Manager.Load("testEntry");
+
+            Assert.AreEqual(10, SaveObject.TestData.testInt);
+        }
+
+        [Test]
+        public void Migration_InvalidResolverEndpoints_DoNotBlockValidPath()
+        {
+            WriteZipWithEntry(new TestMessagePackSaveData { Version = "0.9", testInt = 7 });
+            SaveObject.SetResolvers(
+                null,
+                new TestMessagePackMigrationResolver(null, Application.version, 100),
+                new TestMessagePackMigrationResolver("0.9", "garbage", 100),
+                new TestMessagePackMigrationResolver("0.9.0", Application.version, 3));
+
+            Assert.DoesNotThrow(() => Manager.Load("testEntry"));
+            Assert.AreEqual(10, SaveObject.TestData.testInt);
+        }
+
+        [Test]
+        public void Migration_NoPath_DoesNotClaimCurrentVersion()
+        {
+            WriteZipWithEntry(new TestMessagePackSaveData { Version = "0.9.0", testInt = 7 });
+            SaveObject.SetResolvers();
+            SaveObject.Reset();
+
+            Manager.Load("testEntry");
+
+            Assert.AreEqual(7, SaveObject.TestData.testInt);
+            Assert.AreEqual("0.9.0", SaveObject.TestData.Version, "fallback is not a completed migration");
+        }
+
+        [Test]
         public void Migration_WithMatchingResolver_TransformsData()
         {
             WriteZipWithEntry(new TestMessagePackSaveData { Version = "0.9.0", testInt = 7 });

@@ -318,20 +318,23 @@ namespace QuackUp.Save
                 return null;
             }
 
-            if (string.IsNullOrEmpty(saveData.Version))
+            var targetVersion = Application.version;
+            if (!SemVersion.TryParse(targetVersion, SemVersionStyles.Any, out var currentVersion))
             {
-                Debug.LogWarning("No current save version specified. No migration needed.");
+                Debug.LogError($"Invalid application save version '{targetVersion}'. Keeping deserialized data without migration.");
                 return deserializedSave;
             }
-            SemVersion.TryParse(saveData.Version, SemVersionStyles.Any, out var currentVersion);
-            SemVersion.TryParse(deserializedSave.Version, SemVersionStyles.Any, out var deserializedVersion);
-            if (currentVersion == null || deserializedVersion == null
-                || SemVersion.ComparePrecedence(currentVersion, deserializedVersion) == 0)
+            if (!SemVersion.TryParse(deserializedSave.Version, SemVersionStyles.Any, out var deserializedVersion))
             {
-                Debug.Log("Save version matches current version. No migration needed.");
+                Debug.LogWarning($"Invalid stored save version '{deserializedSave.Version}'. Keeping deserialized data without migration.");
                 return deserializedSave;
             }
-            if (TryMigrateSave(deserializedSave.Version, saveData.Version, bytes, out var migratedSave))
+            if (SemVersion.ComparePrecedence(currentVersion, deserializedVersion) == 0)
+            {
+                Debug.Log("Save version matches application version. No migration needed.");
+                return deserializedSave;
+            }
+            if (TryMigrateSave(deserializedSave.Version, targetVersion, bytes, out var migratedSave))
             {
                 Debug.Log("Save data loaded successfully.");
                 return migratedSave;
@@ -380,66 +383,65 @@ namespace QuackUp.Save
         private bool TryFindShortestMigrationPath(string sourceVersion, string targetVersion, out List<ISaveMigrationResolver<T>> path)
         {
             path = new List<ISaveMigrationResolver<T>>();
-            if (migrationResolvers == null)
-                throw new ArgumentNullException(nameof(migrationResolvers));
+            if (migrationResolvers == null
+                || !TryGetMigrationVersionKey(sourceVersion, out var sourceKey)
+                || !TryGetMigrationVersionKey(targetVersion, out var targetKey)
+                || sourceKey == targetKey)
+            {
+                return false;
+            }
 
-            if (sourceVersion == null)
-                throw new ArgumentNullException(nameof(sourceVersion));
+            var graph = new Dictionary<string, List<(string target, ISaveMigrationResolver<T> resolver)>>();
+            foreach (var resolver in migrationResolvers)
+            {
+                if (resolver == null
+                    || !TryGetMigrationVersionKey(resolver.SourceVersion, out var from)
+                    || !TryGetMigrationVersionKey(resolver.TargetVersion, out var to))
+                {
+                    Debug.LogWarning("Ignoring save migration resolver with invalid version endpoints.");
+                    continue;
+                }
+                if (!graph.TryGetValue(from, out var edges))
+                {
+                    edges = new List<(string, ISaveMigrationResolver<T>)>();
+                    graph.Add(from, edges);
+                }
+                edges.Add((to, resolver));
+            }
 
-            if (targetVersion == null)
-                throw new ArgumentNullException(nameof(targetVersion));
-
-            if (sourceVersion == targetVersion)
-                return false; // No migration needed
-
-            // Build adjacency list
-            var graph = migrationResolvers
-                .GroupBy(r => r.SourceVersion)
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            // BFS setup
+            // FIFO traversal visits each semantic version once; the first target path is shortest.
             var queue = new Queue<MigrationPath>();
-            var visited = new Dictionary<string, MigrationPath>();
-
-            var initialPath = new MigrationPath(sourceVersion, new List<ISaveMigrationResolver<T>>());
-            queue.Enqueue(initialPath);
-            visited[sourceVersion] = initialPath;
-
+            var visited = new HashSet<string> { sourceKey };
+            queue.Enqueue(new MigrationPath(sourceKey, path));
             while (queue.Count > 0)
             {
                 var current = queue.Dequeue();
-
-                if (!graph.TryGetValue(current.Version, out var value1))
+                if (!graph.TryGetValue(current.Version, out var edges))
                     continue;
 
-                foreach (var resolver in value1)
+                foreach (var edge in edges)
                 {
-                    string nextVersion = resolver.TargetVersion;
-
-                    // Skip if we've found a better path to this version already
-                    if (visited.ContainsKey(nextVersion) &&
-                        visited[nextVersion].Path.Count <= current.Path.Count + 1)
-                    {
+                    if (!visited.Add(edge.target))
                         continue;
-                    }
-
-                    var newPath = new List<ISaveMigrationResolver<T>>(current.Path) { resolver };
-                    var newMigrationPath = new MigrationPath(nextVersion, newPath);
-
-                    visited[nextVersion] = newMigrationPath;
-
-                    if (nextVersion == targetVersion)
+                    var nextPath = new List<ISaveMigrationResolver<T>>(current.Path) { edge.resolver };
+                    if (edge.target == targetKey)
                     {
-                        // We found a path, but continue to check if there's a shorter one
-                        continue;
+                        path = nextPath;
+                        return true;
                     }
-
-                    queue.Enqueue(newMigrationPath);
+                    queue.Enqueue(new MigrationPath(edge.target, nextPath));
                 }
             }
-            if (!visited.TryGetValue(targetVersion, out var pathData))
+            return false;
+        }
+
+        private static bool TryGetMigrationVersionKey(string version, out string key)
+        {
+            key = null;
+            if (!SemVersion.TryParse(version, SemVersionStyles.Any, out var parsed))
                 return false;
-            path = pathData.Path;
+            // Match the precedence comparison used by loading, without rewriting resolver inputs.
+            key = parsed.WithoutMetadata().ToString();
             return true;
         }
 
