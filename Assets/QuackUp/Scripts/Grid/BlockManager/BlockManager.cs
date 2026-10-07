@@ -342,6 +342,7 @@ namespace FitMe.Grid
         private void SpawnBlock(SpawnWithBlockPresetEvent data)
         {
             var spawnedBlocks = new List<BlockInstance>();
+            if (_spawnPoints.Length == 0) return;
             if (!_spawnPoints[0].IsFree) return;
             var spawnTransform = _spawnPoints[0].Transform;
             var blockTypes = Enum.GetValues(typeof(BlockColor)).Cast<BlockColor>().ToList();

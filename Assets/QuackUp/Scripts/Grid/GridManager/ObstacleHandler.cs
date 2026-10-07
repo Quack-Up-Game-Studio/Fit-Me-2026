@@ -71,6 +71,7 @@ namespace FitMe.Grid
         private void GenerateObstacles()
         {
             if (_levelManager.CurrentObstacleCount == 0) return;
+            if (_blockManagerConfig.BlockPresetDictionary.Count == 0) return;
             var allPresetArraySize = _blockManagerConfig.BlockPresetDictionary.Values
                 .Select(x => x.BlockSchema.schema.GetArraySize())
                 .ToList();
