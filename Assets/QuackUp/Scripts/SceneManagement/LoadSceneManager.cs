@@ -105,6 +105,7 @@ namespace QuackUp.SceneManagement
             public ISceneLoadOperation Operation;
             public Exception CallbackError;
             public bool RevealStarted;
+            public bool RevealCompleted;
             public IDisposable Loaded, ActiveChanged;
             public readonly UniTaskCompletionSource Revealed = new UniTaskCompletionSource();
             public readonly UniTaskCompletionSource Stopped = new UniTaskCompletionSource();
@@ -377,8 +378,23 @@ namespace QuackUp.SceneManagement
                 if (_disposed) return;
                 await _currentTransitionScreen.TransitionOut();
                 Publish(request, LoadSceneStage.FinishIn);
+                request.RevealCompleted = true;
             }
-            catch (Exception error) { request.CallbackError = error; }
+            catch (Exception error)
+            {
+                request.CallbackError ??= error;
+                if (!_disposed && !request.RevealCompleted)
+                {
+                    try
+                    {
+                        await _currentTransitionScreen.TransitionOut();
+                    }
+                    catch (Exception fallbackError)
+                    {
+                        request.CallbackError ??= fallbackError;
+                    }
+                }
+            }
             finally { request.Revealed.TrySetResult(); }
         }
 

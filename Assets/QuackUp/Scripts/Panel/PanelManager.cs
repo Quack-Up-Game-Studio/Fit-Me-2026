@@ -119,9 +119,17 @@ namespace FitMe.Panel
             {
                 case CrossfadeType.Parallel:
                     var transitionOut = TransitionOut(fromPanel, toPanelId, cancellationToken: cancellationToken);
-                    await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
-                    await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
-                    await transitionOut;
+                    try
+                    {
+                        await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
+                        await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
+                        await transitionOut;
+                    }
+                    catch
+                    {
+                        await ObserveSibling(transitionOut);
+                        throw;
+                    }
                     break;
                 case CrossfadeType.InThenOut:
                     await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
@@ -189,6 +197,18 @@ namespace FitMe.Panel
                 await transitionPromise.Task;
             }
             fromPanel.VisibilityState.Value = VisibilityState.Hidden;
+        }
+
+        private static async UniTask ObserveSibling(UniTask sibling)
+        {
+            try
+            {
+                await sibling;
+            }
+            catch
+            {
+                // The primary operation's exception is intentionally preserved.
+            }
         }
     }
 }

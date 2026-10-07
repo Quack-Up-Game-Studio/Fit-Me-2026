@@ -58,6 +58,7 @@ namespace FitMe.Panel
         
         protected IPanelViewModel BaseViewModel;
         protected IDisposable BaseBinding;
+        private long _transitionOperationId;
         
         [Inject]
         public virtual void Construct(IPanelViewModel viewModel)
@@ -135,6 +136,8 @@ namespace FitMe.Panel
 
         private async UniTaskVoid RunTransition(TransitionCommandData transitionCommandData, bool direction)
         {
+            var operationId = ++_transitionOperationId;
+            var transitionState = direction ? TransitionState.In : TransitionState.Out;
             try
             {
                 await Transition(transitionCommandData.TransitionKey, direction, transitionCommandData.Promise.CancellationToken);
@@ -144,9 +147,14 @@ namespace FitMe.Panel
             {
                 transitionCommandData.Promise.TrySetCanceled();
             }
+            catch (Exception error)
+            {
+                transitionCommandData.Promise.TrySetException(error);
+            }
             finally
             {
-                BaseViewModel.TransitionState.Value = TransitionState.None;
+                if (_transitionOperationId == operationId && BaseViewModel.TransitionState.Value == transitionState)
+                    BaseViewModel.TransitionState.Value = TransitionState.None;
             }
         }
 
