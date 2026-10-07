@@ -157,6 +157,28 @@ namespace QuackUp.SceneManagement.Tests
         }
 
         [UnityTest]
+        public IEnumerator StartInPublisherFault_ExecutesFallbackRevealForLiveOwner()
+        {
+            _stages.OnPublish = message =>
+            {
+                if (message.Stage == LoadSceneStage.StartIn)
+                    throw new InvalidOperationException("start-in publisher probe");
+            };
+
+            Begin();
+            _transition.Cover.TrySetResult();
+            _backend.Loaded?.Invoke(2, LoadSceneMode.Single);
+            _backend.Operation.Complete.TrySetResult();
+            yield return null;
+
+            Assert.That(_transition.Reveals, Is.EqualTo(1),
+                "A live owner must still reveal after StartIn publication fails.");
+            Assert.That(_transition.RevealToken.CanBeCanceled, Is.False);
+            Assert.That(_stages.Events.Any(x => x.Stage == LoadSceneStage.FinishIn), Is.False);
+            Assert.That(_backend.Subscriptions, Is.Zero);
+        }
+
+        [UnityTest]
         public IEnumerator AdditivePublisherFaultAfterCommit_ActivatesDestinationAndUnloadsSourceBeforeReleasingOwner()
         {
             Exception observed = null;
