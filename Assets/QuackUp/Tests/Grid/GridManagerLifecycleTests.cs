@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using FitMe.Grid;
+using FitMe.Shared;
 using NUnit.Framework;
 using ObservableCollections;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
+using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
 namespace FitMe.Grid.Tests
@@ -23,6 +25,9 @@ namespace FitMe.Grid.Tests
         private BlockModel _blockModel;
         private BlockViewModel _blockViewModel;
         private BlockInstance _block;
+        private readonly List<AtomModel> _additionalAtomModels = new();
+        private readonly List<CellModel> _additionalCellModels = new();
+        private readonly List<BlockModel> _additionalBlockModels = new();
 
         [SetUp]
         public void SetUp()
@@ -32,6 +37,9 @@ namespace FitMe.Grid.Tests
             _blockModel = null;
             _blockViewModel = null;
             _block = null;
+            _additionalAtomModels.Clear();
+            _additionalCellModels.Clear();
+            _additionalBlockModels.Clear();
             var gridObject = Keep(new GameObject("Lifecycle test grid"));
             _grid = gridObject.AddComponent<UnityEngine.Grid>();
             var config = Keep(ScriptableObject.CreateInstance<GridManagerConfig>());
@@ -50,6 +58,18 @@ namespace FitMe.Grid.Tests
             _cell?.Dispose();
             _atom?.ParentBlock.Dispose();
             _atom?.ArrayIndex.Dispose();
+            foreach (var atomModel in _additionalAtomModels)
+            {
+                atomModel.ParentBlock.Dispose();
+                atomModel.ArrayIndex.Dispose();
+            }
+            foreach (var cellModel in _additionalCellModels)
+                cellModel.Dispose();
+            foreach (var blockModel in _additionalBlockModels)
+            {
+                blockModel.UpdateGridCommand.Dispose();
+                blockModel.BlockState.Dispose();
+            }
             _blockModel?.UpdateGridCommand.Dispose();
             _blockModel?.BlockState.Dispose();
             if (_blockViewModel != null)
@@ -112,6 +132,45 @@ namespace FitMe.Grid.Tests
             _atom = new AtomModel();
             _atom.ParentBlock.Value = _block;
             _blockModel.Atoms.Add(new AtomInstance(_atom, null, atomObject));
+        }
+
+        private void AddAtomAt(Vector3 position)
+        {
+            var atomModel = new AtomModel();
+            atomModel.ParentBlock.Value = _block;
+            _additionalAtomModels.Add(atomModel);
+            var atomObject = Keep(new GameObject("Lifecycle test additional atom"));
+            atomObject.transform.position = position;
+            _blockModel.Atoms.Add(new AtomInstance(atomModel, null, atomObject));
+        }
+
+        private BlockModel SetBlockPreset(int[,] schema)
+        {
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            preset.BlockSchema.schema = schema;
+            preset.GenerateSchema();
+            typeof(BlockModel).GetProperty(nameof(BlockModel.BlockPreset)).SetValue(_blockModel, preset);
+            return _blockModel;
+        }
+
+        private ObstacleHandler CreateObstacleHandler(BlockPreset preset)
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var presetsField = typeof(BlockManagerConfig).GetField("_blockPresetDictionary",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(presetsField, Is.Not.Null);
+            presetsField.SetValue(config, new Dictionary<BlockShape, BlockPreset> { [default] = preset });
+            var levelManager = new ObstacleLevelManagerMock(1);
+            Assert.That(((ILevelManager)levelManager).CurrentObstacleCount, Is.EqualTo(1));
+            return new ObstacleHandler(_manager, null, config, null, levelManager);
+        }
+
+        private static void GenerateObstacles(ObstacleHandler handler)
+        {
+            var method = typeof(ObstacleHandler).GetMethod("GenerateObstacles",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null);
+            method.Invoke(handler, null);
         }
 
         private static void AssertDisposed(CancellationTokenSource source)
@@ -178,6 +237,250 @@ namespace FitMe.Grid.Tests
                 _manager.TryPlaceBlock(_block, updateGrid: false));
             AssertDisposed(captured);
             _manager.Dispose();
+        }
+
+        [Test]
+        public void ValidatePlacement_RejectsMultipleAtomsMappedToOneCell()
+        {
+            SetUpOneCellPlacement();
+            AddAtomAt(_grid.GetCellCenterWorld(Vector3Int.zero));
+
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.False);
+        }
+
+        [Test]
+        public void TryPlaceBlock_RejectsMultipleAtomsMappedToOneCell()
+        {
+            SetUpOneCellPlacement();
+            AddAtomAt(_grid.GetCellCenterWorld(Vector3Int.zero));
+
+            try
+            {
+                Assert.That(_manager.TryPlaceBlock(_block, updateGrid: false), Is.False);
+                Assert.That(_cell.CurrentAtom.Value, Is.Null);
+                Assert.That(_manager.BlocksOnGrid.Count, Is.Zero);
+            }
+            finally
+            {
+                _manager.Dispose();
+            }
+        }
+
+        [Test]
+        public void BlockPreset_GenerateSchemaDoesNotRebuildUnchangedSchemas()
+        {
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            preset.GenerateSchema();
+            var originalSchema = preset.BlockSchemas[0];
+
+            preset.GenerateSchema();
+
+            Assert.That(preset.BlockSchemas[0], Is.SameAs(originalSchema));
+        }
+
+        [Test]
+        public void AtomView_MissingColorMappingPreservesRendererColor()
+        {
+            var viewObject = Keep(new GameObject("Atom view edge test"));
+            var atomView = viewObject.AddComponent<AtomView>();
+            var spriteRenderer = viewObject.AddComponent<SpriteRenderer>();
+            var expectedColor = Color.magenta;
+            spriteRenderer.color = expectedColor;
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            typeof(AtomView).GetField("spriteRenderer",
+                BindingFlags.Instance | BindingFlags.NonPublic).SetValue(atomView, spriteRenderer);
+            typeof(AtomView).GetField("_blockManagerConfig",
+                BindingFlags.Instance | BindingFlags.NonPublic).SetValue(atomView, config);
+            var handler = typeof(AtomView).GetMethod("OnBlockTypeChanged",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(handler, Is.Not.Null);
+            var color = Enum.ToObject(handler.GetParameters()[0].ParameterType, 0);
+            LogAssert.Expect(LogType.Error, $"BlockType.CurrentValue {color} is not defined");
+
+            handler.Invoke(atomView, new[] { color });
+
+            Assert.That(spriteRenderer.color, Is.EqualTo(expectedColor));
+        }
+
+        [Test]
+        public void CreateVacantSchema_ReportsEmptyCellAsVacant()
+        {
+            SetUpOneCellPlacement();
+
+            var hasVacantCells = _manager.CreateVacantSchema(out var schema, out var vacantCount);
+
+            Assert.That(hasVacantCells, Is.True);
+            Assert.That(vacantCount, Is.EqualTo(1));
+            Assert.That(schema[0, 0], Is.EqualTo(1));
+        }
+
+        [Test]
+        public void CreateVacantSchema_ExcludesCellOccupiedByActiveBlock()
+        {
+            SetUpOneCellPlacement();
+            _cell.CurrentAtom.Value = _blockModel.Atoms[0];
+
+            var hasVacantCells = _manager.CreateVacantSchema(out var schema, out var vacantCount);
+
+            Assert.That(hasVacantCells, Is.False);
+            Assert.That(vacantCount, Is.Zero);
+            Assert.That(schema[0, 0], Is.Zero);
+        }
+
+        [Test]
+        public void CreateVacantSchema_TreatsExplodingBlockCellAsVacant()
+        {
+            SetUpOneCellPlacement();
+            _cell.CurrentAtom.Value = _blockModel.Atoms[0];
+            _blockModel.BlockState.Value = BlockState.Exploding;
+
+            var hasVacantCells = _manager.CreateVacantSchema(out var schema, out var vacantCount);
+
+            Assert.That(hasVacantCells, Is.True);
+            Assert.That(vacantCount, Is.EqualTo(1));
+            Assert.That(schema[0, 0], Is.EqualTo(1));
+        }
+
+        [Test]
+        public void CheckAvailableBlock_AcceptsPresetThatFitsEmptyCell()
+        {
+            SetUpOneCellPlacement();
+            var blockModel = SetBlockPreset(new[,] { { 1 } });
+
+            var canPlaceBlock = _manager.CheckAvailableBlock(new List<BlockModel> { blockModel }, out var availableBlocks);
+
+            Assert.That(canPlaceBlock, Is.True);
+            Assert.That(availableBlocks, Is.EquivalentTo(new[] { blockModel }));
+        }
+
+        [Test]
+        public void CheckAvailableBlock_RejectsPresetLargerThanGrid()
+        {
+            SetUpOneCellPlacement();
+            var blockModel = SetBlockPreset(new[,] { { 1, 1 }, { 1, 1 } });
+
+            var canPlaceBlock = _manager.CheckAvailableBlock(new List<BlockModel> { blockModel }, out var availableBlocks);
+
+            Assert.That(canPlaceBlock, Is.False);
+            Assert.That(availableBlocks, Is.Empty);
+        }
+
+        [Test]
+        public void CheckForContact_CollectsConnectedSameColorBlocksOnce()
+        {
+            SetUpOneCellPlacement(withViewModel: false);
+            var gridPreset = Keep(ScriptableObject.CreateInstance<GridPreset>());
+            gridPreset.GridSize = new Vector2Int(2, 1);
+            SetManagerField("<CurrentGridPreset>k__BackingField", gridPreset);
+
+            var firstCellObject = Keep(new GameObject("Contact first cell"));
+            var firstCell = new CellInstance(_cell, null, firstCellObject);
+            _cell.ArrayIndex.Value = Vector2Int.zero;
+            _cell.CurrentAtom.Value = _blockModel.Atoms[0];
+            _blockModel.BlockCells = new List<CellInstance> { firstCell };
+
+            var secondCellModel = new CellModel();
+            _additionalCellModels.Add(secondCellModel);
+            secondCellModel.ArrayIndex.Value = new Vector2Int(0, 1);
+            var secondCellObject = Keep(new GameObject("Contact second cell"));
+            var secondCell = new CellInstance(secondCellModel, null, secondCellObject);
+
+            var secondBlockModel = new BlockModel(null, null);
+            _additionalBlockModels.Add(secondBlockModel);
+            var secondBlockObject = Keep(new GameObject("Contact second block"));
+            var secondBlock = new BlockInstance(secondBlockModel, null, null, secondBlockObject);
+            var secondAtomModel = new AtomModel();
+            secondAtomModel.ParentBlock.Value = secondBlock;
+            _additionalAtomModels.Add(secondAtomModel);
+            var secondAtomObject = Keep(new GameObject("Contact second atom"));
+            var secondAtom = new AtomInstance(secondAtomModel, null, secondAtomObject);
+            secondBlockModel.Atoms.Add(secondAtom);
+            secondBlockModel.BlockCells = new List<CellInstance> { secondCell };
+            secondCellModel.CurrentAtom.Value = secondAtom;
+
+            SetManagerField("_cellArray", new[,] { { firstCell, secondCell } });
+            var checkForContact = typeof(GridManager).GetMethod("CheckForContact",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(checkForContact, Is.Not.Null);
+            var contacts = new List<BlockInstance>();
+
+            checkForContact.Invoke(_manager, new object[] { _block, contacts });
+
+            Assert.That(contacts, Has.Count.EqualTo(2));
+            Assert.That(contacts, Is.EquivalentTo(new[] { _block, secondBlock }));
+        }
+
+        [Test]
+        public void SpawnBlocksFromBag_DoesNotIndexWhenThereAreNoSpawnPoints()
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+
+            Assert.DoesNotThrow(() => blockManager.SpawnBlocksFromBag(refill: false));
+        }
+
+        [Test]
+        public void Swap_DoesNothingWhenSpawnBagIsEmpty()
+        {
+            SetUpOneCellPlacement();
+            SetBlockPreset(new[,] { { 1 } });
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            using var controller = new BlockController(config, _manager, null, null, null);
+            var swappableBlock = new BlockInstance(_blockModel, _blockViewModel, controller, _block.GameObject);
+            var handPoint = new BlockManager.SpawnPointData
+            {
+                IsFree = false,
+                CurrentBlock = swappableBlock
+            };
+            var previewPoint = new BlockManager.SpawnPointData
+            {
+                IsFree = false,
+                CurrentBlock = swappableBlock
+            };
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                new[] { handPoint },
+                null,
+                new[] { previewPoint },
+                _hub);
+
+            Assert.DoesNotThrow(blockManager.Swap);
+            Assert.That(handPoint.CurrentBlock, Is.SameAs(swappableBlock));
+            Assert.That(previewPoint.CurrentBlock, Is.SameAs(swappableBlock));
+        }
+
+        [Test]
+        public void GenerateObstacles_DoesNotChooseFromAnEmptyVacantCellSet()
+        {
+            SetUpOneCellPlacement(withViewModel: false);
+            _cell.CurrentAtom.Value = _blockModel.Atoms[0];
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            preset.BlockSchema.schema = new[,] { { 1 } };
+            preset.GenerateSchema();
+            using var obstacleHandler = CreateObstacleHandler(preset);
+
+            Assert.DoesNotThrow(() => GenerateObstacles(obstacleHandler));
+        }
+
+        [Test]
+        public void GenerateObstacles_SkipsWhenNoPresetFitsTheSelectedWindow()
+        {
+            SetUpOneCellPlacement(withViewModel: false);
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            preset.BlockSchema.schema = new[,] { { 1, 1 }, { 1, 1 } };
+            preset.GenerateSchema();
+            using var obstacleHandler = CreateObstacleHandler(preset);
+
+            Assert.DoesNotThrow(() => GenerateObstacles(obstacleHandler));
         }
 
         [TestCase("OnCellsCreated")]
@@ -256,6 +559,16 @@ namespace FitMe.Grid.Tests
             public void Dispose()
             {
                 foreach (var stream in _streams) stream.Dispose();
+            }
+        }
+
+        private sealed class ObstacleLevelManagerMock : LevelManagerMock, ILevelManager
+        {
+            public new int CurrentObstacleCount { get; }
+
+            public ObstacleLevelManagerMock(int obstacleCount) : base(global::FitMe.Shared.GameState.PlaceBlock)
+            {
+                CurrentObstacleCount = obstacleCount;
             }
         }
     }

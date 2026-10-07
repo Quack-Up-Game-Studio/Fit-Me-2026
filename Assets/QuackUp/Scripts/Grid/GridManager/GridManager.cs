@@ -457,23 +457,19 @@ namespace FitMe.Grid
         /// <returns>true if the placement is valid, false otherwise</returns>
         public bool ValidatePlacement(BlockModel blockModel)
         {
-            var cells = new List<CellInstance>();
+            ResetPreviousValidationCells();
+            var cells = _previousValidationCells;
             foreach (var atom in blockModel.Atoms)
             {
                 Vector3 atomPosition = atom.GameObject.transform.position;
                 Vector3 cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
                 var cell = GetCellByPosition(cellPosition);
-                if (cell == null || cell.Model.CurrentAtom.Value != null)
+                if (cell == null || cell.Model.CurrentAtom.Value != null || cells.Contains(cell))
                 {
                     continue;
                 }
                 cells.Add(cell);
             }
-            if (_previousValidationCells.Count > 0)
-            {
-                ResetPreviousValidationCells();
-            }
-            _previousValidationCells = cells;
             if (cells.Count < blockModel.Atoms.Count)
             {
                 cells.ForEach(cell => cell.Model.State.Value = CellState.CannotBePlaced);
@@ -501,7 +497,7 @@ namespace FitMe.Grid
             {
                 var atomPosition = atom.GameObject.transform.position.WithZ(0);
                 var cell = GetCellByPosition(atomPosition);
-                if (cell == null || cell.Model.CurrentAtom.Value != null)
+                if (cell == null || cell.Model.CurrentAtom.Value != null || cells.Contains(cell))
                 {
                     return false;
                 }
@@ -703,27 +699,33 @@ namespace FitMe.Grid
         private bool CheckForContact(BlockInstance blockInstance, List<BlockInstance> contactedBlocks)
         {
             var currentColor = blockInstance.Model.BlockColor.CurrentValue;
-            contactedBlocks.Add(blockInstance);
+            ContactChain.Collect(
+                blockInstance,
+                GetAdjacentContactBlocks,
+                adjacentBlock => adjacentBlock != null &&
+                                 adjacentBlock.Model.BlockState.CurrentValue is not (BlockState.Infected or BlockState.Exploding or BlockState.Obstacle) &&
+                                 adjacentBlock.Model.BlockColor.CurrentValue == currentColor,
+                contactedBlocks);
+            return contactedBlocks.Count >= _config.ComboThreshold;
+        }
+
+        private IEnumerable<BlockInstance> GetAdjacentContactBlocks(BlockInstance blockInstance)
+        {
             foreach (var cell in blockInstance.Model.BlockCells)
             {
                 var cellX = cell.Model.ArrayIndex.Value[0];
                 var cellY = cell.Model.ArrayIndex.Value[1];
-                var upCell = GetCellByArrayIndex(cellX - 1, cellY);
-                var downCell = GetCellByArrayIndex(cellX + 1, cellY);
-                var leftCell = GetCellByArrayIndex(cellX, cellY - 1);
-                var rightCell = GetCellByArrayIndex(cellX, cellY + 1);
-                var adjacentCells = new[] {upCell, downCell, leftCell, rightCell};
-                foreach (var adjacentCell in adjacentCells)
-                {
-                    if (adjacentCell?.Model.CurrentAtom.Value == null) continue;
-                    var adjacentBlock = adjacentCell.Model.CurrentAtom.Value.Model.ParentBlock.Value;
-                    if (adjacentBlock.Model.BlockState.CurrentValue is BlockState.Infected or BlockState.Exploding or BlockState.Obstacle) continue;
-                    if (adjacentBlock.Model.BlockColor.CurrentValue != currentColor) continue;
-                    if (contactedBlocks.Contains(adjacentBlock)) continue;
-                    CheckForContact(adjacentBlock, contactedBlocks);
-                }
+                yield return GetAdjacentBlock(GetCellByArrayIndex(cellX - 1, cellY));
+                yield return GetAdjacentBlock(GetCellByArrayIndex(cellX + 1, cellY));
+                yield return GetAdjacentBlock(GetCellByArrayIndex(cellX, cellY - 1));
+                yield return GetAdjacentBlock(GetCellByArrayIndex(cellX, cellY + 1));
             }
-            return contactedBlocks.Count >= _config.ComboThreshold;
+        }
+
+        private static BlockInstance GetAdjacentBlock(CellInstance adjacentCell)
+        {
+            if (adjacentCell?.Model.CurrentAtom.Value == null) return null;
+            return adjacentCell.Model.CurrentAtom.Value.Model.ParentBlock.Value;
         }
 
         private void AddContact(List<BlockInstance> contact, BlockInstance blockInstance)
@@ -739,27 +741,12 @@ namespace FitMe.Grid
         /// <returns>true if there are vacant cells, false otherwise</returns>
         public bool CreateVacantSchema(out int[,] vacantSchema, out int vacantCount)
         {
-            vacantCount = 0;
-            var row = CurrentGridSize.y;
-            var column = CurrentGridSize.x;
-            vacantSchema = new int[row, column];
-            bool isVacant = false;
-            for (int x = 0; x < row; x++)
-            {
-                for (int y = 0; y < column; y++)
-                {
-                    var cell = _cellArray[x, y];
-                    if (cell == null) continue;
-                    if (cell.Model.CurrentAtom.Value is not null &&
-                        cell.Model.CurrentAtom.Value.Model.ParentBlock.Value.Model.BlockState.CurrentValue is not BlockState.Exploding) 
-                        continue;
-                    vacantSchema[x, y] = 1;
-                    vacantCount++;
-                    isVacant = true;
-                }
-            }
-            //ArrayHelper.PrintSchema(_vacantSchema);
-            return isVacant;
+            return VacantSchemaSolver.Create(
+                _cellArray,
+                CurrentGridSize.y,
+                CurrentGridSize.x,
+                out vacantSchema,
+                out vacantCount);
         }
 
         /// <summary>
@@ -772,26 +759,7 @@ namespace FitMe.Grid
         {
             CreateVacantSchema(out var vacantSchema, out _);
             _vacantSchema = vacantSchema;
-            availableBlocks = new List<BlockModel>();
-            foreach (var block in blockToCheck)
-            {
-                // if we cannot rotate block, only check for current rotation
-                /*if (CompareSchema(block, block.BlockView.Transform.rotation.eulerAngles.z))
-                {
-                    availableBlocks.Add(block);
-                    continue;
-                }*/
-                
-                // check for all rotations
-                for (var i = 0; i < 4; i++)
-                {
-                    if (!CompareSchema(block, i)) continue;
-                    availableBlocks.Add(block);
-                    break;
-                }
-                //DebugUtils.Log("Block " + blockView.name + " cannot be placed");
-            }
-            if (availableBlocks.Count != 0) return true;
+            if (GridFitChecker.CheckAvailableBlocks(vacantSchema, blockToCheck, out availableBlocks)) return true;
             DebugUtils.Log("No blocks can be placed");
             return false;
         }
@@ -806,8 +774,7 @@ namespace FitMe.Grid
         public bool CompareSchema(BlockModel blockModel, int schemaIndex)
         {
             if (schemaIndex >= 0 && schemaIndex < blockModel.BlockPreset.BlockSchemas.Count)
-                return ArrayHelper.CanBFitInA(_vacantSchema, blockModel.BlockPreset.BlockSchemas[schemaIndex].schema,
-                    out _);
+                return GridFitChecker.CanFit(_vacantSchema, blockModel.BlockPreset.BlockSchemas[schemaIndex].schema);
             DebugUtils.LogError("Invalid schema index: " + schemaIndex);
             return false;
         }

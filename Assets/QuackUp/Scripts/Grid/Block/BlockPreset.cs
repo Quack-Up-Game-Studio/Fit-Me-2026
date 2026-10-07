@@ -83,6 +83,8 @@ namespace FitMe.Grid
         [field: OdinSerialize, HideReferenceObjectPicker]
         public List<BlockSchema> BlockSchemas { get; private set; } = new();
 
+        [NonSerialized] private int[,] _generatedSchemaSnapshot;
+
         public IReadOnlyList<BlockSchema> DistinctBlockSchemas => BlockSchemas
             .GroupBy(x => x.schema, comparer: ArrayMemberComparer<int>.Default)
             .Select(x => x.First())
@@ -92,12 +94,31 @@ namespace FitMe.Grid
         [Button("Test Schema")]
         public void GenerateSchema()
         {
+            var sourceSchema = BlockSchema.schema;
+            if (BlockSchemas.Count == 4 && IsSchemaUnchanged(sourceSchema)) return;
+
             BlockSchemas.Clear();
             var originalBlockSchema = BlockSchema;
             BlockSchemas.Add(new BlockSchema(originalBlockSchema.schema, 0));
             BlockSchemas.Add(new BlockSchema(ArrayHelper.Rotate270(originalBlockSchema.schema), 1));
             BlockSchemas.Add(new BlockSchema(ArrayHelper.Rotate180(originalBlockSchema.schema), 2));
             BlockSchemas.Add(new BlockSchema(ArrayHelper.Rotate90(originalBlockSchema.schema), 3));
+            _generatedSchemaSnapshot = (int[,])sourceSchema.Clone();
+        }
+
+        private bool IsSchemaUnchanged(int[,] schema)
+        {
+            if (_generatedSchemaSnapshot == null || schema == null ||
+                _generatedSchemaSnapshot.GetLength(0) != schema.GetLength(0) ||
+                _generatedSchemaSnapshot.GetLength(1) != schema.GetLength(1))
+                return false;
+
+            for (var row = 0; row < schema.GetLength(0); row++)
+            for (var column = 0; column < schema.GetLength(1); column++)
+                if (_generatedSchemaSnapshot[row, column] != schema[row, column])
+                    return false;
+
+            return true;
         }
     }
 }

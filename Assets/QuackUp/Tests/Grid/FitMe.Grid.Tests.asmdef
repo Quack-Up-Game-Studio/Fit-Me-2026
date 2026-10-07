@@ -3,8 +3,10 @@
   "rootNamespace": "FitMe.Grid.Tests",
   "references": [
     "FitMe.Grid",
+    "FitMe.Shared",
     "QuackUp.Utils",
     "QuackUp.Audio",
+    "QuackUp.Input",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

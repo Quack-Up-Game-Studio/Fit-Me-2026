@@ -79,7 +79,8 @@ namespace FitMe.Grid
             var windowSize = new Vector2Int(maxCol, maxRow);
             for (var i = 0; i < _levelManager.CurrentObstacleCount; i++)
             {
-                _gridManager.CreateVacantSchema(out var grid, out _);
+                _gridManager.CreateVacantSchema(out var grid, out var vacantCount);
+                if (vacantCount == 0) return;
                 var randomCell = grid
                     .FlattenWithArrayIndex()
                     .Where(x => x.Item == 1)
@@ -95,6 +96,7 @@ namespace FitMe.Grid
                             fitSchemaData.Add((schema, shape, preset, placed));
                     }
                 }
+                if (fitSchemaData.Count == 0) continue;
                 var randomSchemaData = fitSchemaData.GetRandomElement();
                 ArrayHelper.TryGetFirstDifference(window, randomSchemaData.placed, out var firstDifference);
                 var topLeftCellArrayIndex = randomCell.ArrayIndex + firstDifference;

@@ -245,7 +245,7 @@ namespace FitMe.Grid
             int rowsB = b.GetLength(0);
             int colsB = b.GetLength(1);
             placedArray = a;
-            var tempPlacedArray = a.Clone() as int[,];
+            var tempPlacedArray = simulatePlacement ? a.Clone() as int[,] : null;
 
             if (rowsB > rowsA || colsB > colsA)
             {

@@ -299,7 +299,7 @@ namespace FitMe.Grid
             }
             
             var spawnedBlocks = new List<BlockInstance>();
-            var randomAmount = _config.MaxRandomAmount;
+            var randomAmount = Math.Min(_config.MaxRandomAmount, _spawnPoints.Length);
             for (int i = 0; i < randomAmount; i++)
             {
                 if (!_spawnPoints[i].IsFree || _spawnBag.Count == 0)
@@ -358,7 +358,7 @@ namespace FitMe.Grid
         
         public void Swap()
         {
-            if (!AllowSwapping) return;
+            if (!AllowSwapping || _spawnBag.Count == 0) return;
             var blockToSwap = BlockOnHand.FirstOrDefault();
             if (blockToSwap == null) return;
             if (blockToSwap.Controller.IsRotating) return;
@@ -425,26 +425,6 @@ namespace FitMe.Grid
             _smartRandomCount--;
         }
         
-        /// <summary>
-        /// Finds the best fit for the vacant schema from the list of schemas to check. SORTED.
-        /// </summary>
-        /// <param name="vacantSchema"></param>
-        /// <param name="schemasToCheck"></param>
-        /// <returns></returns>
-        private List<BestFitResult> FindBestFitSorted(int[,] vacantSchema,
-                List<BlockSchema> schemasToCheck)
-        {
-            var sortedSchemas = schemasToCheck
-                    .OrderByDescending(x => x.schema.CountMember(y => y == 1))
-                    .ToList();
-            var bestFits = FindBestFit(vacantSchema, sortedSchemas);
-            bestFits = bestFits
-                .OrderBy(x => x.vacantCount)
-                .ThenBy(x => x.schemaList.Count)
-                .ToList();
-            return bestFits;
-        }
-
         private void PreviewNextQueue()
         {
             if (_spawnBag.Count == 0) return;
