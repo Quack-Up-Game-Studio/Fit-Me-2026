@@ -31,6 +31,7 @@ namespace QuackUp.Input
         {
             get
             {
+                if (Pointer.current == null || _gameCamera == null) return Vector2.zero;
                 var rawPosition = Pointer.current.position.ReadValue();
                 var mousePosition = _gameCamera.ScreenToWorldPoint(rawPosition);
                 var final = new Vector2(mousePosition.x, mousePosition.y);
@@ -42,6 +43,7 @@ namespace QuackUp.Input
         {
             get
             {
+                if (Pointer.current == null || _gameCanvas == null) return Vector2.zero;
                 var rawPosition = Pointer.current.position.ReadValue();
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
                     _gameCanvas.transform as RectTransform, 
@@ -57,6 +59,7 @@ namespace QuackUp.Input
         
         public Vector2 WorldToLocalCanvasPosition(Vector3 worldPosition)
         {
+            if (_gameCamera == null || _gameCanvas == null) return Vector2.zero;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 _gameCanvas.transform as RectTransform, 
                 _gameCamera.WorldToScreenPoint(worldPosition), 
@@ -67,6 +70,7 @@ namespace QuackUp.Input
 
         public Vector2 WorldToWorldCanvasPosition(Vector3 worldPosition)
         {
+            if (_gameCamera == null || _gameCanvas == null) return Vector2.zero;
             RectTransformUtility.ScreenPointToWorldPointInRectangle(
                 _gameCanvas.transform as RectTransform,
                 _gameCamera.WorldToScreenPoint(worldPosition),
