@@ -661,12 +661,15 @@ namespace QuackUp.GoogleAdMob
         {
             if (_isDisposed) return;
             var rewardedAdInstance = new RewardedAdInstance(_adsSettings, _analyticsService, _adMobImpressionRevenueBridge);
+            rewardedAdInstance.Enabled = _adsEnabled.Value;
             rewardedAdInstance.Load();
             _adsInstances[typeof(RewardedAdInstance)] = rewardedAdInstance;
             var interstitialAdInstance = new InterstitialAdInstance(_adsSettings, _analyticsService, _adMobImpressionRevenueBridge);
+            interstitialAdInstance.Enabled = _adsEnabled.Value;
             interstitialAdInstance.Load();
             _adsInstances[typeof(InterstitialAdInstance)] = interstitialAdInstance;
             var bannerAdInstance = new BannerAdInstance(_adsSettings, _analyticsService, _adMobImpressionRevenueBridge);
+            bannerAdInstance.Enabled = _adsEnabled.Value;
             bannerAdInstance.Load();
             _adsInstances[typeof(BannerAdInstance)] = bannerAdInstance;
         }
@@ -693,11 +696,11 @@ namespace QuackUp.GoogleAdMob
 
         public void SetEnableStateAll(bool state)
         {
+            _adsEnabled.Value = state;
             foreach (var instance in _adsInstances.Values)
             {
                 instance.Enabled = state;
             }
-            _adsEnabled.Value = state;
         }
     }
 }

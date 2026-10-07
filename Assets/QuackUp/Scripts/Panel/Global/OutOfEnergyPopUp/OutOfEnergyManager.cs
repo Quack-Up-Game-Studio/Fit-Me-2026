@@ -143,11 +143,20 @@ namespace FitMe.Panel
             if (_remainingAdCount.Value <= 0) return;
             if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAdInstance)) return;
             if (!rewardedAdInstance.Enabled) return;
-            _onRewardEarned?.Dispose();
-            _onRewardEarned = rewardedAdInstance.OnUserEarnedReward
-                .Subscribe(_ => OnRewardEarned());
+            DisposeRewardSubscription();
+            var subscriptionBuilder = Disposable.CreateBuilder();
+            rewardedAdInstance.OnUserEarnedReward
+                .Subscribe(_ => OnRewardEarned())
+                .AddTo(ref subscriptionBuilder);
+            rewardedAdInstance.OnAdClosed
+                .Subscribe(_ => DisposeRewardSubscription())
+                .AddTo(ref subscriptionBuilder);
+            rewardedAdInstance.OnAdFailed
+                .Subscribe(_ => DisposeRewardSubscription())
+                .AddTo(ref subscriptionBuilder);
+            _onRewardEarned = subscriptionBuilder.Build();
             rewardedAdInstance.AdContext = GAAdContext.RefillEnergy;
-            rewardedAdInstance.TryShow();
+            if (!rewardedAdInstance.TryShow()) DisposeRewardSubscription();
         }
 
         public void ToShop()
@@ -161,7 +170,13 @@ namespace FitMe.Panel
             ChangeRemainingAdCount(-1);
             _energyManager.ChangeEnergy(1, itemType: GAItemType.Ads, itemId: GAItemId.OutOfEnergyAds);
             TransitionOutCommand.Execute(new Promise<Unit>());
+            DisposeRewardSubscription();
+        }
+
+        private void DisposeRewardSubscription()
+        {
             _onRewardEarned?.Dispose();
+            _onRewardEarned = null;
         }
         
         public void Dispose()

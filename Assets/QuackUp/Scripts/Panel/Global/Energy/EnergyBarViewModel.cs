@@ -55,16 +55,32 @@ namespace FitMe.Panel
             if (!AllowWatchAd.Value) return;
             if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAd)) return;
             if (!rewardedAd.Enabled) return;
-            _adSubscription = rewardedAd.OnUserEarnedReward
-                .Subscribe(_ => OnAdSuccess());
+            DisposeAdSubscription();
+            var subscriptionBuilder = Disposable.CreateBuilder();
+            rewardedAd.OnUserEarnedReward
+                .Subscribe(_ => OnAdSuccess())
+                .AddTo(ref subscriptionBuilder);
+            rewardedAd.OnAdClosed
+                .Subscribe(_ => DisposeAdSubscription())
+                .AddTo(ref subscriptionBuilder);
+            rewardedAd.OnAdFailed
+                .Subscribe(_ => DisposeAdSubscription())
+                .AddTo(ref subscriptionBuilder);
+            _adSubscription = subscriptionBuilder.Build();
             rewardedAd.AdContext = GAAdContext.RefillEnergy;
-            rewardedAd.TryShow();
+            if (!rewardedAd.TryShow()) DisposeAdSubscription();
         }
         
         private void OnAdSuccess()
         {
             _energyManager.ChangeEnergy(1, itemType: GAItemType.Ads, itemId: GAItemId.EnergyBarAds);
+            DisposeAdSubscription();
+        }
+
+        private void DisposeAdSubscription()
+        {
             _adSubscription?.Dispose();
+            _adSubscription = null;
         }
     }
 }

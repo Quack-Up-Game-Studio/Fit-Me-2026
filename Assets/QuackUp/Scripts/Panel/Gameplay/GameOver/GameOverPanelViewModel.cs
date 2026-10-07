@@ -111,17 +111,32 @@ namespace FitMe.Panel
                 return;
             }
             _adSubscription?.Dispose();
-            _adSubscription = rewardedAd.OnUserEarnedReward
-                .Subscribe(_ => OnAdSuccess());
+            var subscriptionBuilder = Disposable.CreateBuilder();
+            rewardedAd.OnUserEarnedReward
+                .Subscribe(_ => OnAdSuccess())
+                .AddTo(ref subscriptionBuilder);
+            rewardedAd.OnAdClosed
+                .Subscribe(_ => DisposeAdSubscription())
+                .AddTo(ref subscriptionBuilder);
+            rewardedAd.OnAdFailed
+                .Subscribe(_ => DisposeAdSubscription())
+                .AddTo(ref subscriptionBuilder);
+            _adSubscription = subscriptionBuilder.Build();
             rewardedAd.AdContext = GAAdContext.Revive;
-            rewardedAd.TryShow();
+            if (!rewardedAd.TryShow()) DisposeAdSubscription();
         }
         
         private void OnAdSuccess()
         {
             _remainingContinueCount.Value--;
-            _adSubscription?.Dispose();
+            DisposeAdSubscription();
             ReturnToGameplay();
+        }
+
+        private void DisposeAdSubscription()
+        {
+            _adSubscription?.Dispose();
+            _adSubscription = null;
         }
         
         protected override void OnVisible()
