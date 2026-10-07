@@ -775,7 +775,7 @@ namespace QuackUp.IAP.Tests
 
         private sealed class PurchaseSaveFixture : IDisposable
         {
-            private readonly string _directory = Path.Combine(Environment.GetEnvironmentVariable("TMPDIR"),
+            private readonly string _directory = Path.Combine(Path.GetTempPath(),
                 "purchase-save-tests-" + Guid.NewGuid().ToString("N"));
             private readonly MessagePackSaveConfig _config;
             private readonly EnergyManagerConfig _energyConfig;
