@@ -41,11 +41,6 @@ namespace QuackUp.IAP
     [Serializable]
     public class InAppPurchaseManager : IStartable, IDisposable
     {
-        private readonly EnergyManager _energyManager;
-        private readonly AdsService _adsService;
-        private readonly MessagePackSaveManager _saveManager;
-        private readonly ICloudSaveService _cloudSaveService;
-        private readonly IAnalyticsService _analyticsService;
         private readonly IStorePurchaseEffects _purchaseEffects;
         private readonly IPurchasePersistenceAndAnalytics _purchasePersistence;
         /// <summary>
@@ -87,19 +82,9 @@ namespace QuackUp.IAP
 
         [Inject]
         public InAppPurchaseManager(
-            EnergyManager energyManager,
-            AdsService adsService,
-            MessagePackSaveManager saveManager,
-            ICloudSaveService cloudSaveService,
-            IAnalyticsService analyticsService,
             IStorePurchaseEffects purchaseEffects,
             IPurchasePersistenceAndAnalytics purchasePersistence)
         {
-            _energyManager = energyManager;
-            _adsService = adsService;
-            _saveManager = saveManager;
-            _cloudSaveService = cloudSaveService;
-            _analyticsService = analyticsService;
             _purchaseEffects = purchaseEffects;
             _purchasePersistence = purchasePersistence;
         }
@@ -127,7 +112,7 @@ namespace QuackUp.IAP
         private async UniTaskVoid StartTask()
         {
             await Initialize();
-            await _saveManager.WaitForSaveDataReady;
+            await _purchasePersistence.WaitForSaveDataReady;
             _purchasePersistence.UpdatePlayerTier(HasActiveSubscription());
         }
 
@@ -568,25 +553,6 @@ namespace QuackUp.IAP
             return product?.metadata.localizedPriceString ?? string.Empty;
         }
 
-        private void UpdateAnalyticPlayerTier()
-        {
-            var playerSaveData = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>()
-                .GetSaveData<PlayerRecordSaveData>();
-            if (playerSaveData == null) return;
-            var spender = playerSaveData.HasPurchasedAtLeastOnce;
-            if (HasActiveSubscription())
-            {
-                _analyticsService.SetPlayerTier(GACustomDimension01.Premium);
-            }
-            else if (spender)
-            {
-                _analyticsService.SetPlayerTier(GACustomDimension01.Spender);
-            }
-            else
-            {
-                _analyticsService.SetPlayerTier(GACustomDimension01.F2P);
-            }
-        }
         #endregion
     }
 }

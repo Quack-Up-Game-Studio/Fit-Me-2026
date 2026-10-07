@@ -1,4 +1,5 @@
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using FitMe.GameData;
 using FitMe.Shared;
 using QuackUp.Analytics;
@@ -17,6 +18,7 @@ namespace QuackUp.IAP
 
     public interface IPurchasePersistenceAndAnalytics
     {
+        UniTask WaitForSaveDataReady { get; }
         void RecordPurchase(Order order);
         void UpdatePlayerTier(bool activeSubscription);
     }
@@ -63,6 +65,8 @@ namespace QuackUp.IAP
             _cloudSaveService = cloudSaveService;
             _analyticsService = analyticsService;
         }
+
+        public UniTask WaitForSaveDataReady => _saveManager.WaitForSaveDataReady;
 
         public void RecordPurchase(Order order)
         {
