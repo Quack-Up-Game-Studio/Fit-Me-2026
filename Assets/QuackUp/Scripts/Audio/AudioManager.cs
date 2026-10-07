@@ -100,7 +100,7 @@ namespace QuackUp.Audio
             catch (EventNotFoundException e)
             {
                 // A dangling event reference must never abort callers' startup logic (e.g. LevelManager.Start).
-                DebugUtils.LogWarning($"PlayAudio skipped: audio event not found ({eventReference.Path}). {e.Message}");
+                DebugUtils.LogWarning($"PlayAudio skipped: audio event not found ({eventReference}). {e.Message}");
                 return null;
             }
             eventInstance.set3DAttributes(position.To3DAttributes());
@@ -135,7 +135,7 @@ namespace QuackUp.Audio
             }
             catch (EventNotFoundException e)
             {
-                DebugUtils.LogWarning($"PlayAudioOneShot skipped: audio event not found ({eventReference.Path}). {e.Message}");
+                DebugUtils.LogWarning($"PlayAudioOneShot skipped: audio event not found ({eventReference}). {e.Message}");
             }
         }
         #endregion
