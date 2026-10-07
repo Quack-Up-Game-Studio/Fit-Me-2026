@@ -151,7 +151,7 @@ namespace QuackUp.Utils
             // Update Sliding Backplate
             if (useSlidingBackplate && slidingBackplate != null)
             {
-                var targetRect = options[index].TargetRect;
+                var targetRect = options[index]?.TargetRect;
                 if (targetRect != null)
                 {
                     MoveSlidingBackplate(targetRect, instant);
