@@ -288,6 +288,12 @@ namespace FitMe.SocialService.Android
                     _onSyncResult.OnNext(false);
                     return false;
                 }
+                if (!_messagePackSaveManager.HasApplicableSaveData(selectedSave))
+                {
+                    DebugUtils.LogWarning("Selected cloud save contains no applicable save data.");
+                    _onSyncResult.OnNext(false);
+                    return false;
+                }
             }
             catch (Exception e)
             {

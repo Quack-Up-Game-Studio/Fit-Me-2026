@@ -3,6 +3,7 @@ using System.IO.Compression;
 using MessagePack;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using QuackUp.Save;
 
 namespace QuackUp.Save.Tests
@@ -132,6 +133,24 @@ namespace QuackUp.Save.Tests
 
             Assert.AreEqual(10, SaveObject.TestData.testInt);
             Assert.AreEqual(Application.version, SaveObject.TestData.Version);
+        }
+
+        [Test]
+        public void SelectedCloudSave_WithValidZipButNoRegisteredEntries_IsNotApplicable()
+        {
+            using (var stream = new MemoryStream())
+            {
+                using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+                using (var entry = archive.CreateEntry("unregistered.bin").Open())
+                    entry.WriteByte(1);
+
+                LogAssert.Expect(LogType.Error, "Save object with key unregistered not found.");
+                var candidate = Manager.DeserializeSaveDataFromZipBytes(stream.ToArray());
+
+                Assert.That(candidate, Is.Not.Null);
+                Assert.That(candidate.SaveData, Is.Empty);
+                Assert.That(Manager.HasApplicableSaveData(candidate), Is.False);
+            }
         }
 
         [Test]

@@ -188,6 +188,35 @@ namespace QuackUp.IAP.Tests
         }
 
         [Test]
+        public void FailedAnalyticsMarkerWriteCanBeRetried()
+        {
+            using var fixture = new PurchaseSaveFixture();
+            var data = fixture.PlayerData;
+            data.TryMarkPurchaseRecorded("tx-analytics-marker");
+            data.HasPurchasedAtLeastOnce = true;
+            fixture.SaveManager.SaveRequired(fixture.PlayerSave);
+            var analytics = new CountingAnalytics();
+            var persistence = new PurchasePersistenceAndAnalytics(fixture.SaveManager,
+                new MockCloudSaveService(), analytics);
+            var order = CreateEnergyOrder("tx-analytics-marker");
+
+            fixture.RejectPlayerWrites();
+            Assert.Throws<InvalidOperationException>(() => persistence.RecordPurchase(order,
+                "tx-analytics-marker").GetAwaiter().GetResult());
+            Assert.That(analytics.BusinessEventCount, Is.Zero);
+            Assert.That(data.AttemptedPurchaseAnalyticsTransactionIds,
+                Does.Not.Contain("tx-analytics-marker"));
+
+            fixture.AllowPlayerWrites();
+            persistence.RecordPurchase(order, "tx-analytics-marker").GetAwaiter().GetResult();
+            Assert.That(analytics.BusinessEventCount, Is.EqualTo(1));
+
+            fixture.Reload();
+            Assert.That(fixture.PlayerData.AttemptedPurchaseAnalyticsTransactionIds,
+                Does.Contain("tx-analytics-marker"));
+        }
+
+        [Test]
         public void RetryAfterPersistenceSideEffectDoesNotDuplicatePurchaseRecord()
         {
             _persistence.ThrowAfterRecordingNextPurchase = true;
@@ -613,10 +642,13 @@ namespace QuackUp.IAP.Tests
             private readonly MessagePackSaveConfig _config;
             private readonly EnergyManagerConfig _energyConfig;
             private readonly EnergyManagerSaveObject _energySave;
-            private readonly PlayerRecordSaveObject _playerSave;
+            private readonly RejectablePlayerSaveObject _playerSave;
             private readonly MessagePackSaveManager _saveManager;
             public EnergyManager Energy { get; }
             public PurchasePersistenceAndAnalytics Persistence { get; }
+            public MessagePackSaveManager SaveManager => _saveManager;
+            public PlayerRecordSaveData PlayerData => _playerSave.GetSaveData<PlayerRecordSaveData>();
+            public PlayerRecordSaveObject PlayerSave => _playerSave;
             public EnergyManagerSaveData EnergyData => _energySave.GetSaveData<EnergyManagerSaveData>();
             private string TemporaryArchive => Path.Combine(_directory, "purchase.sav.copy.tmp");
 
@@ -627,7 +659,7 @@ namespace QuackUp.IAP.Tests
                     saveLocation = SaveLocation.Custom, saveDirectory = _directory, saveFileName = "purchase"
                 });
                 _energySave = ScriptableObject.CreateInstance<RejectableEnergySaveObject>();
-                _playerSave = ScriptableObject.CreateInstance<PlayerRecordSaveObject>();
+                _playerSave = ScriptableObject.CreateInstance<RejectablePlayerSaveObject>();
                 _energySave.Reset();
                 _playerSave.Reset();
                 EnergyData.CurrentEnergy = 10;
@@ -653,6 +685,8 @@ namespace QuackUp.IAP.Tests
             public void UnblockWrite() => Directory.Delete(TemporaryArchive);
             public void Reload() => _saveManager.LoadAll();
             public void RejectEnergyWrites() => ((RejectableEnergySaveObject)_energySave).RejectWrites = true;
+            public void RejectPlayerWrites() => _playerSave.RejectWrites = true;
+            public void AllowPlayerWrites() => _playerSave.RejectWrites = false;
 
             public void Dispose()
             {
@@ -666,7 +700,7 @@ namespace QuackUp.IAP.Tests
             }
         }
 
-        private sealed class NoOpAnalytics : IAnalyticsService
+        private class NoOpAnalytics : IAnalyticsService
         {
             public void TrackProgression(ProgressionStatus status, string progression01) { }
             public void TrackProgression(ProgressionStatus status, string progression01, string progression02) { }
@@ -674,9 +708,27 @@ namespace QuackUp.IAP.Tests
                 int score, Dictionary<string, object> customFields) { }
             public void TrackResourceFlow(ResourceFlowType flowType, string currency, float amount,
                 string itemType, string itemId) { }
-            public void TrackBusinessEvent(string currency, int amount, string itemType, string itemId, string cartType) { }
+            public virtual void TrackBusinessEvent(string currency, int amount, string itemType, string itemId, string cartType) { }
             public void SetPlayerTier(string tier) { }
             public void TrackAdEvent(AdAction action, AdType type, string unitId, string placement) { }
+        }
+
+        private sealed class CountingAnalytics : NoOpAnalytics
+        {
+            public int BusinessEventCount { get; private set; }
+            public override void TrackBusinessEvent(string currency, int amount, string itemType, string itemId,
+                string cartType) => BusinessEventCount++;
+        }
+
+        private sealed class RejectablePlayerSaveObject : PlayerRecordSaveObject
+        {
+            public bool RejectWrites { get; set; }
+            public override bool TrySerializeSaveData(out byte[] bytes, MessagePackSerializerOptions options = null)
+            {
+                if (!RejectWrites) return base.TrySerializeSaveData(out bytes, options);
+                bytes = null;
+                return false;
+            }
         }
 
         private sealed class RejectableEnergySaveObject : EnergyManagerSaveObject

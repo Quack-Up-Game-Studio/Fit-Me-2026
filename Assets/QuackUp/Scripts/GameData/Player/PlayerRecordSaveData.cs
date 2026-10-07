@@ -123,6 +123,10 @@ namespace FitMe.GameData
             TryAddTransaction(AttemptedPurchaseAnalyticsTransactionIds, transactionId,
                 values => AttemptedPurchaseAnalyticsTransactionIds = values);
 
+        public bool TryUnmarkPurchaseAnalyticsAttempted(string transactionId) =>
+            !string.IsNullOrWhiteSpace(transactionId) &&
+            AttemptedPurchaseAnalyticsTransactionIds?.Remove(transactionId) == true;
+
         public bool IsPurchaseCompleted(string transactionId) =>
             !string.IsNullOrWhiteSpace(transactionId) &&
             CompletedPurchaseTransactionIds?.Contains(transactionId) == true;

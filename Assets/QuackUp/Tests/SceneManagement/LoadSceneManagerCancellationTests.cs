@@ -179,6 +179,25 @@ namespace QuackUp.SceneManagement.Tests
         }
 
         [UnityTest]
+        public IEnumerator FinishInPublisherFault_DoesNotRepeatCompletedReveal()
+        {
+            _stages.OnPublish = message =>
+            {
+                if (message.Stage == LoadSceneStage.FinishIn)
+                    throw new InvalidOperationException("finish-in publisher probe");
+            };
+            Begin();
+            _transition.Cover.TrySetResult();
+            _backend.Loaded?.Invoke(2, LoadSceneMode.Single);
+            _transition.Reveal.TrySetResult();
+            _backend.Operation.Complete.TrySetResult();
+            yield return null;
+
+            Assert.That(_transition.Reveals, Is.EqualTo(1));
+            Assert.That(_backend.Subscriptions, Is.Zero);
+        }
+
+        [UnityTest]
         public IEnumerator AdditivePublisherFaultAfterCommit_ActivatesDestinationAndUnloadsSourceBeforeReleasingOwner()
         {
             Exception observed = null;
