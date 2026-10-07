@@ -213,18 +213,17 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   <HasCountOff>k__BackingField: 0
-
   <GameplayBgm>k__BackingField:
     Guid:
-      Data1: -427414803
-      Data2: 1332713969
-      Data3: -480146507
-      Data4: -805563045
-    Path: event:/BGM/BGM02_Game Play
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
   <CameraFitShakeSettings>k__BackingField:
-    strength: {x: 1, y: 1, z: 1}
-    duration: 0.4
-    frequency: 50
+    strength: {x: 0, y: 0, z: 0}
+    duration: 0
+    frequency: 0
     enableFalloff: 0
     falloffEase: 0
     strengthOverTime:
@@ -235,13 +234,13 @@ MonoBehaviour:
       m_RotationOrder: 4
     asymmetry: 0
     easeBetweenShakes: 0
-    cycles: 1
+    cycles: 0
     startDelay: 0
     endDelay: 0
     useUnscaledTime: 0
     _useFixedUpdate: 0
     _updateType: 0
-  <CameraFitShakeStrengthFactor>k__BackingField: 1.5
+  <CameraFitShakeStrengthFactor>k__BackingField: 1
   <GameOverPanelId>k__BackingField: GameOver
   <GameplayPanelId>k__BackingField: Gameplay
   <ResultPanelId>k__BackingField: Result
