@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P3 Preservation Checklist</title>
+<style>
+:root{color-scheme:dark;--bg:#101318;--panel:#191e27;--panel2:#222936;--text:#edf2f7;--muted:#9da9b8;--accent:#68a7ff;--keep:#42d392;--remove:#ff7373;--investigate:#e8b653;--border:#344052}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}header{position:sticky;top:0;z-index:2;background:rgba(16,19,24,.96);border-bottom:1px solid var(--border);padding:18px clamp(16px,4vw,48px)}h1{margin:0 0 4px;font-size:22px}header p{margin:0;color:var(--muted)}main{max-width:1250px;margin:0 auto;padding:20px clamp(16px,4vw,48px) 70px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px}.toolbar button,.toolbar input{background:var(--panel2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 11px}.toolbar button{cursor:pointer}.toolbar button:hover{border-color:var(--accent)}#status{color:var(--muted);margin-left:auto}.summary{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}.badge{padding:5px 9px;border-radius:999px;background:var(--panel);border:1px solid var(--border);color:var(--muted)}section{background:var(--panel);border:1px solid var(--border);border-radius:10px;margin:14px 0;overflow:hidden}section h2{font-size:17px;margin:0;padding:13px 15px;background:var(--panel2)}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:780px}th,td{padding:9px 10px;border-top:1px solid var(--border);vertical-align:top;text-align:left}th{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}td.item{min-width:220px;font-weight:600}td.location{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}.choice{text-align:center;width:62px}.choice input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer}.choice.keep input{accent-color:var(--keep)}.choice.remove input{accent-color:var(--remove)}.choice.investigate input{accent-color:var(--investigate)}.example{min-width:330px;color:#c8d5e5;font-size:12px}.example pre{margin:0;white-space:pre-wrap;font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;color:#c8d5e5}textarea{width:100%;min-height:42px;resize:vertical;background:#11151b;color:var(--text);border:1px solid var(--border);border-radius:5px;padding:7px;font:13px/1.35 inherit}.hidden{display:none!important}.hint{color:var(--muted);font-size:13px;margin:8px 0 18px}.danger{color:var(--remove)}
+</style>
+</head>
+<body>
+<header><h1>P3 Preservation Checklist</h1><p>Review candidates before cleanup. Unchecked items remain protected.</p></header>
+<main>
+<div class="toolbar">
+  <button id="load">Load Markdown</button><button id="save">Save Markdown</button><button id="download">Download Markdown</button><button id="reset">Reset decisions</button>
+  <input id="filter" type="search" placeholder="Filter items…" aria-label="Filter items">
+  <span id="status">Not loaded</span>
+</div>
+<div class="hint">Use <b>Keep</b>, <b>Remove</b>, or <b>Investigate</b>. A row can have only one decision. Notes are preserved in the generated Markdown.</div>
+<details class="guide"><summary>How to decide — examples and snippets</summary><div class="hint">
+<p><b>Keep</b> when a future feature may reuse the code. <b>Remove</b> when it has no callers and is replaced by a current system. <b>Investigate</b> when the value depends on a future design decision.</p>
+<p><b>Example: <code>PausableTimer</code></b></p>
+<pre><code>_timer = new PausableTimer(duration);
+_timer.Pause();
+_timer.Resume();</code></pre>
+<p>Keep it if timed boosters, energy recharge, or tutorial countdowns may need pause/resume. Remove it only if elapsed-time tracking plus UniTask is the permanent direction.</p>
+<p><b>Example: <code>ReloadScene</code></b></p>
+<pre><code>SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);</code></pre>
+<p>Keep it for an intentional debug shortcut. Remove it if all scene changes must use the injected <code>LoadSceneManager</code>.</p>
+<p><b>Example: unused asmdef reference</b></p>
+<pre><code>FitMe.GameData.asmdef
+    references:
+    - QuackUp.SceneManagement</code></pre>
+<p>Investigate first if editor-only or generated code may still use the assembly. Remove only after checking both runtime and editor paths.</p>
+<p><b>Example: duplication</b></p>
+<pre><code>public class Settings { public float MusicVolume; }
+public class UniversalSettings { public float MusicVolume; }</code></pre>
+<p>Refactor only when both classes represent the same concept and should share one source of truth. Keep as-is when they intentionally represent different scopes or save formats.</p>
+</div></details>
+<div class="summary" id="summary"></div>
+<div id="app"></div>
+</main>
+<script>
+const groups=[
+ {title:'P3-A — Dead code and repository hygiene',kind:'cleanup',rows:[
+  ['Reload-scene helper','ReloadScene references',''],['Fade tween state','_fadeTween',''],['Count-off timing','CountOffDuration',''],['Legacy game-record save types','GameRecordSave*',''],['Grid dead members','GridManager-related unused fields/methods',''],['Grid configuration switches','Unused grid config flags',''],['Factory current properties','Factory Current properties',''],['Pausable timer utility','PausableTimer',''],['Event filter utility','EventFilters',''],['VSync/framerate wiring','VsyncAndFramerateController wiring',''],['R3 helper utilities','R3Utils',''],['Floating UI manager','FloatingUIManager',''],['UI title placeholders','_title fields used only as inspector labels',''],['Input-blocked property','IsInputBlocked',''],['Commented-out implementation blocks','Comments containing retired code',''],['Debug save asset','Assets/QuackUp/Resources/DebugSaveManager.asset',''] ]},
+ {title:'P3-A — Unused assembly references',kind:'assembly',rows:[['FitMe.Entity references','Fit-Me asmdefs',''],['FitMe.Achievement references','Fit-Me asmdefs',''],['FitMe.Tutorial references','Fit-Me asmdefs',''],['FMODUnity reference','QuackUp.Save asmdef',''],['QuackUp.SceneManagement reference','FitMe.GameData asmdef','']]},
+ {title:'P3-B — Duplication reduction',kind:'duplication',rows:[['Settings core duplication','Settings / UniversalSettings (~150 LOC)',''],['Ad layout shift duplication','Repeated ad-layout shift blocks',''],['Tutorial hint-state duplication','Repeated tutorial hint state logic',''],['Cumulative stat achievement duplication','CumulativeStatAchievement family',''],['Solution provider prologue duplication','SolutionProvider implementations','']]},
+ {title:'P3-C — Architecture decisions',kind:'architecture',rows:[['Entity module direction','FitMe.Entity scaffolding',''],['Grid preset factory','Optional S1 phase 2: IGridPresetFactory',''],['Grid render orderer','Optional S1 phase 3: GridRenderOrderer',''],['Debug logging enforcement','Analyzer / .editorconfig ban on direct UnityEngine.Debug','']]}
+];
+const decisions=JSON.parse(localStorage.getItem('p3-decisions')||'{}');let fileHandle=null;let loadedName='p3-preservation-checklist.md';
+const examples={
+'Reload-scene helper':'`LoadSceneManager.LoadScene(scene, LoadSceneMode.Single, false).Forget();`\nPrefer the injected scene pipeline over raw SceneManager calls.',
+'Fade tween state':'`_fadeTween = panel.FadeTo(1f);`\nKeep only if the handle is later stopped/cancelled when a new fade starts.',
+'Count-off timing':'`await UniTask.Delay(TimeSpan.FromSeconds(3), cancellationToken: token);`\nCheck whether this timing is still used by gameplay or replaced by a state.',
+'Legacy game-record save types':'`GameRecordSaveObject : MessagePackSaveObject<GameRecordSaveData>`\nKeep if old save migration or compatibility still depends on it.',
+'Grid dead members':'`private int _unusedCellCount;`\nRemove only after checking reflection, serialization, and editor tooling.',
+'Grid configuration switches':'`[SerializeField] private bool _legacyMode;`\nPreserve if a planned level mode will consume it; otherwise classify as dead config.',
+'Factory current properties':'`public static Factory Current => _current;`\nInvestigate because static access may be legacy while DI is now preferred.',
+'Pausable timer utility':'`timer.Pause(); timer.Resume();`\nUseful for boosters, recharge timers, or tutorial countdowns.',
+'Event filter utility':'`source.Where(EventFilters.IsGameplayEvent)`\nKeep if it expresses a repeated domain filter clearly.',
+'VSync/framerate wiring':'`Application.targetFrameRate = settings.TargetFrameRate;`\nKeep if a platform-specific performance policy still uses it.',
+'R3 helper utilities':'`observable.Subscribe(OnChanged).AddTo(ref disposables);`\nKeep if the helper prevents subscription leaks or bridges observables.',
+'Floating UI manager':'`FloatingUIManager.Show(worldPosition, "+10");`\nKeep if floating score/damage text is planned; remove if no UI creates it.',
+'UI title placeholders':'`[ShowInInspector] private InspectorPlaceholder _title;`\nUsually inspector-only organization, not runtime behavior.',
+'Input-blocked property':'`if (IsInputBlocked) return;`\nKeep if modal panels or transitions still query this property.',
+'Commented-out implementation blocks':'`// old transition implementation`\nPreserve only if it documents a required compatibility path; otherwise use Git history.',
+'Debug save asset':'`DebugSaveManager.asset`\nKeep if designers still use editor save/load tools for QA.',
+'FitMe.Entity references':'`"GUID: FitMe.Entity"` in an asmdef\nRemove only after searching runtime and editor source for entity types.',
+'FitMe.Achievement references':'`using FitMe.Achievement;`\nThe asmdef reference is needed if this import or generated code remains.',
+'FitMe.Tutorial references':'`using FitMe.Tutorial;`\nCheck tutorial runtime and editor assemblies before removing.',
+'FMODUnity reference':'`"FMODUnity"` in QuackUp.Save.asmdef\nRemove if save code has no FMOD types or generated dependency.',
+'QuackUp.SceneManagement reference':'`"QuackUp.SceneManagement"` in FitMe.GameData.asmdef\nRemove only after checking scene-management types in all included files.',
+'Settings core duplication':'`Settings.MusicVolume` and `UniversalSettings.MusicVolume`\nRefactor only when both represent the same scope and source of truth.',
+'Ad layout shift duplication':'`layout.anchoredPosition += new Vector2(offset, 0);`\nExtract only if timing, anchors, and cancellation behavior are identical.',
+'Tutorial hint-state duplication':'`ShowHint().Forget(); await HideHint(token);`\nRefactor only when ownership and cancellation are identical across states.',
+'Cumulative stat achievement duplication':'`if (stat.Value >= target) Complete();`\nUse a generic base only when thresholds, persistence, and event timing match.',
+'Solution provider prologue duplication':'`var schema = grid.CreateVacantSchema(); if (!HasCandidates(schema)) return null;`\nExtract only when all providers share the same preparation contract.',
+'Entity module direction':'`EntityId -> Entity -> Component/System`\nGrow only for a concrete feature; retire if it remains scaffolding.',
+'Grid preset factory':'`GridPreset Create(GridPresetRequest request);`\nImplement only if presets must be generated at runtime or per mode.',
+'Grid render orderer':'`renderOrderer.ApplyOrder(cells);`\nImplement only if render ordering becomes shared and non-trivial.',
+'Debug logging enforcement':'`DebugUtils.Log("Placed block");` instead of `UnityEngine.Debug.Log(...)`\nAdd analyzer enforcement after logging policy stabilizes.'
+};
+function example(title){return examples[title]||'Review current callers and planned features before deciding.'}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function key(g,i){return g+'-'+i}function render(){const q=document.querySelector('#filter').value.toLowerCase();const app=document.querySelector('#app');app.innerHTML='';groups.forEach((g,gi)=>{const rows=g.rows.map((r,i)=>({...{r,i},d:decisions[key(gi,i)]||{}})).filter(x=>(x.r.join(' ').toLowerCase().includes(q)));if(!rows.length)return;const s=document.createElement('section');s.innerHTML=`<h2>${esc(g.title)}</h2><div class="table-wrap"><table><thead><tr><th>Keep</th><th>Remove</th><th>Investigate</th><th>Item</th><th>Location / scope</th><th>Example / snippet</th><th>Decision / rationale</th></tr></thead><tbody></tbody></table></div>`;const body=s.querySelector('tbody');rows.forEach(x=>{const k=key(gi,x.i),d=x.d;const tr=document.createElement('tr');tr.innerHTML=`<td class="choice keep"><input type="radio" name="${k}" data-k="${k}" value="keep" ${d.choice==='keep'?'checked':''}></td><td class="choice remove"><input type="radio" name="${k}" data-k="${k}" value="remove" ${d.choice==='remove'?'checked':''}></td><td class="choice investigate"><input type="radio" name="${k}" data-k="${k}" value="investigate" ${d.choice==='investigate'?'checked':''}></td><td class="item">${esc(x.r[0])}</td><td class="location">${esc(x.r[1])}</td><td class="example"><pre>${esc(example(x.r[0]))}</pre></td><td><textarea data-note="${k}" placeholder="Optional rationale…">${esc(d.note||'')}</textarea></td>`;body.append(tr)});app.append(s)});bind();updateSummary()}
+function bind(){document.querySelectorAll('input[data-k]').forEach(el=>el.onchange=()=>{decisions[el.dataset.k]??={};decisions[el.dataset.k].choice=el.value;persist();updateSummary()});document.querySelectorAll('textarea[data-note]').forEach(el=>el.oninput=()=>{decisions[el.dataset.note]??={};decisions[el.dataset.note].note=el.value;persist()})}
+function persist(){localStorage.setItem('p3-decisions',JSON.stringify(decisions));document.querySelector('#status').textContent='Saved locally'}
+function updateSummary(){let n={keep:0,remove:0,investigate:0,none:0};groups.forEach((g,gi)=>g.rows.forEach((_,i)=>n[decisions[key(gi,i)]?.choice||'none']++));document.querySelector('#summary').innerHTML=Object.entries(n).map(([k,v])=>`<span class="badge">${k}: <b>${v}</b></span>`).join('')}
+function markdown(){let out='# Pass 3 Preservation Checklist\n\nGenerated by the local browser editor. Unchecked items are not approved for removal.\n\n';groups.forEach((g,gi)=>{out+=`## ${g.title}\n\n| Keep | Remove | Investigate | Item | Location / scope | Decision / rationale |\n|---|---|---|---|---|---|\n`;g.rows.forEach((r,i)=>{const d=decisions[key(gi,i)]||{};out+=`| ${d.choice==='keep'?'[x]':'[ ]'} | ${d.choice==='remove'?'[x]':'[ ]'} | ${d.choice==='investigate'?'[x]':'[ ]'} | ${r[0].replaceAll('|','\\|')} | ${r[1].replaceAll('|','\\|')} | ${(d.note||'').replaceAll('|','\\|').replaceAll('\n',' ')} |\n`});out+='\n'});out+='## Approval summary\n\n- [ ] All reviewed candidates classified.\n- [ ] Cleanup may proceed only for explicitly approved items.\n';return out}
+async function load(){try{if(window.showOpenFilePicker){[fileHandle]=await showOpenFilePicker({types:[{description:'Markdown',accept:{'text/markdown':['.md']}}],multiple:false});const f=await fileHandle.getFile();loadedName=f.name}else{alert('Use Download Markdown to create a copy; this browser does not support direct file picking.')}document.querySelector('#status').textContent=`Loaded ${loadedName}`}catch(e){if(e.name!=='AbortError')alert(e)}}
+async function save(){const data=markdown();try{if(fileHandle){const w=await fileHandle.createWritable();await w.write(data);await w.close();document.querySelector('#status').textContent=`Saved ${loadedName}`}else{downloadData(data)}}catch(e){alert('Could not write the file. Use Download Markdown instead.\n\n'+e)}}
+function downloadData(data=markdown()){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'text/markdown'}));a.download=loadedName||'p3-preservation-checklist.md';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);document.querySelector('#status').textContent='Downloaded Markdown backup'}
+document.querySelector('#load').onclick=load;document.querySelector('#save').onclick=save;document.querySelector('#download').onclick=()=>downloadData();document.querySelector('#filter').oninput=render;document.querySelector('#reset').onclick=()=>{if(confirm('Reset all decisions and notes?')){Object.keys(decisions).forEach(k=>delete decisions[k]);persist();render()}};render();
+</script>
+</body>
+</html>
