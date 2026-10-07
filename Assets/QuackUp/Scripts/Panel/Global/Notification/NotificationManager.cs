@@ -80,30 +80,35 @@ namespace FitMe.Panel
         private async UniTaskVoid ShowNextNotification()
         {
             _showingNotification = true;
-            var notificationEvent = _notificationQueue.Dequeue();
-            if (!_config.NotificationPrefabDictionary.TryGetValue(notificationEvent.notificationType, out var prefabData))
+            while (_notificationQueue.Count > 0)
             {
-                Debug.LogWarning($"No notification prefab found for type: {notificationEvent.notificationType}");
+                var notificationEvent = _notificationQueue.Dequeue();
+                if (!_config.NotificationPrefabDictionary.TryGetValue(notificationEvent.notificationType, out var prefabData))
+                {
+                    Debug.LogWarning($"No notification prefab found for type: {notificationEvent.notificationType}");
+                    notificationEvent.CompletionPromise?.TrySetResult(Unit.Default);
+                    continue;
+                }
+
+                var view = prefabData.notificationViewPrefab.InstantiateAsInterface(new InstantiateParameters
+                {
+                    parent = _notificationParentTransform,
+                    worldSpace = false
+                }, out var viewObject);
+                var rectTransform = (RectTransform)viewObject.transform;
+                rectTransform.anchoredPosition = prefabData.initialPosition;
+                view.Initialize();
+                view.SetData(notificationEvent.data);
+                _audioManager.PlayAudioOneShot(prefabData.soundEffect, Vector3.zero);
+                await view.Show();
+                await UniTask.WhenAll(UniTask.WaitForSeconds(_config.NotificationStayDuration),
+                    view.PlayAnimation());
+                await view.Hide();
                 notificationEvent.CompletionPromise?.TrySetResult(Unit.Default);
-                _showingNotification = false;
-                return;
+                Object.Destroy(viewObject);
+                break;
             }
-            var view = prefabData.notificationViewPrefab.InstantiateAsInterface(new InstantiateParameters
-            {
-                parent = _notificationParentTransform,
-                worldSpace = false
-            }, out var viewObject);
-            var rectTransform = (RectTransform)viewObject.transform;
-            rectTransform.anchoredPosition = prefabData.initialPosition;
-            view.Initialize();
-            view.SetData(notificationEvent.data);
-            _audioManager.PlayAudioOneShot(prefabData.soundEffect, Vector3.zero);
-            await view.Show();
-            await UniTask.WhenAll(UniTask.WaitForSeconds(_config.NotificationStayDuration),
-                view.PlayAnimation());
-            await view.Hide();
-            notificationEvent.CompletionPromise?.TrySetResult(Unit.Default);
-            Object.Destroy(viewObject);
+
             _showingNotification = false;
             if (_notificationQueue.Count > 0)
             {

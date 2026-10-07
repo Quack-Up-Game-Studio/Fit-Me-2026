@@ -6449,19 +6449,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -1146}
   m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &630128014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 630128012}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65fe2a02ba594bac8a8fa6d249bf0c4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FitMe.Entity::FitMe.Entity.PlayerHealthUIView
-  healthText: {fileID: 630128015}
 --- !u!114 &630128015
 MonoBehaviour:
   m_ObjectHideFlags: 0
