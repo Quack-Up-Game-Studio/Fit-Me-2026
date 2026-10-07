@@ -25,7 +25,7 @@ namespace FitMe.Scene
         
         [field: Title("Other Setting")]
         [field: SerializeField] public bool HasCountOff { get; private set; } = true;
-        [field: SerializeField] public float CountOffDuration { get; private set; } = 3f;
+
         [field: SerializeField] public EventReference GameplayBgm { get; private set; }
         [field: SerializeField] public ShakeSettings CameraFitShakeSettings { get; private set; }
         [field: SerializeField] public float CameraFitShakeStrengthFactor { get; private set; } = 1f;

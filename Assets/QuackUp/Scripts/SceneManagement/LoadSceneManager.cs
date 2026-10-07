@@ -176,17 +176,19 @@ namespace QuackUp.SceneManagement
         }
         
         #region Scene Loading
-        
-        public void ReloadScene(LoadSceneMode loadSceneMode, bool useLoadingScene)
+
+        public async UniTask ReloadScene(LoadSceneMode loadSceneMode, bool useLoadingScene)
         {
             var currentSceneName = _backend.GetScenePath(_backend.GetActiveSceneHandle());
-            var sceneType = _config.SceneReferences.FirstOrDefault(x => x.Value.Path == currentSceneName).Key;
-            if (sceneType == default)
+            var sceneEntry = _config.SceneReferences
+                .FirstOrDefault(x => x.Value.Path == currentSceneName);
+            if (sceneEntry.Value == null)
             {
                 Debug.LogError($"Current scene '{currentSceneName}' not found in the dictionary.");
                 return;
             }
-            LoadScene(sceneType, loadSceneMode, useLoadingScene).Forget();
+
+            await LoadScene(sceneEntry.Key, loadSceneMode, useLoadingScene);
         }
         
         public async UniTask LoadScene(SceneType sceneType, LoadSceneMode loadSceneMode, bool useLoadingScene)

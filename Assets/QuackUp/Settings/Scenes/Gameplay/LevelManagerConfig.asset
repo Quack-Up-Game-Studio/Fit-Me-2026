@@ -213,7 +213,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   <HasCountOff>k__BackingField: 0
-  <CountOffDuration>k__BackingField: 3
+
   <GameplayBgm>k__BackingField:
     Guid:
       Data1: -427414803

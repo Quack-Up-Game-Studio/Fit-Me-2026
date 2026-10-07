@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using FitMe.Achievement;
-using FitMe.Entity;
+
 using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Shared;
