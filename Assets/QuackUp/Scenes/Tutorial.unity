@@ -6420,7 +6420,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 630128013}
-  - component: {fileID: 630128014}
   - component: {fileID: 630128016}
   - component: {fileID: 630128015}
   m_Layer: 5

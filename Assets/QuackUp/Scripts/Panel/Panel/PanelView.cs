@@ -138,24 +138,32 @@ namespace FitMe.Panel
         {
             var operationId = ++_transitionOperationId;
             var transitionState = direction ? TransitionState.In : TransitionState.Out;
+            Exception transitionError = null;
+            var canceled = false;
             try
             {
                 await Transition(transitionCommandData.TransitionKey, direction, transitionCommandData.Promise.CancellationToken);
-                transitionCommandData.Promise.TrySetResult(Unit.Default);
             }
             catch (OperationCanceledException)
             {
-                transitionCommandData.Promise.TrySetCanceled();
+                canceled = true;
             }
             catch (Exception error)
             {
-                transitionCommandData.Promise.TrySetException(error);
+                transitionError = error;
             }
             finally
             {
                 if (_transitionOperationId == operationId && BaseViewModel.TransitionState.Value == transitionState)
                     BaseViewModel.TransitionState.Value = TransitionState.None;
             }
+
+            if (canceled)
+                transitionCommandData.Promise.TrySetCanceled();
+            else if (transitionError != null)
+                transitionCommandData.Promise.TrySetException(transitionError);
+            else
+                transitionCommandData.Promise.TrySetResult(Unit.Default);
         }
 
         protected virtual async UniTask Transition(string transitionKey, bool direction, CancellationToken cancellationToken = default)

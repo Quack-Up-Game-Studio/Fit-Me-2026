@@ -46,6 +46,17 @@ namespace FitMe.Panel.Tests
             Assert.That(completionPromise.Task.Status, Is.EqualTo(UniTaskStatus.Succeeded));
         }
 
+        [Test]
+        public void Promise_CancelAfterDisposal_IsSafe()
+        {
+            var promise = new Promise<Unit>();
+            promise.Dispose();
+
+            Assert.That(promise.TrySetCanceled(), Is.False);
+            Assert.DoesNotThrow(promise.Cancel);
+            Assert.DoesNotThrow(() => promise.CancelAfter(TimeSpan.Zero));
+        }
+
         private sealed class NotificationHub : IMessageHub
         {
             private Action<NotificationDisplayEvent> _notificationSubscriber;

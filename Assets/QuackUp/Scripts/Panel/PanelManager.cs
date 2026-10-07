@@ -27,6 +27,8 @@ namespace FitMe.Panel
         private readonly Subject<Unit> _onFinishedInitialize = new Subject<Unit>();
         private readonly IReadOnlyDictionary<string, PanelLifetimeScope> _lifetimeScopes;
         private readonly Dictionary<string, IPanelViewModel> _panels = new();
+        private readonly Dictionary<string, long> _panelTransitionGenerations = new();
+        private long _nextTransitionGeneration;
         private readonly string _startupPanelId;
         
         [Inject]
@@ -173,7 +175,9 @@ namespace FitMe.Panel
             CancellationToken cancellationToken = default)
         {
             if (toPanel == null) return;
+            var generation = BeginPanelTransition(toPanel.PanelId);
             toPanel.VisibilityState.Value = VisibilityState.Visible;
+            if (!OwnsPanelTransition(toPanel.PanelId, generation)) return;
             if (playTransition)
             {
                 using var transitionPromise = new Promise<Unit>();
@@ -181,6 +185,7 @@ namespace FitMe.Panel
                 toPanel.TransitionInCommand.Execute(new TransitionCommandData(transitionPromise, fromPanelId));
                 await transitionPromise.Task;
             }
+            if (!OwnsPanelTransition(toPanel.PanelId, generation)) return;
             toPanel.InputState.Value = InputState.Active;
         }
         
@@ -188,6 +193,7 @@ namespace FitMe.Panel
             CancellationToken cancellationToken = default)
         {
             if (fromPanel == null) return;
+            var generation = BeginPanelTransition(fromPanel.PanelId);
             fromPanel.InputState.Value = InputState.Inactive;
             if (playTransition)
             {
@@ -196,8 +202,19 @@ namespace FitMe.Panel
                 fromPanel.TransitionOutCommand.Execute(new TransitionCommandData(transitionPromise, toPanelId));
                 await transitionPromise.Task;
             }
+            if (!OwnsPanelTransition(fromPanel.PanelId, generation)) return;
             fromPanel.VisibilityState.Value = VisibilityState.Hidden;
         }
+
+        private long BeginPanelTransition(string panelId)
+        {
+            var generation = ++_nextTransitionGeneration;
+            _panelTransitionGenerations[panelId] = generation;
+            return generation;
+        }
+
+        private bool OwnsPanelTransition(string panelId, long generation) =>
+            _panelTransitionGenerations.TryGetValue(panelId, out var currentGeneration) && currentGeneration == generation;
 
         private static async UniTask ObserveSibling(UniTask sibling)
         {
