@@ -230,6 +230,7 @@ namespace QuackUp.Save
             }
             DebugSaveManager.Instance.SaveManager.Save(this);
         }
+#endif
 
         private void SaveInternal()
         {
@@ -251,6 +252,7 @@ namespace QuackUp.Save
             LoadInternal();
         }
         
+#if UNITY_EDITOR
         private void DebugLoad()
         {
             if (SaveSeparately)
