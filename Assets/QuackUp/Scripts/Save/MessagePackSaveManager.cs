@@ -410,6 +410,14 @@ namespace QuackUp.Save
             }
         }
 
+        public bool HasApplicableSaveData(DeserializedSaveData deserializedSaveData)
+        {
+            if (deserializedSaveData?.SaveData == null) return false;
+            return deserializedSaveData.SaveData.Any(entry =>
+                entry.Value != null &&
+                _saveObjects.TryGetValue(entry.Key, out var saveObject) && saveObject);
+        }
+
         public DeserializedSaveData DeserializeSaveDataFromZipBytes(byte[] zipBytes)
         {
             var deserializedData = new DeserializedSaveData();

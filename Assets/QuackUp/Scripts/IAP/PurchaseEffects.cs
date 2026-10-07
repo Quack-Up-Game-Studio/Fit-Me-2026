@@ -133,7 +133,15 @@ namespace QuackUp.IAP
 
                     if (saveData.TryMarkPurchaseAnalyticsAttempted(transactionId))
                     {
-                        _saveManager.SaveRequired(saveObject);
+                        try
+                        {
+                            _saveManager.SaveRequired(saveObject);
+                        }
+                        catch
+                        {
+                            saveData.TryUnmarkPurchaseAnalyticsAttempted(transactionId);
+                            throw;
+                        }
                         TrackPurchaseAnalytics(product, id, transactionId);
                     }
                     return;

@@ -377,8 +377,8 @@ namespace QuackUp.SceneManagement
                 Publish(request, LoadSceneStage.StartIn);
                 if (_disposed) return;
                 await _currentTransitionScreen.TransitionOut();
-                Publish(request, LoadSceneStage.FinishIn);
                 request.RevealCompleted = true;
+                Publish(request, LoadSceneStage.FinishIn);
             }
             catch (Exception error)
             {
