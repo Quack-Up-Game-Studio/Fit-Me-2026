@@ -15,7 +15,6 @@ namespace FitMe.Panel
         [SerializeField] private bool relative;
         [SerializeField] private TweenSettings<float> transitionSettings;
 
-        private Sequence _transitionSequence;
         private Component _transitionObject;
 
         public void Initialize(ITransitionObjectProvider provider)
@@ -26,6 +25,7 @@ namespace FitMe.Panel
         public Sequence? Transition(CancellationToken cancellationToken = default, CancelBehavior cancelBehavior = CancelBehavior.Stop)
         {
             if (!_transitionObject) return null;
+            Sequence? transitionSequence = null;
             TweenSettings<float> settings;
             switch (_transitionObject)
             {
@@ -33,35 +33,36 @@ namespace FitMe.Panel
                     settings = relative
                         ? transitionSettings.ToRelative(canvasGroup.alpha)
                         : transitionSettings;
-                    _transitionSequence = Sequence.Create()
+                    transitionSequence = Sequence.Create()
                         .Group(Tween.Alpha(canvasGroup, settings));
                     break;
                 case Graphic image:
                     settings = relative
                         ? transitionSettings.ToRelative(image.color.a)
                         : transitionSettings;
-                    _transitionSequence = Sequence.Create()
+                    transitionSequence = Sequence.Create()
                         .Group(Tween.Alpha(image, settings));
                     break;
                 case Shadow shadow:
                     settings = relative
                         ? transitionSettings.ToRelative(shadow.effectColor.a)
                         : transitionSettings;
-                    _transitionSequence = Sequence.Create()
+                    transitionSequence = Sequence.Create()
                         .Group(Tween.Alpha(shadow, settings));
                     break;
                 case SpriteRenderer spriteRenderer:
                     settings = relative
                         ? transitionSettings.ToRelative(spriteRenderer.color.a)
                         : transitionSettings;
-                    _transitionSequence = Sequence.Create()
+                    transitionSequence = Sequence.Create()
                         .Group(Tween.Alpha(spriteRenderer, settings));
                     break;
                 default:
                     Debug.LogWarning("AlphaTransition: Unsupported component type for alpha transition.");
                     break;
             }
-            var sequence = _transitionSequence;
+            if (!transitionSequence.HasValue) return null;
+            var sequence = transitionSequence.Value;
             CancellationTokenRegistration registration = default;
             registration = cancellationToken.Register(() =>
             {
