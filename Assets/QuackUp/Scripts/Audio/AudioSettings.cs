@@ -166,6 +166,8 @@ namespace QuackUp.Audio
         public void LoadFromSaveData(AudioSaveData saveData)
         {
             Debug.Log("Loading audio settings from save data.");
+            saveData ??= new AudioSaveData();
+            saveData.BusSaveData ??= new Dictionary<BusType, BusSaveData>();
             foreach (var busEntry in BusData)
             {
                 if (!saveData.BusSaveData.TryGetValue(busEntry.Key, out var busSaveData))
