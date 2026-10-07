@@ -1,4 +1,5 @@
 using System;
+using FitMe.Scene;
 using QuackUp.GoogleAdMob;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
@@ -31,6 +32,7 @@ namespace FitMe.Scene.MainMenu
         private readonly OutOfEnergyManager _outOfEnergyManager;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
+        private readonly IPendingScenePayload _pendingScenePayload;
         
         private IDisposable _subscriptions;
         private IDisposable _panelSubscriptions;
@@ -48,6 +50,7 @@ namespace FitMe.Scene.MainMenu
             AdsService adsService,
             OutOfEnergyManager outOfEnergyManager,
             IAudioManager audioManager,
+            IPendingScenePayload pendingScenePayload,
             [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub)
         {
             _mainMenuManagerConfig = mainMenuManagerConfig;
@@ -60,6 +63,7 @@ namespace FitMe.Scene.MainMenu
             _adsService = adsService;
             _outOfEnergyManager = outOfEnergyManager;
             _audioManager = audioManager;
+            _pendingScenePayload = pendingScenePayload;
             _messageHub = messageHub;
             Subscribe();
         }
@@ -175,14 +179,14 @@ namespace FitMe.Scene.MainMenu
 
         private async UniTask ToTutorial()
         {
-            LevelManager.GameMode = GameMode.Classic;
+            _pendingScenePayload.Set(new LevelSessionRequest(GameMode.Classic, null));
             await _loadSceneManager.LoadScene(SceneType.Tutorial, LoadSceneMode.Single, false);
         }
 
         private async UniTaskVoid ToGameplay()
         {
             _energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.MainMenuPlay);
-            LevelManager.GameMode = GameMode.Classic;
+            _pendingScenePayload.Set(new LevelSessionRequest(GameMode.Classic, null));
             await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
         }
 

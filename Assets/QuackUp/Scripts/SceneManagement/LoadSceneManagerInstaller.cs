@@ -48,6 +48,8 @@ namespace QuackUp.SceneManagement
         public void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(config).AsSelf();
+            builder.Register<PendingScenePayload>(Lifetime.Singleton)
+                .As<IPendingScenePayload>();
             builder.RegisterComponent(transitionScreen)
                 .As<ITransitionable>();
             builder.Register<UnitySceneLoadBackend>(Lifetime.Singleton).As<ISceneLoadBackend>();

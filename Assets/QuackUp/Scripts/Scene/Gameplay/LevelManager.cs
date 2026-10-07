@@ -39,8 +39,6 @@ namespace FitMe.Scene
         /// </remarks>
         public ReadOnlyReactiveProperty<bool> IsPaused => _isPaused.ToReadOnlyReactiveProperty();
         
-        public static GameMode GameMode { get; set; }
-        public static GridPreset GridPreset { get; set; }
         public bool IsTutorial { get; set; }
         public Observable<Unit> OnScoreUpdated => _onScoreUpdated;
 
@@ -66,7 +64,11 @@ namespace FitMe.Scene
         private readonly ILeaderboardService _leaderboardService;
         private readonly ICloudSaveService _cloudSaveService;
         private readonly IAnalyticsService _analyticsService;
-        
+        private readonly IPendingScenePayload _pendingScenePayload;
+
+        private GameMode _gameMode = GameMode.Classic;
+        private GridPreset _gridPreset;
+
         private List<GridPreset> _presets;
         private Queue<GridPreset> _tutorialPresets;
         private PlayerRecordSaveObject _playerRecordSaveObject;
@@ -90,7 +92,8 @@ namespace FitMe.Scene
             OrthographicCameraManager orthographicCameraManager,
             ILeaderboardService leaderboardService,
             ICloudSaveService cloudSaveService,
-            IAnalyticsService analyticsService)
+            IAnalyticsService analyticsService,
+            IPendingScenePayload pendingScenePayload)
         {
             _config = config;
             _audioManager = audioManager;
@@ -104,6 +107,7 @@ namespace FitMe.Scene
             _leaderboardService = leaderboardService;
             _cloudSaveService = cloudSaveService;
             _analyticsService = analyticsService;
+            _pendingScenePayload = pendingScenePayload;
             Initialize();
             Subscribe();
         }
@@ -190,6 +194,17 @@ namespace FitMe.Scene
                 return;
             }
 
+            if (_pendingScenePayload.TryTake<LevelSessionRequest>(out var request))
+            {
+                _gameMode = request.GameMode;
+                _gridPreset = request.GridPreset;
+            }
+            else
+            {
+                _gameMode = GameMode.Classic;
+                _gridPreset = null;
+            }
+
             CheckGameMode();
             _onResultSubscription = resultPanel.OnResultVisible
                 .Subscribe(_ => OnResult());
@@ -202,10 +217,10 @@ namespace FitMe.Scene
             _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             DebugUtils.Log($"PlayerRecordSaveObject found: {_playerRecordSaveObject}");
             if (IsTutorial) return;
-            if (!GridPreset) 
+            if (!_gridPreset)
                 _messageHub.Publish(new StartCreateGridEvent());
             else
-                _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
+                _messageHub.Publish(new SpawnWithGridPresetEvent(_gridPreset));
             _levelNumber++;
             
             /* Analytics */
@@ -253,7 +268,7 @@ namespace FitMe.Scene
         #region GameMode
         public void CheckGameMode()
         {
-            switch (GameMode)
+            switch (_gameMode)
             {
                 case GameMode.Classic:
                     OriginalMode();
@@ -266,14 +281,14 @@ namespace FitMe.Scene
         
         private void OriginalMode()
         {
-            GridPreset = _config.OriginalLevel;
+            _gridPreset = _config.OriginalLevel;
             _difficultyCurve = _config.OriginalLevelCurve;
             _levelCycle = _config.OriginalLevelsPerCycle;
         }
         
         private void LevelShapeMode()
         {
-            GridPreset = GetLevelFromPool();
+            _gridPreset = GetLevelFromPool();
             _difficultyCurve = _config.ShapeLevelCurve;
             _levelCycle = _config.ShapeLevelsPerCycle;
         }
@@ -300,15 +315,15 @@ namespace FitMe.Scene
         public void ResetLevelPool()
         {
             _presets = null;
-            GridPreset = null;
+            _gridPreset = null;
         }
 
         public async UniTask NextTutorialPreset(bool playSound)
         {
             if (!IsTutorial) return;
             await _gridManager.ClearGrid(playSound: false);
-            GridPreset = GetTutorialLevel();
-            _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
+            _gridPreset = GetTutorialLevel();
+            _messageHub.Publish(new SpawnWithGridPresetEvent(_gridPreset));
             _levelNumber++;
             
             /* Analytics */
@@ -345,8 +360,8 @@ namespace FitMe.Scene
 
             if (IsTutorial) return;
             ChangeDifficultyLevel();
-            GridPreset = GameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
-            _messageHub.Publish(new SpawnWithGridPresetEvent(GridPreset));
+            _gridPreset = _gameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
+            _messageHub.Publish(new SpawnWithGridPresetEvent(_gridPreset));
             _levelNumber++;
             
             /* Analytics */

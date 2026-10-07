@@ -19,6 +19,7 @@ namespace FitMe.Scene
         private readonly PanelManager _panelManager;
         private readonly LoadSceneManager _loadSceneManager;
         private readonly EnergyManager _energyManager;
+        private readonly IPendingScenePayload _pendingScenePayload;
         
         private IDisposable _subscriptions;
         
@@ -26,12 +27,14 @@ namespace FitMe.Scene
         public ModeSelectManager(
             PanelManager panelManager,
             LoadSceneManager loadSceneManager,
-            EnergyManager energyManager)
+            EnergyManager energyManager,
+            IPendingScenePayload pendingScenePayload)
 
         {
             _panelManager = panelManager;
             _loadSceneManager = loadSceneManager;
             _energyManager = energyManager;
+            _pendingScenePayload = pendingScenePayload;
         }
         
         public void Start()
@@ -62,7 +65,7 @@ namespace FitMe.Scene
                 return;
             }
             _energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.ModeSelectPlay);
-            LevelManager.GameMode = mode;
+            _pendingScenePayload.Set(new LevelSessionRequest(mode, null));
             await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
         }
     }

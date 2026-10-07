@@ -1,5 +1,7 @@
 using System;
 using FitMe.Panel;
+using FitMe.Shared;
+using QuackUp.SceneManagement;
 using R3;
 using UnityEngine;
 using VContainer;
@@ -10,14 +12,17 @@ namespace FitMe.Scene
     public class LevelSelectManager : IStartable, IDisposable
     {
         private readonly PanelManager _panelManager;
+        private readonly IPendingScenePayload _pendingScenePayload;
         
         private IDisposable _subscriptions;
         
         [Inject]
         public LevelSelectManager(
-            PanelManager panelManager)
+            PanelManager panelManager,
+            IPendingScenePayload pendingScenePayload)
         {
             _panelManager = panelManager;
+            _pendingScenePayload = pendingScenePayload;
         }
         
         public void Start()
@@ -33,7 +38,7 @@ namespace FitMe.Scene
             levelSelectViewModel.LevelSelected
                 .Subscribe(preset =>
                 {
-                    LevelManager.GridPreset = preset;
+                    _pendingScenePayload.Set(new LevelSessionRequest(GameMode.LevelShape, preset));
                 })
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
