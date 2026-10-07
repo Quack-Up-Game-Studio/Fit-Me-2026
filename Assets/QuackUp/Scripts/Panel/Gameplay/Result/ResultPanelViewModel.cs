@@ -48,6 +48,7 @@ namespace FitMe.Panel
         private readonly EnergyManager _energyManager;
         private readonly AdsService _adsService;
         private readonly IScoreManager _scoreManager;
+        private readonly IPendingScenePayload _pendingScenePayload;
 
         private int _scoreBeforeSave;
         private int _fitMeBeforeSave;
@@ -64,11 +65,13 @@ namespace FitMe.Panel
             AdsService adsService,
             OutOfEnergyManager outOfEnergyManager,
             IScoreManager scoreManager,
-            IAudioManager audioManager)
+            IAudioManager audioManager,
+            IPendingScenePayload pendingScenePayload)
             : base(panelManager)
         {
             _loadSceneManager = loadSceneManager;
             _scoreManager = scoreManager;
+            _pendingScenePayload = pendingScenePayload;
             _energyManager = energyManager;
             _adsService = adsService;
             OutOfEnergyManager = outOfEnergyManager;
@@ -173,13 +176,20 @@ namespace FitMe.Panel
             }
             else
             {
+                SetRetrySessionPayload();
                 await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
             }
+        }
+
+        private void SetRetrySessionPayload()
+        {
+            _pendingScenePayload.TryRequeueActive();
         }
 
         private void OnAdsClosedOrFailed(SceneType sceneType)
         {
             _adSubscription.Dispose();
+            if (sceneType == SceneType.Gameplay) SetRetrySessionPayload();
             _loadSceneManager.LoadScene(sceneType, LoadSceneMode.Single, false).Forget();
         }
     }

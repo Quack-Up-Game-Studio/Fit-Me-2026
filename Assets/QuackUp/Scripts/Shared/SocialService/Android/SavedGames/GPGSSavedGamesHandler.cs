@@ -125,9 +125,9 @@ namespace FitMe.SocialService.Android
         
         private async UniTask OnSaveLoaded((bool success, byte[] bytes) result, CancellationToken cancellationToken)
         {
-            if (!_readinessGate.TryBeginRemoteApply())
+            if (!_readinessGate.TryBeginRemoteApply(out var applyGeneration))
             {
-                DebugUtils.LogWarning("GPGSSavedGamesHandler: Ignoring cloud data received after save readiness was released.");
+                DebugUtils.LogWarning("GPGSSavedGamesHandler: Ignoring obsolete automatic cloud data after readiness or an explicit cloud selection.");
                 _cloudLoadCompletedTcs.TrySetResult();
                 return;
             }
@@ -181,7 +181,7 @@ namespace FitMe.SocialService.Android
                 }
                 
                 var conflictSolution = await _remoteSaveResolver.ResolveConflictAsync(deserializedLocal, deserializedRemote);
-                if (cancellationToken.IsCancellationRequested) return;
+                if (cancellationToken.IsCancellationRequested || !_readinessGate.IsCurrent(applyGeneration)) return;
                 switch (conflictSolution)
                 {
                     case ConflictSolution.UseLocal:
@@ -270,8 +270,49 @@ namespace FitMe.SocialService.Android
 
         public async UniTask<bool> LoadFromService(LoadFromServiceParameters parameters)
         {
-            var result = await _gpgsSavedGames.LoadFromService(parameters.ShowSelectionUI);
-            return result.success;
+            var result = await _gpgsSavedGames.LoadFromService(
+                parameters.ShowSelectionUI,
+                publishResult: false);
+            if (!result.success || result.bytes == null)
+            {
+                _onSyncResult.OnNext(false);
+                return false;
+            }
+
+            DeserializedSaveData selectedSave;
+            try
+            {
+                selectedSave = _messagePackSaveManager.DeserializeSaveDataFromZipBytes(result.bytes);
+                if (selectedSave == null)
+                {
+                    _onSyncResult.OnNext(false);
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                DebugUtils.LogError($"Failed to deserialize the user-selected cloud save: {e}");
+                _onSyncResult.OnNext(false);
+                return false;
+            }
+
+            var applyGeneration = _readinessGate.BeginExplicitRemoteApply();
+            try
+            {
+                if (!_readinessGate.IsCurrent(applyGeneration)) return false;
+                _messagePackSaveManager.LoadFromDeserializedData(selectedSave);
+                if (!_readinessGate.CompleteExplicitRemoteApply(applyGeneration)) return false;
+                _onSyncResult.OnNext(true);
+                _cloudLoadCompletedTcs.TrySetResult();
+                CompleteReadiness();
+                return true;
+            }
+            catch (Exception e)
+            {
+                DebugUtils.LogError($"Failed to apply the user-selected cloud save: {e}");
+                _onSyncResult.OnNext(false);
+                return false;
+            }
         }
 
         public void Dispose()

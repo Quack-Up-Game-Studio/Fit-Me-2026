@@ -306,18 +306,20 @@ namespace QuackUp.GPGS
         #endregion
         
         #region Load
-        public async UniTask<(bool success, byte[] bytes)> LoadFromService(bool allowLoadSelection = false)
+        public async UniTask<(bool success, byte[] bytes)> LoadFromService(
+            bool allowLoadSelection = false,
+            bool publishResult = true)
         {
             if (!PlayGamesPlatform.Instance.IsAuthenticated())
             {
-                _onLoadFromService.OnNext(new (false, null));
+                PublishLoadResult(false, null, publishResult);
                 return (false, null);
             }
             var unopenedSaveGameResult = await TryGetUnopenedSavedGame(allowLoadSelection, _config.LoadUIConfig);
             if ((!unopenedSaveGameResult.success || unopenedSaveGameResult.savedGameMetadata == null) && allowLoadSelection)
             {
                 Debug.Log("No save game selected or available to load.");
-                _onLoadFromService.OnNext(new (false, null));
+                PublishLoadResult(false, null, publishResult);
                 return (false, null);
             }
             var fileName = unopenedSaveGameResult.savedGameMetadata == null ? "save_0" : unopenedSaveGameResult.savedGameMetadata.Filename;
@@ -325,7 +327,7 @@ namespace QuackUp.GPGS
             if (!openResult.success || openResult.savedGameMetadata == null)
             {
                 Debug.LogWarning("Failed to open the selected save game.");
-                _onLoadFromService.OnNext(new (false, null));
+                PublishLoadResult(false, null, publishResult);
                 return (false, null);
             }
             var openedSavedGame = openResult.savedGameMetadata;
@@ -333,12 +335,17 @@ namespace QuackUp.GPGS
             if (!loadResult.success || loadResult.bytes == null)
             {
                 Debug.LogWarning("Failed to load the selected save game.");
-                _onLoadFromService.OnNext(new (false, null));
+                PublishLoadResult(false, null, publishResult);
                 return(false, null);
             }
             Debug.Log("Game loaded from cloud successfully.");
-            _onLoadFromService.OnNext(loadResult);
+            PublishLoadResult(loadResult.success, loadResult.bytes, publishResult);
             return loadResult;
+        }
+
+        private void PublishLoadResult(bool success, byte[] bytes, bool shouldPublish)
+        {
+            if (shouldPublish) _onLoadFromService.OnNext((success, bytes));
         }
 
         private async UniTask<(bool success, byte[] bytes)> TryLoadSavedGame(ISavedGameMetadata savedGame)

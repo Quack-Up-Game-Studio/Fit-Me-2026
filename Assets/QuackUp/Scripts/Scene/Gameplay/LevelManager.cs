@@ -199,6 +199,11 @@ namespace FitMe.Scene
                 _gameMode = request.GameMode;
                 _gridPreset = request.GridPreset;
             }
+            else if (_pendingScenePayload.TryTake<LevelSessionRequest>(out var retryRequest))
+            {
+                _gameMode = retryRequest.GameMode;
+                _gridPreset = retryRequest.GridPreset;
+            }
             else
             {
                 _gameMode = GameMode.Classic;
@@ -206,6 +211,7 @@ namespace FitMe.Scene
             }
 
             CheckGameMode();
+            _pendingScenePayload.SetActive(new LevelSessionRequest(_gameMode, _gridPreset));
             _onResultSubscription = resultPanel.OnResultVisible
                 .Subscribe(_ => OnResult());
             _onReturnToGameplaySubscription = gameOverPanel.OnReturnToGameplay
@@ -288,7 +294,7 @@ namespace FitMe.Scene
         
         private void LevelShapeMode()
         {
-            _gridPreset = GetLevelFromPool();
+            _gridPreset ??= GetLevelFromPool();
             _difficultyCurve = _config.ShapeLevelCurve;
             _levelCycle = _config.ShapeLevelsPerCycle;
         }
@@ -361,6 +367,7 @@ namespace FitMe.Scene
             if (IsTutorial) return;
             ChangeDifficultyLevel();
             _gridPreset = _gameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
+            _pendingScenePayload.SetActive(new LevelSessionRequest(_gameMode, _gridPreset));
             _messageHub.Publish(new SpawnWithGridPresetEvent(_gridPreset));
             _levelNumber++;
             

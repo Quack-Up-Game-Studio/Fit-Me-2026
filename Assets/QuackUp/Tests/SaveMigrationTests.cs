@@ -48,6 +48,33 @@ namespace QuackUp.Save.Tests
         }
 
         [Test]
+        public void ReadinessGate_AllowsUserSelectedLoadAfterStartupReadiness()
+        {
+            var gate = new SaveReadinessGate();
+            gate.CompleteReadiness();
+
+            var generation = gate.BeginExplicitRemoteApply();
+
+            Assert.IsTrue(gate.CompleteExplicitRemoteApply(generation));
+            Assert.IsTrue(gate.IsCurrent(generation));
+            Assert.IsFalse(gate.TryBeginRemoteApply());
+            Assert.IsTrue(gate.IsReady);
+        }
+
+        [Test]
+        public void ReadinessGate_RejectsInFlightStartupResultAfterUserSelectedLoad()
+        {
+            var gate = new SaveReadinessGate();
+            Assert.IsTrue(gate.TryBeginRemoteApply(out var startupGeneration));
+
+            var explicitGeneration = gate.BeginExplicitRemoteApply();
+            Assert.IsTrue(gate.CompleteExplicitRemoteApply(explicitGeneration));
+
+            Assert.IsFalse(gate.IsCurrent(startupGeneration));
+            Assert.IsFalse(gate.TryBeginRemoteApply());
+        }
+
+        [Test]
         public void ReadinessGate_RejectsRepeatedCompletion()
         {
             var gate = new SaveReadinessGate();
