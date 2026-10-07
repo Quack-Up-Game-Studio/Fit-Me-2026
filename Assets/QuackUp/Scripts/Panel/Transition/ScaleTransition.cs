@@ -13,7 +13,6 @@ namespace FitMe.Panel
         [SerializeField] private bool relative;
         [SerializeField] private TweenSettings<Vector3> transitionSettings;
 
-        private Sequence _transitionSequence;
         private RectTransform _transitionObject;
 
         public void Initialize(ITransitionObjectProvider provider)
@@ -27,9 +26,8 @@ namespace FitMe.Panel
             var settings = relative
                 ? transitionSettings.ToRelative(_transitionObject.localScale)
                 : transitionSettings;
-            _transitionSequence = Sequence.Create()
+            var sequence = Sequence.Create()
                 .Group(Tween.Scale(_transitionObject, settings));
-            var sequence = _transitionSequence;
             CancellationTokenRegistration registration = default;
             registration = cancellationToken.Register(() =>
             {
