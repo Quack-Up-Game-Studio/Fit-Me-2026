@@ -160,6 +160,32 @@ namespace QuackUp.IAP.Tests
         }
 
         [Test]
+        public async Task FailedPendingDeliveryLeavesPurchaseUnconfirmedForRedelivery()
+        {
+            var confirmation = new SpyPurchaseConfirmation();
+            var manager = new InAppPurchaseManager(_effects, _persistence, confirmation);
+            _persistence.FailNextRecordPurchase = true;
+            var order = CreatePendingEnergyOrder("tx-pending-retry");
+            var method = typeof(InAppPurchaseManager).GetMethod("OnPurchasePending",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(manager, new object[] { order });
+
+            await UniTask.WaitUntil(() => _persistence.RecordPurchaseAttemptCount == 1);
+            Assert.That(confirmation.ConfirmCount, Is.Zero);
+            Assert.That(_persistence.IsPurchaseCompleted("tx-pending-retry"), Is.False);
+
+            manager.Dispose();
+            confirmation = new SpyPurchaseConfirmation();
+            using var restartedManager = new InAppPurchaseManager(_effects, _persistence, confirmation);
+            method = typeof(InAppPurchaseManager).GetMethod("OnPurchasePending",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(restartedManager, new object[] { order });
+            await UniTask.WaitUntil(() => confirmation.ConfirmCount == 1);
+            Assert.That(_effects.ProductEffectCount, Is.EqualTo(1));
+            Assert.That(_persistence.IsPurchaseCompleted("tx-pending-retry"), Is.True);
+        }
+
+        [Test]
         public void FailedEnergyWriteIsRetriedBeforePurchaseCompletionSurvivesReload()
         {
             using var fixture = new PurchaseSaveFixture();
@@ -456,6 +482,71 @@ namespace QuackUp.IAP.Tests
         }
 
         [Test]
+        public void StoreDisconnectAfterInitializationRefreshStillInvalidatesReadiness()
+        {
+            SetReadiness(nameof(InAppPurchaseManager.IsConnected), true);
+            SetReadiness(nameof(InAppPurchaseManager.IsProductReady), true);
+            SetReadiness(nameof(InAppPurchaseManager.IsPurchaseReady), true);
+            var connectionGenerationField = typeof(InAppPurchaseManager).GetField("_connectionOwnershipGeneration",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(connectionGenerationField, Is.Not.Null);
+            connectionGenerationField.SetValue(_manager, 7);
+            var coordinatorField = typeof(InAppPurchaseManager).GetField("_initializationCoordinator",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var coordinator = (StoreInitializationCoordinator)coordinatorField.GetValue(_manager);
+            var coordinatorGenerationField = typeof(StoreInitializationCoordinator).GetField("_generation",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            coordinatorGenerationField.SetValue(coordinator, 8);
+            LogAssert.Expect(LogType.Error, "IAP: Store connection failed: disconnected");
+
+            var method = typeof(InAppPurchaseManager).GetMethod("OnStoreDisconnected",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null);
+            method.Invoke(_manager, new object[]
+            {
+                new StoreConnectionFailureDescription("disconnected"),
+                new UniTaskCompletionSource<bool>(),
+                7
+            });
+
+            Assert.That(_manager.IsConnected, Is.False);
+            Assert.That(_manager.IsProductReady, Is.False);
+            Assert.That(_manager.IsPurchaseReady, Is.False);
+            Assert.That(_manager.IsIAPReady, Is.False);
+        }
+
+        [Test]
+        public void RetryableStoreDisconnectRequestsReconnectionAfterRefresh()
+        {
+            SetReadiness(nameof(InAppPurchaseManager.IsConnected), true);
+            SetReadiness(nameof(InAppPurchaseManager.IsProductReady), true);
+            SetReadiness(nameof(InAppPurchaseManager.IsPurchaseReady), true);
+            var connectionGenerationField = typeof(InAppPurchaseManager).GetField("_connectionOwnershipGeneration",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            connectionGenerationField.SetValue(_manager, 7);
+            var coordinatorField = typeof(InAppPurchaseManager).GetField("_initializationCoordinator",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var coordinator = (StoreInitializationCoordinator)coordinatorField.GetValue(_manager);
+            var coordinatorGenerationField = typeof(StoreInitializationCoordinator).GetField("_generation",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            coordinatorGenerationField.SetValue(coordinator, 8);
+            var beforeGeneration = coordinator.Generation;
+            LogAssert.Expect(LogType.Error, "IAP: Store connection failed: temporary disconnect");
+
+            var method = typeof(InAppPurchaseManager).GetMethod("OnStoreDisconnected",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(_manager, new object[]
+            {
+                new StoreConnectionFailureDescription("temporary disconnect"),
+                new UniTaskCompletionSource<bool>(),
+                7
+            });
+
+            Assert.That(coordinator.Generation, Is.GreaterThan(beforeGeneration));
+            Assert.That(_manager.IsIAPReady, Is.False);
+        }
+
+        [Test]
         public async Task DuplicateConfirmationWhileSaveIsUnreadyIsAppliedOnce()
         {
             _persistence.DelaySaveDataReadiness();
@@ -501,6 +592,51 @@ namespace QuackUp.IAP.Tests
 
                 Assert.That(_coordinatorAttemptCount, Is.EqualTo(2));
                 Assert.That(_coordinatorMaximumConcurrentAttempts, Is.EqualTo(1));
+            }
+            finally
+            {
+                coordinator.Dispose();
+            }
+        }
+
+        [Test]
+        public async Task RetryWaitsForProviderOperationCompletionBeforeStartingNextAttempt()
+        {
+            var firstOperationRelease = new UniTaskCompletionSource();
+            var secondOperationRelease = new UniTaskCompletionSource();
+            var attempts = 0;
+            var activeOperations = 0;
+            var maximumConcurrentOperations = 0;
+            var coordinator = new StoreInitializationCoordinator(async (_, _) =>
+            {
+                attempts++;
+                activeOperations++;
+                maximumConcurrentOperations = Math.Max(maximumConcurrentOperations, activeOperations);
+                try
+                {
+                    await (attempts == 1 ? firstOperationRelease.Task : secondOperationRelease.Task);
+                    return true;
+                }
+                finally
+                {
+                    activeOperations--;
+                }
+            });
+
+            try
+            {
+                var worker = coordinator.Run();
+                await UniTask.WaitUntil(() => activeOperations == 1);
+                coordinator.RequestRetry();
+                await UniTask.DelayFrame(1);
+                Assert.That(attempts, Is.EqualTo(1));
+                Assert.That(maximumConcurrentOperations, Is.EqualTo(1));
+
+                firstOperationRelease.TrySetResult();
+                await UniTask.WaitUntil(() => attempts == 2);
+                Assert.That(maximumConcurrentOperations, Is.EqualTo(1));
+                secondOperationRelease.TrySetResult();
+                Assert.That(await worker, Is.True);
             }
             finally
             {
@@ -589,7 +725,7 @@ namespace QuackUp.IAP.Tests
             Assert.That(method, Is.Not.Null);
             method.Invoke(_manager, new object[]
             {
-                description, connectionCompletion, 0, CancellationToken.None
+                description, connectionCompletion, 0
             });
         }
 
@@ -740,6 +876,17 @@ namespace QuackUp.IAP.Tests
             return new ConfirmedOrder(new Cart(new CartItem(product)), new TestOrderInfo(transactionId));
         }
 
+        private static PendingOrder CreatePendingEnergyOrder(string transactionId)
+        {
+            var constructor = typeof(Product).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic,
+                null, new[] { typeof(ProductDefinition), typeof(ProductMetadata) }, null);
+            var product = (Product)constructor.Invoke(new object[]
+                { new ProductDefinition(ProductIds.Energy2, ProductType.Consumable), new ProductMetadata() });
+            return (PendingOrder)Activator.CreateInstance(typeof(PendingOrder),
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null,
+                new object[] { new Cart(new CartItem(product)), new TestOrderInfo(transactionId) }, null);
+        }
+
         private sealed class TestOrderInfo : IOrderInfo
         {
             public TestOrderInfo(string transactionId)
@@ -786,6 +933,13 @@ namespace QuackUp.IAP.Tests
                     throw new InvalidOperationException("simulated subscription effect failure after mutation");
                 }
             }
+        }
+
+        private sealed class SpyPurchaseConfirmation : IStorePurchaseConfirmation
+        {
+            public int ConfirmCount { get; private set; }
+
+            public void Confirm(Order order) => ConfirmCount++;
         }
 
         private sealed class SpyPurchasePersistence : IPurchasePersistenceAndAnalytics

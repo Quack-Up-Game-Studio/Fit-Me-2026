@@ -25,6 +25,16 @@ using UnityEngine.Purchasing.Security;
 
 namespace QuackUp.IAP
 {
+    public interface IStorePurchaseConfirmation
+    {
+        void Confirm(Order order);
+    }
+
+    internal sealed class UnityStorePurchaseConfirmation : IStorePurchaseConfirmation
+    {
+        public void Confirm(Order order) => UnityIAPServices.StoreController().ConfirmPurchase(order);
+    }
+
     public static class ProductIds
     {
         public const string MonthlyPass   = "monthlypass";
@@ -44,6 +54,7 @@ namespace QuackUp.IAP
     {
         private readonly IStorePurchaseEffects _purchaseEffects;
         private readonly IPurchasePersistenceAndAnalytics _purchasePersistence;
+        private readonly IStorePurchaseConfirmation _purchaseConfirmation;
         /// <summary>
         /// Event that called when the store is connected, products and purchases are fetched, and the IAP system is ready to use.
         /// </summary>
@@ -53,6 +64,7 @@ namespace QuackUp.IAP
         private Subject<Unit> _onIAPReady = new();
         private DisposableBag _fetchProductsSubscriptions;
         private DisposableBag _fetchPurchasesSubscriptions;
+        private int _connectionOwnershipGeneration;
         private DisposableBag _connectSubscriptions;
         private DisposableBag _purchaseSubscriptions;
         private IDisposable _entitlementSubscription;
@@ -88,13 +100,22 @@ namespace QuackUp.IAP
             EndSubscription();
         }
 
-        [Inject]
         public InAppPurchaseManager(
             IStorePurchaseEffects purchaseEffects,
             IPurchasePersistenceAndAnalytics purchasePersistence)
+            : this(purchaseEffects, purchasePersistence, new UnityStorePurchaseConfirmation())
+        {
+        }
+
+        [Inject]
+        public InAppPurchaseManager(
+            IStorePurchaseEffects purchaseEffects,
+            IPurchasePersistenceAndAnalytics purchasePersistence,
+            IStorePurchaseConfirmation purchaseConfirmation)
         {
             _purchaseEffects = purchaseEffects;
             _purchasePersistence = purchasePersistence;
+            _purchaseConfirmation = purchaseConfirmation;
             _initializationCoordinator = new StoreInitializationCoordinator(InitializeOnce);
         }
 
@@ -244,11 +265,12 @@ namespace QuackUp.IAP
         {
             _connectSubscriptions.Dispose();
             _connectSubscriptions = new DisposableBag();
+            var connectionOwnershipGeneration = Interlocked.Increment(ref _connectionOwnershipGeneration);
             var connectionTcs = new UniTaskCompletionSource<bool>();
             Observable.FromEvent<StoreConnectionFailureDescription>(
                     handler => StoreController.OnStoreDisconnected += handler,
                     handler => StoreController.OnStoreDisconnected -= handler)
-                .Subscribe(x => OnStoreDisconnected(x, connectionTcs, generation, cancellationToken))
+                .Subscribe(x => OnStoreDisconnected(x, connectionTcs, connectionOwnershipGeneration))
                 .AddTo(ref _connectSubscriptions);
             Observable.FromEvent(
                     handler => StoreController.OnStoreConnected += handler,
@@ -269,9 +291,9 @@ namespace QuackUp.IAP
         }
 
         private void OnStoreDisconnected(StoreConnectionFailureDescription desc, UniTaskCompletionSource<bool> tcs,
-            int generation, CancellationToken cancellationToken)
+            int connectionOwnershipGeneration)
         {
-            if (!IsCurrentInitialization(generation, cancellationToken))
+            if (connectionOwnershipGeneration != Volatile.Read(ref _connectionOwnershipGeneration))
             {
                 tcs.TrySetResult(false);
                 return;
@@ -320,7 +342,9 @@ namespace QuackUp.IAP
             try
             {
                 StoreController.FetchProductsWithNoRetries(_catalogProvider.GetProducts());
-                return await productFetchTcs.Task.AttachExternalCancellation(cancellationToken);
+                // The SDK request has no cancellation API. Keep this attempt owned until the
+                // provider settles so a retry cannot overlap the outstanding fetch.
+                return await productFetchTcs.Task;
             }
             finally
             {
@@ -362,7 +386,10 @@ namespace QuackUp.IAP
             try
             {
                 StoreController.FetchPurchases();
-                return await purchaseFetchTcs.Task.AttachExternalCancellation(cancellationToken);
+                // The SDK request has no cancellation API. Keep this attempt owned until the
+                // provider settles so a retry cannot overlap the outstanding fetch or accept a
+                // late response through a newer waiter.
+                return await purchaseFetchTcs.Task;
             }
             finally
             {
@@ -422,9 +449,74 @@ namespace QuackUp.IAP
 
         private void OnPurchasePending(PendingOrder order)
         {
-            var receipt = order.Info.Receipt;
-            if (!ValidateReceipt(receipt)) return;
-            StoreController.ConfirmPurchase(order);
+            var transactionId = order.Info?.TransactionID;
+            if (string.IsNullOrWhiteSpace(transactionId))
+            {
+                DebugUtils.LogError("IAP: Pending order has no transaction ID; purchase remains pending.");
+                return;
+            }
+
+            if (_processedPurchaseTransactions.Contains(transactionId) ||
+                !_processingPurchaseTransactions.Add(transactionId))
+            {
+                DebugUtils.LogWarning($"IAP: Ignoring duplicate pending transaction {transactionId}.");
+                return;
+            }
+
+            ProcessPendingPurchase(order, transactionId).Forget();
+        }
+
+        private async UniTaskVoid ProcessPendingPurchase(PendingOrder order, string transactionId)
+        {
+            try
+            {
+                if (!ValidateReceipt(order.Info?.Receipt))
+                {
+                    DebugUtils.LogError($"IAP: Pending transaction {transactionId} failed receipt validation; purchase remains pending.");
+                    return;
+                }
+
+                await _purchasePersistence.WaitForSaveDataReady;
+                if (_purchasePersistence.IsPurchaseCompleted(transactionId))
+                {
+                    _purchaseConfirmation.Confirm(order);
+                    _processedPurchaseTransactions.Add(transactionId);
+                    return;
+                }
+
+                var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
+                var id = product?.definition.id;
+                if (id != ProductIds.Energy2 && id != ProductIds.Energy3 && id != ProductIds.MaxEnergy &&
+                    id != ProductIds.MonthlyPass && id != ProductIds.QuarterlyPass && id != ProductIds.AnnuallyPass)
+                {
+                    DebugUtils.LogError($"IAP: Unknown pending product ID: {id}; purchase remains pending.");
+                    return;
+                }
+
+                _purchaseEffects.ApplyProductEffects(order, transactionId);
+                if (id == ProductIds.MonthlyPass || id == ProductIds.QuarterlyPass || id == ProductIds.AnnuallyPass)
+                {
+                    AddConfirmedSubscription(transactionId,
+                        order.Info.PurchasedProductInfo.FirstOrDefault()?.subscriptionInfo);
+                    StartSubscription();
+                    StartExpirationTimer();
+                }
+
+                await _purchasePersistence.RecordPurchase(order, transactionId);
+                _purchasePersistence.UpdatePlayerTier(HasActiveSubscription());
+                _purchasePersistence.MarkPurchaseCompleted(transactionId);
+                _processedPurchaseTransactions.Add(transactionId);
+                _purchaseConfirmation.Confirm(order);
+                _onPurchaseSuccess.OnNext(Unit.Default);
+            }
+            catch (Exception exception)
+            {
+                DebugUtils.LogError($"IAP: Failed to durably process pending transaction {transactionId}: {exception}");
+            }
+            finally
+            {
+                _processingPurchaseTransactions.Remove(transactionId);
+            }
         }
 
         private void OnPurchaseConfirmed(Order order)

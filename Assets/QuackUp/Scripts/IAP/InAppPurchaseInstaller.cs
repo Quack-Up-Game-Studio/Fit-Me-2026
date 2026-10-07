@@ -27,6 +27,7 @@ namespace QuackUp.IAP
         {
             builder.Register<StorePurchaseEffects>(Lifetime.Singleton).As<IStorePurchaseEffects>();
             builder.Register<PurchasePersistenceAndAnalytics>(Lifetime.Singleton).As<IPurchasePersistenceAndAnalytics>();
+            builder.Register<UnityStorePurchaseConfirmation>(Lifetime.Singleton).As<IStorePurchaseConfirmation>();
             builder.Register<InAppPurchaseManager>(Lifetime.Singleton)
                 .AsSelf()
                 .As<IStartable>();
