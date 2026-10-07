@@ -25,6 +25,8 @@ namespace QuackUp.IAP
         [ShowInInspector] private InspectorPlaceholder _title;
         public override void Install(IContainerBuilder builder)
         {
+            builder.Register<StorePurchaseEffects>(Lifetime.Singleton).As<IStorePurchaseEffects>();
+            builder.Register<PurchasePersistenceAndAnalytics>(Lifetime.Singleton).As<IPurchasePersistenceAndAnalytics>();
             builder.Register<InAppPurchaseManager>(Lifetime.Singleton)
                 .AsSelf()
                 .As<IStartable>();

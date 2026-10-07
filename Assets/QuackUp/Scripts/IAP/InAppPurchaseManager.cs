@@ -46,6 +46,8 @@ namespace QuackUp.IAP
         private readonly MessagePackSaveManager _saveManager;
         private readonly ICloudSaveService _cloudSaveService;
         private readonly IAnalyticsService _analyticsService;
+        private readonly IStorePurchaseEffects _purchaseEffects;
+        private readonly IPurchasePersistenceAndAnalytics _purchasePersistence;
         /// <summary>
         /// Event that called when the store is connected, products and purchases are fetched, and the IAP system is ready to use.
         /// </summary>
@@ -89,13 +91,17 @@ namespace QuackUp.IAP
             AdsService adsService,
             MessagePackSaveManager saveManager,
             ICloudSaveService cloudSaveService,
-            IAnalyticsService analyticsService)
+            IAnalyticsService analyticsService,
+            IStorePurchaseEffects purchaseEffects,
+            IPurchasePersistenceAndAnalytics purchasePersistence)
         {
             _energyManager = energyManager;
             _adsService = adsService;
             _saveManager = saveManager;
             _cloudSaveService = cloudSaveService;
             _analyticsService = analyticsService;
+            _purchaseEffects = purchaseEffects;
+            _purchasePersistence = purchasePersistence;
         }
 
         public void Dispose()
@@ -122,7 +128,7 @@ namespace QuackUp.IAP
         {
             await Initialize();
             await _saveManager.WaitForSaveDataReady;
-            UpdateAnalyticPlayerTier();
+            _purchasePersistence.UpdatePlayerTier(HasActiveSubscription());
         }
 
         private void CreateCatalog()
@@ -368,67 +374,21 @@ namespace QuackUp.IAP
             if (order is PendingOrder) return; //The order is still pending; it will be confirmed in OnPurchasePending, so we can skip processing here.
             var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
             var id = product?.definition.id;
-            switch (id)
+            _purchaseEffects.ApplyProductEffects(order);
+            if (id == ProductIds.MonthlyPass || id == ProductIds.QuarterlyPass || id == ProductIds.AnnuallyPass)
             {
-#if UNITY_EDITOR
-                case ProductIds.GoldTest:
-                    DebugUtils.Log("IAP: Test product - 100 gold granted.");
-                    // _currencyService.AddGold(100);
-                    break;
-#endif
-                case ProductIds.Energy2:
-                    DebugUtils.Log("IAP: 3 energy granted.");
-                    _energyManager.ChangeEnergy(3, true, GAItemType.IAP, id);
-                    break;
-                case ProductIds.Energy3:
-                    DebugUtils.Log("IAP: 5 energy granted.");
-                    _energyManager.ChangeEnergy(5, true, GAItemType.IAP, id);
-                    break;
-                case ProductIds.MaxEnergy:
-                    DebugUtils.Log("IAP: Max energy granted.");
-                    _energyManager.ChangeEnergy(_energyManager.Config.MaxEnergy, true, GAItemType.IAP, id);
-                    break;
-                case ProductIds.MonthlyPass:
-                case ProductIds.QuarterlyPass:
-                case ProductIds.AnnuallyPass:
-                    DebugUtils.Log($"IAP: {id} pass activated."); ;
-                    StartSubscription();
-                    _confirmedSubscriptions.Add(order.Info.PurchasedProductInfo.FirstOrDefault()?.subscriptionInfo);
-                    StartExpirationTimer();
-#if UNITY_EDITOR
-                    PlayerPrefs.SetInt("Mock_HasVIP", 1);
-                    PlayerPrefs.Save();
-#endif
-                    break;
-                default:
-                    DebugUtils.LogWarning($"IAP: Unknown product ID: {id}");
-                    break;
+                StartSubscription();
+                _confirmedSubscriptions.Add(order.Info.PurchasedProductInfo.FirstOrDefault()?.subscriptionInfo);
+                StartExpirationTimer();
+            }
+            else if (id != ProductIds.Energy2 && id != ProductIds.Energy3 && id != ProductIds.MaxEnergy)
+            {
+                DebugUtils.LogWarning($"IAP: Unknown product ID: {id}");
             }
 
             _onPurchaseSuccess?.OnNext(Unit.Default);
-            
-            //Save
-            var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
-            if (saveObject)
-            {
-                var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
-                if (saveData is {HasPurchasedAtLeastOnce: false})
-                {
-                    saveData.HasPurchasedAtLeastOnce = true;
-                    _saveManager.Save(saveObject);
-                    _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
-                }
-            }
-
-            //Update Player Tier
-            UpdateAnalyticPlayerTier();
-
-            //Report Business
-            var currency = product?.metadata.isoCurrencyCode ?? "USD";
-            var priceDecimal = product?.metadata.localizedPrice ?? 0m;
-            var amount = IapCurrencyHelper.GetAmountInMinorUnits(priceDecimal, currency);
-            var itemType = product?.definition.type.ToString() ?? "Unknown";
-            _analyticsService.TrackBusinessEvent(currency, amount, itemType, id, GACartType.Store);
+            _purchasePersistence.RecordPurchase(order);
+            _purchasePersistence.UpdatePlayerTier(HasActiveSubscription());
         }
 
         private void OnPurchaseFailed(FailedOrder order)
@@ -549,17 +509,15 @@ namespace QuackUp.IAP
 
         private void StartSubscription()
         {
-            UpdateAnalyticPlayerTier();
-            _energyManager.SetInfiniteEnergy(true);
-            _adsService.SetEnableStateAll(false);
+            _purchasePersistence.UpdatePlayerTier(HasActiveSubscription());
+            _purchaseEffects.ApplySubscriptionState(true);
             DebugUtils.Log("IAP: Subscription started. Infinite energy granted.");
         }
 
         private void EndSubscription()
         {
-            UpdateAnalyticPlayerTier();
-            _energyManager.SetInfiniteEnergy(false);
-            _adsService.SetEnableStateAll(true);
+            _purchasePersistence.UpdatePlayerTier(HasActiveSubscription());
+            _purchaseEffects.ApplySubscriptionState(false);
             DebugUtils.Log("IAP: Subscription ended. Infinite energy revoked.");
         }
 
