@@ -87,7 +87,9 @@ namespace FitMe.Panel
         {
             await _saveManager.WaitForSaveDataReady;
             _saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            if (!_saveObject) return;
             var saveData = _saveObject.GetSaveData<PlayerRecordSaveData>();
+            if (saveData == null) return;
             _remainingAdCount.Value = saveData.IsFirstTimePlayer ? _maxAdCount : saveData.CurrentRemainingAd;
             _saveManager.Save(_saveObject);
             _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
@@ -97,9 +99,10 @@ namespace FitMe.Panel
         private void StartAdsTimer()
         {
             _adsTimer = Observable.Interval(TimeSpan.FromSeconds(1)) //NOTE: Check every second as we do not need that much precision.
-                .Subscribe(_ =>
-                {
-                    if (_remainingAdCount.Value >= _maxAdCount)
+            .Subscribe(_ =>
+            {
+                if (!_saveObject) return;
+                if (_remainingAdCount.Value >= _maxAdCount)
                     {
                         _timeUntilNextWatchAd.Value = TimeSpan.Zero;
                         return;

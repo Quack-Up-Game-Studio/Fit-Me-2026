@@ -303,7 +303,7 @@ namespace QuackUp.Audio
             if (!_audioSaveObject) return;
             var audioSaveData = _audioSaveObject.GetSaveData<AudioSaveData>();
             if (audioSaveData == null) return;
-            audioSaveData.BusSaveData[busType].IsMuted = mute;
+            GetOrCreateBusSaveData(audioSaveData, busType).IsMuted = mute;
         }
         
         public void ToggleMuteBus(BusType busType)
@@ -313,7 +313,7 @@ namespace QuackUp.Audio
             if (!_audioSaveObject) return;
             var audioSaveData = _audioSaveObject.GetSaveData<AudioSaveData>();
             if (audioSaveData == null) return;
-            audioSaveData.BusSaveData[busType].IsMuted = busData.IsMuted;
+            GetOrCreateBusSaveData(audioSaveData, busType).IsMuted = busData.IsMuted;
         }
         
         public void SetVolumeBus(BusType busType, float value, VolumeUnit inUnit)
@@ -323,7 +323,18 @@ namespace QuackUp.Audio
             if (!_audioSaveObject) return;
             var audioSaveData = _audioSaveObject.GetSaveData<AudioSaveData>();
             if (audioSaveData == null) return;
-            audioSaveData.BusSaveData[busType].LinearVolume = busData.LinearVolume;
+            GetOrCreateBusSaveData(audioSaveData, busType).LinearVolume = busData.LinearVolume;
+        }
+
+        private static BusSaveData GetOrCreateBusSaveData(AudioSaveData saveData, BusType busType)
+        {
+            saveData.BusSaveData ??= new Dictionary<BusType, BusSaveData>();
+            if (!saveData.BusSaveData.TryGetValue(busType, out var busSaveData))
+            {
+                busSaveData = new BusSaveData();
+                saveData.BusSaveData[busType] = busSaveData;
+            }
+            return busSaveData;
         }
 
         public void SaveChanges()
