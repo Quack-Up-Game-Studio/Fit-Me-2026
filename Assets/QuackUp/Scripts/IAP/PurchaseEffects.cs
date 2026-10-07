@@ -23,6 +23,8 @@ namespace QuackUp.IAP
     public interface IPurchasePersistenceAndAnalytics
     {
         UniTask WaitForSaveDataReady { get; }
+        bool IsPurchaseCompleted(string transactionId);
+        void MarkPurchaseCompleted(string transactionId);
         UniTask RecordPurchase(Order order, string transactionId);
         void UpdatePlayerTier(bool activeSubscription);
     }
@@ -75,6 +77,21 @@ namespace QuackUp.IAP
 
         public UniTask WaitForSaveDataReady => _saveManager.WaitForSaveDataReady;
 
+        public bool IsPurchaseCompleted(string transactionId)
+        {
+            var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            var saveData = saveObject ? saveObject.GetSaveData<PlayerRecordSaveData>() : null;
+            return saveData?.IsPurchaseCompleted(transactionId) == true;
+        }
+
+        public void MarkPurchaseCompleted(string transactionId)
+        {
+            var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            var saveData = saveObject ? saveObject.GetSaveData<PlayerRecordSaveData>() : null;
+            if (saveData != null && saveData.TryMarkPurchaseCompleted(transactionId))
+                _saveManager.Save(saveObject);
+        }
+
         public async UniTask RecordPurchase(Order order, string transactionId)
         {
             var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
@@ -83,43 +100,51 @@ namespace QuackUp.IAP
             if (saveObject)
             {
                 var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
-                if (saveData is { HasPurchasedAtLeastOnce: false })
+                if (saveData != null)
                 {
-                    saveData.HasPurchasedAtLeastOnce = true;
-                    try
+                    var isFirstPurchase = !saveData.HasPurchasedAtLeastOnce;
+                    var isNewTransaction = saveData.TryMarkPurchaseRecorded(transactionId);
+                    if (isFirstPurchase)
+                    {
+                        saveData.HasPurchasedAtLeastOnce = true;
+                        _pendingFirstPurchaseCloudSyncTransaction = transactionId;
+                        _firstPurchaseCloudSyncCompleted = false;
+                    }
+
+                    if (isNewTransaction || isFirstPurchase)
+                        _saveManager.Save(saveObject);
+
+                    if (_pendingFirstPurchaseCloudSyncTransaction == transactionId && !_firstPurchaseCloudSyncCompleted)
+                    {
+                        await _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
+                        _firstPurchaseCloudSyncCompleted = true;
+                    }
+
+                    if (saveData.TryMarkPurchaseAnalyticsAttempted(transactionId))
                     {
                         _saveManager.Save(saveObject);
+                        TrackPurchaseAnalytics(product, id, transactionId);
                     }
-                    catch
-                    {
-                        saveData.HasPurchasedAtLeastOnce = false;
-                        throw;
-                    }
-
-                    _pendingFirstPurchaseCloudSyncTransaction = transactionId;
-                    _firstPurchaseCloudSyncCompleted = false;
-                }
-
-                if (_pendingFirstPurchaseCloudSyncTransaction == transactionId && !_firstPurchaseCloudSyncCompleted)
-                {
-                    await _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
-                    _firstPurchaseCloudSyncCompleted = true;
+                    return;
                 }
             }
 
+            if (_purchaseAnalyticsAttemptedTransactions.Add(transactionId))
+                TrackPurchaseAnalytics(product, id, transactionId);
+        }
+
+        private void TrackPurchaseAnalytics(Product product, string id, string transactionId)
+        {
             var currency = product?.metadata.isoCurrencyCode ?? "USD";
             var amount = IapCurrencyHelper.GetAmountInMinorUnits(product?.metadata.localizedPrice ?? 0m, currency);
-            if (_purchaseAnalyticsAttemptedTransactions.Add(transactionId))
+            try
             {
-                try
-                {
-                    _analyticsService.TrackBusinessEvent(currency, amount,
-                        product?.definition.type.ToString() ?? "Unknown", id, GACartType.Store);
-                }
-                catch (Exception exception)
-                {
-                    DebugUtils.LogError($"IAP: Purchase analytics failed for transaction {transactionId}: {exception}");
-                }
+                _analyticsService.TrackBusinessEvent(currency, amount,
+                    product?.definition.type.ToString() ?? "Unknown", id, GACartType.Store);
+            }
+            catch (Exception exception)
+            {
+                DebugUtils.LogError($"IAP: Purchase analytics failed for transaction {transactionId}: {exception}");
             }
         }
 

@@ -67,6 +67,40 @@ namespace QuackUp.IAP.Tests
         }
 
         [Test]
+        public void CompletedPurchaseLedgerSurvivesPlayerRecordSaveReload()
+        {
+            var saveType = typeof(PlayerRecordSaveData);
+            var markRecorded = saveType.GetMethod("TryMarkPurchaseRecorded");
+            var markCompleted = saveType.GetMethod("TryMarkPurchaseCompleted");
+            var isCompleted = saveType.GetMethod("IsPurchaseCompleted");
+            Assert.That(markRecorded, Is.Not.Null);
+            Assert.That(markCompleted, Is.Not.Null);
+            Assert.That(isCompleted, Is.Not.Null);
+
+            var saveData = new PlayerRecordSaveData();
+            Assert.That(markRecorded.Invoke(saveData, new object[] { "tx-ledger" }), Is.EqualTo(true));
+            Assert.That(markCompleted.Invoke(saveData, new object[] { "tx-ledger" }), Is.EqualTo(true));
+
+            var restored = MessagePackSerializer.Deserialize<PlayerRecordSaveData>(
+                MessagePackSerializer.Serialize(saveData));
+
+            Assert.That(isCompleted.Invoke(restored, new object[] { "tx-ledger" }), Is.EqualTo(true));
+            Assert.That(markRecorded.Invoke(restored, new object[] { "tx-ledger" }), Is.EqualTo(false));
+        }
+
+        [Test]
+        public void PersistentlyCompletedConfirmationDoesNotReapplyPurchaseWork()
+        {
+            _persistence.MarkPurchaseCompleted("tx-already-complete");
+            InvokeConfirmationCallback(new ConfirmedOrder(new EmptyCart(),
+                new TestOrderInfo("tx-already-complete")));
+
+            Assert.That(_effects.ProductEffectCount, Is.Zero);
+            Assert.That(_persistence.RecordedPurchaseCount, Is.Zero);
+            Assert.That(_successCount, Is.Zero);
+        }
+
+        [Test]
         public void FailedConfirmationDoesNotGrantOrRecordPurchase()
         {
             var failedOrder = new FailedOrder(
@@ -301,11 +335,54 @@ namespace QuackUp.IAP.Tests
             {
                 var worker = coordinator.Run();
                 await UniTask.WaitUntil(() => _coordinatorActiveAttempts == 1);
-                coordinator.Run();
+                coordinator.RequestRetry();
                 await worker;
 
                 Assert.That(_coordinatorAttemptCount, Is.EqualTo(2));
                 Assert.That(_coordinatorMaximumConcurrentAttempts, Is.EqualTo(1));
+            }
+            finally
+            {
+                coordinator.Dispose();
+            }
+        }
+
+        [Test]
+        public async Task ConcurrentRunJoinsActiveInitializationWithoutSchedulingRetry()
+        {
+            var attemptRelease = new UniTaskCompletionSource();
+            var attempts = 0;
+            var activeAttempts = 0;
+            var maximumConcurrentAttempts = 0;
+            var coordinator = new StoreInitializationCoordinator(async (_, _) =>
+            {
+                attempts++;
+                activeAttempts++;
+                maximumConcurrentAttempts = Math.Max(maximumConcurrentAttempts, activeAttempts);
+                try
+                {
+                    await attemptRelease.Task;
+                    return true;
+                }
+                finally
+                {
+                    activeAttempts--;
+                }
+            });
+
+            try
+            {
+                var firstRun = coordinator.Run();
+                await UniTask.WaitUntil(() => activeAttempts == 1);
+                var joinedRun = coordinator.Run();
+                attemptRelease.TrySetResult();
+                var firstSucceeded = await firstRun;
+                var joinedSucceeded = await joinedRun;
+
+                Assert.That(firstSucceeded, Is.True);
+                Assert.That(joinedSucceeded, Is.True);
+                Assert.That(attempts, Is.EqualTo(1));
+                Assert.That(maximumConcurrentAttempts, Is.EqualTo(1));
             }
             finally
             {
@@ -349,7 +426,10 @@ namespace QuackUp.IAP.Tests
             var method = typeof(InAppPurchaseManager).GetMethod("OnStoreDisconnected",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(method, Is.Not.Null);
-            method.Invoke(_manager, new object[] { description, connectionCompletion });
+            method.Invoke(_manager, new object[]
+            {
+                description, connectionCompletion, 0, CancellationToken.None
+            });
         }
 
         private void SetReadiness(string propertyName, bool value)
@@ -417,6 +497,7 @@ namespace QuackUp.IAP.Tests
         {
             private UniTaskCompletionSource _saveDataReadiness;
             private readonly HashSet<string> _recordedTransactions = new(StringComparer.Ordinal);
+            private readonly HashSet<string> _completedTransactions = new(StringComparer.Ordinal);
             public int RecordedPurchaseCount { get; private set; }
             public int RecordPurchaseAttemptCount { get; private set; }
             public int PlayerTierUpdateCount { get; private set; }
@@ -424,6 +505,9 @@ namespace QuackUp.IAP.Tests
             public bool FailNextRecordPurchase { get; set; }
             public bool ThrowAfterRecordingNextPurchase { get; set; }
             public UniTask WaitForSaveDataReady => _saveDataReadiness?.Task ?? UniTask.CompletedTask;
+
+            public bool IsPurchaseCompleted(string transactionId) => _completedTransactions.Contains(transactionId);
+            public void MarkPurchaseCompleted(string transactionId) => _completedTransactions.Add(transactionId);
 
             public void DelaySaveDataReadiness() => _saveDataReadiness = new UniTaskCompletionSource();
             public void CompleteSaveDataReadiness() => _saveDataReadiness.TrySetResult();

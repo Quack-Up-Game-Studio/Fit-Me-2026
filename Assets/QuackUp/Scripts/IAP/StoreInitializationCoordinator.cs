@@ -12,8 +12,8 @@ namespace QuackUp.IAP
         private bool _isDisposed;
         private int _generation;
         private CancellationTokenSource _activeCancellation;
-        private UniTaskCompletionSource _workerCompletion;
-        private UniTask _worker;
+        private UniTaskCompletionSource<bool> _workerCompletion;
+        private UniTask<bool> _worker;
 
         public bool IsRunning => _isRunning;
         public int Generation => Volatile.Read(ref _generation);
@@ -23,17 +23,13 @@ namespace QuackUp.IAP
             _initializeAttempt = initializeAttempt ?? throw new ArgumentNullException(nameof(initializeAttempt));
         }
 
-        public UniTask Run()
+        public UniTask<bool> Run()
         {
-            if (_isDisposed) return UniTask.CompletedTask;
-            if (_isRunning)
-            {
-                RequestRetry();
-                return _worker;
-            }
+            if (_isDisposed) return UniTask.FromResult(false);
+            if (_isRunning) return _worker;
 
             _isRunning = true;
-            _workerCompletion = new UniTaskCompletionSource();
+            _workerCompletion = new UniTaskCompletionSource<bool>();
             var worker = _workerCompletion.Task;
             _worker = worker;
             RunOwnedWorker(_workerCompletion).Forget();
@@ -63,8 +59,9 @@ namespace QuackUp.IAP
             _activeCancellation?.Cancel();
         }
 
-        private async UniTaskVoid RunOwnedWorker(UniTaskCompletionSource workerCompletion)
+        private async UniTaskVoid RunOwnedWorker(UniTaskCompletionSource<bool> workerCompletion)
         {
+            var attemptSucceeded = false;
             try
             {
                 while (!_isDisposed)
@@ -75,10 +72,11 @@ namespace QuackUp.IAP
                     _activeCancellation = attemptCancellation;
                     try
                     {
-                        await _initializeAttempt(generation, attemptCancellation.Token);
+                        attemptSucceeded = await _initializeAttempt(generation, attemptCancellation.Token);
                     }
                     catch (OperationCanceledException)
                     {
+                        attemptSucceeded = false;
                         if (!_retryRequested) break;
                     }
                     finally
@@ -104,7 +102,7 @@ namespace QuackUp.IAP
                     _workerCompletion = null;
                     _worker = default;
                 }
-                workerCompletion.TrySetResult();
+                workerCompletion.TrySetResult(attemptSucceeded && !_isDisposed);
             }
         }
     }

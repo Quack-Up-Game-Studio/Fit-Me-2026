@@ -152,7 +152,7 @@ namespace QuackUp.IAP
             _catalogProvider = catalogProvider;
         }
 
-        private UniTask Initialize() => _initializationCoordinator.Run();
+        private UniTask<bool> Initialize() => _initializationCoordinator.Run();
 
         private async UniTask<bool> InitializeOnce(int generation, CancellationToken cancellationToken)
         {
@@ -161,18 +161,24 @@ namespace QuackUp.IAP
                 SubscribeBeforeConnect();
                 if (!IsConnected)
                 {
-                    IsConnected = await InitializeConnection(cancellationToken);
-                    if (!IsConnected || !IsCurrentInitialization(generation, cancellationToken)) return false;
+                    var isConnected = await InitializeConnection(generation, cancellationToken);
+                    if (!IsCurrentInitialization(generation, cancellationToken)) return false;
+                    IsConnected = isConnected;
+                    if (!IsConnected) return false;
                 }
                 if (!IsProductReady)
                 {
-                    IsProductReady = await InitializeProducts(cancellationToken);
-                    if (!IsProductReady || !IsCurrentInitialization(generation, cancellationToken)) return false;
+                    var isProductReady = await InitializeProducts(cancellationToken);
+                    if (!IsCurrentInitialization(generation, cancellationToken)) return false;
+                    IsProductReady = isProductReady;
+                    if (!IsProductReady) return false;
                 }
                 if (!IsPurchaseReady)
                 {
-                    IsPurchaseReady = await InitializePurchases(cancellationToken);
-                    if (!IsPurchaseReady || !IsCurrentInitialization(generation, cancellationToken)) return false;
+                    var isPurchaseReady = await InitializePurchases(cancellationToken);
+                    if (!IsCurrentInitialization(generation, cancellationToken)) return false;
+                    IsPurchaseReady = isPurchaseReady;
+                    if (!IsPurchaseReady) return false;
                 }
 
                 if (IsIAPReady && IsCurrentInitialization(generation, cancellationToken))
@@ -185,6 +191,7 @@ namespace QuackUp.IAP
             }
             catch (Exception exception)
             {
+                if (!IsCurrentInitialization(generation, cancellationToken)) return false;
                 IsConnected = false;
                 IsProductReady = false;
                 IsPurchaseReady = false;
@@ -196,11 +203,12 @@ namespace QuackUp.IAP
         private bool IsCurrentInitialization(int generation, CancellationToken cancellationToken) =>
             !cancellationToken.IsCancellationRequested && generation == _initializationCoordinator.Generation;
 
-        public UniTask Reinitialize()
+        public UniTask<bool> Reinitialize()
         {
             IsConnected = false;
             IsProductReady = false;
             IsPurchaseReady = false;
+            _initializationCoordinator.RequestRetry();
             return Initialize();
         }
 
@@ -232,7 +240,7 @@ namespace QuackUp.IAP
 
         #region Connection
 
-        private async UniTask<bool> InitializeConnection(CancellationToken cancellationToken)
+        private async UniTask<bool> InitializeConnection(int generation, CancellationToken cancellationToken)
         {
             _connectSubscriptions.Dispose();
             _connectSubscriptions = new DisposableBag();
@@ -240,26 +248,35 @@ namespace QuackUp.IAP
             Observable.FromEvent<StoreConnectionFailureDescription>(
                     handler => StoreController.OnStoreDisconnected += handler,
                     handler => StoreController.OnStoreDisconnected -= handler)
-                .Subscribe(x => OnStoreDisconnected(x, connectionTcs))
+                .Subscribe(x => OnStoreDisconnected(x, connectionTcs, generation, cancellationToken))
                 .AddTo(ref _connectSubscriptions);
             Observable.FromEvent(
                     handler => StoreController.OnStoreConnected += handler,
                     handler => StoreController.OnStoreConnected -= handler)
-                .Subscribe(_ => OnStoreConnected(connectionTcs))
+                .Subscribe(_ => OnStoreConnected(connectionTcs, generation, cancellationToken))
                 .AddTo(ref _connectSubscriptions);
             // Unity IAP owns this shared connection task; let it settle before starting a retry.
             await StoreController.Connect().AsUniTask();
             return await connectionTcs.Task.AttachExternalCancellation(cancellationToken);
         }
 
-        private void OnStoreConnected(UniTaskCompletionSource<bool> tcs)
+        private void OnStoreConnected(UniTaskCompletionSource<bool> tcs, int generation,
+            CancellationToken cancellationToken)
         {
+            if (!IsCurrentInitialization(generation, cancellationToken)) return;
             tcs.TrySetResult(true);
-            DebugUtils.Log($"IAP: Store connected");
+            DebugUtils.Log("IAP: Store connected");
         }
 
-        private void OnStoreDisconnected(StoreConnectionFailureDescription desc, UniTaskCompletionSource<bool> tcs)
+        private void OnStoreDisconnected(StoreConnectionFailureDescription desc, UniTaskCompletionSource<bool> tcs,
+            int generation, CancellationToken cancellationToken)
         {
+            if (!IsCurrentInitialization(generation, cancellationToken))
+            {
+                tcs.TrySetResult(false);
+                return;
+            }
+
             IsConnected = false;
             IsProductReady = false;
             IsPurchaseReady = false;
@@ -448,6 +465,11 @@ namespace QuackUp.IAP
             {
                 await _purchasePersistence.WaitForSaveDataReady;
                 if (_processedPurchaseTransactions.Contains(transactionId)) return;
+                if (_purchasePersistence.IsPurchaseCompleted(transactionId))
+                {
+                    _processedPurchaseTransactions.Add(transactionId);
+                    return;
+                }
 
                 var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
                 var id = product?.definition.id;
@@ -481,6 +503,7 @@ namespace QuackUp.IAP
                     _updatedPlayerTierTransactions.Add(transactionId);
                 }
 
+                _purchasePersistence.MarkPurchaseCompleted(transactionId);
                 _processedPurchaseTransactions.Add(transactionId);
                 _onPurchaseSuccess?.OnNext(Unit.Default);
             }
@@ -604,8 +627,9 @@ namespace QuackUp.IAP
         private async UniTaskVoid CheckAndUpdateSubscription()
         {
             IsPurchaseReady = false;
-            await Initialize();
-            ApplySubscriptionRefreshResult(IsPurchaseReady);
+            _initializationCoordinator.RequestRetry();
+            var refreshSucceeded = await Initialize();
+            ApplySubscriptionRefreshResult(refreshSucceeded);
         }
 
         private void ApplySubscriptionRefreshResult(bool refreshSucceeded)

@@ -39,6 +39,15 @@ namespace FitMe.GameData
         
         [Key("HasPurchasedAtLeastOnce")]                                                                                                                                                                                             
         public bool HasPurchasedAtLeastOnce { get; set; } = false;    
+
+        [Key("RecordedPurchaseTransactionIds")]
+        public List<string> RecordedPurchaseTransactionIds { get; set; } = new();
+
+        [Key("AttemptedPurchaseAnalyticsTransactionIds")]
+        public List<string> AttemptedPurchaseAnalyticsTransactionIds { get; set; } = new();
+
+        [Key("CompletedPurchaseTransactionIds")]
+        public List<string> CompletedPurchaseTransactionIds { get; set; } = new();
         
         [IgnoreMember]
         [ShowInInspector, DisplayAsString] private string DebugTotalPlayTime => TotalPlayTime.ToString(@"hh\:mm\:ss");
@@ -104,6 +113,33 @@ namespace FitMe.GameData
                     .Take(_maxRunDataCount)
                     .ToList();
             }
+        }
+
+        public bool TryMarkPurchaseRecorded(string transactionId) =>
+            TryAddTransaction(RecordedPurchaseTransactionIds, transactionId,
+                values => RecordedPurchaseTransactionIds = values);
+
+        public bool TryMarkPurchaseAnalyticsAttempted(string transactionId) =>
+            TryAddTransaction(AttemptedPurchaseAnalyticsTransactionIds, transactionId,
+                values => AttemptedPurchaseAnalyticsTransactionIds = values);
+
+        public bool IsPurchaseCompleted(string transactionId) =>
+            !string.IsNullOrWhiteSpace(transactionId) &&
+            CompletedPurchaseTransactionIds?.Contains(transactionId) == true;
+
+        public bool TryMarkPurchaseCompleted(string transactionId) =>
+            TryAddTransaction(CompletedPurchaseTransactionIds, transactionId,
+                values => CompletedPurchaseTransactionIds = values);
+
+        private static bool TryAddTransaction(List<string> transactions, string transactionId,
+            Action<List<string>> setTransactions)
+        {
+            if (string.IsNullOrWhiteSpace(transactionId)) return false;
+            transactions ??= new List<string>();
+            if (transactions.Contains(transactionId)) return false;
+            transactions.Add(transactionId);
+            setTransactions(transactions);
+            return true;
         }
     }
 }
