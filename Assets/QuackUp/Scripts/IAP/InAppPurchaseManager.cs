@@ -27,12 +27,12 @@ namespace QuackUp.IAP
 {
     public interface IStorePurchaseConfirmation
     {
-        void Confirm(Order order);
+        void Confirm(PendingOrder order);
     }
 
     internal sealed class UnityStorePurchaseConfirmation : IStorePurchaseConfirmation
     {
-        public void Confirm(Order order) => UnityIAPServices.StoreController().ConfirmPurchase(order);
+        public void Confirm(PendingOrder order) => UnityIAPServices.StoreController().ConfirmPurchase(order);
     }
 
     public static class ProductIds

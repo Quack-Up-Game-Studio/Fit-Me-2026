@@ -162,6 +162,8 @@ namespace QuackUp.IAP.Tests
         [Test]
         public async Task FailedPendingDeliveryLeavesPurchaseUnconfirmedForRedelivery()
         {
+            LogAssert.Expect(LogType.Error, new Regex(@"IAP: Failed to durably process pending transaction tx-pending-retry: System.InvalidOperationException: simulated persistence failure"));
+
             var confirmation = new SpyPurchaseConfirmation();
             var manager = new InAppPurchaseManager(_effects, _persistence, confirmation);
             _persistence.FailNextRecordPurchase = true;
@@ -991,7 +993,7 @@ namespace QuackUp.IAP.Tests
         {
             public int ConfirmCount { get; private set; }
 
-            public void Confirm(Order order) => ConfirmCount++;
+            public void Confirm(PendingOrder order) => ConfirmCount++;
         }
 
         private sealed class SpyPurchasePersistence : IPurchasePersistenceAndAnalytics
