@@ -241,7 +241,14 @@ namespace QuackUp.IAP
             DebugUtils.LogError($"IAP: Store connection failed: {desc.Message}");
             if (!desc.IsRetryable) return;
             DebugUtils.Log("IAP: Retrying store connection...");
-            Initialize().Forget();
+            RetryInitialize().Forget();
+        }
+
+        private async UniTaskVoid RetryInitialize()
+        {
+            await UniTask.Yield();
+            _initializing = false;
+            await Initialize();
         }
 
         #endregion
