@@ -51,7 +51,6 @@ namespace FitMe.Panel.Tests
 
             using var promise = new Promise<Unit>();
             view.ThrowOnTransition = true;
-            LogAssert.Expect(LogType.Exception, "InvalidOperationException: transition fault");
             view.TriggerIn(promise, "fault");
             yield return null;
 
@@ -67,8 +66,6 @@ namespace FitMe.Panel.Tests
             var from = new TestPanelViewModel();
             var to = new TestPanelViewModel { ThrowOnIncoming = true };
             var manager = CreateManager(from, to);
-            LogAssert.Expect(LogType.Exception, "InvalidOperationException: incoming fault");
-
             var crossfade = manager.Crossfade("from", "to", new CrossfadeSettings
             {
                 crossFadeType = CrossfadeType.Parallel,
@@ -87,8 +84,119 @@ namespace FitMe.Panel.Tests
             to.Dispose();
         }
 
+        [UnityTest]
+        public IEnumerator PanelManager_NestedTransitionDuringVisibilityPublication_OlderOperationDoesNotSupersede()
+        {
+            return RunNestedTransitionCase();
+
+            static IEnumerator RunNestedTransitionCase()
+            {
+                var from = new TestPanelViewModel("from");
+                var to = new TestPanelViewModel("to");
+                var nestedTarget = new TestPanelViewModel("nested");
+                var manager = CreateManager(from, to);
+                AddPanel(manager, "nested", nestedTarget);
+                var nestedStarted = false;
+                UniTask nested = default;
+                to.VisibilityState.Subscribe(state =>
+                {
+                    if (state != Panel.VisibilityState.Visible || nestedStarted) return;
+                    nestedStarted = true;
+                    nested = manager.Crossfade("to", "nested", new CrossfadeSettings { crossFadeType = CrossfadeType.None });
+                });
+
+                var outer = manager.Crossfade("from", "to", new CrossfadeSettings { crossFadeType = CrossfadeType.None });
+                yield return outer.ToCoroutine();
+                yield return nested.ToCoroutine();
+                yield return null;
+
+                Assert.That(nestedStarted, Is.True);
+                Assert.That(to.VisibilityState.Value, Is.EqualTo(Panel.VisibilityState.Hidden));
+                Assert.That(nestedTarget.VisibilityState.Value, Is.EqualTo(Panel.VisibilityState.Visible));
+                from.Dispose();
+                to.Dispose();
+                nestedTarget.Dispose();
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PanelView_CanceledAfterPromiseDisposal_DoesNotThrow()
+        {
+            return RunLateCancellationCase();
+
+            static IEnumerator RunLateCancellationCase()
+            {
+                var viewObject = new GameObject("PanelViewLateCancelTest");
+                var view = viewObject.AddComponent<TestPanelView>();
+                view.Prepare();
+                var viewModel = new TestPanelViewModel();
+                view.Construct(viewModel);
+
+                var promise = new Promise<Unit>();
+                view.TriggerIn(promise, "in");
+                promise.Dispose();
+                view.CancelIncoming();
+                yield return null;
+
+                Assert.That(viewModel.TransitionState.Value, Is.EqualTo(TransitionState.None));
+                view.Dispose();
+                UnityEngine.Object.DestroyImmediate(viewObject);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PanelView_CompletionContinuation_ObservesFinalTransitionState()
+        {
+            return RunCompletionOrderingCase();
+
+            static IEnumerator RunCompletionOrderingCase()
+            {
+                var viewObject = new GameObject("PanelViewCompletionOrderingTest");
+                var view = viewObject.AddComponent<TestPanelView>();
+                view.Prepare();
+                var viewModel = new TestPanelViewModel();
+                view.Construct(viewModel);
+
+                using var promise = new Promise<Unit>();
+                var stateWhenCompleted = TransitionState.In;
+                var sawNoneBeforeCompletion = false;
+                var observer = viewModel.TransitionState.Subscribe(state =>
+                {
+                    if (state == TransitionState.None)
+                        sawNoneBeforeCompletion = true;
+                });
+                view.TriggerIn(promise, "in");
+                var observation = ObserveCompletion(promise.Task, () => stateWhenCompleted = viewModel.TransitionState.Value);
+                view.CompleteIncoming();
+                yield return observation.ToCoroutine();
+
+                Assert.That(stateWhenCompleted, Is.EqualTo(TransitionState.None));
+                Assert.That(sawNoneBeforeCompletion, Is.True);
+                observer.Dispose();
+                view.Dispose();
+                UnityEngine.Object.DestroyImmediate(viewObject);
+            }
+        }
+
+        private static async UniTask ObserveCompletion(UniTask<Unit> task, Action onCompleted)
+        {
+            await task;
+            onCompleted();
+        }
+
+        private static void AddPanel(PanelManager manager, string panelId, IPanelViewModel panel)
+        {
+            panel.PanelId = panelId;
+            var panels = (Dictionary<string, IPanelViewModel>)typeof(PanelManager)
+                .GetField("_panels", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(manager);
+            panels.Add(panelId, panel);
+        }
+
         private static PanelManager CreateManager(TestPanelViewModel from, TestPanelViewModel to)
         {
+            from.PanelId = "from";
+            to.PanelId = "to";
             var manager = new PanelManager(new Dictionary<string, PanelLifetimeScope>(), "from");
             var panels = (Dictionary<string, IPanelViewModel>)typeof(PanelManager)
                 .GetField("_panels", BindingFlags.Instance | BindingFlags.NonPublic)
@@ -116,6 +224,7 @@ namespace FitMe.Panel.Tests
 
             public void CompleteIncoming() => _incoming.TrySetResult();
             public void CompleteOutgoing() => _outgoing.TrySetResult();
+            public void CancelIncoming() => _incoming.TrySetCanceled();
 
             protected override UniTask Transition(string transitionKey, bool direction, CancellationToken cancellationToken = default)
             {
@@ -139,7 +248,13 @@ namespace FitMe.Panel.Tests
             private Promise<Unit> _outgoingPromise;
 
             public TestPanelViewModel()
+                : this(null)
             {
+            }
+
+            public TestPanelViewModel(string panelId)
+            {
+                PanelId = panelId;
                 TransitionInCommand.Subscribe(data =>
                 {
                     if (ThrowOnIncoming)

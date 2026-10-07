@@ -13,6 +13,7 @@ namespace QuackUp.Utils
         private readonly UniTaskCompletionSource<T> _completionSource = new();
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private readonly IDisposable _cancellationRegistration;
+        private bool _isDisposed;
     
         public UniTask<T> Task => _completionSource.Task;
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
@@ -25,16 +26,30 @@ namespace QuackUp.Utils
     
         public bool TrySetResult(T result) => _completionSource.TrySetResult(result);
         public bool TrySetException(Exception exception) => _completionSource.TrySetException(exception);
-        public bool TrySetCanceled() => _completionSource.TrySetCanceled(CancellationToken);
-    
-        public void Cancel() => _cancellationTokenSource.Cancel();
-        public void CancelAfter(TimeSpan delay) => _cancellationTokenSource.CancelAfter(delay);
+        public bool TrySetCanceled()
+        {
+            if (_isDisposed) return false;
+            return _completionSource.TrySetCanceled(CancellationToken);
+        }
+
+        public void Cancel()
+        {
+            if (_isDisposed) return;
+            _cancellationTokenSource.Cancel();
+        }
+
+        public void CancelAfter(TimeSpan delay)
+        {
+            if (_isDisposed) return;
+            _cancellationTokenSource.CancelAfter(delay);
+        }
     
         public void Dispose()
         {
+            if (_isDisposed) return;
+            _isDisposed = true;
             _cancellationRegistration?.Dispose();
             _cancellationTokenSource?.Dispose();
-            _completionSource?.Task.Forget();
         }
     }
 }
