@@ -41,6 +41,9 @@ namespace FitMe.Grid
         
         public static bool IsTheSameShape(List<Vector2Int> shapeA, List<Vector2Int> shapeB)
         {
+            if (shapeA == null || shapeB == null)
+                return shapeA == null && shapeB == null;
+
             var aCount = shapeA.Count;
             var bCount = shapeB.Count;
             if (aCount != bCount)
@@ -49,6 +52,10 @@ namespace FitMe.Grid
                 return false;
             }
             if (aCount == 1 && bCount == 1)
+            {
+                return true;
+            }
+            if (aCount == 0)
             {
                 return true;
             }
@@ -178,7 +185,8 @@ namespace FitMe.Grid
             {
                 int sourceX = topLeft.x + i;
                 int sourceY = topLeft.y + j;
-                if (sourceX < array.GetLength(0) && sourceY < array.GetLength(1))
+                if (sourceX >= 0 && sourceY >= 0 &&
+                    sourceX < array.GetLength(0) && sourceY < array.GetLength(1))
                 {
                     window[i, j] = array[sourceX, sourceY];
                 }
