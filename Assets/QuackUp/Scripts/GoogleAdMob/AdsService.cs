@@ -13,6 +13,52 @@ using QuackUp.Utils;
 
 namespace QuackUp.GoogleAdMob
 {
+    public sealed class RewardedAdShowAttempt : IDisposable
+    {
+        private readonly Action _onReward;
+        private IDisposable _subscription;
+        private bool _isCompleted;
+
+        public RewardedAdShowAttempt(
+            Observable<Unit> rewards,
+            Observable<Unit> closed,
+            Observable<Unit> failed,
+            Action onReward)
+        {
+            _onReward = onReward ?? throw new ArgumentNullException(nameof(onReward));
+            var builder = Disposable.CreateBuilder();
+            rewards.Subscribe(_ => CompleteWithReward()).AddTo(ref builder);
+            closed.Subscribe(_ => Dispose()).AddTo(ref builder);
+            failed.Subscribe(_ => Dispose()).AddTo(ref builder);
+            _subscription = builder.Build();
+        }
+
+        public bool TryShow(Func<bool> show)
+        {
+            if (_isCompleted) return false;
+            var shown = show?.Invoke() == true;
+            if (!shown) Dispose();
+            return shown;
+        }
+
+        public void Dispose()
+        {
+            if (_isCompleted) return;
+            _isCompleted = true;
+            _subscription?.Dispose();
+            _subscription = null;
+        }
+
+        private void CompleteWithReward()
+        {
+            if (_isCompleted) return;
+            _isCompleted = true;
+            _onReward();
+            _subscription?.Dispose();
+            _subscription = null;
+        }
+    }
+
     public abstract class AdsInstance : IDisposable
     {
         private const int InitialLoadRetryDelaySeconds = 2;
