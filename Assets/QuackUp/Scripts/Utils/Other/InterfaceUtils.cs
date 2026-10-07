@@ -66,6 +66,11 @@ namespace QuackUp.Utils
                 DebugUtils.LogError($"Child of type {typeof(T1)} is not a MonoBehaviour or Transform. Cannot set parent.");
                 return;
             }
+            if (parentTransform is null)
+            {
+                DebugUtils.LogError($"Parent of type {typeof(T2)} is not a MonoBehaviour or Transform. Cannot set parent.");
+                return;
+            }
             childTransform.SetParent(parentTransform);
         }
     }
