@@ -215,11 +215,11 @@ MonoBehaviour:
   <HasCountOff>k__BackingField: 0
   <GameplayBgm>k__BackingField:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -427414803
+      Data2: 1332713969
+      Data3: -480146507
+      Data4: -805563045
+    Path: event:/BGM/BGM02_Game Play
   <CameraFitShakeSettings>k__BackingField:
     strength: {x: 0, y: 0, z: 0}
     duration: 0

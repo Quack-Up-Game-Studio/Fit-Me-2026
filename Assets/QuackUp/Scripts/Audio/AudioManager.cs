@@ -81,13 +81,28 @@ namespace QuackUp.Audio
         #region Play
         public AudioReference PlayAudio(EventReference eventReference, Vector3 position, string id = null, Transform parent = null, bool addToWildIfNotId = true)
         {
+            if (eventReference.IsNull)
+            {
+                DebugUtils.LogWarning("PlayAudio skipped: event reference is empty (no audio event assigned).");
+                return null;
+            }
             if (_audioManagerConfig.LimitAudioCount && _wildAudioReferenceData.Count + 
                 _indexedAudioReferenceData.Values.Sum(references => references.Count) >= _audioManagerConfig.MaxAudioCount)
             {
                 DebugUtils.LogWarning("Max audio count reached, not playing new audio.");
                 return null;
             }
-            EventInstance eventInstance = RuntimeManager.CreateInstance(eventReference);
+            EventInstance eventInstance;
+            try
+            {
+                eventInstance = RuntimeManager.CreateInstance(eventReference);
+            }
+            catch (EventNotFoundException e)
+            {
+                // A dangling event reference must never abort callers' startup logic (e.g. LevelManager.Start).
+                DebugUtils.LogWarning($"PlayAudio skipped: audio event not found ({eventReference.Path}). {e.Message}");
+                return null;
+            }
             eventInstance.set3DAttributes(position.To3DAttributes());
             eventInstance.start();
             if (parent)
@@ -113,7 +128,15 @@ namespace QuackUp.Audio
         
         public void PlayAudioOneShot(EventReference eventReference, Vector3 position)
         {
-            RuntimeManager.PlayOneShot(eventReference, position);
+            if (eventReference.IsNull) return;
+            try
+            {
+                RuntimeManager.PlayOneShot(eventReference, position);
+            }
+            catch (EventNotFoundException e)
+            {
+                DebugUtils.LogWarning($"PlayAudioOneShot skipped: audio event not found ({eventReference.Path}). {e.Message}");
+            }
         }
         #endregion
 
