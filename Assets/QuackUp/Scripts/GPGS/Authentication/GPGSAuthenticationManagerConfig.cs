@@ -8,5 +8,6 @@ namespace QuackUp.GPGS
     public class GPGSAuthenticationManagerConfig : SerializedScriptableObject
     {
         [field: SerializeField] public bool AutoAuthenticateOnStart { get; private set; }
+        [field: SerializeField] public int AuthenticationTimeoutSeconds { get; private set; } = 15;
     }
 }

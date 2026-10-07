@@ -22,3 +22,4 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   <AutoAuthenticateOnStart>k__BackingField: 1
+  <AuthenticationTimeoutSeconds>k__BackingField: 15

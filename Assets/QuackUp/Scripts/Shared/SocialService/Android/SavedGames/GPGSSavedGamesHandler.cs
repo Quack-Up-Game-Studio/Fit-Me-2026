@@ -24,6 +24,7 @@ namespace FitMe.SocialService.Android
         private readonly GPGSSavedGamesConfig _saveGamesConfig;
 
         private readonly UniTaskCompletionSource _cloudLoadCompletedTcs = new();
+        private readonly SaveReadinessGate _readinessGate = new();
 
         public Observable<bool> OnSyncResult => _onSyncResult;
         private readonly Subject<bool> _onSyncResult = new();
@@ -60,25 +61,32 @@ namespace FitMe.SocialService.Android
                 if (!_authConfig.AutoAuthenticateOnStart)
                 {
                     DebugUtils.Log("GPGSSavedGamesHandler: AutoAuthenticateOnStart is disabled. Marking save data ready.");
-                    _messagePackSaveManager.MarkSaveDataReady();
+                    CompleteReadiness();
                     return;
                 }
 
-                DebugUtils.Log("GPGSSavedGamesHandler: Waiting for silent authentication result...");
-                var status = await _authenticationManager.OnAuthenticationResult.FirstAsync();
+                var authenticationTask = _authenticationManager.OnAuthenticationResult.FirstAsync().AsUniTask();
+                var authenticationTimeoutTask = UniTask.Delay(TimeSpan.FromSeconds(Math.Max(1, _authConfig.AuthenticationTimeoutSeconds)));
+                var (authenticationCompleted, status) = await UniTask.WhenAny(authenticationTask, authenticationTimeoutTask);
+                if (!authenticationCompleted)
+                {
+                    DebugUtils.LogWarning("GPGSSavedGamesHandler: Authentication timed out. Marking save data ready.");
+                    CompleteReadiness();
+                    return;
+                }
                 DebugUtils.Log($"GPGSSavedGamesHandler: Silent authentication completed with status: {status}");
 
                 if (status != GooglePlayGames.BasicApi.SignInStatus.Success)
                 {
                     DebugUtils.Log("GPGSSavedGamesHandler: Silent authentication failed. Marking save data ready.");
-                    _messagePackSaveManager.MarkSaveDataReady();
+                    CompleteReadiness();
                     return;
                 }
 
                 if (!_saveGamesConfig.LoadAutomaticallyAfterAuthentication)
                 {
                     DebugUtils.Log("GPGSSavedGamesHandler: LoadAutomaticallyAfterAuthentication is disabled. Marking save data ready.");
-                    _messagePackSaveManager.MarkSaveDataReady();
+                    CompleteReadiness();
                     return;
                 }
 
@@ -88,12 +96,20 @@ namespace FitMe.SocialService.Android
                 if (completedTaskIndex == 1)
                 {
                     DebugUtils.LogWarning("GPGSSavedGamesHandler: Cloud save load timed out. Forcing save data ready.");
-                    _messagePackSaveManager.MarkSaveDataReady();
+                    CompleteReadiness();
                 }
             }
             catch (Exception ex)
             {
                 DebugUtils.LogError($"GPGSSavedGamesHandler: Exception in InitializeAsync: {ex}");
+                CompleteReadiness();
+            }
+        }
+
+        private void CompleteReadiness()
+        {
+            if (_readinessGate.CompleteReadiness())
+            {
                 _messagePackSaveManager.MarkSaveDataReady();
             }
         }
@@ -109,6 +125,13 @@ namespace FitMe.SocialService.Android
         
         private async UniTask OnSaveLoaded((bool success, byte[] bytes) result, CancellationToken cancellationToken)
         {
+            if (!_readinessGate.TryBeginRemoteApply())
+            {
+                DebugUtils.LogWarning("GPGSSavedGamesHandler: Ignoring cloud data received after save readiness was released.");
+                _cloudLoadCompletedTcs.TrySetResult();
+                return;
+            }
+
             try
             {
                 DeserializedSaveData deserializedLocal = null;
@@ -182,7 +205,7 @@ namespace FitMe.SocialService.Android
             finally
             {
                 _cloudLoadCompletedTcs.TrySetResult();
-                _messagePackSaveManager.MarkSaveDataReady();
+                CompleteReadiness();
             }
         }
 

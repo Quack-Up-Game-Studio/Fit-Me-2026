@@ -28,6 +28,45 @@ namespace QuackUp.Save.Tests
         }
 
         [Test]
+        public void ReadinessGate_AllowsRemoteApplyBeforeReadyRelease()
+        {
+            var gate = new SaveReadinessGate();
+
+            Assert.IsTrue(gate.TryBeginRemoteApply());
+            gate.CompleteReadiness();
+            Assert.IsTrue(gate.IsReady);
+        }
+
+        [Test]
+        public void ReadinessGate_RejectsLateRemoteApplyAfterTimeout()
+        {
+            var gate = new SaveReadinessGate();
+            gate.CompleteReadiness();
+
+            Assert.IsFalse(gate.TryBeginRemoteApply());
+            Assert.IsTrue(gate.IsReady);
+        }
+
+        [Test]
+        public void ReadinessGate_RejectsRepeatedCompletion()
+        {
+            var gate = new SaveReadinessGate();
+
+            Assert.IsTrue(gate.CompleteReadiness());
+            Assert.IsFalse(gate.CompleteReadiness());
+        }
+
+        [Test]
+        public void ReadinessGate_ApplyLeaseMustBeAcquiredBeforeCompletion()
+        {
+            var gate = new SaveReadinessGate();
+            gate.CompleteReadiness();
+
+            Assert.IsFalse(gate.TryBeginRemoteApply());
+        }
+
+
+        [Test]
         public void Migration_AfterStartupReset_TargetsApplicationVersion()
         {
             WriteZipWithEntry(new TestMessagePackSaveData { Version = "0.9.0", testInt = 7 });
