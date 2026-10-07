@@ -30,7 +30,7 @@ namespace FitMe.Panel
         public const string AdCoolDownTimeKey = "AdCoolDownTime";
         public const string AdCountKey = "AdCount";
         
-        private IDisposable _onRewardEarned;
+        private RewardedAdShowAttempt _onRewardEarned;
         private IDisposable _adsTimer;
         
         public ReadOnlyReactiveProperty<int> RemainingAdCount => _remainingAdCount.ToReadOnlyReactiveProperty();
@@ -143,20 +143,9 @@ namespace FitMe.Panel
             if (_remainingAdCount.Value <= 0) return;
             if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAdInstance)) return;
             if (!rewardedAdInstance.Enabled) return;
+            if (_onRewardEarned is { IsCompleted: false }) return;
             DisposeRewardSubscription();
-            var subscriptionBuilder = Disposable.CreateBuilder();
-            rewardedAdInstance.OnUserEarnedReward
-                .Subscribe(_ => OnRewardEarned())
-                .AddTo(ref subscriptionBuilder);
-            rewardedAdInstance.OnAdClosed
-                .Subscribe(_ => DisposeRewardSubscription())
-                .AddTo(ref subscriptionBuilder);
-            rewardedAdInstance.OnAdFailed
-                .Subscribe(_ => DisposeRewardSubscription())
-                .AddTo(ref subscriptionBuilder);
-            _onRewardEarned = subscriptionBuilder.Build();
-            rewardedAdInstance.AdContext = GAAdContext.RefillEnergy;
-            if (!rewardedAdInstance.TryShow()) DisposeRewardSubscription();
+            rewardedAdInstance.TryShow(GAAdContext.RefillEnergy, OnRewardEarned, out _onRewardEarned);
         }
 
         public void ToShop()

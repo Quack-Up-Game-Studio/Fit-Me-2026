@@ -88,8 +88,19 @@ namespace QuackUp.IAP
         {
             var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObject ? saveObject.GetSaveData<PlayerRecordSaveData>() : null;
-            if (saveData != null && saveData.TryMarkPurchaseCompleted(transactionId))
-                _saveManager.Save(saveObject);
+            if (saveData == null)
+                throw new InvalidOperationException("Player purchase save data is unavailable.");
+            if (!saveData.TryMarkPurchaseCompleted(transactionId)) return;
+            try
+            {
+                _saveManager.SaveRequired(saveObject);
+            }
+            catch
+            {
+                // Only a persisted completion may veto a later confirmation retry.
+                saveData.CompletedPurchaseTransactionIds.Remove(transactionId);
+                throw;
+            }
         }
 
         public async UniTask RecordPurchase(Order order, string transactionId)
@@ -112,7 +123,7 @@ namespace QuackUp.IAP
                     }
 
                     if (isNewTransaction || isFirstPurchase)
-                        _saveManager.Save(saveObject);
+                        _saveManager.SaveRequired(saveObject);
 
                     if (_pendingFirstPurchaseCloudSyncTransaction == transactionId && !_firstPurchaseCloudSyncCompleted)
                     {
@@ -122,7 +133,7 @@ namespace QuackUp.IAP
 
                     if (saveData.TryMarkPurchaseAnalyticsAttempted(transactionId))
                     {
-                        _saveManager.Save(saveObject);
+                        _saveManager.SaveRequired(saveObject);
                         TrackPurchaseAnalytics(product, id, transactionId);
                     }
                     return;

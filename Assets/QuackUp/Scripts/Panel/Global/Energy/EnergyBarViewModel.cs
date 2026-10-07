@@ -21,7 +21,7 @@ namespace FitMe.Panel
         private readonly AdsService _adsService;
 
         private IDisposable _bindings;
-        private IDisposable _adSubscription;
+        private RewardedAdShowAttempt _adSubscription;
 
         [Inject]
         public EnergyBarViewModel(
@@ -55,20 +55,9 @@ namespace FitMe.Panel
             if (!AllowWatchAd.Value) return;
             if (!_adsService.TryGetAdsInstance<RewardedAdInstance>(out var rewardedAd)) return;
             if (!rewardedAd.Enabled) return;
+            if (_adSubscription is { IsCompleted: false }) return;
             DisposeAdSubscription();
-            var subscriptionBuilder = Disposable.CreateBuilder();
-            rewardedAd.OnUserEarnedReward
-                .Subscribe(_ => OnAdSuccess())
-                .AddTo(ref subscriptionBuilder);
-            rewardedAd.OnAdClosed
-                .Subscribe(_ => DisposeAdSubscription())
-                .AddTo(ref subscriptionBuilder);
-            rewardedAd.OnAdFailed
-                .Subscribe(_ => DisposeAdSubscription())
-                .AddTo(ref subscriptionBuilder);
-            _adSubscription = subscriptionBuilder.Build();
-            rewardedAd.AdContext = GAAdContext.RefillEnergy;
-            if (!rewardedAd.TryShow()) DisposeAdSubscription();
+            rewardedAd.TryShow(GAAdContext.RefillEnergy, OnAdSuccess, out _adSubscription);
         }
         
         private void OnAdSuccess()

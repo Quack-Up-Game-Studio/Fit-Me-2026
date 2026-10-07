@@ -138,11 +138,13 @@ namespace FitMe.GameData
         public bool ApplyPurchaseEnergy(string transactionId, int amount, string itemType, string itemId)
         {
             var saveData = _saveObject.GetSaveData<EnergyManagerSaveData>();
-            if (!saveData.TryApplyPurchaseGrant(transactionId, amount)) return false;
+            var applied = saveData.TryApplyPurchaseGrant(transactionId, amount);
 
             _currentEnergy.Value = saveData.CurrentEnergy;
-            _saveManager.Save(_saveObject);
+            // A transaction marker prevents another grant, not a retry of a failed write.
+            _saveManager.SaveRequired(_saveObject);
             _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
+            if (!applied) return false;
 
             try
             {

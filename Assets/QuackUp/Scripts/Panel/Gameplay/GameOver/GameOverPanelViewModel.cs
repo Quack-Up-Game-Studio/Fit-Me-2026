@@ -36,7 +36,7 @@ namespace FitMe.Panel
         private float _countdownTime;
         private IDisposable _bindings;
         private IDisposable _countdownTimer;
-        private IDisposable _adSubscription;
+        private RewardedAdShowAttempt _adSubscription;
         
         public const string MaxContinueCountId = "MaxContinueCountId";
         public const string CountdownTimeId = "CountdownTimeId";
@@ -110,20 +110,9 @@ namespace FitMe.Panel
                 OnAdSuccess();
                 return;
             }
-            _adSubscription?.Dispose();
-            var subscriptionBuilder = Disposable.CreateBuilder();
-            rewardedAd.OnUserEarnedReward
-                .Subscribe(_ => OnAdSuccess())
-                .AddTo(ref subscriptionBuilder);
-            rewardedAd.OnAdClosed
-                .Subscribe(_ => DisposeAdSubscription())
-                .AddTo(ref subscriptionBuilder);
-            rewardedAd.OnAdFailed
-                .Subscribe(_ => DisposeAdSubscription())
-                .AddTo(ref subscriptionBuilder);
-            _adSubscription = subscriptionBuilder.Build();
-            rewardedAd.AdContext = GAAdContext.Revive;
-            if (!rewardedAd.TryShow()) DisposeAdSubscription();
+            if (_adSubscription is { IsCompleted: false }) return;
+            DisposeAdSubscription();
+            rewardedAd.TryShow(GAAdContext.Revive, OnAdSuccess, out _adSubscription);
         }
         
         private void OnAdSuccess()

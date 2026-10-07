@@ -203,6 +203,22 @@ namespace QuackUp.Save
             ZipAndSave(entryName, data);
         }
         
+        /// <summary>Persist required state or throw; unlike Save, a skipped write is not success.</summary>
+        public void SaveRequired(MessagePackSaveObject saveObject)
+        {
+            if (!saveObject) throw new ArgumentNullException(nameof(saveObject));
+            var entryName = _saveObjects.FirstOrDefault(x => x.Value == saveObject).Key;
+            if (!saveObject.SaveSeparately && string.IsNullOrEmpty(entryName))
+                throw new InvalidOperationException("Save object not registered in the save manager.");
+            if (!saveObject.TrySerializeSaveData(out var data))
+                throw new InvalidOperationException("Required save data could not be serialized.");
+
+            if (saveObject.SaveSeparately)
+                saveObject.WriteToFile(data);
+            else
+                ZipAndSave(entryName, data);
+        }
+
         public void Load(string key)
         {
             var saveObject = GetSaveObject(key);

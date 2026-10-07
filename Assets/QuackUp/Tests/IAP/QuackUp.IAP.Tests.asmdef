@@ -4,6 +4,14 @@
   "references": [
     "QuackUp.IAP",
     "FitMe.GameData",
+    "FitMe.Panel",
+    "FitMe.Shared",
+    "QuackUp.Save",
+    "QuackUp.SocialService",
+    "QuackUp.Analytics",
+    "QuackUp.GoogleAdMob",
+    "QuackUp.Utils",
+    "VContainer",
     "Unity.Purchasing",
     "UniTask",
     "R3",
@@ -19,6 +27,7 @@
   "precompiledReferences": [
     "nunit.framework.dll",
     "MessagePack.dll",
+    "Sirenix.Serialization.dll",
     "R3.dll"
   ],
   "autoReferenced": false,

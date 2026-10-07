@@ -18,6 +18,7 @@ namespace QuackUp.GoogleAdMob
         private readonly Action _onReward;
         private IDisposable _subscription;
         private bool _isCompleted;
+        public bool IsCompleted => _isCompleted;
 
         public RewardedAdShowAttempt(
             Observable<Unit> rewards,
@@ -52,10 +53,8 @@ namespace QuackUp.GoogleAdMob
         private void CompleteWithReward()
         {
             if (_isCompleted) return;
-            _isCompleted = true;
+            Dispose();
             _onReward();
-            _subscription?.Dispose();
-            _subscription = null;
         }
     }
 
@@ -409,7 +408,13 @@ namespace QuackUp.GoogleAdMob
     {
         public RewardedAdInstance(AdsSettings adsSettings, IAnalyticsService analyticsService,
             IAdMobImpressionRevenueBridge adMobImpressionRevenueBridge)
-            : base(adsSettings, analyticsService, adMobImpressionRevenueBridge) {}
+            : base(adsSettings, analyticsService, adMobImpressionRevenueBridge)
+        {
+            var builder = Disposable.CreateBuilder();
+            OnAdClosed.Subscribe(_ => FinishActiveShow()).AddTo(ref builder);
+            OnAdFailed.Subscribe(_ => FinishActiveShow()).AddTo(ref builder);
+            _showLifecycleSubscription = builder.Build();
+        }
 
         public string UnitId => _adsSettings.RewardedUnitId;
         
@@ -418,12 +423,56 @@ namespace QuackUp.GoogleAdMob
         private readonly Subject<Unit> _onUserEarnedReward = new();
         
         private RewardedAd _rewardedAd;
+        private int _loadGeneration;
+        private RewardedAdShowAttempt _activeShowAttempt;
+        private readonly IDisposable _showLifecycleSubscription;
+        private bool _showInProgress;
 
-        public override bool CanShowAd() => Enabled && _rewardedAd != null && _rewardedAd.CanShowAd();
+        public override bool CanShowAd() => !IsDisposed && !_showInProgress && Enabled && _rewardedAd != null && _rewardedAd.CanShowAd();
+
+        public bool TryShow(string adContext, Action onReward, out RewardedAdShowAttempt attempt)
+        {
+            attempt = null;
+            // Reject before installing listeners, changing placement, or touching the active SDK ad.
+            if (IsDisposed || _showInProgress || _activeShowAttempt != null) return false;
+            var ownedAttempt = new RewardedAdShowAttempt(OnUserEarnedReward, OnAdClosed, OnAdFailed, onReward);
+            _activeShowAttempt = ownedAttempt;
+            attempt = ownedAttempt;
+            AdContext = adContext;
+            try
+            {
+                if (ownedAttempt.TryShow(TryShow)) return true;
+                if (ReferenceEquals(_activeShowAttempt, ownedAttempt)) FinishActiveShow();
+                return false;
+            }
+            catch
+            {
+                if (ReferenceEquals(_activeShowAttempt, ownedAttempt)) FinishActiveShow();
+                ownedAttempt.Dispose();
+                throw;
+            }
+        }
+
+        protected int BeginLoadGeneration() => ++_loadGeneration;
+
+        protected bool CanAcceptLoadedAd(int generation) =>
+            !IsDisposed && generation == _loadGeneration && !_showInProgress;
+
+        protected void MarkShowStarted() => _showInProgress = true;
+
+        private void FinishActiveShow()
+        {
+            var attempt = _activeShowAttempt;
+            _activeShowAttempt = null;
+            _showInProgress = false;
+            attempt?.Dispose();
+        }
 
         public override void Load()
         {
+            if (IsDisposed || _showInProgress) return;
             DisposeAd();
+            var loadGeneration = BeginLoadGeneration();
             RewardedAd.Load(UnitId, new AdRequest(), (ad, error) =>
             {
                 if (error != null || ad == null)
@@ -437,7 +486,7 @@ namespace QuackUp.GoogleAdMob
                 _adMobImpressionRevenueBridge.SubscribeAdMobImpressions(UnitId, ad);
                 ExecuteOnUnityMainThread(() =>
                 {
-                    if (IsDisposed)
+                    if (!CanAcceptLoadedAd(loadGeneration))
                     {
                         ad.Destroy();
                         return;
@@ -451,6 +500,7 @@ namespace QuackUp.GoogleAdMob
 
         public override bool TryShow()
         {
+            if (IsDisposed || _showInProgress) return false;
 #if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             if (!Enabled)
             {
@@ -461,14 +511,19 @@ namespace QuackUp.GoogleAdMob
             if (CanShowAd())
             {
                 var rewardCallbackHandled = 0;
+                var ad = _rewardedAd;
+                var owner = _activeShowAttempt;
+                MarkShowStarted();
+                CancelAdsSessionTimer();
                 // Reward delivery is tied to the SDK's earned-reward callback, not ad-close ordering.
-                _rewardedAd.Show(_ =>
+                ad.Show(_ =>
                 {
                     if (Interlocked.Exchange(ref rewardCallbackHandled, 1) != 0) return;
                     ReportAdEvent(AdAction.RewardReceived, AdType.RewardedVideo, UnitId);
                     ExecuteOnUnityMainThread(() =>
                     {
-                        if (!IsDisposed) _onUserEarnedReward.OnNext(Unit.Default);
+                        if (!IsDisposed && ReferenceEquals(_rewardedAd, ad) && ReferenceEquals(_activeShowAttempt, owner))
+                            _onUserEarnedReward.OnNext(Unit.Default);
                     });
                 });
                 ReportAdEvent(AdAction.Show, AdType.RewardedVideo, UnitId);
@@ -490,6 +545,7 @@ namespace QuackUp.GoogleAdMob
 
         protected override void DisposeAd()
         {
+            _loadGeneration++;
             if (_rewardedAd == null) return;
             _adsEventSubscription?.Dispose();
             _rewardedAd.Destroy();
@@ -498,30 +554,39 @@ namespace QuackUp.GoogleAdMob
 
         public override void Dispose()
         {
+            FinishActiveShow();
+            _showLifecycleSubscription.Dispose();
             base.Dispose();
             _onUserEarnedReward.Dispose();
         }
 
         protected override void RegisterAdEvents()
         {
+            var ad = _rewardedAd;
             var builder = Disposable.CreateBuilder();
             Observable.FromEvent(
-                h => _rewardedAd.OnAdFullScreenContentClosed += h,
-                h => _rewardedAd.OnAdFullScreenContentClosed -= h)
-                .Subscribe(_ => ExecuteOnUnityMainThread(HandleAdClosed))
+                h => ad.OnAdFullScreenContentClosed += h,
+                h => ad.OnAdFullScreenContentClosed -= h)
+                .Subscribe(_ => ExecuteOnUnityMainThread(() =>
+                {
+                    if (ReferenceEquals(_rewardedAd, ad)) HandleAdClosed();
+                }))
                 .AddTo(ref builder);
             Observable.FromEvent(
-                h => _rewardedAd.OnAdClicked += h,
-                h => _rewardedAd.OnAdClicked -= h)
+                h => ad.OnAdClicked += h,
+                h => ad.OnAdClicked -= h)
                 .Subscribe(_ => HandleAdClicked())
                 .AddTo(ref builder);
             Observable.FromEvent<AdError>(
-                    h => _rewardedAd.OnAdFullScreenContentFailed += h,
-                    h => _rewardedAd.OnAdFullScreenContentFailed -= h)
+                    h => ad.OnAdFullScreenContentFailed += h,
+                    h => ad.OnAdFullScreenContentFailed -= h)
                 .Subscribe(error =>
                 {
                     ReportAdEvent(AdAction.FailedShow, AdType.RewardedVideo, UnitId);
-                    ExecuteOnUnityMainThread(() => OnAdFullScreenContentFailed(error));
+                    ExecuteOnUnityMainThread(() =>
+                    {
+                        if (ReferenceEquals(_rewardedAd, ad)) OnAdFullScreenContentFailed(error);
+                    });
                 })
                 .AddTo(ref builder);
             _adsEventSubscription = builder.Build();
@@ -531,7 +596,7 @@ namespace QuackUp.GoogleAdMob
         {
             if (IsDisposed) return;
             _onAdClosed.OnNext(Unit.Default);
-            Load();
+            if (_activeShowAttempt == null && !_showInProgress) Load();
         }
         
         private void HandleAdClicked()
@@ -544,7 +609,7 @@ namespace QuackUp.GoogleAdMob
             if (IsDisposed) return;
             DebugUtils.LogError($"Rewarded ad failed to show: {error.GetMessage()}");
             _onAdFailed?.OnNext(Unit.Default);
-            Load();
+            if (_activeShowAttempt == null && !_showInProgress) Load();
         }
     }
     
