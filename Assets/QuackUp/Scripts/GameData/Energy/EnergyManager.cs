@@ -134,6 +134,27 @@ namespace FitMe.GameData
             var flowType = amount > 0 ? ResourceFlowType.Source : ResourceFlowType.Sink;
             _analyticsService.TrackResourceFlow(flowType, GACurrency.Energy, absoluteAmount, itemType, itemId);
         }
+
+        public bool ApplyPurchaseEnergy(string transactionId, int amount, string itemType, string itemId)
+        {
+            var saveData = _saveObject.GetSaveData<EnergyManagerSaveData>();
+            if (!saveData.TryApplyPurchaseGrant(transactionId, amount)) return false;
+
+            _currentEnergy.Value = saveData.CurrentEnergy;
+            _saveManager.Save(_saveObject);
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
+
+            try
+            {
+                _analyticsService.TrackResourceFlow(ResourceFlowType.Source, GACurrency.Energy, amount, itemType, itemId);
+            }
+            catch (Exception exception)
+            {
+                DebugUtils.LogError($"Energy purchase analytics failed for transaction {transactionId}: {exception}");
+            }
+
+            return true;
+        }
         
         public bool HasEnoughEnergy(uint amount)
         {

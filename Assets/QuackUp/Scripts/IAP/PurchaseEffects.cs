@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using FitMe.GameData;
@@ -6,20 +8,22 @@ using QuackUp.Analytics;
 using QuackUp.GoogleAdMob;
 using QuackUp.Save;
 using QuackUp.SocialService;
+using QuackUp.Utils;
 using UnityEngine.Purchasing;
 
 namespace QuackUp.IAP
 {
     public interface IStorePurchaseEffects
     {
-        void ApplyProductEffects(Order order);
+        // Implementations must deduplicate non-idempotent grants by transactionId across save/reload.
+        void ApplyProductEffects(Order order, string transactionId);
         void ApplySubscriptionState(bool active);
     }
 
     public interface IPurchasePersistenceAndAnalytics
     {
         UniTask WaitForSaveDataReady { get; }
-        void RecordPurchase(Order order);
+        UniTask RecordPurchase(Order order, string transactionId);
         void UpdatePlayerTier(bool activeSubscription);
     }
 
@@ -34,14 +38,14 @@ namespace QuackUp.IAP
             _adsService = adsService;
         }
 
-        public void ApplyProductEffects(Order order)
+        public void ApplyProductEffects(Order order, string transactionId)
         {
             var id = order.CartOrdered.Items().FirstOrDefault()?.Product?.definition.id;
             switch (id)
             {
-                case ProductIds.Energy2: _energyManager.ChangeEnergy(3, true, GAItemType.IAP, id); break;
-                case ProductIds.Energy3: _energyManager.ChangeEnergy(5, true, GAItemType.IAP, id); break;
-                case ProductIds.MaxEnergy: _energyManager.ChangeEnergy(_energyManager.Config.MaxEnergy, true, GAItemType.IAP, id); break;
+                case ProductIds.Energy2: _energyManager.ApplyPurchaseEnergy(transactionId, 3, GAItemType.IAP, id); break;
+                case ProductIds.Energy3: _energyManager.ApplyPurchaseEnergy(transactionId, 5, GAItemType.IAP, id); break;
+                case ProductIds.MaxEnergy: _energyManager.ApplyPurchaseEnergy(transactionId, _energyManager.Config.MaxEnergy, GAItemType.IAP, id); break;
             }
         }
 
@@ -57,6 +61,9 @@ namespace QuackUp.IAP
         private readonly MessagePackSaveManager _saveManager;
         private readonly ICloudSaveService _cloudSaveService;
         private readonly IAnalyticsService _analyticsService;
+        private readonly HashSet<string> _purchaseAnalyticsAttemptedTransactions = new(StringComparer.Ordinal);
+        private string _pendingFirstPurchaseCloudSyncTransaction;
+        private bool _firstPurchaseCloudSyncCompleted;
 
         public PurchasePersistenceAndAnalytics(MessagePackSaveManager saveManager,
             ICloudSaveService cloudSaveService, IAnalyticsService analyticsService)
@@ -68,7 +75,7 @@ namespace QuackUp.IAP
 
         public UniTask WaitForSaveDataReady => _saveManager.WaitForSaveDataReady;
 
-        public void RecordPurchase(Order order)
+        public async UniTask RecordPurchase(Order order, string transactionId)
         {
             var product = order.CartOrdered.Items().FirstOrDefault()?.Product;
             var id = product?.definition.id;
@@ -79,15 +86,41 @@ namespace QuackUp.IAP
                 if (saveData is { HasPurchasedAtLeastOnce: false })
                 {
                     saveData.HasPurchasedAtLeastOnce = true;
-                    _saveManager.Save(saveObject);
-                    _ = _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
+                    try
+                    {
+                        _saveManager.Save(saveObject);
+                    }
+                    catch
+                    {
+                        saveData.HasPurchasedAtLeastOnce = false;
+                        throw;
+                    }
+
+                    _pendingFirstPurchaseCloudSyncTransaction = transactionId;
+                    _firstPurchaseCloudSyncCompleted = false;
+                }
+
+                if (_pendingFirstPurchaseCloudSyncTransaction == transactionId && !_firstPurchaseCloudSyncCompleted)
+                {
+                    await _cloudSaveService.SaveToService(SaveToServiceParameters.Default);
+                    _firstPurchaseCloudSyncCompleted = true;
                 }
             }
 
             var currency = product?.metadata.isoCurrencyCode ?? "USD";
             var amount = IapCurrencyHelper.GetAmountInMinorUnits(product?.metadata.localizedPrice ?? 0m, currency);
-            _analyticsService.TrackBusinessEvent(currency, amount,
-                product?.definition.type.ToString() ?? "Unknown", id, GACartType.Store);
+            if (_purchaseAnalyticsAttemptedTransactions.Add(transactionId))
+            {
+                try
+                {
+                    _analyticsService.TrackBusinessEvent(currency, amount,
+                        product?.definition.type.ToString() ?? "Unknown", id, GACartType.Store);
+                }
+                catch (Exception exception)
+                {
+                    DebugUtils.LogError($"IAP: Purchase analytics failed for transaction {transactionId}: {exception}");
+                }
+            }
         }
 
         public void UpdatePlayerTier(bool activeSubscription)
