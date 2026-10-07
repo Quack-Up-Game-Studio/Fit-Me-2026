@@ -118,9 +118,10 @@ namespace FitMe.Panel
             switch (crossfadeSettings.crossFadeType)
             {
                 case CrossfadeType.Parallel:
-                    TransitionOut(fromPanel, toPanelId, cancellationToken: cancellationToken).Forget();
+                    var transitionOut = TransitionOut(fromPanel, toPanelId, cancellationToken: cancellationToken);
                     await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
                     await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
+                    await transitionOut;
                     break;
                 case CrossfadeType.InThenOut:
                     await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
