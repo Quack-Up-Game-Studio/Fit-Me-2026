@@ -130,7 +130,7 @@ namespace QuackUp.Utils
             for (var i = startIndex; i <= targetIndex; i++)
             {
                 var nextState = states[i];
-                await ChangeStateInternal(nextState, i, key);
+                await ChangeStateInternal(nextState, i, states.Keys.ElementAt(i));
             }
             _pendingTransition?.Invoke();
         }
