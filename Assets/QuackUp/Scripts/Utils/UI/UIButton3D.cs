@@ -16,16 +16,16 @@ namespace QuackUp.Utils
         {
             base.Awake();
             
-            up.SetActive(true);
-            down.SetActive(false);
+            if (up != null) up.SetActive(true);
+            if (down != null) down.SetActive(false);
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             
-            up.SetActive(true);
-            down.SetActive(false);
+            if (up != null) up.SetActive(true);
+            if (down != null) down.SetActive(false);
         }
 
         public override void OnPointerClick(PointerEventData eventData)
@@ -38,11 +38,11 @@ namespace QuackUp.Utils
 
         private async UniTaskVoid OnClick()
         {
-            up.SetActive(false);
-            down.SetActive(true);
+            if (up != null) up.SetActive(false);
+            if (down != null) down.SetActive(true);
             await UniTask.WaitForSeconds(0.05f, cancellationToken: destroyCancellationToken);
-            up.SetActive(true);
-            down.SetActive(false);
+            if (up != null) up.SetActive(true);
+            if (down != null) down.SetActive(false);
         }
 
         public override void OnPointerDown(PointerEventData eventData)
@@ -52,8 +52,8 @@ namespace QuackUp.Utils
             var btn = Button;
             if (btn != null && !btn.interactable) return;
             if (eventData.button != PointerEventData.InputButton.Left) return;
-            up.SetActive(false);
-            down.SetActive(true);
+            if (up != null) up.SetActive(false);
+            if (down != null) down.SetActive(true);
         }
 
         public override void OnPointerUp(PointerEventData eventData)
@@ -63,8 +63,8 @@ namespace QuackUp.Utils
             var btn = Button;
             if (btn != null && !btn.interactable) return;
             if (eventData.button != PointerEventData.InputButton.Left) return;
-            up.SetActive(true);
-            down.SetActive(false);
+            if (up != null) up.SetActive(true);
+            if (down != null) down.SetActive(false);
         }
     }
 }
