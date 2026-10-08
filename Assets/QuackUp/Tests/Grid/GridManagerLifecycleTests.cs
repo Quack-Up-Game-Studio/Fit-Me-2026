@@ -287,6 +287,112 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void Placement_PreviewAndCommitUseSameCell_AndSnapAtomToExactCenter()
+        {
+            SetUpOneCellPlacement();
+            var cellCenter = _grid.GetCellCenterWorld(Vector3Int.zero);
+            var atom = _blockModel.Atoms[0];
+            atom.GameObject.transform.SetParent(_block.GameObject.transform, true);
+            atom.GameObject.transform.position = cellCenter + new Vector3(0.23f, -0.17f, 0f);
+            _block.GameObject.transform.position = Vector3.zero;
+
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.True);
+            Assert.That(_cell.State.Value, Is.EqualTo(CellState.CanBePlaced));
+            Assert.That(_cell.CurrentAtom.Value, Is.Null);
+
+            Assert.That(_manager.TryPlaceBlock(_block, updateGrid: false), Is.True);
+
+            Assert.That(_cell.CurrentAtom.Value, Is.SameAs(atom));
+            Assert.That(_blockModel.BlockCells, Has.Count.EqualTo(1));
+            Assert.That(_blockModel.BlockCells[0].Model, Is.SameAs(_cell));
+            Assert.That(atom.GameObject.transform.position, Is.EqualTo(cellCenter));
+            Assert.That(_cell.State.Value, Is.EqualTo(CellState.None));
+        }
+
+        [Test]
+        public void ValidatePlacement_ClearsStalePreviewWhenTargetBecomesOccupied()
+        {
+            SetUpOneCellPlacement();
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.True);
+            Assert.That(_cell.State.Value, Is.EqualTo(CellState.CanBePlaced));
+
+            _cell.CurrentAtom.Value = _blockModel.Atoms[0];
+
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.False);
+            Assert.That(_cell.State.Value, Is.EqualTo(CellState.None));
+        }
+
+        [Test]
+        public void Placement_PreservesPlacementScoreFitEventAndGridRegistration()
+        {
+            SetUpOneCellPlacement();
+            ScoreEvent? scoreEvent = null;
+            FitTypeEvent? fitEvent = null;
+            using var scoreSubscription = _manager.OnScoreAdded.Subscribe(value => scoreEvent = value);
+            using var fitSubscription = _manager.OnFitCheck.Subscribe(value => fitEvent = value);
+
+            Assert.That(_manager.TryPlaceBlock(_block, updateGrid: true), Is.True);
+
+            Assert.That(scoreEvent.HasValue, Is.True);
+            Assert.That(scoreEvent.Value.ScoreType, Is.EqualTo(ScoreTypes.Placement));
+            Assert.That(fitEvent.HasValue, Is.True);
+            Assert.That(fitEvent.Value.FitType, Is.EqualTo(FitType.FitMe));
+            Assert.That(fitEvent.Value.Block, Is.SameAs(_block));
+            Assert.That(_manager.BlocksOnGrid, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void ReorderRenderingOrder_AssignsStableAscendingOrders()
+        {
+            SetUpOneCellPlacement();
+            var secondModel = new BlockModel(null, null);
+            _additionalBlockModels.Add(secondModel);
+            var secondViewModel = new BlockViewModel(secondModel);
+            var secondBlock = new BlockInstance(secondModel, secondViewModel, null,
+                Keep(new GameObject("Lifecycle second block")));
+            var firstOrder = -1;
+            var secondOrder = -1;
+            using var firstSubscription = _blockViewModel.SetSortingOrderCommand.Subscribe(value => firstOrder = value);
+            using var secondSubscription = secondViewModel.SetSortingOrderCommand.Subscribe(value => secondOrder = value);
+            ((ObservableList<GridBlockData>)_manager.BlocksOnGrid).Add(new GridBlockData(_block, Disposable.Empty));
+            ((ObservableList<GridBlockData>)_manager.BlocksOnGrid).Add(new GridBlockData(secondBlock, Disposable.Empty));
+
+            _manager.ReorderRenderingOrder();
+
+            Assert.That(firstOrder, Is.EqualTo(0));
+            Assert.That(secondOrder, Is.EqualTo(2));
+            secondViewModel.Dispose();
+            secondViewModel.BlockInteractionState.Dispose();
+            secondViewModel.SetSortingLayerCommand.Dispose();
+            secondViewModel.SetSortingOrderCommand.Dispose();
+            secondViewModel.ExplodeCommand.Dispose();
+            secondViewModel.ScaleInCommand.Dispose();
+            secondViewModel.RotateCommand.Dispose();
+            secondViewModel.DestroyCommand.Dispose();
+        }
+
+        [Test]
+        public void ClearGrid_RaisesLifecycleEventsAndClearsCommittedOccupancy()
+        {
+            SetUpOneCellPlacement();
+            Assert.That(_manager.TryPlaceBlock(_block, updateGrid: false), Is.True);
+            var aboutToClearCount = 0;
+            var clearedCount = 0;
+            using var aboutToClear = _manager.OnAboutToClearGrid.Subscribe(_ => aboutToClearCount++);
+            using var cleared = _manager.OnClearGrid.Subscribe(_ => clearedCount++);
+
+            var clearGrid = typeof(GridManager).GetMethod(nameof(GridManager.ClearGrid));
+            var operation = clearGrid.Invoke(_manager, new object[] { true, false });
+            var awaiter = operation.GetType().GetMethod("GetAwaiter").Invoke(operation, null);
+            awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+
+            Assert.That(aboutToClearCount, Is.EqualTo(1));
+            Assert.That(clearedCount, Is.EqualTo(1));
+            Assert.That(_cell.CurrentAtom.Value, Is.Null);
+            Assert.That(_manager.BlocksOnGrid, Is.Empty);
+        }
+
+        [Test]
         public void Placement_PreparesAllCellsBeforeVetoAndDoesNotPartiallyCommitIfCallbackOccupiesCell()
         {
             SetUpOneCellPlacement();
