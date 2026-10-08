@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using FitMe.Grid;
+using FitMe.Shared;
 using UnityEngine;
 
 namespace FitMe.GameData
@@ -73,6 +75,25 @@ namespace FitMe.GameData
         {
             _cells = cells == null ? new List<ShapeCell>() : new List<ShapeCell>(cells);
         }
+
+        public int[,] ToSchema()
+        {
+            if (Cells.Count == 0) return new int[0, 0];
+
+            var maxRow = 0;
+            var maxColumn = 0;
+            foreach (var cell in Cells)
+            {
+                if (cell.Row < 0 || cell.Column < 0)
+                    throw new InvalidOperationException("Footprint cells must have non-negative coordinates.");
+                maxRow = Math.Max(maxRow, cell.Row);
+                maxColumn = Math.Max(maxColumn, cell.Column);
+            }
+
+            var schema = new int[maxRow + 1, maxColumn + 1];
+            foreach (var cell in Cells) schema[cell.Row, cell.Column] = 1;
+            return schema;
+        }
     }
 
     [Serializable]
@@ -81,16 +102,23 @@ namespace FitMe.GameData
         [SerializeField] private ShapeFootprint _footprint;
         [SerializeField] private FitMe.Shared.BlockColor _color;
         [SerializeField] private bool _allowRotation = true;
+        [SerializeField] private BlockShape _visualStyle = BlockShape.OneByOne;
 
         public ShapeFootprint Footprint => _footprint;
         public FitMe.Shared.BlockColor Color => _color;
         public bool AllowRotation => _allowRotation;
+        public BlockShape VisualStyle => _visualStyle;
 
-        public ShapePlayerBlockDefinition(ShapeFootprint footprint, FitMe.Shared.BlockColor color, bool allowRotation = true)
+        public ShapePlayerBlockDefinition(
+            ShapeFootprint footprint,
+            FitMe.Shared.BlockColor color,
+            bool allowRotation = true,
+            BlockShape visualStyle = BlockShape.OneByOne)
         {
             _footprint = footprint;
             _color = color;
             _allowRotation = allowRotation;
+            _visualStyle = visualStyle;
         }
     }
 
@@ -102,25 +130,29 @@ namespace FitMe.GameData
         [SerializeField] private int _anchorColumn;
         [SerializeField] private FitMe.Shared.BlockColor _color;
         [SerializeField] private bool _petrified = true;
+        [SerializeField] private BlockShape _visualStyle = BlockShape.OneByOne;
 
         public ShapeFootprint Footprint => _footprint;
         public int AnchorRow => _anchorRow;
         public int AnchorColumn => _anchorColumn;
         public FitMe.Shared.BlockColor Color => _color;
         public bool Petrified => _petrified;
+        public BlockShape VisualStyle => _visualStyle;
 
         public ShapeObstaclePlacement(
             ShapeFootprint footprint,
             int anchorRow,
             int anchorColumn,
             FitMe.Shared.BlockColor color,
-            bool petrified = true)
+            bool petrified = true,
+            BlockShape visualStyle = BlockShape.OneByOne)
         {
             _footprint = footprint;
             _anchorRow = anchorRow;
             _anchorColumn = anchorColumn;
             _color = color;
             _petrified = petrified;
+            _visualStyle = visualStyle;
         }
     }
 
@@ -140,6 +172,36 @@ namespace FitMe.GameData
             _obstacles ?? (IReadOnlyList<ShapeObstaclePlacement>)Array.Empty<ShapeObstaclePlacement>();
         public IReadOnlyList<ShapePlayerBlockDefinition> PlayerBlocks =>
             _playerBlocks ?? (IReadOnlyList<ShapePlayerBlockDefinition>)Array.Empty<ShapePlayerBlockDefinition>();
+
+        public ShapeLevelRuntimeData ToRuntimeData()
+        {
+            var validation = ShapeLevelDataValidator.Validate(this);
+            if (!validation.IsValid)
+                throw new InvalidOperationException($"Cannot create runtime data for invalid Shape Level '{LevelId}': {string.Join(", ", validation.Errors)}");
+
+            var obstacles = new List<ShapeObstacleRuntimeData>(Obstacles.Count);
+            foreach (var obstacle in Obstacles)
+            {
+                obstacles.Add(new ShapeObstacleRuntimeData(
+                    new FitMe.Grid.BlockSchema(obstacle.Footprint.ToSchema(), 0),
+                    new Vector2Int(obstacle.AnchorRow, obstacle.AnchorColumn),
+                    obstacle.Color,
+                    obstacle.Petrified,
+                    obstacle.VisualStyle));
+            }
+
+            var playerBlocks = new List<ShapePlayerBlockRuntimeData>(PlayerBlocks.Count);
+            foreach (var block in PlayerBlocks)
+            {
+                playerBlocks.Add(new ShapePlayerBlockRuntimeData(
+                    new FitMe.Grid.BlockSchema(block.Footprint.ToSchema(), 0),
+                    block.Color,
+                    block.AllowRotation,
+                    block.VisualStyle));
+            }
+
+            return new ShapeLevelRuntimeData(Board, obstacles, playerBlocks);
+        }
     }
 
     [CreateAssetMenu(fileName = "Shape Level Catalog", menuName = "FitMe/GameData/Level/Shape Level Catalog")]

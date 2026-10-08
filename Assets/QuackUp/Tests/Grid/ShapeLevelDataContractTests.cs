@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using FitMe.GameData;
 using FitMe.Grid;
+using FitMe.Scene;
 using FitMe.Shared;
 using NUnit.Framework;
 using UnityEditor;
@@ -72,6 +73,81 @@ namespace FitMe.Grid.Tests
             var result = ShapeLevelDataValidator.Validate(level);
 
             Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.BlockCapacityMismatch));
+        }
+
+        [Test]
+        public void Footprint_ToSchemaPreservesOccupiedCellsAndMinimalBounds()
+        {
+            var footprint = new ShapeFootprint(
+                new ShapeCell(0, 0),
+                new ShapeCell(1, 0),
+                new ShapeCell(1, 1));
+
+            var schema = footprint.ToSchema();
+
+            Assert.That(schema.GetLength(0), Is.EqualTo(2));
+            Assert.That(schema.GetLength(1), Is.EqualTo(2));
+            Assert.That(schema[0, 0], Is.EqualTo(1));
+            Assert.That(schema[0, 1], Is.EqualTo(0));
+            Assert.That(schema[1, 0], Is.EqualTo(1));
+            Assert.That(schema[1, 1], Is.EqualTo(1));
+        }
+
+        [Test]
+        public void LevelSessionRequest_PreservesShapeDefinitionAndUsesItsBoard()
+        {
+            var board = Keep(ScriptableObject.CreateInstance<GridPreset>());
+            var definition = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            SetPrivateField(definition, "_board", board);
+
+            var request = LevelSessionRequest.ForShapeLevel(definition);
+
+            Assert.That(request.ShapeLevel, Is.SameAs(definition));
+            Assert.That(request.GridPreset, Is.SameAs(board));
+        }
+
+        [Test]
+        public void LevelSessionRequest_CreatesRuntimeDataFromSelectedShapeDefinition()
+        {
+            var level = CreateValidLevel("shape-session", 1);
+            var request = LevelSessionRequest.ForShapeLevel(level);
+            var method = typeof(LevelSessionRequest).GetMethod("CreateShapeRuntimeData");
+            Assert.That(method, Is.Not.Null, "Session request must expose its selected Shape Mode runtime data");
+
+            var runtimeData = (ShapeLevelRuntimeData)method.Invoke(request, null);
+
+            Assert.That(runtimeData.Board, Is.SameAs(level.Board));
+            Assert.That(runtimeData.PlayerBlocks, Has.Count.EqualTo(2));
+            Assert.That(runtimeData.Obstacles, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void LevelSessionRequest_DoesNotApplyShapeDataToClassicMode()
+        {
+            var level = CreateValidLevel("shape-classic-isolation", 1);
+            var request = new LevelSessionRequest(GameMode.Classic, level.Board, level);
+
+            Assert.That(request.ShapeLevel, Is.Null);
+            Assert.That(request.CreateShapeRuntimeData(), Is.Null);
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_ToRuntimeDataCarriesBoardAndAuthoredGeometry()
+        {
+            var level = CreateValidLevel("shape-001", 1);
+
+            var runtimeData = level.ToRuntimeData();
+
+            Assert.That(runtimeData.Board, Is.SameAs(level.Board));
+            Assert.That(runtimeData.PlayerBlocks, Has.Count.EqualTo(2));
+            Assert.That(runtimeData.PlayerBlocks[0].Schema.schema, Is.EqualTo(new[,] { { 1, 1 } }));
+            Assert.That(runtimeData.PlayerBlocks[0].Color, Is.EqualTo(BlockColor.Green));
+            Assert.That(runtimeData.PlayerBlocks[0].AllowRotation, Is.True);
+            Assert.That(runtimeData.Obstacles, Has.Count.EqualTo(1));
+            Assert.That(runtimeData.Obstacles[0].Schema.schema, Is.EqualTo(new[,] { { 1 }, { 1 } }));
+            Assert.That(runtimeData.Obstacles[0].Anchor, Is.EqualTo(Vector2Int.zero));
+            Assert.That(runtimeData.Obstacles[0].Color, Is.EqualTo(BlockColor.Red));
+            Assert.That(runtimeData.Obstacles[0].Petrified, Is.True);
         }
 
         [Test]

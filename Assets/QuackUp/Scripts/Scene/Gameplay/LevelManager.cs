@@ -68,6 +68,7 @@ namespace FitMe.Scene
 
         private GameMode _gameMode = GameMode.Classic;
         private GridPreset _gridPreset;
+        private ShapeLevelDefinition _shapeLevelDefinition;
 
         private List<GridPreset> _presets;
         private Queue<GridPreset> _tutorialPresets;
@@ -194,24 +195,27 @@ namespace FitMe.Scene
                 return;
             }
 
-            if (_pendingScenePayload.TryTake<LevelSessionRequest>(out var request))
-            {
-                _gameMode = request.GameMode;
-                _gridPreset = request.GridPreset;
-            }
-            else if (_pendingScenePayload.TryTake<LevelSessionRequest>(out var retryRequest))
-            {
-                _gameMode = retryRequest.GameMode;
-                _gridPreset = retryRequest.GridPreset;
-            }
-            else
-            {
-                _gameMode = GameMode.Classic;
-                _gridPreset = null;
-            }
+            LevelSessionRequest request;
+            if (!_pendingScenePayload.TryTake<LevelSessionRequest>(out request) &&
+                !_pendingScenePayload.TryTake<LevelSessionRequest>(out request))
+                request = new LevelSessionRequest(GameMode.Classic, null);
 
+            _gameMode = request.GameMode;
+            _gridPreset = request.GridPreset;
+            _shapeLevelDefinition = request.ShapeLevel;
             CheckGameMode();
-            _pendingScenePayload.SetActive(new LevelSessionRequest(_gameMode, _gridPreset));
+            request = new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition);
+            ShapeLevelRuntimeData shapeRuntimeData;
+            try
+            {
+                shapeRuntimeData = request.CreateShapeRuntimeData();
+            }
+            catch (InvalidOperationException exception)
+            {
+                DebugUtils.LogError(exception.Message);
+                return;
+            }
+            _pendingScenePayload.SetActive(request);
             _onResultSubscription = resultPanel.OnResultVisible
                 .Subscribe(_ => OnResult());
             _onReturnToGameplaySubscription = gameOverPanel.OnReturnToGameplay
@@ -223,6 +227,7 @@ namespace FitMe.Scene
             _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             DebugUtils.Log($"PlayerRecordSaveObject found: {_playerRecordSaveObject}");
             if (IsTutorial) return;
+            _messageHub.Publish(new SpawnWithShapeLevelEvent(shapeRuntimeData));
             if (!_gridPreset)
                 _messageHub.Publish(new StartCreateGridEvent());
             else
@@ -294,6 +299,24 @@ namespace FitMe.Scene
         
         private void LevelShapeMode()
         {
+            if (!_shapeLevelDefinition && !_gridPreset && _config.ShapeLevelCatalogAsset)
+            {
+                var catalog = _config.ShapeLevelCatalogAsset;
+                var validation = catalog.Validate();
+                if (validation.IsValid)
+                {
+                    var orderedLevels = catalog.GetOrderedLevels();
+                    if (orderedLevels.Count > 0)
+                        _shapeLevelDefinition = orderedLevels[0];
+                }
+                else
+                {
+                    DebugUtils.LogError($"Invalid Shape Level Catalog: {string.Join(", ", validation.Errors)}");
+                }
+            }
+
+            if (_shapeLevelDefinition)
+                _gridPreset = _shapeLevelDefinition.Board;
             _gridPreset ??= GetLevelFromPool();
             _difficultyCurve = _config.ShapeLevelCurve;
             _levelCycle = _config.ShapeLevelsPerCycle;
@@ -366,13 +389,62 @@ namespace FitMe.Scene
 
             if (IsTutorial) return;
             ChangeDifficultyLevel();
-            _gridPreset = _gameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
-            _pendingScenePayload.SetActive(new LevelSessionRequest(_gameMode, _gridPreset));
+            if (_shapeLevelDefinition)
+            {
+                _shapeLevelDefinition = GetNextShapeLevel(_shapeLevelDefinition);
+                if (_shapeLevelDefinition)
+                    _gridPreset = _shapeLevelDefinition.Board;
+                else
+                    _gridPreset = _gameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
+            }
+            else
+            {
+                _gridPreset = _gameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
+            }
+
+            var request = new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition);
+            ShapeLevelRuntimeData shapeRuntimeData;
+            try
+            {
+                shapeRuntimeData = request.CreateShapeRuntimeData();
+            }
+            catch (InvalidOperationException exception)
+            {
+                DebugUtils.LogError(exception.Message);
+                return;
+            }
+
+            _pendingScenePayload.SetActive(request);
+            _messageHub.Publish(new SpawnWithShapeLevelEvent(shapeRuntimeData));
             _messageHub.Publish(new SpawnWithGridPresetEvent(_gridPreset));
             _levelNumber++;
-            
+
             /* Analytics */
             ReportStart();
+        }
+
+        private ShapeLevelDefinition GetNextShapeLevel(ShapeLevelDefinition current)
+        {
+            var catalog = _config.ShapeLevelCatalogAsset;
+            if (!catalog) return current;
+
+            var validation = catalog.Validate();
+            if (!validation.IsValid)
+            {
+                DebugUtils.LogError($"Invalid Shape Level Catalog: {string.Join(", ", validation.Errors)}");
+                return null;
+            }
+
+            var orderedLevels = catalog.GetOrderedLevels();
+            if (orderedLevels.Count == 0) return null;
+
+            for (var i = 0; i < orderedLevels.Count; i++)
+            {
+                if (orderedLevels[i] != current) continue;
+                return orderedLevels[(i + 1) % orderedLevels.Count];
+            }
+
+            return orderedLevels[0];
         }
 
         private void OnSceneFinishIn()

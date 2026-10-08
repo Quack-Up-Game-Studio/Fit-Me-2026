@@ -111,6 +111,7 @@ namespace FitMe.Grid
         [field: Title("Grid Debug")] 
         [field: SerializeField, InlineEditor]
         public GridPreset CurrentGridPreset { get; private set; }
+        public ShapeLevelRuntimeData CurrentShapeLevelRuntimeData { get; private set; }
         public Vector2Int CurrentGridSize => CurrentGridPreset.GridSize;
         [field: SerializeField, Sirenix.OdinInspector.ReadOnly] 
         public Vector2Int CurrentOffset { get; private set; } = new(0, 0);
@@ -203,6 +204,9 @@ namespace FitMe.Grid
                 .Subscribe<SpawnWithGridPresetEvent>(x => OnSpawnGridWithGridPreset(x.GridPreset))
                 .AddTo(ref disposableBuilder);
             _messageHub
+                .Subscribe<SpawnWithShapeLevelEvent>(OnSpawnWithShapeLevel)
+                .AddTo(ref disposableBuilder);
+            _messageHub
                 .Subscribe<ClearGridEvent>(OnContinue)
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
@@ -237,6 +241,11 @@ namespace FitMe.Grid
             if (!IsGameplay) return;
             CurrentGridPreset = preset;
             CreateCells();
+        }
+
+        private void OnSpawnWithShapeLevel(SpawnWithShapeLevelEvent eventData)
+        {
+            CurrentShapeLevelRuntimeData = eventData.RuntimeData;
         }
         
         private void StartGameplay()
@@ -795,8 +804,8 @@ namespace FitMe.Grid
         
         public bool CompareSchema(BlockModel blockModel, int schemaIndex)
         {
-            if (schemaIndex >= 0 && schemaIndex < blockModel.BlockPreset.BlockSchemas.Count)
-                return GridFitChecker.CanFit(_vacantSchema, blockModel.BlockPreset.BlockSchemas[schemaIndex].schema);
+            if (schemaIndex >= 0 && schemaIndex < blockModel.BlockSchemas.Count)
+                return GridFitChecker.CanFit(_vacantSchema, blockModel.BlockSchemas[schemaIndex].schema);
             DebugUtils.LogError("Invalid schema index: " + schemaIndex);
             return false;
         }

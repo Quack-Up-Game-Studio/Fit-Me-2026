@@ -91,6 +91,8 @@ namespace FitMe.Grid
         public Observable<Unit> OnSwap => _onSwap;
         private readonly Subject<Unit> _onSwap = new();
         private Queue<SpawnBlockData> _spawnBag = new();
+        private Queue<ShapePlayerBlockRuntimeData> _shapeBlockQueue = new();
+        private ShapeLevelRuntimeData _shapeLevelRuntimeData;
         private readonly List<SpawnBlockData> _blockPool = new();
         private BlockInstance _currentPreviewBlock;
         //private List<BlockInstance> _previewBlocks = new List<BlockInstance>();
@@ -136,6 +138,9 @@ namespace FitMe.Grid
                 .Subscribe<SpawnWithBlockPresetEvent>(OnSpawnAtStart)
                 .AddTo(ref disposableBuilder);
             _messageHub
+                .Subscribe<SpawnWithShapeLevelEvent>(OnSpawnWithShapeLevel)
+                .AddTo(ref disposableBuilder);
+            _messageHub
                 .Subscribe<ContinueEvent>(_ => OnContinue())
                 .AddTo(ref disposableBuilder);
             _gridManager.OnFitCheck
@@ -165,10 +170,20 @@ namespace FitMe.Grid
                 SpawnBlock(withBlockPresetEventData);
         }
 
+        private void OnSpawnWithShapeLevel(SpawnWithShapeLevelEvent eventData)
+        {
+            _shapeLevelRuntimeData = eventData.RuntimeData;
+            _shapeBlockQueue = new Queue<ShapePlayerBlockRuntimeData>(
+                _shapeLevelRuntimeData?.PlayerBlocks ?? Array.Empty<ShapePlayerBlockRuntimeData>());
+        }
+
         private void OnCellsCreated()
         {
             if (!_gridManager.IsGameplay) return;
-            SpawnBlocksFromBag(true);
+            if (_shapeLevelRuntimeData != null)
+                SpawnShapeBlocks();
+            else
+                SpawnBlocksFromBag(true);
         }
 
         private void OnFitCheck(FitTypeEvent eventData)
@@ -176,7 +191,10 @@ namespace FitMe.Grid
             if (!_gridManager.IsGameplay) return;
             FreeSpawnPoint(eventData.Block.Model.SpawnIndex);
             //ResetSpawnPoint();
-            SpawnBlocksFromBag(_config.CanRefill);
+            if (_shapeLevelRuntimeData != null)
+                SpawnShapeBlocks();
+            else
+                SpawnBlocksFromBag(_config.CanRefill);
             if (eventData.FitType is FitType.None or FitType.Combo) 
                 GameOverCheck().Forget();
         }
@@ -283,7 +301,15 @@ namespace FitMe.Grid
             {
                 Debug.LogWarning("BlockManager: Bag Respawned!");
                 _continued = false;
-                SpawnBlocksFromBag(true);
+                if (_shapeLevelRuntimeData != null)
+                {
+                    _shapeBlockQueue = new Queue<ShapePlayerBlockRuntimeData>(_shapeLevelRuntimeData.PlayerBlocks);
+                    SpawnShapeBlocks();
+                }
+                else
+                {
+                    SpawnBlocksFromBag(true);
+                }
             }
             Debug.LogWarning("BlockManager: Bag Reset!");
         }
@@ -322,16 +348,57 @@ namespace FitMe.Grid
             DebugUtils.Log($"Yuirin: Now has {_spawnBag.Count} items in bag.");
         }
 
-        private BlockInstance InstantiateBlock(Transform spawnTransform, Quaternion rotation, BlockShape shape, BlockColor color, float objectScale)
+        private void SpawnShapeBlocks()
+        {
+            var spawnedBlocks = new List<BlockInstance>();
+            var spawnCount = Math.Min(_config.MaxRandomAmount, _spawnPoints.Length);
+            for (var i = 0; i < spawnCount; i++)
+            {
+                if (!_spawnPoints[i].IsFree || _shapeBlockQueue.Count == 0) continue;
+
+                var spawnPoint = _spawnPoints[i];
+                var blockData = _shapeBlockQueue.Dequeue();
+                var block = InstantiateBlock(
+                    spawnPoint.Transform,
+                    Quaternion.identity,
+                    blockData.VisualStyle,
+                    blockData.Color,
+                    _config.ObjectScale,
+                    blockData.Schema.schema,
+                    blockData.AllowRotation);
+                block.Model.SpawnIndex = i;
+                spawnPoint.IsFree = false;
+                spawnPoint.CurrentBlock = block;
+                spawnedBlocks.Add(block);
+            }
+
+            if (spawnedBlocks.Count > 0)
+                _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
+        }
+
+        private BlockInstance InstantiateBlock(
+            Transform spawnTransform,
+            Quaternion rotation,
+            BlockShape shape,
+            BlockColor color,
+            float objectScale,
+            int[,] schemaOverride = null,
+            bool allowRotation = true)
         {
             //block.BlockView.Transform.rotation = randomRotationQuaternion;
-            BlockInstance block = _blockFactory.Create(shape, spawnTransform.position, rotation, new InstantiateParameters
-            {
-                parent = spawnTransform,
-                worldSpace = true,
-            });
+            BlockInstance block = _blockFactory.Create(
+                shape,
+                spawnTransform.position,
+                rotation,
+                new InstantiateParameters
+                {
+                    parent = spawnTransform,
+                    worldSpace = true,
+                },
+                schemaOverride);
             block.GameObject.name = $"Block_{shape}";
             block.Model.ChangeColor(color, false);
+            block.Controller.AllowRotation = allowRotation;
             block.GameObject.transform.localScale = Vector3.zero;
             Vector3 scale = new Vector3(objectScale, objectScale, 1f);
             var promise = new Promise<Unit>();

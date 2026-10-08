@@ -413,6 +413,31 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void CheckAvailableBlock_UsesRuntimeGeometryInsteadOfVisualPresetSchema()
+        {
+            SetUpOneCellPlacement();
+            var blockModel = SetBlockPreset(new[,] { { 1 } });
+            blockModel.SetShapeSchema(new[,] { { 1, 1 }, { 1, 0 } });
+
+            var canPlaceBlock = _manager.CheckAvailableBlock(new List<BlockModel> { blockModel }, out var availableBlocks);
+
+            Assert.That(canPlaceBlock, Is.False);
+            Assert.That(availableBlocks, Is.Empty);
+        }
+
+        [Test]
+        public void SpawnWithShapeLevelEvent_MakesRuntimeDataAvailableToGridConsumers()
+        {
+            var runtimeData = new ShapeLevelRuntimeData(null, null, null);
+
+            _hub.Publish(new SpawnWithShapeLevelEvent(runtimeData));
+
+            var property = typeof(GridManager).GetProperty("CurrentShapeLevelRuntimeData");
+            Assert.That(property, Is.Not.Null, "GridManager must expose the active authored level data");
+            Assert.That(property.GetValue(_manager), Is.SameAs(runtimeData));
+        }
+
+        [Test]
         public void CheckForContact_CollectsConnectedSameColorBlocksOnce()
         {
             SetUpOneCellPlacement(withViewModel: false);
@@ -474,6 +499,75 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void BlockManager_QueuesAuthoredPlayerBlocksInOrderOnShapeLevelEvent()
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+            var firstBlock = new ShapePlayerBlockRuntimeData(
+                new BlockSchema(new[,] { { 1, 1 } }, 0),
+                BlockColor.Green,
+                false,
+                BlockShape.OneByTwo);
+            var secondBlock = new ShapePlayerBlockRuntimeData(
+                new BlockSchema(new[,] { { 1 }, { 1 }, { 1 } }, 0),
+                BlockColor.Blue,
+                true,
+                BlockShape.OneByThree);
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                null,
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                new[] { firstBlock, secondBlock })));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(queueField, Is.Not.Null, "BlockManager must retain authored player blocks");
+            var queue = (Queue<ShapePlayerBlockRuntimeData>)queueField.GetValue(blockManager);
+            Assert.That(queue, Has.Count.EqualTo(2));
+            Assert.That(queue.Dequeue().Schema.schema, Is.EqualTo(new[,] { { 1, 1 } }));
+            Assert.That(queue.Dequeue().Schema.schema, Is.EqualTo(new[,] { { 1 }, { 1 }, { 1 } }));
+        }
+
+        [Test]
+        public void ResetBag_WhenContinuingShapeLevelRestoresAuthoredPlayerBlockQueue()
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+            var playerBlocks = new[]
+            {
+                new ShapePlayerBlockRuntimeData(new BlockSchema(new[,] { { 1, 1 } }, 0), BlockColor.Green, false, BlockShape.OneByTwo),
+                new ShapePlayerBlockRuntimeData(new BlockSchema(new[,] { { 1 }, { 1 } }, 0), BlockColor.Blue, true, BlockShape.OneByTwo)
+            };
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                null,
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                playerBlocks)));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var queue = (Queue<ShapePlayerBlockRuntimeData>)queueField.GetValue(blockManager);
+            queue.Dequeue();
+
+            blockManager.ResetBag(shouldRespawn: true);
+
+            queue = (Queue<ShapePlayerBlockRuntimeData>)queueField.GetValue(blockManager);
+            Assert.That(queue, Has.Count.EqualTo(playerBlocks.Length));
+        }
+
+        [Test]
         public void Swap_DoesNothingWhenSpawnBagIsEmpty()
         {
             SetUpOneCellPlacement();
@@ -528,6 +622,28 @@ namespace FitMe.Grid.Tests
             using var obstacleHandler = CreateObstacleHandler(preset);
 
             Assert.DoesNotThrow(() => GenerateObstacles(obstacleHandler));
+        }
+
+        [Test]
+        public void CreateObstacles_UsesAuthoredLevelInsteadOfLegacyObstacleGeneration()
+        {
+            SetUpOneCellPlacement(withViewModel: false);
+            SetManagerField("<IsGameplay>k__BackingField", true);
+            var board = (GridPreset)typeof(GridManager)
+                .GetProperty(nameof(GridManager.CurrentGridPreset))
+                .GetValue(_manager);
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                board,
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                Array.Empty<ShapePlayerBlockRuntimeData>())));
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            preset.BlockSchema.schema = new[,] { { 1 } };
+            preset.GenerateSchema();
+            using var obstacleHandler = CreateObstacleHandler(preset);
+            var cellsCreated = (Subject<Unit>)typeof(GridManager).GetField("_onCellsCreated",
+                BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_manager);
+
+            Assert.DoesNotThrow(() => cellsCreated.OnNext(Unit.Default));
         }
 
         [TestCase("OnCellsCreated")]
@@ -589,23 +705,33 @@ namespace FitMe.Grid.Tests
 
         private sealed class CountingHub : IMessageHub, IDisposable
         {
-            private readonly List<IDisposable> _streams = new();
+            private readonly Dictionary<Type, IDisposable> _streams = new();
             public int ActiveHandlers { get; private set; }
-            public void Publish<TMessage>(TMessage message) { }
+            public void Publish<TMessage>(TMessage message) => GetStream<TMessage>().OnNext(message);
             public IDisposable Subscribe<TMessage>(Action<TMessage> action)
             {
                 ActiveHandlers++;
-                return Disposable.Create(() => ActiveHandlers--);
+                var subscription = GetStream<TMessage>().Subscribe(action);
+                return Disposable.Create(() =>
+                {
+                    subscription.Dispose();
+                    ActiveHandlers--;
+                });
             }
-            public Observable<TMessage> GetObservable<TMessage>()
+            public Observable<TMessage> GetObservable<TMessage>() => GetStream<TMessage>();
+
+            private Subject<TMessage> GetStream<TMessage>()
             {
-                var subject = new Subject<TMessage>();
-                _streams.Add(subject);
-                return subject;
+                if (!_streams.TryGetValue(typeof(TMessage), out var stream))
+                {
+                    stream = new Subject<TMessage>();
+                    _streams.Add(typeof(TMessage), stream);
+                }
+                return (Subject<TMessage>)stream;
             }
             public void Dispose()
             {
-                foreach (var stream in _streams) stream.Dispose();
+                foreach (var stream in _streams.Values) stream.Dispose();
             }
         }
 
