@@ -5,6 +5,8 @@ using System.Reflection;
 using FitMe.Grid;
 using GridManagerType = FitMe.Grid.GridManager;
 using NUnit.Framework;
+using QuackUp.Utils;
+using R3;
 using UnityEngine;
 
 namespace FitMe.Grid.Tests
@@ -75,6 +77,7 @@ namespace FitMe.Grid.Tests
             private readonly CellConfig _cellConfig;
             private readonly GameObject _gridObject;
             private readonly GameObject _cellViewObject;
+            private readonly TestMessageHub _messageHub = new();
             private readonly GridManagerType _manager;
 
             public GridCreationFixture()
@@ -84,6 +87,8 @@ namespace FitMe.Grid.Tests
                 _config = ScriptableObject.CreateInstance<GridManagerConfig>();
                 _preset = ScriptableObject.CreateInstance<GridPreset>();
                 _cellConfig = ScriptableObject.CreateInstance<CellConfig>();
+                typeof(CellConfig).GetProperty(nameof(CellConfig.UseDedicatedSprite))
+                    .SetValue(_cellConfig, false);
                 _cellViewObject = new GameObject("CellView");
                 var cellView = _cellViewObject.AddComponent<CellView>();
                 var spriteRenderer = cellView.gameObject.AddComponent<SpriteRenderer>();
@@ -97,7 +102,7 @@ namespace FitMe.Grid.Tests
                     .SetValue(cellFactory, cellView);
                 typeof(CellFactory).GetField("_cellParent", BindingFlags.Instance | BindingFlags.NonPublic)
                     .SetValue(cellFactory, _gridObject.transform);
-                _manager = new GridManagerType(grid, _config, cellFactory, null, null);
+                _manager = new GridManagerType(grid, _config, cellFactory, null, _messageHub);
                 typeof(GridManagerType).GetProperty(nameof(GridManagerType.CurrentGridPreset))
                     .SetValue(_manager, _preset);
             }
@@ -123,6 +128,7 @@ namespace FitMe.Grid.Tests
             public void Dispose()
             {
                 _manager.Dispose();
+                _messageHub.Dispose();
                 var cells = Cells;
                 foreach (var cell in cells)
                 {
@@ -134,6 +140,30 @@ namespace FitMe.Grid.Tests
                 if (_preset) UnityEngine.Object.DestroyImmediate(_preset);
                 if (_config) UnityEngine.Object.DestroyImmediate(_config);
                 if (_gridObject) UnityEngine.Object.DestroyImmediate(_gridObject);
+            }
+        }
+
+        private sealed class TestMessageHub : IMessageHub, IDisposable
+        {
+            private readonly Dictionary<Type, IDisposable> _subjects = new();
+
+            public void Publish<TMessage>(TMessage message) => GetSubject<TMessage>().OnNext(message);
+
+            public IDisposable Subscribe<TMessage>(Action<TMessage> action) => GetSubject<TMessage>().Subscribe(action);
+
+            public Observable<TMessage> GetObservable<TMessage>() => GetSubject<TMessage>();
+
+            public void Dispose()
+            {
+                foreach (var subject in _subjects.Values) subject.Dispose();
+            }
+
+            private Subject<TMessage> GetSubject<TMessage>()
+            {
+                if (_subjects.TryGetValue(typeof(TMessage), out var subject)) return (Subject<TMessage>)subject;
+                var newSubject = new Subject<TMessage>();
+                _subjects.Add(typeof(TMessage), newSubject);
+                return newSubject;
             }
         }
     }
