@@ -7,10 +7,14 @@ namespace FitMe.Grid
     /// <summary>Finds a deterministic exact tiling of playable board cells with unordered freeform blocks.</summary>
     public static class DeterministicTilingSolver
     {
-        /// <summary>Each nonzero board cell is playable; each block is a list of local Vector2Int coordinates.</summary>
-        public static bool TrySolve(int[,] boardMask, IReadOnlyList<IReadOnlyList<Vector2Int>> blocks, out Vector2Int[][] anchors)
+        /// <summary>
+        /// Each nonzero board cell is playable; each block is a list of local Vector2Int coordinates.
+        /// The output contains one array of absolute board coordinates per input block.
+        /// Vector2Int.x is the board row and Vector2Int.y is the board column.
+        /// </summary>
+        public static bool TrySolve(int[,] boardMask, IReadOnlyList<IReadOnlyList<Vector2Int>> blocks, out Vector2Int[][] blockPlacements)
         {
-            anchors = Array.Empty<Vector2Int[]>();
+            blockPlacements = Array.Empty<Vector2Int[]>();
             if (boardMask == null || blocks == null || blocks.Count == 0) return false;
 
             var board = new HashSet<Vector2Int>();
@@ -40,8 +44,8 @@ namespace FitMe.Grid
             var solution = new Placement[blocks.Count];
             if (!Search(board, placements, occupied, used, solution, 0)) return false;
 
-            anchors = new Vector2Int[blocks.Count][];
-            for (var i = 0; i < blocks.Count; i++) anchors[i] = solution[i].Cells;
+            blockPlacements = new Vector2Int[blocks.Count][];
+            for (var i = 0; i < blocks.Count; i++) blockPlacements[i] = solution[i].Cells;
             return true;
         }
 

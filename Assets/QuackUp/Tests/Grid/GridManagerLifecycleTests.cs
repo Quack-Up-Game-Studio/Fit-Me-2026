@@ -288,9 +288,11 @@ namespace FitMe.Grid.Tests
             SetManagerField("<CurrentGridPreset>k__BackingField", preset);
             var secondCellModel = new CellModel();
             _additionalCellModels.Add(secondCellModel);
+            _cell.ArrayIndex.Value = Vector2Int.zero;
             var secondCellObject = Keep(new GameObject("Lifecycle second cell"));
             secondCellObject.transform.position = _grid.GetCellCenterWorld(Vector3Int.right);
             var secondCell = new CellInstance(secondCellModel, null, secondCellObject);
+            secondCellModel.ArrayIndex.Value = new Vector2Int(0, 1);
             var firstCell = new CellInstance(_cell, null, Keep(new GameObject("Lifecycle first cell")));
             SetManagerField("_cellArray", new CellInstance[,] { { firstCell, secondCell } });
             AddAtomAt(secondCellObject.transform.position);

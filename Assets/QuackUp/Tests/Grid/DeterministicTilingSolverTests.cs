@@ -21,6 +21,15 @@ namespace FitMe.Grid.Tests
             Assert.That(second, Is.EqualTo(first));
             Assert.That(first[0], Has.Length.EqualTo(2));
             Assert.That(first[1], Has.Length.EqualTo(2));
+
+            var coveredCells = new HashSet<Vector2Int>();
+            foreach (var blockPlacement in first)
+            foreach (var cell in blockPlacement)
+            {
+                Assert.That(board[cell.x, cell.y], Is.Not.Zero, "placements must stay on playable cells");
+                Assert.That(coveredCells.Add(cell), Is.True, "each playable cell must be covered once");
+            }
+            Assert.That(coveredCells.Count, Is.EqualTo(4));
         }
 
         [Test]
