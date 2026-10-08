@@ -56,11 +56,21 @@ namespace FitMe.Grid.Tests
         public void TryValidate_AcceptsRotatedNonSquareFootprintWhenWithinBoard()
         {
             // Original 2x1 horizontal footprint rotated clockwise around its anchor.
-            var rotated = new[] { new Vector2Int(0, 1), new Vector2Int(1, 1) };
+            var original = new[,] { { 1, 1 } };
+            var rotatedSchema = FitMe.Grid.ArrayHelper.Rotate90(original);
+            var rotated = new List<Vector2Int>();
+            for (var row = 0; row < rotatedSchema.GetLength(0); row++)
+            for (var column = 0; column < rotatedSchema.GetLength(1); column++)
+            {
+                if (rotatedSchema[row, column] != 0)
+                    rotated.Add(new Vector2Int(row, column));
+            }
+
             var valid = BlockPlacementValidator.TryValidate(2, 2, null, rotated, _ => false, out var resolved);
 
             Assert.That(valid, Is.True);
             Assert.That(resolved, Is.EqualTo(rotated));
+            Assert.That(rotated, Is.EqualTo(new[] { new Vector2Int(0, 0), new Vector2Int(1, 0) }));
         }
     }
 }
