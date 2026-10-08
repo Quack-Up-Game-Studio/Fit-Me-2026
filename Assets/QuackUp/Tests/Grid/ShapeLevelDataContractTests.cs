@@ -32,9 +32,109 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ShapeLevelDefinition_PlayerBlocksAreReusableBlockPresetReferences()
+        {
+            var playerBlocksType = typeof(ShapeLevelDefinition).GetProperty("PlayerBlocks")?.PropertyType;
+
+            Assert.That(playerBlocksType, Is.Not.Null);
+            Assert.That(playerBlocksType.GetGenericArguments()[0], Is.EqualTo(typeof(BlockPreset)));
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_DoesNotStoreSeparateIdOrOrder()
+        {
+            Assert.That(typeof(ShapeLevelDefinition).GetProperty("LevelId"), Is.Null);
+            Assert.That(typeof(ShapeLevelDefinition).GetProperty("Order"), Is.Null);
+        }
+
+        [Test]
+        public void ShapeLevelCatalog_UsesOdinSerializedOrderedDictionaryAsItsSource()
+        {
+            Assert.That(typeof(ShapeLevelCatalog).BaseType.FullName,
+                Is.EqualTo("Sirenix.OdinInspector.SerializedScriptableObject"));
+
+            var levelsField = typeof(ShapeLevelCatalog).GetField("_levels", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(levelsField, Is.Not.Null);
+            Assert.That(levelsField.FieldType.Name, Is.EqualTo("OrderedDictionary`2"));
+            Assert.That(Array.Exists(levelsField.GetCustomAttributes(false), attribute =>
+                attribute.GetType().Name == "OdinSerializeAttribute"), Is.True);
+        }
+
+        [Test]
+        public void Catalog_KeyAndInsertionPositionAreAuthoritative()
+        {
+            var first = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            var second = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            var catalog = Keep(ScriptableObject.CreateInstance<ShapeLevelCatalog>());
+            var levelsField = typeof(ShapeLevelCatalog).GetField("_levels", BindingFlags.Instance | BindingFlags.NonPublic);
+            var levels = Activator.CreateInstance(levelsField.FieldType);
+            var add = levelsField.FieldType.GetMethod("Add", new[] { typeof(string), typeof(ShapeLevelDefinition) });
+            add.Invoke(levels, new object[] { "authoritative-key-1", first });
+            add.Invoke(levels, new object[] { "authoritative-key-2", second });
+            levelsField.SetValue(catalog, levels);
+
+            Assert.That(catalog.TryGetById("authoritative-key-1", out var byKey), Is.True);
+            Assert.That(byKey, Is.SameAs(first));
+            Assert.That(catalog.GetOrderedLevels()[0], Is.SameAs(first));
+            Assert.That(catalog.GetOrderedLevels()[1], Is.SameAs(second));
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_UsesGridPresetObstacleMatrixForRuntimeData()
+        {
+            var level = CreateValidLevel();
+            typeof(GridPreset).GetProperty(nameof(GridPreset.ObstacleMode))
+                .SetValue(level.Board, ObstacleMode.Custom);
+            level.Board.GridSize = new Vector2Int(4, 4);
+            level.Board.customGrid = new int[4, 4];
+            for (var row = 0; row < 4; row++)
+            for (var column = 0; column < 4; column++)
+                level.Board.customGrid[row, column] = 1;
+            level.Board.CustomObstacleData = new ObstacleData[4, 4];
+            for (var row = 0; row < 4; row++)
+            for (var column = 0; column < 4; column++)
+            {
+                level.Board.CustomObstacleData[row, column] = new ObstacleData
+                {
+                    hasCell = true,
+                    hasObstacle = row == 0 && column == 0 ||
+                                  row == 1 && (column == 0 || column == 1) ||
+                                  row == 2 && column == 2 ||
+                                  row == 3 && (column == 2 || column == 3),
+                    shape = (BlockShape)((row + column) % Enum.GetValues(typeof(BlockShape)).Length),
+                    id = row * 10 + column,
+                    randomColor = (row + column) % 2 == 0,
+                    color = BlockColor.Blue,
+                    petrified = true
+                };
+            }
+            var playerBlocks = new List<BlockPreset>();
+            for (var i = 0; i < 5; i++)
+                playerBlocks.Add(CreateBlockPreset(new[,] { { 1, 1 } }));
+            SetPrivateField(level, "_playerBlocks", playerBlocks);
+
+            var runtimeData = level.ToRuntimeData();
+
+            Assert.That(runtimeData.Obstacles, Has.Count.EqualTo(2), "Diagonally touching congruent components remain separate 4-connected obstacles.");
+            Assert.That(runtimeData.Obstacles[0].Schema.schema, Is.EqualTo(new[,] { { 1, 0 }, { 1, 1 } }));
+            Assert.That(runtimeData.Obstacles[0].Anchor, Is.EqualTo(Vector2Int.zero));
+            Assert.That(runtimeData.Obstacles[0].Color, Is.EqualTo(BlockColor.Blue));
+            Assert.That(runtimeData.Obstacles[0].Petrified, Is.True);
+            Assert.That(runtimeData.Obstacles[1].Schema.schema, Is.EqualTo(new[,] { { 1, 0 }, { 1, 1 } }));
+            Assert.That(runtimeData.Obstacles[1].Anchor, Is.EqualTo(new Vector2Int(2, 2)));
+        }
+
+        private BlockPreset CreateBlockPreset(int[,] schema)
+        {
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            preset.BlockSchema.schema = schema;
+            return preset;
+        }
+
+        [Test]
         public void Validate_AcceptsExactCapacityAndObstacleOccupancy()
         {
-            var level = CreateValidLevel("shape-001", 1);
+            var level = CreateValidLevel();
 
             var result = ShapeLevelDataValidator.Validate(level);
 
@@ -42,55 +142,27 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void Validate_RejectsObstacleOnVoidCellAndOverlappingObstacles()
+        public void Validate_RejectsObstacleOnVoidCell()
         {
-            var level = CreateValidLevel("shape-001", 1);
+            var level = CreateValidLevel();
             level.Board.customGrid[0, 0] = 0;
 
             var voidCellResult = ShapeLevelDataValidator.Validate(level);
             Assert.That(voidCellResult.Errors, Does.Contain(ShapeLevelValidationError.ObstacleOnVoidCell));
-
-            level.Board.customGrid[0, 0] = 1;
-            SetPrivateField(level, "_obstacles", new List<ShapeObstaclePlacement>
-            {
-                new(new ShapeFootprint(new ShapeCell(0, 0)), 0, 0, BlockColor.Red),
-                new(new ShapeFootprint(new ShapeCell(0, 0)), 0, 0, BlockColor.Blue)
-            });
-
-            var overlapResult = ShapeLevelDataValidator.Validate(level);
-            Assert.That(overlapResult.Errors, Does.Contain(ShapeLevelValidationError.ObstacleOverlap));
         }
 
         [Test]
         public void Validate_RejectsBlockCapacityMismatch()
         {
-            var level = CreateValidLevel("shape-001", 1);
-            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockDefinition>
+            var level = CreateValidLevel();
+            SetPrivateField(level, "_playerBlocks", new List<BlockPreset>
             {
-                new(new ShapeFootprint(new ShapeCell(0, 0), new ShapeCell(0, 1)), BlockColor.Green)
+                CreateBlockPreset(new[,] { { 1, 1 } })
             });
 
             var result = ShapeLevelDataValidator.Validate(level);
 
             Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.BlockCapacityMismatch));
-        }
-
-        [Test]
-        public void Footprint_ToSchemaPreservesOccupiedCellsAndMinimalBounds()
-        {
-            var footprint = new ShapeFootprint(
-                new ShapeCell(0, 0),
-                new ShapeCell(1, 0),
-                new ShapeCell(1, 1));
-
-            var schema = footprint.ToSchema();
-
-            Assert.That(schema.GetLength(0), Is.EqualTo(2));
-            Assert.That(schema.GetLength(1), Is.EqualTo(2));
-            Assert.That(schema[0, 0], Is.EqualTo(1));
-            Assert.That(schema[0, 1], Is.EqualTo(0));
-            Assert.That(schema[1, 0], Is.EqualTo(1));
-            Assert.That(schema[1, 1], Is.EqualTo(1));
         }
 
         [Test]
@@ -109,7 +181,7 @@ namespace FitMe.Grid.Tests
         [Test]
         public void LevelSessionRequest_CreatesRuntimeDataFromSelectedShapeDefinition()
         {
-            var level = CreateValidLevel("shape-session", 1);
+            var level = CreateValidLevel();
             var request = LevelSessionRequest.ForShapeLevel(level);
             var method = typeof(LevelSessionRequest).GetMethod("CreateShapeRuntimeData");
             Assert.That(method, Is.Not.Null, "Session request must expose its selected Shape Mode runtime data");
@@ -124,7 +196,7 @@ namespace FitMe.Grid.Tests
         [Test]
         public void LevelSessionRequest_DoesNotApplyShapeDataToClassicMode()
         {
-            var level = CreateValidLevel("shape-classic-isolation", 1);
+            var level = CreateValidLevel();
             var request = new LevelSessionRequest(GameMode.Classic, level.Board, level);
 
             Assert.That(request.ShapeLevel, Is.Null);
@@ -134,15 +206,13 @@ namespace FitMe.Grid.Tests
         [Test]
         public void ShapeLevelDefinition_ToRuntimeDataCarriesBoardAndAuthoredGeometry()
         {
-            var level = CreateValidLevel("shape-001", 1);
+            var level = CreateValidLevel();
 
             var runtimeData = level.ToRuntimeData();
 
             Assert.That(runtimeData.Board, Is.SameAs(level.Board));
             Assert.That(runtimeData.PlayerBlocks, Has.Count.EqualTo(2));
-            Assert.That(runtimeData.PlayerBlocks[0].Schema.schema, Is.EqualTo(new[,] { { 1, 1 } }));
-            Assert.That(runtimeData.PlayerBlocks[0].Color, Is.EqualTo(BlockColor.Green));
-            Assert.That(runtimeData.PlayerBlocks[0].AllowRotation, Is.True);
+            Assert.That(runtimeData.PlayerBlocks[0], Is.SameAs(level.PlayerBlocks[0]));
             Assert.That(runtimeData.Obstacles, Has.Count.EqualTo(1));
             Assert.That(runtimeData.Obstacles[0].Schema.schema, Is.EqualTo(new[,] { { 1 }, { 1 } }));
             Assert.That(runtimeData.Obstacles[0].Anchor, Is.EqualTo(Vector2Int.zero));
@@ -151,31 +221,27 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void Catalog_LookupIsStableByIdAndOrderAndPreservesAuthoredBlockOrder()
+        public void Catalog_LookupUsesKeyAndInsertionPositionForLevelIdentityAndProgression()
         {
-            var first = CreateValidLevel("shape-001", 1);
-            var second = CreateValidLevel("shape-002", 2);
-            var catalog = CreateCatalog(second, first);
+            var first = CreateValidLevel();
+            var second = CreateValidLevel();
+            var catalog = CreateCatalog(("shape-001", first), ("shape-002", second));
 
             Assert.That(catalog.TryGetById("shape-001", out var byId), Is.True);
             Assert.That(byId, Is.SameAs(first));
-            Assert.That(catalog.TryGetByOrder(2, out var byOrder), Is.True);
-            Assert.That(byOrder, Is.SameAs(second));
-            Assert.That(first.PlayerBlocks[0].Color, Is.EqualTo(BlockColor.Green));
-            Assert.That(first.PlayerBlocks[1].Color, Is.EqualTo(BlockColor.Purple));
+            Assert.That(catalog.GetOrderedLevels()[0], Is.SameAs(first));
+            Assert.That(catalog.GetOrderedLevels()[1], Is.SameAs(second));
         }
 
         [Test]
-        public void Catalog_ValidationRejectsDuplicateIdsAndOrders()
+        public void Catalog_ValidationAllowsSameDefinitionUnderDistinctAuthoritativeKeys()
         {
-            var first = CreateValidLevel("shape-001", 1);
-            var duplicate = CreateValidLevel("shape-001", 1);
-            var catalog = CreateCatalog(first, duplicate);
+            var level = CreateValidLevel();
+            var catalog = CreateCatalog(("first-key", level), ("second-key", level));
 
             var result = catalog.Validate();
 
-            Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.DuplicateLevelId));
-            Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.DuplicateLevelOrder));
+            Assert.That(result.IsValid, Is.True, string.Join("\n", result.Errors));
         }
 
         [UnityTest]
@@ -211,33 +277,48 @@ namespace FitMe.Grid.Tests
             Assert.That(duplicate.DisplayName, Is.EqualTo("Readable label"));
         }
 
-        private ShapeLevelDefinition CreateValidLevel(string id, int order)
+        private ShapeLevelDefinition CreateValidLevel()
         {
             var board = Keep(ScriptableObject.CreateInstance<GridPreset>());
             board.PresetGridType = GridType.Custom;
             board.GridSize = new Vector2Int(3, 2);
             board.customGrid = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            typeof(GridPreset).GetProperty(nameof(GridPreset.ObstacleMode))
+                .SetValue(board, ObstacleMode.Custom);
+            board.CustomObstacleData = new ObstacleData[2, 3];
+            for (var row = 0; row < 2; row++)
+            for (var column = 0; column < 3; column++)
+            {
+                board.CustomObstacleData[row, column] = new ObstacleData
+                {
+                    hasCell = true,
+                    hasObstacle = column == 0,
+                    shape = (BlockShape)((row + column) % Enum.GetValues(typeof(BlockShape)).Length),
+                    id = row + column,
+                    randomColor = true,
+                    color = BlockColor.Red,
+                    petrified = true
+                };
+            }
 
             var definition = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
-            SetPrivateField(definition, "_levelId", id);
-            SetPrivateField(definition, "_order", order);
             SetPrivateField(definition, "_board", board);
-            SetPrivateField(definition, "_obstacles", new List<ShapeObstaclePlacement>
+            SetPrivateField(definition, "_playerBlocks", new List<BlockPreset>
             {
-                new(new ShapeFootprint(new ShapeCell(0, 0), new ShapeCell(1, 0)), 0, 0, BlockColor.Red)
-            });
-            SetPrivateField(definition, "_playerBlocks", new List<ShapePlayerBlockDefinition>
-            {
-                new(new ShapeFootprint(new ShapeCell(0, 0), new ShapeCell(0, 1)), BlockColor.Green),
-                new(new ShapeFootprint(new ShapeCell(0, 0), new ShapeCell(0, 1)), BlockColor.Purple)
+                CreateBlockPreset(new[,] { { 1, 1 } }),
+                CreateBlockPreset(new[,] { { 1, 1 } })
             });
             return definition;
         }
 
-        private ShapeLevelCatalog CreateCatalog(params ShapeLevelDefinition[] levels)
+        private ShapeLevelCatalog CreateCatalog(params (string key, ShapeLevelDefinition level)[] entries)
         {
             var catalog = Keep(ScriptableObject.CreateInstance<ShapeLevelCatalog>());
-            SetPrivateField(catalog, "_levels", new List<ShapeLevelDefinition>(levels));
+            var levelsField = typeof(ShapeLevelCatalog).GetField("_levels", BindingFlags.Instance | BindingFlags.NonPublic);
+            var levels = Activator.CreateInstance(levelsField.FieldType);
+            var add = levelsField.FieldType.GetMethod("Add", new[] { typeof(string), typeof(ShapeLevelDefinition) });
+            foreach (var (key, level) in entries) add.Invoke(levels, new object[] { key, level });
+            levelsField.SetValue(catalog, levels);
             return catalog;
         }
 

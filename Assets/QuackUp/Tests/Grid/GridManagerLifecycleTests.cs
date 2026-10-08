@@ -103,6 +103,13 @@ namespace FitMe.Grid.Tests
             return obj;
         }
 
+        private BlockPreset CreateBlockPreset(int[,] schema)
+        {
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            preset.BlockSchema.schema = schema;
+            return preset;
+        }
+
         private void SetManagerField(string name, object value)
         {
             var field = typeof(GridManager).GetField(name,
@@ -510,16 +517,8 @@ namespace FitMe.Grid.Tests
                 null,
                 Array.Empty<BlockManager.SpawnPointData>(),
                 _hub);
-            var firstBlock = new ShapePlayerBlockRuntimeData(
-                new BlockSchema(new[,] { { 1, 1 } }, 0),
-                BlockColor.Green,
-                false,
-                BlockShape.OneByTwo);
-            var secondBlock = new ShapePlayerBlockRuntimeData(
-                new BlockSchema(new[,] { { 1 }, { 1 }, { 1 } }, 0),
-                BlockColor.Blue,
-                true,
-                BlockShape.OneByThree);
+            var firstBlock = CreateBlockPreset(new[,] { { 1, 1 } });
+            var secondBlock = CreateBlockPreset(new[,] { { 1 }, { 1 }, { 1 } });
             _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
                 null,
                 Array.Empty<ShapeObstacleRuntimeData>(),
@@ -528,10 +527,10 @@ namespace FitMe.Grid.Tests
             var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(queueField, Is.Not.Null, "BlockManager must retain authored player blocks");
-            var queue = (Queue<ShapePlayerBlockRuntimeData>)queueField.GetValue(blockManager);
+            var queue = (Queue<BlockPreset>)queueField.GetValue(blockManager);
             Assert.That(queue, Has.Count.EqualTo(2));
-            Assert.That(queue.Dequeue().Schema.schema, Is.EqualTo(new[,] { { 1, 1 } }));
-            Assert.That(queue.Dequeue().Schema.schema, Is.EqualTo(new[,] { { 1 }, { 1 }, { 1 } }));
+            Assert.That(queue.Dequeue(), Is.SameAs(firstBlock));
+            Assert.That(queue.Dequeue(), Is.SameAs(secondBlock));
         }
 
         [Test]
@@ -548,8 +547,8 @@ namespace FitMe.Grid.Tests
                 _hub);
             var playerBlocks = new[]
             {
-                new ShapePlayerBlockRuntimeData(new BlockSchema(new[,] { { 1, 1 } }, 0), BlockColor.Green, false, BlockShape.OneByTwo),
-                new ShapePlayerBlockRuntimeData(new BlockSchema(new[,] { { 1 }, { 1 } }, 0), BlockColor.Blue, true, BlockShape.OneByTwo)
+                CreateBlockPreset(new[,] { { 1, 1 } }),
+                CreateBlockPreset(new[,] { { 1 }, { 1 } })
             };
             _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
                 null,
@@ -558,12 +557,12 @@ namespace FitMe.Grid.Tests
 
             var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
                 BindingFlags.Instance | BindingFlags.NonPublic);
-            var queue = (Queue<ShapePlayerBlockRuntimeData>)queueField.GetValue(blockManager);
+            var queue = (Queue<BlockPreset>)queueField.GetValue(blockManager);
             queue.Dequeue();
 
             blockManager.ResetBag(shouldRespawn: true);
 
-            queue = (Queue<ShapePlayerBlockRuntimeData>)queueField.GetValue(blockManager);
+            queue = (Queue<BlockPreset>)queueField.GetValue(blockManager);
             Assert.That(queue, Has.Count.EqualTo(playerBlocks.Length));
         }
 
@@ -635,7 +634,7 @@ namespace FitMe.Grid.Tests
             _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
                 board,
                 Array.Empty<ShapeObstacleRuntimeData>(),
-                Array.Empty<ShapePlayerBlockRuntimeData>())));
+                Array.Empty<BlockPreset>())));
             var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
             preset.BlockSchema.schema = new[,] { { 1 } };
             preset.GenerateSchema();

@@ -91,7 +91,7 @@ namespace FitMe.Grid
         public Observable<Unit> OnSwap => _onSwap;
         private readonly Subject<Unit> _onSwap = new();
         private Queue<SpawnBlockData> _spawnBag = new();
-        private Queue<ShapePlayerBlockRuntimeData> _shapeBlockQueue = new();
+        private Queue<BlockPreset> _shapeBlockQueue = new();
         private ShapeLevelRuntimeData _shapeLevelRuntimeData;
         private readonly List<SpawnBlockData> _blockPool = new();
         private BlockInstance _currentPreviewBlock;
@@ -173,8 +173,8 @@ namespace FitMe.Grid
         private void OnSpawnWithShapeLevel(SpawnWithShapeLevelEvent eventData)
         {
             _shapeLevelRuntimeData = eventData.RuntimeData;
-            _shapeBlockQueue = new Queue<ShapePlayerBlockRuntimeData>(
-                _shapeLevelRuntimeData?.PlayerBlocks ?? Array.Empty<ShapePlayerBlockRuntimeData>());
+            _shapeBlockQueue = new Queue<BlockPreset>(
+                _shapeLevelRuntimeData?.PlayerBlocks ?? Array.Empty<BlockPreset>());
         }
 
         private void OnCellsCreated()
@@ -303,7 +303,7 @@ namespace FitMe.Grid
                 _continued = false;
                 if (_shapeLevelRuntimeData != null)
                 {
-                    _shapeBlockQueue = new Queue<ShapePlayerBlockRuntimeData>(_shapeLevelRuntimeData.PlayerBlocks);
+                    _shapeBlockQueue = new Queue<BlockPreset>(_shapeLevelRuntimeData.PlayerBlocks);
                     SpawnShapeBlocks();
                 }
                 else
@@ -357,15 +357,27 @@ namespace FitMe.Grid
                 if (!_spawnPoints[i].IsFree || _shapeBlockQueue.Count == 0) continue;
 
                 var spawnPoint = _spawnPoints[i];
-                var blockData = _shapeBlockQueue.Dequeue();
+                var blockPreset = _shapeBlockQueue.Dequeue();
+                if (!blockPreset) continue;
+
+                var schema = blockPreset.BlockSchema?.schema;
+                if (schema == null || schema.GetLength(0) == 0 || schema.GetLength(1) == 0)
+                {
+                    DebugUtils.LogWarning("Shape Mode skipped a player block with an empty schema.");
+                    continue;
+                }
+
+                var rotation = Quaternion.Euler(0f, 0f, Random.Range(0, 4) * 90f);
+                var color = EnumUtils.RandomValue<BlockColor>();
                 var block = InstantiateBlock(
                     spawnPoint.Transform,
-                    Quaternion.identity,
-                    blockData.VisualStyle,
-                    blockData.Color,
+                    rotation,
+                    BlockShape.OneByOne,
+                    color,
                     _config.ObjectScale,
-                    blockData.Schema.schema,
-                    blockData.AllowRotation);
+                    schema,
+                    true,
+                    blockPreset);
                 block.Model.SpawnIndex = i;
                 spawnPoint.IsFree = false;
                 spawnPoint.CurrentBlock = block;
@@ -383,7 +395,8 @@ namespace FitMe.Grid
             BlockColor color,
             float objectScale,
             int[,] schemaOverride = null,
-            bool allowRotation = true)
+            bool allowRotation = true,
+            BlockPreset presetOverride = null)
         {
             //block.BlockView.Transform.rotation = randomRotationQuaternion;
             BlockInstance block = _blockFactory.Create(
@@ -395,7 +408,8 @@ namespace FitMe.Grid
                     parent = spawnTransform,
                     worldSpace = true,
                 },
-                schemaOverride);
+                schemaOverride,
+                presetOverride);
             block.GameObject.name = $"Block_{shape}";
             block.Model.ChangeColor(color, false);
             block.Controller.AllowRotation = allowRotation;

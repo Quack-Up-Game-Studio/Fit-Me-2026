@@ -95,7 +95,7 @@ namespace FitMe.Grid
                 InstantiateBlock(
                     obstacle.Anchor,
                     obstacle.Schema,
-                    obstacle.VisualStyle,
+                    BlockShape.OneByOne,
                     obstacle.Color,
                     obstacle.Petrified,
                     obstacle.Schema.schema);
