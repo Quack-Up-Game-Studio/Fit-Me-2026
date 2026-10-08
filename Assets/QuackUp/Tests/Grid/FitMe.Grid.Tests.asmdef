@@ -3,6 +3,7 @@
   "rootNamespace": "FitMe.Grid.Tests",
   "references": [
     "FitMe.Grid",
+    "FitMe.GameData",
     "FitMe.Shared",
     "QuackUp.Utils",
     "QuackUp.Audio",
