@@ -1,17 +1,21 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Shared;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace FitMe.Grid.Tests
 {
     public sealed class ShapeLevelDataContractTests
     {
         private readonly List<ScriptableObject> _createdAssets = new();
+        private string _assetFolderPath;
 
         [TearDown]
         public void TearDown()
@@ -22,6 +26,8 @@ namespace FitMe.Grid.Tests
             }
 
             _createdAssets.Clear();
+            if (!string.IsNullOrEmpty(_assetFolderPath)) AssetDatabase.DeleteAsset(_assetFolderPath);
+            _assetFolderPath = null;
         }
 
         [Test]
@@ -94,6 +100,39 @@ namespace FitMe.Grid.Tests
 
             Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.DuplicateLevelId));
             Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.DuplicateLevelOrder));
+        }
+
+        [UnityTest]
+        public IEnumerator BlockPreset_IdTracksAssetGuidAndIsDifferentAfterDuplication()
+        {
+            _assetFolderPath = $"Assets/__ShapeLevelDataTests_{Guid.NewGuid():N}";
+            AssetDatabase.CreateFolder("Assets", _assetFolderPath.Substring("Assets/".Length));
+
+            var sourcePath = $"{_assetFolderPath}/Source.asset";
+            var duplicatePath = $"{_assetFolderPath}/Duplicate.asset";
+            AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<BlockPreset>(), sourcePath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.ImportAsset(sourcePath, ImportAssetOptions.ForceUpdate);
+            yield return null;
+            AssetDatabase.SaveAssets();
+
+            var source = AssetDatabase.LoadAssetAtPath<BlockPreset>(sourcePath);
+            var sourceId = AssetDatabase.AssetPathToGUID(sourcePath);
+            Assert.That(source.Id, Is.EqualTo(sourceId));
+
+            Assert.That(AssetDatabase.CopyAsset(sourcePath, duplicatePath), Is.True);
+            AssetDatabase.ImportAsset(duplicatePath, ImportAssetOptions.ForceUpdate);
+            var duplicate = AssetDatabase.LoadAssetAtPath<BlockPreset>(duplicatePath);
+            yield return null;
+            AssetDatabase.SaveAssets();
+            duplicate = AssetDatabase.LoadAssetAtPath<BlockPreset>(duplicatePath);
+
+            Assert.That(duplicate.Id, Is.EqualTo(AssetDatabase.AssetPathToGUID(duplicatePath)));
+            Assert.That(duplicate.Id, Is.Not.EqualTo(source.Id));
+            typeof(BlockPreset).GetProperty(nameof(BlockPreset.DisplayName))
+                .SetValue(duplicate, "Readable label");
+            Assert.That(duplicate.Id, Is.EqualTo(AssetDatabase.AssetPathToGUID(duplicatePath)));
+            Assert.That(duplicate.DisplayName, Is.EqualTo("Readable label"));
         }
 
         private ShapeLevelDefinition CreateValidLevel(string id, int order)

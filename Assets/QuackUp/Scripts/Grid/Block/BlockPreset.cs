@@ -60,6 +60,14 @@ namespace FitMe.Grid
     public class BlockPreset : SerializedScriptableObject
     {
         [field: TitleGroup("Block Preset Settings")]
+        [field: SerializeField, ReadOnly]
+        public string Id { get; private set; }
+
+        [field: TitleGroup("Block Preset Settings")]
+        [field: SerializeField]
+        public string DisplayName { get; private set; }
+
+        [field: TitleGroup("Block Preset Settings")]
         //[field: SerializeField] public BlockShape BlockShape { get; private set; }
         //[field: SerializeField] public Sprite BlockSprite { get; private set; }
         [field: TitleGroup("Block Preset Settings")]
@@ -120,5 +128,31 @@ namespace FitMe.Grid
 
             return true;
         }
+
+#if UNITY_EDITOR
+        private void OnEnable() => QueueAssetGuidSync();
+
+        private void OnValidate() => QueueAssetGuidSync();
+
+        private void QueueAssetGuidSync()
+        {
+            EditorApplication.delayCall -= SyncIdFromAssetGuid;
+            EditorApplication.delayCall += SyncIdFromAssetGuid;
+        }
+
+        private void SyncIdFromAssetGuid()
+        {
+            if (!this) return;
+
+            var assetPath = AssetDatabase.GetAssetPath(this);
+            if (string.IsNullOrEmpty(assetPath)) return;
+
+            var assetGuid = AssetDatabase.AssetPathToGUID(assetPath);
+            if (string.IsNullOrEmpty(assetGuid) || string.Equals(Id, assetGuid, StringComparison.Ordinal)) return;
+
+            Id = assetGuid;
+            EditorUtility.SetDirty(this);
+        }
+#endif
     }
 }
