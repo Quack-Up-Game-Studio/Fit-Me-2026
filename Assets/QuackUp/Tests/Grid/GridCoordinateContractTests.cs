@@ -95,13 +95,7 @@ namespace FitMe.Grid.Tests
                 typeof(CellView).GetField("spriteRenderer", BindingFlags.Instance | BindingFlags.NonPublic)
                     .SetValue(cellView, spriteRenderer);
                 cellView.transform.SetParent(_gridObject.transform);
-                var cellFactory = (CellFactory)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(CellFactory));
-                cellFactory.GetType().GetField("_config", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .SetValue(cellFactory, _cellConfig);
-                cellFactory.GetType().GetField("_cellViewPrefab", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .SetValue(cellFactory, cellView);
-                typeof(CellFactory).GetField("_cellParent", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .SetValue(cellFactory, _gridObject.transform);
+                var cellFactory = new CellFactory(_cellConfig, cellView, _gridObject.transform);
                 _manager = new GridManagerType(grid, _config, cellFactory, null, _messageHub);
                 typeof(GridManagerType).GetProperty(nameof(GridManagerType.CurrentGridPreset))
                     .SetValue(_manager, _preset);
