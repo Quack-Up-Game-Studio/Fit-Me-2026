@@ -450,6 +450,38 @@ namespace FitMe.Grid
         #endregion
         
         #region Blocks
+        private List<CellInstance> ResolvePlacementCells(IReadOnlyList<AtomInstance> atoms)
+        {
+            if (atoms == null || atoms.Count == 0) return null;
+
+            var resolvedCells = new List<CellInstance>(atoms.Count);
+            var targetIndexes = new List<Vector2Int>(atoms.Count);
+            var isCustomGrid = CurrentGridPreset != null && CurrentGridPreset.PresetGridType is GridType.Custom;
+            var stageMask = isCustomGrid ? CurrentGridPreset.customGrid : null;
+
+            foreach (var atom in atoms)
+            {
+                var cellPosition = atom.GameObject.transform.position.WithZ(0);
+                var cell = GetCellByPosition(cellPosition);
+                if (cell == null) return null;
+
+                var targetIndex = cell.Model.ArrayIndex.Value;
+                targetIndexes.Add(targetIndex);
+                resolvedCells.Add(cell);
+            }
+
+            if (!BlockPlacementValidator.TryValidate(
+                    CurrentGridSize.y,
+                    CurrentGridSize.x,
+                    stageMask,
+                    targetIndexes,
+                    index => GetCellByArrayIndex(index).Model.CurrentAtom.Value != null,
+                    out _))
+                return null;
+
+            return resolvedCells;
+        }
+
         /// <summary>
         /// Validate the placement of the block and change the color of the cells
         /// </summary>
@@ -458,24 +490,15 @@ namespace FitMe.Grid
         public bool ValidatePlacement(BlockModel blockModel)
         {
             ResetPreviousValidationCells();
-            var cells = _previousValidationCells;
-            foreach (var atom in blockModel.Atoms)
+            var cells = ResolvePlacementCells(blockModel?.Atoms);
+            if (cells == null)
             {
-                Vector3 atomPosition = atom.GameObject.transform.position;
-                Vector3 cellPosition = new Vector3(atomPosition.x, atomPosition.y, 0);
-                var cell = GetCellByPosition(cellPosition);
-                if (cell == null || cell.Model.CurrentAtom.Value != null || cells.Contains(cell))
-                {
-                    continue;
-                }
-                cells.Add(cell);
-            }
-            if (cells.Count < blockModel.Atoms.Count)
-            {
-                cells.ForEach(cell => cell.Model.State.Value = CellState.CannotBePlaced);
+                _previousValidationCells.ForEach(cell => cell.Model.State.Value = CellState.CannotBePlaced);
                 return false;
             }
-            cells.ForEach(cell => cell.Model.State.Value = CellState.CanBePlaced);
+
+            _previousValidationCells = cells;
+            _previousValidationCells.ForEach(cell => cell.Model.State.Value = CellState.CanBePlaced);
             return true;
         }
 
@@ -492,28 +515,27 @@ namespace FitMe.Grid
             var blockViewTransform = blockInstance.GameObject.transform;
             var cellSize = _grid.cellSize.x;
             blockViewTransform.localScale = Vector3.one * cellSize;
-            var cells = new List<CellInstance>();
-            foreach (var atom in blockInstance.Model.Atoms)
-            {
-                var atomPosition = atom.GameObject.transform.position.WithZ(0);
-                var cell = GetCellByPosition(atomPosition);
-                if (cell == null || cell.Model.CurrentAtom.Value != null || cells.Contains(cell))
-                {
-                    return false;
-                }
-                cells.Add(cell);
-            }
+            var cells = ResolvePlacementCells(blockInstance.Model.Atoms);
+            if (cells == null) return false;
+
             using var cancellationTokenSource = new CancellationTokenSource();
             _onAboutToPlaceBlock.OnNext((blockInstance, cancellationTokenSource));
-            if (cancellationTokenSource.IsCancellationRequested)
+            if (cancellationTokenSource.IsCancellationRequested ||
+                !BlockPlacementValidator.TryValidate(
+                    CurrentGridSize.y,
+                    CurrentGridSize.x,
+                    CurrentGridPreset != null && CurrentGridPreset.PresetGridType is GridType.Custom
+                        ? CurrentGridPreset.customGrid
+                        : null,
+                    cells.ConvertAll(cell => cell.Model.ArrayIndex.Value),
+                    index => GetCellByArrayIndex(index).Model.CurrentAtom.Value != null,
+                    out _))
             {
                 return false;
             }
-            for (var i = 0; i < blockInstance.Model.Atoms.Count; i++) 
-            {
-                var atom = blockInstance.Model.Atoms[i];
-                cells[i].Model.CurrentAtom.Value = atom;
-            }
+
+            for (var i = 0; i < blockInstance.Model.Atoms.Count; i++)
+                cells[i].Model.CurrentAtom.Value = blockInstance.Model.Atoms[i];
             var firstCellPosition = cells[0].GameObject.transform.position;
             var firstAtomPosition = blockInstance.Model.Atoms[0].GameObject.transform.position;
             var blockPositionRelativeToAtom = firstCellPosition - firstAtomPosition;

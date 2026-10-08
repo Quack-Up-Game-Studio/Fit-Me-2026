@@ -267,6 +267,51 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ValidatePlacement_RejectsStageHole()
+        {
+            SetUpOneCellPlacement();
+            var preset = Keep(ScriptableObject.CreateInstance<GridPreset>());
+            preset.GridSize = Vector2Int.one;
+            preset.PresetGridType = GridType.Custom;
+            preset.customGrid = new[,] { { 0 } };
+            SetManagerField("<CurrentGridPreset>k__BackingField", preset);
+
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.False);
+        }
+
+        [Test]
+        public void Placement_PreparesAllCellsBeforeVetoAndDoesNotPartiallyCommitIfCallbackOccupiesCell()
+        {
+            SetUpOneCellPlacement();
+            var preset = Keep(ScriptableObject.CreateInstance<GridPreset>());
+            preset.GridSize = new Vector2Int(2, 1);
+            SetManagerField("<CurrentGridPreset>k__BackingField", preset);
+            var secondCellModel = new CellModel();
+            _additionalCellModels.Add(secondCellModel);
+            var secondCellObject = Keep(new GameObject("Lifecycle second cell"));
+            secondCellObject.transform.position = _grid.GetCellCenterWorld(Vector3Int.right);
+            var secondCell = new CellInstance(secondCellModel, null, secondCellObject);
+            var firstCell = new CellInstance(_cell, null, Keep(new GameObject("Lifecycle first cell")));
+            SetManagerField("_cellArray", new CellInstance[,] { { firstCell, secondCell } });
+            AddAtomAt(secondCellObject.transform.position);
+
+            var callbackSawUnoccupiedCells = false;
+            using var subscription = _manager.OnAboutToPlaceBlock.Subscribe(_ =>
+            {
+                callbackSawUnoccupiedCells = _cell.CurrentAtom.Value == null &&
+                                             secondCellModel.CurrentAtom.Value == null;
+                secondCellModel.CurrentAtom.Value = _blockModel.Atoms[0];
+            });
+
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.True);
+            Assert.That(_manager.TryPlaceBlock(_block, updateGrid: false), Is.False);
+            Assert.That(callbackSawUnoccupiedCells, Is.True);
+            Assert.That(_cell.CurrentAtom.Value, Is.Null, "commit must not partially occupy the first cell");
+            Assert.That(secondCellModel.CurrentAtom.Value, Is.SameAs(_blockModel.Atoms[0]));
+            Assert.That(_manager.BlocksOnGrid, Is.Empty);
+        }
+
+        [Test]
         public void BlockPreset_GenerateSchemaDoesNotRebuildUnchangedSchemas()
         {
             var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
