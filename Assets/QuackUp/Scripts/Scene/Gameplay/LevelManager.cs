@@ -65,11 +65,14 @@ namespace FitMe.Scene
         private readonly ICloudSaveService _cloudSaveService;
         private readonly IAnalyticsService _analyticsService;
         private readonly IPendingScenePayload _pendingScenePayload;
+        private readonly LoadSceneManager _loadSceneManager;
+        private readonly ShapeLevelResultService _shapeLevelResultService;
 
         private GameMode _gameMode = GameMode.Classic;
         private GridPreset _gridPreset;
         private ShapeLevelDefinition _shapeLevelDefinition;
         private string _shapeLevelId;
+        private bool _shapeLevelPassed;
 
         private List<GridPreset> _presets;
         private Queue<GridPreset> _tutorialPresets;
@@ -95,7 +98,8 @@ namespace FitMe.Scene
             ILeaderboardService leaderboardService,
             ICloudSaveService cloudSaveService,
             IAnalyticsService analyticsService,
-            IPendingScenePayload pendingScenePayload)
+            IPendingScenePayload pendingScenePayload,
+            LoadSceneManager loadSceneManager)
         {
             _config = config;
             _audioManager = audioManager;
@@ -110,6 +114,8 @@ namespace FitMe.Scene
             _cloudSaveService = cloudSaveService;
             _analyticsService = analyticsService;
             _pendingScenePayload = pendingScenePayload;
+            _loadSceneManager = loadSceneManager;
+            _shapeLevelResultService = new ShapeLevelResultService(config.ShapeLevelCatalogAsset);
             Initialize();
             Subscribe();
         }
@@ -218,8 +224,17 @@ namespace FitMe.Scene
                 return;
             }
             _pendingScenePayload.SetActive(request);
-            _onResultSubscription = resultPanel.OnResultVisible
-                .Subscribe(_ => OnResult());
+            var resultSubscriptions = Disposable.CreateBuilder();
+            resultPanel.OnResultVisible
+                .Subscribe(_ => OnResult())
+                .AddTo(ref resultSubscriptions);
+            resultPanel.ToNextShapeLevelCommand
+                .Subscribe(_ => OnNextShapeLevel())
+                .AddTo(ref resultSubscriptions);
+            resultPanel.ToShapeLevelSelectCommand
+                .Subscribe(_ => OnReturnToShapeLevelSelect())
+                .AddTo(ref resultSubscriptions);
+            _onResultSubscription = resultSubscriptions.Build();
             _onReturnToGameplaySubscription = gameOverPanel.OnReturnToGameplay
                 .Subscribe(_ => OnReturnToGameplay());
             _bgmReference = _audioManager.PlayAudio(_config.GameplayBgm, Vector3.zero);
@@ -384,7 +399,8 @@ namespace FitMe.Scene
         {
             _orthographicCameraManager.Shake(_config.CameraFitShakeSettings, _config.CameraFitShakeStrengthFactor);
 
-            SaveShapeLevelProgress();
+            var completedShapeLevel = _gameMode == GameMode.LevelShape && _shapeLevelDefinition;
+            var progressRecorded = SaveShapeLevelProgress();
 
             /* Analytics */
             ReportComplete();
@@ -392,6 +408,16 @@ namespace FitMe.Scene
             _fitMeLastLevel = FitMe.Value;
 
             if (IsTutorial) return;
+            if (completedShapeLevel && progressRecorded)
+            {
+                _shapeLevelPassed = true;
+                _panelManager.Crossfade(null, _config.ResultPanelId, new CrossfadeSettings
+                {
+                    crossFadeType = CrossfadeType.InOnly,
+                    customOffset = 0f
+                }).Forget();
+                return;
+            }
             ChangeDifficultyLevel();
             if (_shapeLevelDefinition)
             {
@@ -456,13 +482,13 @@ namespace FitMe.Scene
             return orderedLevels[0];
         }
 
-        private void SaveShapeLevelProgress()
+        private bool SaveShapeLevelProgress()
         {
             if (_gameMode != GameMode.LevelShape || !_shapeLevelDefinition || !_playerRecordSaveObject)
-                return;
+                return false;
 
             var catalog = _config.ShapeLevelCatalogAsset;
-            if (!catalog) return;
+            if (!catalog) return false;
 
             var orderedLevels = catalog.GetOrderedLevels();
             for (var index = 0; index < orderedLevels.Count; index++)
@@ -471,16 +497,19 @@ namespace FitMe.Scene
 
                 var levelId = _shapeLevelId;
                 if (string.IsNullOrWhiteSpace(levelId) && !catalog.TryGetId(_shapeLevelDefinition, out levelId))
-                    return;
+                    return false;
 
                 var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
-                if (saveData == null) return;
+                if (saveData == null) return false;
+                if (!saveData.IsShapeLevelUnlocked(index + 1)) return false;
 
                 var levelScore = Math.Max(0, Score.Value - _scoreLastLevel);
                 if (saveData.RecordShapeLevelPass(index + 1, levelId, levelScore))
                     _saveManager.Save(_playerRecordSaveObject);
-                return;
+                return true;
             }
+
+            return false;
         }
 
         private void OnSceneFinishIn()
@@ -590,6 +619,10 @@ namespace FitMe.Scene
             _panelManager.TryGetPanel<ResultPanelViewModel>(_config.ResultPanelId, out var resultPanel);
             var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
+            var isShapeLevelResult = _gameMode == GameMode.LevelShape && _shapeLevelDefinition;
+            var canGoToNextShapeLevel = isShapeLevelResult &&
+                TryResolveShapeLevelResult(ShapeLevelResultAction.NextLevel, out _);
+            resultPanel.ConfigureShapeLevelResult(isShapeLevelResult, canGoToNextShapeLevel);
             resultPanel.CacheScoreAndFit((int)saveData.highScore.score, saveData.highScore.fitMe);
             saveData.AddRunData(new PlayerRecordSaveData.RunData
             {
@@ -602,8 +635,48 @@ namespace FitMe.Scene
             ReportToLeaderboard().Forget();
             
             /* Analytics */
-            ReportFail("GameOver");
+            if (!_shapeLevelPassed)
+                ReportFail("GameOver");
             
+        }
+
+        private void OnNextShapeLevel()
+        {
+            if (!TryResolveShapeLevelResult(ShapeLevelResultAction.NextLevel, out var outcome))
+            {
+                DebugUtils.LogError("Cannot advance to the next Shape Level from the current result.");
+                return;
+            }
+
+            _pendingScenePayload.Set(outcome.SessionRequest);
+            _loadSceneManager.LoadScene(SceneType.Gameplay, UnityEngine.SceneManagement.LoadSceneMode.Single, false)
+                .Forget();
+        }
+
+        private void OnReturnToShapeLevelSelect()
+        {
+            if (!TryResolveShapeLevelResult(ShapeLevelResultAction.ReturnToLevelSelect, out _))
+            {
+                DebugUtils.LogError("Cannot return to Shape Level Select from the current result.");
+                return;
+            }
+
+            _loadSceneManager.LoadScene(SceneType.LevelSelect, UnityEngine.SceneManagement.LoadSceneMode.Single, false)
+                .Forget();
+        }
+
+        private bool TryResolveShapeLevelResult(
+            ShapeLevelResultAction action,
+            out ShapeLevelResultOutcome outcome)
+        {
+            outcome = default;
+            if (!_pendingScenePayload.TryGetActive<LevelSessionRequest>(out var activeRequest) ||
+                !_playerRecordSaveObject)
+                return false;
+
+            var progress = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            return _shapeLevelResultService.TryResolve(
+                action, activeRequest, _shapeLevelPassed, progress, out outcome);
         }
         
         private async UniTask ReportToLeaderboard()
