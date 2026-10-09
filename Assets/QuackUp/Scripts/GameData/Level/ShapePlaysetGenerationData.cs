@@ -13,6 +13,7 @@ namespace FitMe.GameData
         BoardTooLarge,
         InvalidObstacleRange,
         InvalidGeneratedBlockDimensions,
+        InvalidPreferredBlockSupply,
         NoFeasibleConnectedTiling
     }
 
@@ -76,16 +77,19 @@ namespace FitMe.GameData
 
     public sealed class GeneratedShapeBlock
     {
-        public int[,] Footprint { get; }
+        private readonly int[,] _footprint;
+        private readonly Vector2Int[] _solvedPlacement;
+
+        public int[,] Footprint => (int[,])_footprint.Clone();
         public BlockPreset PreferredPreset { get; }
-        public Vector2Int[] SolvedPlacement { get; }
+        public Vector2Int[] SolvedPlacement => (Vector2Int[])_solvedPlacement.Clone();
         public bool IsPredefined => PreferredPreset;
 
         internal GeneratedShapeBlock(int[,] footprint, BlockPreset preferredPreset, Vector2Int[] solvedPlacement)
         {
-            Footprint = footprint;
+            _footprint = footprint == null ? new int[0, 0] : (int[,])footprint.Clone();
             PreferredPreset = preferredPreset;
-            SolvedPlacement = solvedPlacement;
+            _solvedPlacement = solvedPlacement == null ? Array.Empty<Vector2Int>() : (Vector2Int[])solvedPlacement.Clone();
         }
     }
 
@@ -130,8 +134,11 @@ namespace FitMe.GameData
 
         public int Seed { get; }
         public int GeneratorVersion => CurrentGeneratorVersion;
-        public int[,] BoardMask { get; }
-        public int[,] ObstacleMask { get; }
+        private readonly int[,] _boardMask;
+        private readonly int[,] _obstacleMask;
+
+        public int[,] BoardMask => (int[,])_boardMask.Clone();
+        public int[,] ObstacleMask => (int[,])_obstacleMask.Clone();
         public IReadOnlyList<GeneratedShapeBlock> PlayerBlocks { get; }
         public bool UsedPredefinedBlocks { get; }
         public bool IsSolvable => true;
@@ -143,8 +150,8 @@ namespace FitMe.GameData
             ShapePlaysetDifficultyMetrics difficulty)
         {
             Seed = seed;
-            BoardMask = boardMask;
-            ObstacleMask = obstacleMask;
+            _boardMask = boardMask == null ? new int[0, 0] : (int[,])boardMask.Clone();
+            _obstacleMask = obstacleMask == null ? new int[0, 0] : (int[,])obstacleMask.Clone();
             PlayerBlocks = Array.AsReadOnly(new List<GeneratedShapeBlock>(playerBlocks).ToArray());
             UsedPredefinedBlocks = usedPredefinedBlocks;
             Difficulty = difficulty;
