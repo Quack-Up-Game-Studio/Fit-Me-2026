@@ -1,8 +1,8 @@
 # Shape Playset Generator Redesign — Implementation Plan
 
-**Status:** Implemented in the isolated worktree; final verification and interactive diff approval are pending.
+**Status:** Implemented and verified in the isolated worktree; final diff approval and implementation commit are pending.
 **Worktree:** `.worktrees/shape-playset-generator`
-**Branch/checkpoint:** `feature/shape-playset-generator`, based on `034c9c260756eed2af8d8486c6fc93de67e28da3`; plan save point `528f87aa`. Implementation changes are uncommitted.
+**Branch/checkpoint:** `feature/shape-playset-generator`, based on `034c9c260756eed2af8d8486c6fc93de67e28da3`; plan save point `528f87aa`; implementation save point `f9e022de`. A reviewed preflight correction remains uncommitted.
 **Scope:** Replace the prototype's corner-rectangle obstacle construction and fixed-rectangle fallback with seeded arbitrary obstacle candidates, undersized-region repair, and bounded mixed preset/generated exact-cover search. Keep this work isolated from Pass 8 and do not integrate or push without separate approval.
 
 ## Current implementation checkpoint
@@ -10,7 +10,7 @@
 - Arbitrary obstacles, deterministic repair/relocation, 4-connected playzones and block footprints, bounded mixed preset/fallback exact cover, retry provenance, stage failure counts, and output/config snapshots are implemented.
 - Shape Mode preferred presets are validated for binary, non-empty, 4-connected schemas both during generation preflight and authored level validation; shared `BlockPreset` behavior outside Shape Mode is unchanged.
 - Generated blocks report their clockwise placement rotation separately from their footprint orientation.
-- Focused generator and authored-level contract tests have passed; rerun the owning assembly after the latest test additions before marking final verification complete.
+- A regression test proved and then verified the fix for rejecting obstacle counts that fit a larger configured board but not the smallest one. The final `FitMe.Grid.Tests.dll` run passed 110/110 with zero failures or skips.
 
 ## Agreed behavior
 
@@ -79,12 +79,12 @@ Run the narrow relevant test filters and verify the expected RED is behavioral, 
 - Update config/output snapshots with all settings, retry attempt, budgets/version, preset IDs/counts, and cloned preset schemas so asset edits are visible when reproducing a run.
 - Keep metric definitions transparent and increment the metric model version if their meaning changes.
 
-### 6. Verification and review — IN PROGRESS
+### 6. Verification and review — TESTS COMPLETE; APPROVAL PENDING
 
-- Run focused generator/solver EditMode tests with the project's Unity Android-target headless runbook; require fresh parseable NUnit XML and inspect matching logs.
-- Run the owning `FitMe.Grid.Tests` suite after the focused tests.
-- Exercise representative boundary seeds and deterministic retries; add bounded property-style loops over seeds/configurations where practical.
-- Run `git diff --check`, inspect the exact diff, and report tests plus unverified limits.
+- Focused Android-target EditMode regression test: RED before the fix (expected `InvalidObstacleRange`), GREEN after the fix (1/1).
+- Final owning `FitMe.Grid.Tests.dll` Android-target EditMode suite: 110/110 passed, zero failures/skips; report `shape-generator-grid-suite-finalfix-20261009.xml` and matching log are in profile scratch.
+- Boundary cases, deterministic retries, and bounded seed loops are covered by the focused generator tests.
+- `git diff --check` passes; final post-checkpoint diff reviewed and limited to the obstacle-capacity preflight correction, its regression test, and this status update.
 - Present the final diff for interactive approval before the implementation commit. No push or integration is part of this plan.
 
 ## Resolved policy decisions

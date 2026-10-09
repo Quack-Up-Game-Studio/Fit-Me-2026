@@ -51,7 +51,6 @@ namespace FitMe.GameData
 
             if (config.MinObstacleCells < 0 || config.MaxObstacleCells < config.MinObstacleCells ||
                 config.MinObstacleCells > MaximumAcceptedObstacleCells || config.MaxObstacleCells < 0 ||
-                (long)config.MinObstacleCells > (long)config.MinBoardColumns * config.MinBoardRows - 1 ||
                 (long)config.MaxObstacleCells > (long)config.MaxBoardColumns * config.MaxBoardRows - 1)
                 errors.Add(ShapePlaysetConfigurationError.InvalidObstacleRange);
 

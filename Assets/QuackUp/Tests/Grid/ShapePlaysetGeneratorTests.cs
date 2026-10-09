@@ -223,6 +223,22 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ValidateConfiguration_AcceptsObstacleCountThatFitsLargerConfiguredBoard()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 3, maxBoardColumns: 4,
+                minBoardRows: 3, maxBoardRows: 4,
+                minObstacleCells: 9, maxObstacleCells: 9,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2);
+
+            var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
+
+            Assert.That(validation.IsValid, Is.True, string.Join(", ", validation.Errors));
+            Assert.That(validation.FeasibilityStatus, Is.EqualTo(ShapePlaysetFeasibilityStatus.Unproven));
+        }
+
+        [Test]
         public void ValidateConfiguration_RejectsNonPositivePlayableRegionThreshold()
         {
             var config = new ShapePlaysetGenerationConfig(
