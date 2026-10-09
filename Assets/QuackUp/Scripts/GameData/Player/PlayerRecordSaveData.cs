@@ -85,6 +85,12 @@ namespace FitMe.GameData
         [field: SerializeField] public float cumulativeScore;
         [Key("CumulativeFitMe")]
         [field: SerializeField] public int cumulativeFitMe;
+
+        [Key("HighestUnlockedShapeOrder")]
+        [field: SerializeField] public int HighestUnlockedShapeOrder { get; private set; } = 1;
+
+        [Key("ShapeLevelHighScores")]
+        [field: SerializeField] public Dictionary<string, int> ShapeLevelHighScores { get; private set; } = new();
         
         [IgnoreMember][NonSerialized]
         private int _maxRunDataCount = 3;
@@ -114,6 +120,32 @@ namespace FitMe.GameData
                     .ToList();
             }
         }
+
+        public bool RecordShapeLevelPass(int completedOrder, string levelId, int score)
+        {
+            if (completedOrder < 1 || completedOrder > HighestUnlockedShapeOrder ||
+                string.IsNullOrWhiteSpace(levelId) || score < 0)
+                return false;
+
+            var changed = false;
+            var nextOrder = completedOrder == int.MaxValue ? int.MaxValue : completedOrder + 1;
+            if (nextOrder > HighestUnlockedShapeOrder)
+            {
+                HighestUnlockedShapeOrder = nextOrder;
+                changed = true;
+            }
+
+            ShapeLevelHighScores ??= new Dictionary<string, int>();
+            if (!ShapeLevelHighScores.TryGetValue(levelId, out var previousScore) || score > previousScore)
+            {
+                ShapeLevelHighScores[levelId] = score;
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        public bool IsShapeLevelUnlocked(int order) => order > 0 && order <= HighestUnlockedShapeOrder;
 
         public bool TryMarkPurchaseRecorded(string transactionId) =>
             TryAddTransaction(RecordedPurchaseTransactionIds, transactionId,

@@ -384,6 +384,8 @@ namespace FitMe.Scene
         {
             _orthographicCameraManager.Shake(_config.CameraFitShakeSettings, _config.CameraFitShakeStrengthFactor);
 
+            SaveShapeLevelProgress();
+
             /* Analytics */
             ReportComplete();
             _scoreLastLevel = Score.Value;
@@ -452,6 +454,33 @@ namespace FitMe.Scene
             }
 
             return orderedLevels[0];
+        }
+
+        private void SaveShapeLevelProgress()
+        {
+            if (_gameMode != GameMode.LevelShape || !_shapeLevelDefinition || !_playerRecordSaveObject)
+                return;
+
+            var catalog = _config.ShapeLevelCatalogAsset;
+            if (!catalog) return;
+
+            var orderedLevels = catalog.GetOrderedLevels();
+            for (var index = 0; index < orderedLevels.Count; index++)
+            {
+                if (orderedLevels[index] != _shapeLevelDefinition) continue;
+
+                var levelId = _shapeLevelId;
+                if (string.IsNullOrWhiteSpace(levelId) && !catalog.TryGetId(_shapeLevelDefinition, out levelId))
+                    return;
+
+                var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+                if (saveData == null) return;
+
+                var levelScore = Math.Max(0, Score.Value - _scoreLastLevel);
+                if (saveData.RecordShapeLevelPass(index + 1, levelId, levelScore))
+                    _saveManager.Save(_playerRecordSaveObject);
+                return;
+            }
         }
 
         private void OnSceneFinishIn()

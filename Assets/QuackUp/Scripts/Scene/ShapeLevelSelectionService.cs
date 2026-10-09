@@ -14,6 +14,15 @@ namespace FitMe.Scene
 
         public bool TryDispatchSelection(
             string levelId,
+            PlayerRecordSaveData progress,
+            Action<LevelSessionRequest> dispatch)
+        {
+            return progress != null && TryDispatchSelection(
+                levelId, progress.HighestUnlockedShapeOrder, dispatch);
+        }
+
+        public bool TryDispatchSelection(
+            string levelId,
             int highestUnlockedOrder,
             Action<LevelSessionRequest> dispatch)
         {

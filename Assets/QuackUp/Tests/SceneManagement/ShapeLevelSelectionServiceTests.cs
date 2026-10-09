@@ -49,6 +49,24 @@ namespace QuackUp.SceneManagement.Tests
             Assert.That(dispatchedRequest.GridPreset, Is.SameAs(second.Board));
         }
 
+        [Test]
+        public void TryDispatchSelection_UsesPersistedUnlockProgress()
+        {
+            var first = CreateLevel();
+            var second = CreateLevel();
+            var service = new ShapeLevelSelectionService(
+                CreateCatalog(("shape-intro", first), ("shape-next", second)));
+            var progress = new PlayerRecordSaveData();
+            var dispatchCount = 0;
+
+            Assert.That(service.TryDispatchSelection("shape-next", progress, _ => dispatchCount++), Is.False);
+            Assert.That(dispatchCount, Is.Zero);
+
+            progress.RecordShapeLevelPass(1, "shape-intro", 100);
+            Assert.That(service.TryDispatchSelection("shape-next", progress, _ => dispatchCount++), Is.True);
+            Assert.That(dispatchCount, Is.EqualTo(1));
+        }
+
         [TestCase(null)]
         [TestCase("")]
         [TestCase(" ")]
