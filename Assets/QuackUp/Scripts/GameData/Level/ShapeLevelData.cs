@@ -395,7 +395,46 @@ namespace FitMe.GameData
                 else if (value != 0) isValid = false;
             }
 
-            return isValid && occupiedCellCount > 0;
+            return isValid && occupiedCellCount > 0 &&
+                   AreFourConnected(schema, occupiedCellCount);
+        }
+
+        private static bool AreFourConnected(int[,] schema, int expectedCellCount)
+        {
+            var visited = new bool[schema.GetLength(0), schema.GetLength(1)];
+            var queue = new Queue<Vector2Int>();
+            var startFound = false;
+            for (var row = 0; row < schema.GetLength(0) && !startFound; row++)
+            for (var column = 0; column < schema.GetLength(1); column++)
+            {
+                if (schema[row, column] != 1) continue;
+                visited[row, column] = true;
+                queue.Enqueue(new Vector2Int(row, column));
+                startFound = true;
+                break;
+            }
+
+            var reachedCellCount = 0;
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+                reachedCellCount++;
+                EnqueueBlockCell(cell.x - 1, cell.y, schema, visited, queue);
+                EnqueueBlockCell(cell.x + 1, cell.y, schema, visited, queue);
+                EnqueueBlockCell(cell.x, cell.y - 1, schema, visited, queue);
+                EnqueueBlockCell(cell.x, cell.y + 1, schema, visited, queue);
+            }
+            return reachedCellCount == expectedCellCount;
+        }
+
+        private static void EnqueueBlockCell(
+            int row, int column, int[,] schema, bool[,] visited, Queue<Vector2Int> queue)
+        {
+            if (row < 0 || row >= schema.GetLength(0) ||
+                column < 0 || column >= schema.GetLength(1) ||
+                schema[row, column] != 1 || visited[row, column]) return;
+            visited[row, column] = true;
+            queue.Enqueue(new Vector2Int(row, column));
         }
     }
 }

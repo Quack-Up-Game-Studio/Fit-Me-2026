@@ -14,14 +14,28 @@ namespace FitMe.GameData
         InvalidObstacleRange,
         InvalidGeneratedBlockDimensions,
         InvalidPreferredBlockSupply,
-        NoFeasibleConnectedTiling
+        InvalidPlayableRegionThreshold,
+        InvalidSearchBudget,
+        InvalidSingletonFallbackLimit
     }
 
     public enum ShapePlaysetGenerationError
     {
         None,
         InvalidConfiguration,
+        CandidateRetriesExhausted,
+        ObstacleRepairFailed,
+        ObstacleRepairBudgetExceeded,
+        TilingFailed,
+        TilingBudgetExceeded,
         GenerationInvariantFailed
+    }
+
+    public enum ShapePlaysetFeasibilityStatus
+    {
+        ProvenFeasible,
+        ProvenInfeasible,
+        Unproven
     }
 
     public sealed class ShapePlaysetGenerationConfig
@@ -36,6 +50,11 @@ namespace FitMe.GameData
         public int MaxGeneratedBlockColumns { get; }
         public int MinGeneratedBlockRows { get; }
         public int MaxGeneratedBlockRows { get; }
+        public int MinPlayableRegionCells { get; }
+        public int MaxObstacleRepairNodes { get; }
+        public int MaxTilingSearchNodes { get; }
+        public int MaxCandidateAttempts { get; }
+        public int MaxSingletonFallbackBlocks { get; }
         public IReadOnlyList<ShapePlayerBlockEntry> PreferredPlayerBlocks { get; }
 
         public ShapePlaysetGenerationConfig(
@@ -44,7 +63,12 @@ namespace FitMe.GameData
             int minObstacleCells, int maxObstacleCells,
             int minGeneratedBlockColumns, int maxGeneratedBlockColumns,
             int minGeneratedBlockRows, int maxGeneratedBlockRows,
-            IReadOnlyList<ShapePlayerBlockEntry> preferredPlayerBlocks = null)
+            IReadOnlyList<ShapePlayerBlockEntry> preferredPlayerBlocks = null,
+            int minPlayableRegionCells = 10,
+            int maxObstacleRepairNodes = 50000,
+            int maxTilingSearchNodes = 100000,
+            int maxCandidateAttempts = 8,
+            int maxSingletonFallbackBlocks = 0)
         {
             MinBoardColumns = minBoardColumns;
             MaxBoardColumns = maxBoardColumns;
@@ -56,6 +80,11 @@ namespace FitMe.GameData
             MaxGeneratedBlockColumns = maxGeneratedBlockColumns;
             MinGeneratedBlockRows = minGeneratedBlockRows;
             MaxGeneratedBlockRows = maxGeneratedBlockRows;
+            MinPlayableRegionCells = minPlayableRegionCells;
+            MaxObstacleRepairNodes = maxObstacleRepairNodes;
+            MaxTilingSearchNodes = maxTilingSearchNodes;
+            MaxCandidateAttempts = maxCandidateAttempts;
+            MaxSingletonFallbackBlocks = maxSingletonFallbackBlocks;
             PreferredPlayerBlocks = preferredPlayerBlocks == null
                 ? Array.Empty<ShapePlayerBlockEntry>()
                 : Array.AsReadOnly(new List<ShapePlayerBlockEntry>(preferredPlayerBlocks).ToArray());
@@ -64,13 +93,17 @@ namespace FitMe.GameData
 
     public sealed class ShapePlayerBlockConfigSnapshot
     {
+        private readonly int[,] _presetSchema;
+
         public string PresetId { get; }
         public int Count { get; }
+        public int[,] PresetSchema => (int[,])_presetSchema.Clone();
 
-        internal ShapePlayerBlockConfigSnapshot(string presetId, int count)
+        internal ShapePlayerBlockConfigSnapshot(string presetId, int count, int[,] presetSchema)
         {
             PresetId = presetId ?? string.Empty;
             Count = count;
+            _presetSchema = presetSchema == null ? new int[0, 0] : (int[,])presetSchema.Clone();
         }
     }
 
@@ -86,6 +119,11 @@ namespace FitMe.GameData
         public int MaxGeneratedBlockColumns { get; }
         public int MinGeneratedBlockRows { get; }
         public int MaxGeneratedBlockRows { get; }
+        public int MinPlayableRegionCells { get; }
+        public int MaxObstacleRepairNodes { get; }
+        public int MaxTilingSearchNodes { get; }
+        public int MaxCandidateAttempts { get; }
+        public int MaxSingletonFallbackBlocks { get; }
         public IReadOnlyList<ShapePlayerBlockConfigSnapshot> PreferredPlayerBlocks { get; }
 
         internal ShapePlaysetGenerationConfigSnapshot(ShapePlaysetGenerationConfig config)
@@ -100,11 +138,17 @@ namespace FitMe.GameData
             MaxGeneratedBlockColumns = config.MaxGeneratedBlockColumns;
             MinGeneratedBlockRows = config.MinGeneratedBlockRows;
             MaxGeneratedBlockRows = config.MaxGeneratedBlockRows;
+            MinPlayableRegionCells = config.MinPlayableRegionCells;
+            MaxObstacleRepairNodes = config.MaxObstacleRepairNodes;
+            MaxTilingSearchNodes = config.MaxTilingSearchNodes;
+            MaxCandidateAttempts = config.MaxCandidateAttempts;
+            MaxSingletonFallbackBlocks = config.MaxSingletonFallbackBlocks;
             var preferredBlocks = new List<ShapePlayerBlockConfigSnapshot>(config.PreferredPlayerBlocks.Count);
             for (var index = 0; index < config.PreferredPlayerBlocks.Count; index++)
             {
                 var entry = config.PreferredPlayerBlocks[index];
-                preferredBlocks.Add(new ShapePlayerBlockConfigSnapshot(entry.Preset.Id, entry.Count));
+                preferredBlocks.Add(new ShapePlayerBlockConfigSnapshot(
+                    entry.Preset.Id, entry.Count, entry.Preset.BlockSchema?.schema));
             }
             PreferredPlayerBlocks = Array.AsReadOnly(preferredBlocks.ToArray());
         }
@@ -116,10 +160,14 @@ namespace FitMe.GameData
 
         public IReadOnlyList<ShapePlaysetConfigurationError> Errors => _errors;
         public bool IsValid => _errors.Count == 0;
+        public ShapePlaysetFeasibilityStatus FeasibilityStatus { get; }
 
-        internal ShapePlaysetGenerationConfigValidation(ShapePlaysetConfigurationError[] errors)
+        internal ShapePlaysetGenerationConfigValidation(
+            ShapePlaysetConfigurationError[] errors,
+            ShapePlaysetFeasibilityStatus feasibilityStatus = ShapePlaysetFeasibilityStatus.Unproven)
         {
             _errors = Array.AsReadOnly(errors ?? Array.Empty<ShapePlaysetConfigurationError>());
+            FeasibilityStatus = feasibilityStatus;
         }
     }
 
@@ -131,13 +179,18 @@ namespace FitMe.GameData
         public int[,] Footprint => (int[,])_footprint.Clone();
         public BlockPreset PreferredPreset { get; }
         public Vector2Int[] SolvedPlacement => (Vector2Int[])_solvedPlacement.Clone();
+        /// <summary>Clockwise quarter turns from the block footprint to its solved board orientation.</summary>
+        public int PlacementRotationQuarterTurns { get; }
         public bool IsPredefined => PreferredPreset;
 
-        internal GeneratedShapeBlock(int[,] footprint, BlockPreset preferredPreset, Vector2Int[] solvedPlacement)
+        internal GeneratedShapeBlock(
+            int[,] footprint, BlockPreset preferredPreset,
+            Vector2Int[] solvedPlacement, int placementRotationQuarterTurns)
         {
             _footprint = footprint == null ? new int[0, 0] : (int[,])footprint.Clone();
             PreferredPreset = preferredPreset;
             _solvedPlacement = solvedPlacement == null ? Array.Empty<Vector2Int>() : (Vector2Int[])solvedPlacement.Clone();
+            PlacementRotationQuarterTurns = placementRotationQuarterTurns;
         }
     }
 
@@ -178,9 +231,10 @@ namespace FitMe.GameData
 
     public sealed class GeneratedShapePlayset
     {
-        public const int CurrentGeneratorVersion = 1;
+        public const int CurrentGeneratorVersion = 2;
 
         public int Seed { get; }
+        public int AttemptIndex { get; }
         public int GeneratorVersion => CurrentGeneratorVersion;
         public ShapePlaysetGenerationConfigSnapshot Configuration { get; }
         private readonly int[,] _boardMask;
@@ -194,11 +248,13 @@ namespace FitMe.GameData
         public ShapePlaysetDifficultyMetrics Difficulty { get; }
 
         internal GeneratedShapePlayset(
-            int seed, ShapePlaysetGenerationConfig config, int[,] boardMask, int[,] obstacleMask,
+            int seed, int attemptIndex, ShapePlaysetGenerationConfig config,
+            int[,] boardMask, int[,] obstacleMask,
             IReadOnlyList<GeneratedShapeBlock> playerBlocks, bool usedPredefinedBlocks,
             ShapePlaysetDifficultyMetrics difficulty)
         {
             Seed = seed;
+            AttemptIndex = attemptIndex;
             Configuration = new ShapePlaysetGenerationConfigSnapshot(config);
             _boardMask = boardMask == null ? new int[0, 0] : (int[,])boardMask.Clone();
             _obstacleMask = obstacleMask == null ? new int[0, 0] : (int[,])obstacleMask.Clone();
@@ -208,20 +264,51 @@ namespace FitMe.GameData
         }
     }
 
+    public sealed class ShapePlaysetCandidateFailureCounts
+    {
+        public int ObstacleRepairFailures { get; }
+        public int ObstacleRepairBudgetExhaustions { get; }
+        public int TilingFailures { get; }
+        public int TilingBudgetExhaustions { get; }
+        public int GenerationInvariantFailures { get; }
+
+        internal ShapePlaysetCandidateFailureCounts(
+            int obstacleRepairFailures, int obstacleRepairBudgetExhaustions,
+            int tilingFailures, int tilingBudgetExhaustions,
+            int generationInvariantFailures)
+        {
+            ObstacleRepairFailures = obstacleRepairFailures;
+            ObstacleRepairBudgetExhaustions = obstacleRepairBudgetExhaustions;
+            TilingFailures = tilingFailures;
+            TilingBudgetExhaustions = tilingBudgetExhaustions;
+            GenerationInvariantFailures = generationInvariantFailures;
+        }
+    }
+
     public sealed class ShapePlaysetGenerationResult
     {
         public bool IsSuccess => Playset != null && Error == ShapePlaysetGenerationError.None;
         public ShapePlaysetGenerationError Error { get; }
+        public ShapePlaysetGenerationError LastAttemptError { get; }
+        public int AttemptsTried { get; }
         public ShapePlaysetGenerationConfigValidation ConfigurationValidation { get; }
+        public ShapePlaysetCandidateFailureCounts CandidateFailures { get; }
         public GeneratedShapePlayset Playset { get; }
 
         internal ShapePlaysetGenerationResult(
             ShapePlaysetGenerationError error,
             ShapePlaysetGenerationConfigValidation configurationValidation,
-            GeneratedShapePlayset playset)
+            GeneratedShapePlayset playset,
+            int attemptsTried = 0,
+            ShapePlaysetGenerationError lastAttemptError = ShapePlaysetGenerationError.None,
+            ShapePlaysetCandidateFailureCounts candidateFailures = null)
         {
             Error = error;
+            AttemptsTried = attemptsTried;
+            LastAttemptError = lastAttemptError;
             ConfigurationValidation = configurationValidation;
+            CandidateFailures = candidateFailures ??
+                new ShapePlaysetCandidateFailureCounts(0, 0, 0, 0, 0);
             Playset = playset;
         }
     }

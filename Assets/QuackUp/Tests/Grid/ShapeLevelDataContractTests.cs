@@ -84,6 +84,35 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void Validate_RejectsDiagonalOnlyPlayerBlockPreset()
+        {
+            var level = CreateValidLevel();
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                new ShapePlayerBlockEntry(CreateBlockPreset(new[,] { { 1, 0 }, { 0, 1 } }), 1)
+            });
+
+            var result = ShapeLevelDataValidator.Validate(level);
+
+            Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.InvalidPlayerBlockSchema));
+        }
+
+        [Test]
+        public void Validate_AcceptsFourConnectedPresetWithInternalEmptyCells()
+        {
+            var level = CreateValidLevel();
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                new ShapePlayerBlockEntry(
+                    CreateBlockPreset(new[,] { { 1, 1, 1 }, { 1, 0, 0 } }), 1)
+            });
+
+            var result = ShapeLevelDataValidator.Validate(level);
+
+            Assert.That(result.IsValid, Is.True, string.Join("\n", result.Errors));
+        }
+
+        [Test]
         public void ShapeLevelDefinition_DoesNotStoreSeparateIdOrOrder()
         {
             Assert.That(typeof(ShapeLevelDefinition).GetProperty("LevelId"), Is.Null);
