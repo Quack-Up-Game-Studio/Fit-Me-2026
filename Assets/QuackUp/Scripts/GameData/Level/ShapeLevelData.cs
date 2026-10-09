@@ -110,6 +110,23 @@ namespace FitMe.GameData
             return true;
         }
 
+        public bool TryGetId(ShapeLevelDefinition level, out string levelId)
+        {
+            levelId = null;
+            if (!level) return false;
+
+            var keys = Entries.Keys.GetEnumerator();
+            for (var index = 0; index < Entries.Count; index++)
+            {
+                if (!keys.MoveNext()) return false;
+                if (Entries[index] != level) continue;
+                levelId = keys.Current;
+                return true;
+            }
+
+            return false;
+        }
+
         public IReadOnlyList<ShapeLevelDefinition> GetOrderedLevels()
         {
             var ordered = new List<ShapeLevelDefinition>();

@@ -69,6 +69,7 @@ namespace FitMe.Scene
         private GameMode _gameMode = GameMode.Classic;
         private GridPreset _gridPreset;
         private ShapeLevelDefinition _shapeLevelDefinition;
+        private string _shapeLevelId;
 
         private List<GridPreset> _presets;
         private Queue<GridPreset> _tutorialPresets;
@@ -203,8 +204,9 @@ namespace FitMe.Scene
             _gameMode = request.GameMode;
             _gridPreset = request.GridPreset;
             _shapeLevelDefinition = request.ShapeLevel;
+            _shapeLevelId = request.ShapeLevelId;
             CheckGameMode();
-            request = new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition);
+            request = new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition, _shapeLevelId);
             ShapeLevelRuntimeData shapeRuntimeData;
             try
             {
@@ -402,7 +404,12 @@ namespace FitMe.Scene
                 _gridPreset = _gameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
             }
 
-            var request = new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition);
+            if (_shapeLevelDefinition && _config.ShapeLevelCatalogAsset)
+                _config.ShapeLevelCatalogAsset.TryGetId(_shapeLevelDefinition, out _shapeLevelId);
+            else
+                _shapeLevelId = null;
+
+            var request = new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition, _shapeLevelId);
             ShapeLevelRuntimeData shapeRuntimeData;
             try
             {
