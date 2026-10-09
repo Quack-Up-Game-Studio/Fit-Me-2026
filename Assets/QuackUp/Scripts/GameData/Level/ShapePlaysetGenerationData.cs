@@ -62,6 +62,54 @@ namespace FitMe.GameData
         }
     }
 
+    public sealed class ShapePlayerBlockConfigSnapshot
+    {
+        public string PresetId { get; }
+        public int Count { get; }
+
+        internal ShapePlayerBlockConfigSnapshot(string presetId, int count)
+        {
+            PresetId = presetId ?? string.Empty;
+            Count = count;
+        }
+    }
+
+    public sealed class ShapePlaysetGenerationConfigSnapshot
+    {
+        public int MinBoardColumns { get; }
+        public int MaxBoardColumns { get; }
+        public int MinBoardRows { get; }
+        public int MaxBoardRows { get; }
+        public int MinObstacleCells { get; }
+        public int MaxObstacleCells { get; }
+        public int MinGeneratedBlockColumns { get; }
+        public int MaxGeneratedBlockColumns { get; }
+        public int MinGeneratedBlockRows { get; }
+        public int MaxGeneratedBlockRows { get; }
+        public IReadOnlyList<ShapePlayerBlockConfigSnapshot> PreferredPlayerBlocks { get; }
+
+        internal ShapePlaysetGenerationConfigSnapshot(ShapePlaysetGenerationConfig config)
+        {
+            MinBoardColumns = config.MinBoardColumns;
+            MaxBoardColumns = config.MaxBoardColumns;
+            MinBoardRows = config.MinBoardRows;
+            MaxBoardRows = config.MaxBoardRows;
+            MinObstacleCells = config.MinObstacleCells;
+            MaxObstacleCells = config.MaxObstacleCells;
+            MinGeneratedBlockColumns = config.MinGeneratedBlockColumns;
+            MaxGeneratedBlockColumns = config.MaxGeneratedBlockColumns;
+            MinGeneratedBlockRows = config.MinGeneratedBlockRows;
+            MaxGeneratedBlockRows = config.MaxGeneratedBlockRows;
+            var preferredBlocks = new List<ShapePlayerBlockConfigSnapshot>(config.PreferredPlayerBlocks.Count);
+            for (var index = 0; index < config.PreferredPlayerBlocks.Count; index++)
+            {
+                var entry = config.PreferredPlayerBlocks[index];
+                preferredBlocks.Add(new ShapePlayerBlockConfigSnapshot(entry.Preset.Id, entry.Count));
+            }
+            PreferredPlayerBlocks = Array.AsReadOnly(preferredBlocks.ToArray());
+        }
+    }
+
     public sealed class ShapePlaysetGenerationConfigValidation
     {
         private readonly IReadOnlyList<ShapePlaysetConfigurationError> _errors;
@@ -134,6 +182,7 @@ namespace FitMe.GameData
 
         public int Seed { get; }
         public int GeneratorVersion => CurrentGeneratorVersion;
+        public ShapePlaysetGenerationConfigSnapshot Configuration { get; }
         private readonly int[,] _boardMask;
         private readonly int[,] _obstacleMask;
 
@@ -145,11 +194,12 @@ namespace FitMe.GameData
         public ShapePlaysetDifficultyMetrics Difficulty { get; }
 
         internal GeneratedShapePlayset(
-            int seed, int[,] boardMask, int[,] obstacleMask,
+            int seed, ShapePlaysetGenerationConfig config, int[,] boardMask, int[,] obstacleMask,
             IReadOnlyList<GeneratedShapeBlock> playerBlocks, bool usedPredefinedBlocks,
             ShapePlaysetDifficultyMetrics difficulty)
         {
             Seed = seed;
+            Configuration = new ShapePlaysetGenerationConfigSnapshot(config);
             _boardMask = boardMask == null ? new int[0, 0] : (int[,])boardMask.Clone();
             _obstacleMask = obstacleMask == null ? new int[0, 0] : (int[,])obstacleMask.Clone();
             PlayerBlocks = Array.AsReadOnly(new List<GeneratedShapeBlock>(playerBlocks).ToArray());
