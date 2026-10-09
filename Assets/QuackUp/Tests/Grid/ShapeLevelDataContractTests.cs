@@ -32,12 +32,55 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void ShapeLevelDefinition_PlayerBlocksAreReusableBlockPresetReferences()
+        public void ShapeLevelDefinition_PlayerBlockEntriesSerializePresetAndCount()
         {
             var playerBlocksType = typeof(ShapeLevelDefinition).GetProperty("PlayerBlocks")?.PropertyType;
 
             Assert.That(playerBlocksType, Is.Not.Null);
-            Assert.That(playerBlocksType.GetGenericArguments()[0], Is.EqualTo(typeof(BlockPreset)));
+            var entryType = playerBlocksType.GetGenericArguments()[0];
+            Assert.That(entryType, Is.EqualTo(typeof(ShapePlayerBlockEntry)));
+            Assert.That(entryType.IsSerializable, Is.True);
+            Assert.That(entryType.GetProperty("Preset")?.PropertyType, Is.EqualTo(typeof(BlockPreset)));
+            Assert.That(entryType.GetProperty("Count")?.PropertyType, Is.EqualTo(typeof(int)));
+            Assert.That(entryType.GetField("_preset", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.IsDefined(typeof(SerializeField), inherit: true), Is.True);
+            Assert.That(entryType.GetField("_count", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.IsDefined(typeof(SerializeField), inherit: true), Is.True);
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_ExpandsGroupedCountsToIndividualRuntimeBlocksInOrder()
+        {
+            var level = CreateValidLevel();
+            var singleCellPreset = CreateBlockPreset(new[,] { { 1 } });
+            var twoCellPreset = CreateBlockPreset(new[,] { { 1, 1 } });
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                new ShapePlayerBlockEntry(singleCellPreset, 2),
+                new ShapePlayerBlockEntry(twoCellPreset, 1)
+            });
+
+            var runtimeData = level.ToRuntimeData();
+
+            Assert.That(runtimeData.PlayerBlocks, Has.Count.EqualTo(3));
+            Assert.That(runtimeData.PlayerBlocks[0], Is.SameAs(singleCellPreset));
+            Assert.That(runtimeData.PlayerBlocks[1], Is.SameAs(singleCellPreset));
+            Assert.That(runtimeData.PlayerBlocks[2], Is.SameAs(twoCellPreset));
+        }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        public void Validate_RejectsNonPositivePlayerBlockEntryCount(int count)
+        {
+            var level = CreateValidLevel();
+            var preset = CreateBlockPreset(new[,] { { 1, 1 } });
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                new ShapePlayerBlockEntry(preset, count)
+            });
+
+            var result = ShapeLevelDataValidator.Validate(level);
+            Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.InvalidPlayerBlockCount));
         }
 
         [Test]
@@ -108,10 +151,10 @@ namespace FitMe.Grid.Tests
                     petrified = true
                 };
             }
-            var playerBlocks = new List<BlockPreset>();
-            for (var i = 0; i < 5; i++)
-                playerBlocks.Add(CreateBlockPreset(new[,] { { 1, 1 } }));
-            SetPrivateField(level, "_playerBlocks", playerBlocks);
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                CreatePlayerBlockEntry(new[,] { { 1, 1 } }, 5)
+            });
 
             var runtimeData = level.ToRuntimeData();
 
@@ -129,6 +172,11 @@ namespace FitMe.Grid.Tests
             var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
             preset.BlockSchema.schema = schema;
             return preset;
+        }
+
+        private ShapePlayerBlockEntry CreatePlayerBlockEntry(int[,] schema, int count)
+        {
+            return new ShapePlayerBlockEntry(CreateBlockPreset(schema), count);
         }
 
         [Test]
@@ -155,9 +203,9 @@ namespace FitMe.Grid.Tests
         public void Validate_RejectsBlockCapacityMismatch()
         {
             var level = CreateValidLevel();
-            SetPrivateField(level, "_playerBlocks", new List<BlockPreset>
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
             {
-                CreateBlockPreset(new[,] { { 1, 1 } })
+                new ShapePlayerBlockEntry(CreateBlockPreset(new[,] { { 1, 1 } }), 1)
             });
 
             var result = ShapeLevelDataValidator.Validate(level);
@@ -212,7 +260,7 @@ namespace FitMe.Grid.Tests
 
             Assert.That(runtimeData.Board, Is.SameAs(level.Board));
             Assert.That(runtimeData.PlayerBlocks, Has.Count.EqualTo(2));
-            Assert.That(runtimeData.PlayerBlocks[0], Is.SameAs(level.PlayerBlocks[0]));
+            Assert.That(runtimeData.PlayerBlocks[0], Is.SameAs(level.PlayerBlocks[0].Preset));
             Assert.That(runtimeData.Obstacles, Has.Count.EqualTo(1));
             Assert.That(runtimeData.Obstacles[0].Schema.schema, Is.EqualTo(new[,] { { 1 }, { 1 } }));
             Assert.That(runtimeData.Obstacles[0].Anchor, Is.EqualTo(Vector2Int.zero));
@@ -303,10 +351,9 @@ namespace FitMe.Grid.Tests
 
             var definition = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
             SetPrivateField(definition, "_board", board);
-            SetPrivateField(definition, "_playerBlocks", new List<BlockPreset>
+            SetPrivateField(definition, "_playerBlocks", new List<ShapePlayerBlockEntry>
             {
-                CreateBlockPreset(new[,] { { 1, 1 } }),
-                CreateBlockPreset(new[,] { { 1, 1 } })
+                CreatePlayerBlockEntry(new[,] { { 1, 1 } }, 2)
             });
             return definition;
         }

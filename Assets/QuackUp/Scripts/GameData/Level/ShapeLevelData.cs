@@ -25,6 +25,26 @@ namespace FitMe.GameData
         EmptyCatalog,
         MissingCatalogKey,
         NullLevelDefinition,
+        NullPlayerBlockEntry,
+        InvalidPlayerBlockCount,
+    }
+
+    [Serializable]
+    public sealed class ShapePlayerBlockEntry
+    {
+        [SerializeField] private BlockPreset _preset;
+        [SerializeField, Min(1)] private int _count = 1;
+
+        public BlockPreset Preset => _preset;
+        public int Count => _count;
+
+        public ShapePlayerBlockEntry() { }
+
+        public ShapePlayerBlockEntry(BlockPreset preset, int count)
+        {
+            _preset = preset;
+            _count = count;
+        }
     }
 
     public sealed class ShapeLevelValidationResult
@@ -46,11 +66,11 @@ namespace FitMe.GameData
     public sealed class ShapeLevelDefinition : ScriptableObject
     {
         [SerializeField] private GridPreset _board;
-        [SerializeField] private List<BlockPreset> _playerBlocks = new();
+        [SerializeField] private List<ShapePlayerBlockEntry> _playerBlocks = new();
 
         public GridPreset Board => _board;
-        public IReadOnlyList<BlockPreset> PlayerBlocks =>
-            _playerBlocks ?? (IReadOnlyList<BlockPreset>)Array.Empty<BlockPreset>();
+        public IReadOnlyList<ShapePlayerBlockEntry> PlayerBlocks =>
+            _playerBlocks ?? (IReadOnlyList<ShapePlayerBlockEntry>)Array.Empty<ShapePlayerBlockEntry>();
 
         public ShapeLevelRuntimeData ToRuntimeData()
         {
@@ -59,10 +79,15 @@ namespace FitMe.GameData
                 throw new InvalidOperationException(
                     $"Shape level '{name}' is invalid: {string.Join(", ", validation.Errors)}");
 
+            var runtimePlayerBlocks = new List<BlockPreset>();
+            foreach (var entry in PlayerBlocks)
+            for (var i = 0; i < entry.Count; i++)
+                runtimePlayerBlocks.Add(entry.Preset);
+
             return new ShapeLevelRuntimeData(
                 Board,
                 ShapeLevelObstacleBuilder.Build(Board),
-                new List<BlockPreset>(PlayerBlocks));
+                runtimePlayerBlocks);
         }
     }
 
@@ -269,22 +294,31 @@ namespace FitMe.GameData
                 }
             }
 
-            var playerAtomCount = 0;
-            foreach (var block in level.PlayerBlocks)
+            long playerAtomCount = 0;
+            foreach (var entry in level.PlayerBlocks)
             {
-                if (!block)
+                if (entry == null)
+                {
+                    result.Add(ShapeLevelValidationError.NullPlayerBlockEntry);
+                    continue;
+                }
+
+                var hasValidCount = entry.Count > 0;
+                if (!hasValidCount) result.Add(ShapeLevelValidationError.InvalidPlayerBlockCount);
+
+                if (!entry.Preset)
                 {
                     result.Add(ShapeLevelValidationError.NullPlayerBlockPreset);
                     continue;
                 }
 
-                if (!TryCountPresetCells(block, out var blockCellCount))
+                if (!TryCountPresetCells(entry.Preset, out var blockCellCount))
                 {
                     result.Add(ShapeLevelValidationError.InvalidPlayerBlockSchema);
                     continue;
                 }
 
-                playerAtomCount += blockCellCount;
+                if (hasValidCount) playerAtomCount += (long)blockCellCount * entry.Count;
             }
 
             if (playerAtomCount != playableCount - obstacleCellCount)
