@@ -16,16 +16,16 @@ MonoBehaviour:
   androidBannerTestId: ca-app-pub-3940256099942544/6300978111
   androidBannerProdId: ca-app-pub-1737894207840657/5082361310
   iosBannerTestId: ca-app-pub-3940256099942544/2934735716
-  iosBannerProdId: ca-app-pub-3940256099942544/2934735716
+  iosBannerProdId: ca-app-pub-REPLACE/IOS_BANNER_PROD
   androidAdaptiveBannerTestId: ca-app-pub-3940256099942544/9214589741
   androidAdaptiveBannerProdId: ca-app-pub-1737894207840657/4242862875
   iosAdaptiveBannerTestId: ca-app-pub-3940256099942544/2435281174
-  iosAdaptiveBannerProdId: ca-app-pub-3940256099942544/2435281174
+  iosAdaptiveBannerProdId: ca-app-pub-REPLACE/IOS_ADAPTIVE_PROD
   androidRewardedTestId: ca-app-pub-3940256099942544/5224354917
   androidRewardedProdId: ca-app-pub-1737894207840657/9545846120
   iosRewardedTestId: ca-app-pub-3940256099942544/1712485313
-  iosRewardedProdId: ca-app-pub-3940256099942544/1712485313
+  iosRewardedProdId: ca-app-pub-REPLACE/IOS_REWARDED_PROD
   androidInterstitialTestId: ca-app-pub-3940256099942544/1033173712
   androidInterstitialProdId: ca-app-pub-1737894207840657/7472299473
   iosInterstitialTestId: ca-app-pub-3940256099942544/4411468910
-  iosInterstitialProdId: ca-app-pub-3940256099942544/4411468910
+  iosInterstitialProdId: ca-app-pub-REPLACE/IOS_INTERSTITIAL_PROD

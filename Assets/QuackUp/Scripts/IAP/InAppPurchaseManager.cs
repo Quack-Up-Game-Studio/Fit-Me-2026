@@ -157,18 +157,18 @@ namespace QuackUp.IAP
 #endif
 
             catalogProvider.AddProduct(ProductIds.Energy2, ProductType.Consumable,
-                new StoreSpecificIds() { { ProductIds.Energy2, GooglePlay.Name } });
+                new StoreSpecificIds() { { ProductIds.Energy2, GooglePlay.Name }, { ProductIds.Energy2, AppleAppStore.Name } });
             catalogProvider.AddProduct(ProductIds.Energy3, ProductType.Consumable,
-                new StoreSpecificIds() { { ProductIds.Energy3, GooglePlay.Name } });
+                new StoreSpecificIds() { { ProductIds.Energy3, GooglePlay.Name }, { ProductIds.Energy3, AppleAppStore.Name } });
             catalogProvider.AddProduct(ProductIds.MaxEnergy, ProductType.Consumable,
-                new StoreSpecificIds() { { ProductIds.MaxEnergy, GooglePlay.Name } });
+                new StoreSpecificIds() { { ProductIds.MaxEnergy, GooglePlay.Name }, { ProductIds.MaxEnergy, AppleAppStore.Name } });
 
             catalogProvider.AddProduct(ProductIds.MonthlyPass, ProductType.Subscription,
-                new StoreSpecificIds() { { ProductIds.MonthlyPass, GooglePlay.Name } });
+                new StoreSpecificIds() { { ProductIds.MonthlyPass, GooglePlay.Name }, { ProductIds.MonthlyPass, AppleAppStore.Name } });
             catalogProvider.AddProduct(ProductIds.QuarterlyPass, ProductType.Subscription,
-                new StoreSpecificIds() { { ProductIds.QuarterlyPass, GooglePlay.Name } });
+                new StoreSpecificIds() { { ProductIds.QuarterlyPass, GooglePlay.Name }, { ProductIds.QuarterlyPass, AppleAppStore.Name } });
             catalogProvider.AddProduct(ProductIds.AnnuallyPass, ProductType.Subscription,
-                new StoreSpecificIds() { { ProductIds.AnnuallyPass, GooglePlay.Name } });
+                new StoreSpecificIds() { { ProductIds.AnnuallyPass, GooglePlay.Name }, { ProductIds.AnnuallyPass, AppleAppStore.Name } });
 
             _catalogProvider = catalogProvider;
         }

@@ -26,6 +26,8 @@ namespace QuackUp.GPGS
             {
                 installer.Install(builder);
             }
+#elif UNITY_IOS
+            // iOS: ใช้ Apple Game Center แทน GPGS — ต้องสร้าง iOSSocialInstaller แยก
 #endif
         }
     }
