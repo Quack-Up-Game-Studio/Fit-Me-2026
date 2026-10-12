@@ -241,6 +241,48 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void GenerationDoesNotMutateProfileSettingsOrPreferredBlockSchemas()
+        {
+            var profileType = typeof(ShapeLevelDefinition).Assembly.GetType(
+                "FitMe.GameData.ShapePlaysetGenerationProfile");
+            Assert.That(profileType, Is.Not.Null);
+            var profile = Keep(ScriptableObject.CreateInstance(profileType));
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            var originalSchema = new[,] { { 1, 1 } };
+            preset.BlockSchema.schema = (int[,])originalSchema.Clone();
+            SetPrivateField(profile, "_minBoardColumns", 2);
+            SetPrivateField(profile, "_maxBoardColumns", 2);
+            SetPrivateField(profile, "_minBoardRows", 2);
+            SetPrivateField(profile, "_maxBoardRows", 2);
+            SetPrivateField(profile, "_minObstacleCells", 0);
+            SetPrivateField(profile, "_maxObstacleCells", 0);
+            SetPrivateField(profile, "_minGeneratedBlockColumns", 1);
+            SetPrivateField(profile, "_maxGeneratedBlockColumns", 2);
+            SetPrivateField(profile, "_minGeneratedBlockRows", 1);
+            SetPrivateField(profile, "_maxGeneratedBlockRows", 2);
+            SetPrivateField(profile, "_minPlayableRegionCells", 1);
+            SetPrivateField(profile, "_maxCandidateAttempts", 1);
+            SetPrivateField(profile, "_preferredPlayerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                new(preset, 1)
+            });
+
+            var createConfig = profileType.GetMethod("CreateConfig", BindingFlags.Instance | BindingFlags.Public);
+            Assert.That(createConfig, Is.Not.Null);
+            var config = (ShapePlaysetGenerationConfig)createConfig.Invoke(profile, null);
+            var result = ShapePlaysetGenerator.Generate(config, seed: 9);
+
+            Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
+            Assert.That(GetPrivateField(profile, "_minBoardColumns"), Is.EqualTo(2));
+            Assert.That(GetPrivateField(profile, "_maxBoardColumns"), Is.EqualTo(2));
+            var preferredBlocks = (List<ShapePlayerBlockEntry>)GetPrivateField(profile, "_preferredPlayerBlocks");
+            Assert.That(preferredBlocks, Has.Count.EqualTo(1));
+            Assert.That(preferredBlocks[0].Preset, Is.SameAs(preset));
+            Assert.That(preferredBlocks[0].Count, Is.EqualTo(1));
+            AssertMatricesEqual(originalSchema, preset.BlockSchema.schema);
+        }
+
+        [Test]
         public void EditorAssetCreatorCreatesInlineLevelAndNeverOverwritesExistingAsset()
         {
             _assetFolderPath = $"Assets/__ShapePlaysetGenerationProfileTests_{System.Guid.NewGuid():N}";
@@ -325,6 +367,13 @@ namespace FitMe.Grid.Tests
             for (var column = 0; column < expected.GetLength(1); column++)
                 Assert.That(actual[row, column], Is.EqualTo(expected[row, column]),
                     $"Matrix mismatch at row {row}, column {column}.");
+        }
+
+        private static object GetPrivateField(object target, string fieldName)
+        {
+            var field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null, $"Expected serialized field {fieldName}.");
+            return field.GetValue(target);
         }
 
         private static void SetPrivateField(object target, string fieldName, object value)

@@ -1,0 +1,19 @@
+{
+  "name": "FitMe.GameData.Editor",
+  "rootNamespace": "FitMe.GameData.Editor",
+  "references": [
+    "FitMe.GameData",
+    "FitMe.Grid"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,9 +1,20 @@
 # Shape Level Generation: Editor and Runtime Integration Plan
 
-**Status:** Planning draft based on the design choices approved in chat. This document authorizes planning only; implementation still follows the Fit-Me review/approval workflow.
+**Status:** Implementation in progress. The user authorized implementation in chat on 2026-10-12; each Git add/commit/push still requires review and explicit approval for its exact scope.
 **Worktree:** `.worktrees/shape-playset-generator`
-**Branch / baseline:** `feature/shape-playset-generator` at `c0b6516a` (`fix(shape-mode): accept obstacle counts for larger boards`). Worktree was clean when this plan was started.
+**Branch / baseline:** `feature/shape-playset-generator`; implementation continues from the previously approved generator/data/runtime checkpoints.
 **Related contract:** [`shape_level_data_contract.md`](shape_level_data_contract.md)
+
+## Implementation status — 2026-10-12
+
+- [x] Deterministic generator and existing manual/preset compatibility retained.
+- [x] Odin-backed `ShapeLevelDefinition`, mixed ordered player-block entries, validation, and normalized Shape Mode runtime consumers implemented in prior approved checkpoints.
+- [x] Level/catalog ScriptableObject script mapping and asset save/reload behavior verified.
+- [x] Separate generation-profile asset implemented and save/reload-tested (`fc4c7e21`).
+- [x] Generated-result conversion and serialized origin-only provenance implemented; generated masks, mixed block order, preset references, inline footprints, config snapshot, and provisional metrics survive asset save/reload (`e1bf936c`).
+- [ ] Editor-only asset creator and generator window are implemented in the worktree; asset creation is EditMode-tested, and the window compiles in the Editor assembly. The last full Grid run before the new Inspector contract probes passed 119/119. The latest expanded run passed 121/122: `InlineFootprintInspectorUsesOdinMatrixAndPreservingResizeAction` exposed a resize-preservation defect that remains to be fixed.
+- [ ] Final broader EditMode/PlayMode verification and final review remain.
+- [ ] Manual Editor and gameplay smoke checks remain: Editor GUI capture was unavailable in this environment (`computer_use` reported no `DISPLAY`), so do not treat the visual/interactive checks below as passed.
 
 ## Goal
 
