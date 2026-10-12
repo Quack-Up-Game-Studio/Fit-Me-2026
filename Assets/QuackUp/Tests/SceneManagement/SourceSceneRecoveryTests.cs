@@ -97,7 +97,8 @@ namespace QuackUp.SceneManagement.Tests
                 null,
                 null,
                 null,
-                new PendingScenePayload());
+                new PendingScenePayload(),
+                null);
             try
             {
                 typeof(LevelManager).GetField("_shapeLevelDefinition", BindingFlags.Instance | BindingFlags.NonPublic)
