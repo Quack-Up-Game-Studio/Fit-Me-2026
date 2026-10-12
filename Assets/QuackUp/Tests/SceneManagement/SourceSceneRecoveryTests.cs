@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using FitMe.GameData;
 using FitMe.Grid;
 using FitMe.Panel;
 using FitMe.Scene;
@@ -63,8 +64,68 @@ namespace QuackUp.SceneManagement.Tests
                 UnityEngine.Object.DestroyImmediate(mainConfig); UnityEngine.Object.DestroyImmediate(levelConfig);
             }
         }
+        [Test]
+        public void LevelShapeMode_DoesNotFallBackToLegacyGridPresetForGeneratedDefinition()
+        {
+            using var hub = new Hub();
+            var gridObject = new GameObject("Generated level selection grid");
+            var gridConfig = ScriptableObject.CreateInstance<GridManagerConfig>();
+            var levelConfig = ScriptableObject.CreateInstance<LevelManagerConfig>();
+            var legacyDatabase = ScriptableObject.CreateInstance<LevelDatabase>();
+            var legacyPreset = ScriptableObject.CreateInstance<GridPreset>();
+            var generatedLevel = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+            legacyDatabase.LevelPresets = new List<GridPreset> { legacyPreset };
+            typeof(LevelManagerConfig).GetProperty(nameof(LevelManagerConfig.ShapeLevelDatabase))
+                .SetValue(levelConfig, legacyDatabase);
+            generatedLevel.SetGeneratedContent(
+                new[,] { { 1 } },
+                new[,] { { 0 } },
+                Array.Empty<ShapePlayerBlockEntry>());
+
+            var grid = new GridManager(gridObject.AddComponent<UnityEngine.Grid>(), gridConfig, null, null, hub);
+            var ads = new AdsService(null, null, null);
+            var manager = new LevelManager(
+                levelConfig,
+                new AudioManagerMock(),
+                hub,
+                grid,
+                null,
+                null,
+                null,
+                ads,
+                null,
+                null,
+                null,
+                null,
+                new PendingScenePayload());
+            try
+            {
+                typeof(LevelManager).GetField("_shapeLevelDefinition", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(manager, generatedLevel);
+                typeof(LevelManager).GetMethod("LevelShapeMode", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(manager, null);
+
+                var selectedGrid = typeof(LevelManager).GetField("_gridPreset",
+                    BindingFlags.Instance | BindingFlags.NonPublic).GetValue(manager);
+                Assert.That(selectedGrid, Is.Null,
+                    "A generated Shape Level owns its inline board and must not substitute a legacy GridPreset.");
+            }
+            finally
+            {
+                manager.Dispose();
+                grid.Dispose();
+                ads.Dispose();
+                UnityEngine.Object.DestroyImmediate(generatedLevel);
+                UnityEngine.Object.DestroyImmediate(legacyPreset);
+                UnityEngine.Object.DestroyImmediate(legacyDatabase);
+                UnityEngine.Object.DestroyImmediate(levelConfig);
+                UnityEngine.Object.DestroyImmediate(gridConfig);
+                UnityEngine.Object.DestroyImmediate(gridObject);
+            }
+        }
+
         private static object Bgm(object consumer) => consumer.GetType().GetField("_bgmReference",
-            BindingFlags.Instance | BindingFlags.NonPublic).GetValue(consumer);
+             BindingFlags.Instance | BindingFlags.NonPublic).GetValue(consumer);
         private sealed class Banner : BannerAdInstance
         {
             public int Shows;
