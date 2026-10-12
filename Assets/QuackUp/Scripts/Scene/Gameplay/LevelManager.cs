@@ -666,8 +666,7 @@ namespace FitMe.Scene
                 return;
             }
 
-            _pendingScenePayload.Set(new ShapeLevelSelectSceneRequest());
-            _loadSceneManager.LoadScene(SceneType.LevelSelect, UnityEngine.SceneManagement.LoadSceneMode.Single, false)
+            _loadSceneManager.LoadScene(SceneType.ShapeLevelSelect, UnityEngine.SceneManagement.LoadSceneMode.Single, false)
                 .Forget();
         }
 

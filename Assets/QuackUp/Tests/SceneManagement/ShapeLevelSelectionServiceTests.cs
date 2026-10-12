@@ -27,6 +27,12 @@ namespace QuackUp.SceneManagement.Tests
         }
 
         [Test]
+        public void SceneType_ContainsDedicatedShapeLevelSelectScene()
+        {
+            Assert.That(Enum.TryParse<SceneType>("ShapeLevelSelect", out _), Is.True);
+        }
+
+        [Test]
         public void TryDispatchSelection_UsesCatalogIdAndSelectedLevelPayload()
         {
             var first = CreateLevel();

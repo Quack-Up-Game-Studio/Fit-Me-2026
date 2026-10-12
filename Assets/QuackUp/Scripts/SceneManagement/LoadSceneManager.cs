@@ -46,6 +46,7 @@ namespace QuackUp.SceneManagement
         ModeSelect,
         Gameplay,
         Tutorial,
+        ShapeLevelSelect,
     }
 
     public enum LoadSceneStage

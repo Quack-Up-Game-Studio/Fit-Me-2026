@@ -61,8 +61,7 @@ namespace FitMe.Scene
         {
             if (mode == GameMode.LevelShape)
             {
-                _pendingScenePayload.Set(new ShapeLevelSelectSceneRequest());
-                await _loadSceneManager.LoadScene(SceneType.LevelSelect, LoadSceneMode.Single, false);
+                await _loadSceneManager.LoadScene(SceneType.ShapeLevelSelect, LoadSceneMode.Single, false);
                 return;
             }
 
