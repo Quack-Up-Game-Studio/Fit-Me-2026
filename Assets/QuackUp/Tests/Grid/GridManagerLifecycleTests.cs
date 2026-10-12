@@ -625,18 +625,27 @@ namespace FitMe.Grid.Tests
                 _hub);
             var firstBlock = CreateBlockPreset(new[,] { { 1, 1 } });
             var secondBlock = CreateBlockPreset(new[,] { { 1 }, { 1 }, { 1 } });
-            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+            var runtimeData = new ShapeLevelRuntimeData(
                 null,
+                new[,] { { 1, 1, 1, 1, 1 } },
                 Array.Empty<ShapeObstacleRuntimeData>(),
-                new[] { firstBlock, secondBlock })));
+                new[]
+                {
+                    new ShapePlayerBlockRuntimeEntry(firstBlock, firstBlock.BlockSchema.schema),
+                    new ShapePlayerBlockRuntimeEntry(secondBlock, secondBlock.BlockSchema.schema)
+                });
+            _hub.Publish(new SpawnWithShapeLevelEvent(runtimeData));
 
             var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(queueField, Is.Not.Null, "BlockManager must retain authored player blocks");
-            var queue = (Queue<BlockPreset>)queueField.GetValue(blockManager);
-            Assert.That(queue, Has.Count.EqualTo(2));
-            Assert.That(queue.Dequeue(), Is.SameAs(firstBlock));
-            Assert.That(queue.Dequeue(), Is.SameAs(secondBlock));
+            var queue = queueField.GetValue(blockManager);
+            Assert.That(queue.GetType().GetGenericArguments()[0],
+                Is.EqualTo(typeof(ShapePlayerBlockRuntimeEntry)));
+            var entries = (Queue<ShapePlayerBlockRuntimeEntry>)queue;
+            Assert.That(entries, Has.Count.EqualTo(2));
+            Assert.That(entries.Dequeue().Preset, Is.SameAs(firstBlock));
+            Assert.That(entries.Dequeue().Preset, Is.SameAs(secondBlock));
         }
 
         [Test]
@@ -693,25 +702,35 @@ namespace FitMe.Grid.Tests
                 null,
                 Array.Empty<BlockManager.SpawnPointData>(),
                 _hub);
-            var playerBlocks = new[]
+            var inlineFootprint = new[,] { { 1, 1 } };
+            var playerBlockEntries = new[]
             {
-                CreateBlockPreset(new[,] { { 1, 1 } }),
-                CreateBlockPreset(new[,] { { 1 }, { 1 } })
+                new ShapePlayerBlockRuntimeEntry(null, inlineFootprint),
+                new ShapePlayerBlockRuntimeEntry(
+                    CreateBlockPreset(new[,] { { 1 }, { 1 } }),
+                    new[,] { { 1 }, { 1 } })
             };
-            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+            var runtimeData = new ShapeLevelRuntimeData(
                 null,
+                new[,] { { 1, 1, 1, 1 } },
                 Array.Empty<ShapeObstacleRuntimeData>(),
-                playerBlocks)));
+                playerBlockEntries);
+            _hub.Publish(new SpawnWithShapeLevelEvent(runtimeData));
 
             var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
                 BindingFlags.Instance | BindingFlags.NonPublic);
-            var queue = (Queue<BlockPreset>)queueField.GetValue(blockManager);
-            queue.Dequeue();
+            Assert.That(queueField, Is.Not.Null);
+            var queue = queueField.GetValue(blockManager);
+            Assert.That(queue.GetType().GetGenericArguments()[0],
+                Is.EqualTo(typeof(ShapePlayerBlockRuntimeEntry)));
+            var entries = (Queue<ShapePlayerBlockRuntimeEntry>)queue;
+            entries.Dequeue();
 
             blockManager.ResetBag(shouldRespawn: true);
 
-            queue = (Queue<BlockPreset>)queueField.GetValue(blockManager);
-            Assert.That(queue, Has.Count.EqualTo(playerBlocks.Length));
+            entries = (Queue<ShapePlayerBlockRuntimeEntry>)queueField.GetValue(blockManager);
+            Assert.That(entries, Has.Count.EqualTo(playerBlockEntries.Length));
+            Assert.That(entries.Dequeue().Schema, Is.EqualTo(inlineFootprint));
         }
 
         [Test]
