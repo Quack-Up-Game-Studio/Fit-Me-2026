@@ -28,6 +28,16 @@ namespace FitMe.Grid
         }
     }
 
+    public readonly struct SpawnWithShapeLevelEvent
+    {
+        public ShapeLevelRuntimeData RuntimeData { get; }
+
+        public SpawnWithShapeLevelEvent(ShapeLevelRuntimeData runtimeData)
+        {
+            RuntimeData = runtimeData;
+        }
+    }
+
     public struct StartCreateGridEvent
     {
     }
@@ -41,6 +51,7 @@ namespace FitMe.Grid
             ISubscriber<LoadSceneStageEvent> loadSceneStageSubscriber,
             ISubscriber<SpawnWithBlockPresetEvent> startSpawnSubscriber,
             ISubscriber<SpawnWithGridPresetEvent> startGridSpawnSubscriber,
+            ISubscriber<SpawnWithShapeLevelEvent> shapeLevelSpawnSubscriber,
             ISubscriber<StartCreateGridEvent> startCreateGridSubscriber,
             IPublisher<ClearGridEvent> clearGridPublisher,
             ISubscriber<ClearGridEvent> clearGridSubscriber)
@@ -54,6 +65,9 @@ namespace FitMe.Grid
             MessageWrappers[typeof(SpawnWithGridPresetEvent)] = new MessageWrapper<SpawnWithGridPresetEvent>(
                 null,
                 startGridSpawnSubscriber);
+            MessageWrappers[typeof(SpawnWithShapeLevelEvent)] = new MessageWrapper<SpawnWithShapeLevelEvent>(
+                null,
+                shapeLevelSpawnSubscriber);
             MessageWrappers[typeof(StartCreateGridEvent)] = new MessageWrapper<StartCreateGridEvent>(
                 null,
                 startCreateGridSubscriber);

@@ -20,6 +20,7 @@ namespace FitMe.Scene
         [field: SerializeField] public AnimationCurve OriginalLevelCurve { get; private set; }
         [field: SerializeField] public int ShapeLevelsPerCycle { get; private set; } = 24;
         [field: SerializeField] public LevelDatabase ShapeLevelDatabase { get; private set; }
+        [field: SerializeField] public ShapeLevelCatalog ShapeLevelCatalogAsset { get; private set; }
         [field: SerializeField] public LevelDatabase TutorialLevelDatabase { get; private set; }
         [field: SerializeField] public AnimationCurve ShapeLevelCurve { get; private set; }
         

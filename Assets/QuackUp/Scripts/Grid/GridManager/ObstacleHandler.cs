@@ -42,7 +42,7 @@ namespace FitMe.Grid
         {
             var disposableBuilder = Disposable.CreateBuilder();
             _gridManager.OnCellsCreated
-                .Subscribe(_ => CreateObstacles(_gridManager.CurrentGridPreset.ObstacleMode))
+                .Subscribe(_ => CreateObstaclesForCurrentLevel())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
@@ -65,6 +65,40 @@ namespace FitMe.Grid
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(obstacleMode), obstacleMode, null);
+            }
+        }
+
+        private void CreateObstaclesForCurrentLevel()
+        {
+            if (!_gridManager.IsGameplay) return;
+
+            var shapeLevelData = _gridManager.CurrentShapeLevelRuntimeData;
+            if (shapeLevelData != null)
+            {
+                CreateShapeObstacles(shapeLevelData);
+                return;
+            }
+
+            CreateObstacles(_gridManager.CurrentGridPreset.ObstacleMode);
+        }
+
+        private void CreateShapeObstacles(ShapeLevelRuntimeData shapeLevelData)
+        {
+            foreach (var obstacle in shapeLevelData.Obstacles)
+            {
+                if (_gridManager.GetCellByArrayIndex(obstacle.Anchor) == null)
+                {
+                    DebugUtils.LogWarning($"Shape obstacle anchor {obstacle.Anchor} is not on the board; skipping it.");
+                    continue;
+                }
+
+                InstantiateBlock(
+                    obstacle.Anchor,
+                    obstacle.Schema,
+                    BlockShape.OneByOne,
+                    obstacle.Color,
+                    obstacle.Petrified,
+                    obstacle.Schema.schema);
             }
         }
 
@@ -192,15 +226,26 @@ namespace FitMe.Grid
             }
         }
 
-        private void InstantiateBlock(Vector2Int topLeftCellArrayIndex, BlockSchema randomSchema, BlockShape shape, BlockColor? color, bool petrified)
+        private void InstantiateBlock(
+            Vector2Int topLeftCellArrayIndex,
+            BlockSchema randomSchema,
+            BlockShape shape,
+            BlockColor? color,
+            bool petrified,
+            int[,] schemaOverride = null)
         {
             var destinationCell = _gridManager.GetCellByArrayIndex(topLeftCellArrayIndex);
             var rotation = Quaternion.Euler(0, 0, randomSchema.Index * 90f);
-            var block = _blockFactory.Create(shape, Vector3.zero, rotation, new InstantiateParameters
-            {
-                parent = null,
-                worldSpace = true,
-            });
+            var block = _blockFactory.Create(
+                shape,
+                Vector3.zero,
+                rotation,
+                new InstantiateParameters
+                {
+                    parent = null,
+                    worldSpace = true,
+                },
+                schemaOverride);
             var scale = new Vector3(_config.CellSize.x, _config.CellSize.y, 1f);
             block.GameObject.transform.localScale = scale;
             var topLeftBlockAtom = block.Model.Atoms

@@ -31,7 +31,11 @@ namespace FitMe.Panel
     {
         public ReactiveCommand ToMainMenuCommand { get; } = new();
         public ReactiveCommand ToRetryCommand { get; } = new();
+        public ReactiveCommand ToNextShapeLevelCommand { get; } = new();
+        public ReactiveCommand ToShapeLevelSelectCommand { get; } = new();
         public ReactiveCommand<DisplayResultCommandData> DisplayResultCommand { get; } = new();
+        public ReactiveProperty<bool> IsShapeLevelResult { get; } = new(false);
+        public ReactiveProperty<bool> CanGoToNextShapeLevel { get; } = new(false);
         public Observable<Unit> OnResultVisible => _onResultVisible;
         private readonly Subject<Unit> _onResultVisible = new();
         
@@ -120,6 +124,12 @@ namespace FitMe.Panel
         {
             _scoreBeforeSave = score;
             _fitMeBeforeSave = fitMe;
+        }
+
+        public void ConfigureShapeLevelResult(bool isShapeLevelResult, bool canGoToNextShapeLevel)
+        {
+            IsShapeLevelResult.Value = isShapeLevelResult;
+            CanGoToNextShapeLevel.Value = isShapeLevelResult && canGoToNextShapeLevel;
         }
 
         protected override void OnVisible()

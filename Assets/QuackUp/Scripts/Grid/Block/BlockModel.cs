@@ -36,6 +36,7 @@ namespace FitMe.Grid
     {
         private readonly BlockConfig _config;
         private readonly AtomFactory _atomFactory;
+        private readonly List<BlockSchema> _blockSchemas = new();
         
         [Inject]
         public BlockModel(
@@ -57,6 +58,14 @@ namespace FitMe.Grid
         public BlockShape BlockShape { get; private set; }
         public List<AtomInstance> Atoms { get; private set; } = new(); 
         public BlockPreset BlockPreset { get; private set; }
+        public IReadOnlyList<BlockSchema> BlockSchemas
+        {
+            get
+            {
+                if (_blockSchemas.Count > 0) return _blockSchemas;
+                return BlockPreset ? BlockPreset.BlockSchemas : Array.Empty<BlockSchema>();
+            }
+        }
         public ReactiveProperty<BlockState> BlockState { get; set; } = new(Grid.BlockState.Normal);
         public List<CellInstance> BlockCells { get; set; }
         public int SpawnIndex { get; set; }
@@ -69,17 +78,29 @@ namespace FitMe.Grid
         #endregion
 
         #region Schema
-        public void GenerateAtom(BlockShape blockShape, BlockPreset preset, BlockInstance instance)
+        public void GenerateAtom(BlockShape blockShape, BlockPreset preset, BlockInstance instance, int[,] schemaOverride = null)
         {
-            var row = preset.BlockSize.y;
-            var column = preset.BlockSize.x;
+            var schema = schemaOverride ?? preset.BlockSchema.schema;
+            var row = schema.GetLength(0);
+            var column = schema.GetLength(1);
             BlockShape = blockShape;
             BlockPreset = preset;
+            if (schemaOverride == null)
+            {
+                preset.GenerateSchema();
+                _blockSchemas.Clear();
+                _blockSchemas.AddRange(preset.BlockSchemas);
+            }
+            else
+            {
+                SetShapeSchema(schemaOverride);
+            }
+
             for (var x = 0; x < row; x++)
             {
                 for (var y = 0; y < column; y++)
                 {
-                    if (preset.BlockSchema.schema[x, y] == 0)
+                    if (schema[x, y] == 0)
                     {
                         continue;
                     }
@@ -121,15 +142,26 @@ namespace FitMe.Grid
             // {
             //     Atoms.ForEach(a => a.SpriteRenderer.enabled = false);
             // }
-            BlockPreset.GenerateSchema();
             return;
 
             bool HasElement(int x, int y)
             {
                 if (x < 0 || x >= row || y < 0 || y >= column)
                     return false;
-                return preset.BlockSchema.schema[x, y] == 1;
+                return schema[x, y] == 1;
             }
+        }
+
+        public void SetShapeSchema(int[,] schema)
+        {
+            if (schema == null || schema.GetLength(0) == 0 || schema.GetLength(1) == 0)
+                throw new ArgumentException("Block schema must have non-zero dimensions.", nameof(schema));
+
+            _blockSchemas.Clear();
+            _blockSchemas.Add(new BlockSchema(schema, 0));
+            _blockSchemas.Add(new BlockSchema(ArrayHelper.Rotate270(schema), 1));
+            _blockSchemas.Add(new BlockSchema(ArrayHelper.Rotate180(schema), 2));
+            _blockSchemas.Add(new BlockSchema(ArrayHelper.Rotate90(schema), 3));
         }
         #endregion
         

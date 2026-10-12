@@ -103,6 +103,13 @@ namespace FitMe.Grid.Tests
             return obj;
         }
 
+        private BlockPreset CreateBlockPreset(int[,] schema)
+        {
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            preset.BlockSchema.schema = schema;
+            return preset;
+        }
+
         private void SetManagerField(string name, object value)
         {
             var field = typeof(GridManager).GetField(name,
@@ -267,6 +274,159 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ValidatePlacement_RejectsStageHole()
+        {
+            SetUpOneCellPlacement();
+            var preset = Keep(ScriptableObject.CreateInstance<GridPreset>());
+            preset.GridSize = Vector2Int.one;
+            preset.PresetGridType = GridType.Custom;
+            preset.customGrid = new[,] { { 0 } };
+            SetManagerField("<CurrentGridPreset>k__BackingField", preset);
+
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.False);
+        }
+
+        [Test]
+        public void Placement_PreviewAndCommitUseSameCell_AndSnapAtomToExactCenter()
+        {
+            SetUpOneCellPlacement();
+            var cellCenter = _grid.GetCellCenterWorld(Vector3Int.zero);
+            var atom = _blockModel.Atoms[0];
+            atom.GameObject.transform.SetParent(_block.GameObject.transform, true);
+            atom.GameObject.transform.position = cellCenter + new Vector3(0.23f, -0.17f, 0f);
+            _block.GameObject.transform.position = Vector3.zero;
+
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.True);
+            Assert.That(_cell.State.Value, Is.EqualTo(CellState.CanBePlaced));
+            Assert.That(_cell.CurrentAtom.Value, Is.Null);
+
+            Assert.That(_manager.TryPlaceBlock(_block, updateGrid: false), Is.True);
+
+            Assert.That(_cell.CurrentAtom.Value, Is.SameAs(atom));
+            Assert.That(_blockModel.BlockCells, Has.Count.EqualTo(1));
+            Assert.That(_blockModel.BlockCells[0].Model, Is.SameAs(_cell));
+            Assert.That(atom.GameObject.transform.position, Is.EqualTo(cellCenter));
+            Assert.That(_cell.State.Value, Is.EqualTo(CellState.None));
+        }
+
+        [Test]
+        public void ValidatePlacement_ClearsStalePreviewWhenTargetBecomesOccupied()
+        {
+            SetUpOneCellPlacement();
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.True);
+            Assert.That(_cell.State.Value, Is.EqualTo(CellState.CanBePlaced));
+
+            _cell.CurrentAtom.Value = _blockModel.Atoms[0];
+
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.False);
+            Assert.That(_cell.State.Value, Is.EqualTo(CellState.None));
+        }
+
+        [Test]
+        public void Placement_PreservesPlacementScoreFitEventAndGridRegistration()
+        {
+            SetUpOneCellPlacement();
+            ScoreEvent? scoreEvent = null;
+            FitTypeEvent? fitEvent = null;
+            using var scoreSubscription = _manager.OnScoreAdded.Subscribe(value => scoreEvent = value);
+            using var fitSubscription = _manager.OnFitCheck.Subscribe(value => fitEvent = value);
+
+            Assert.That(_manager.TryPlaceBlock(_block, updateGrid: true), Is.True);
+
+            Assert.That(scoreEvent.HasValue, Is.True);
+            Assert.That(scoreEvent.Value.ScoreType, Is.EqualTo(ScoreTypes.Placement));
+            Assert.That(fitEvent.HasValue, Is.True);
+            Assert.That(fitEvent.Value.FitType, Is.EqualTo(FitType.FitMe));
+            Assert.That(fitEvent.Value.Block, Is.SameAs(_block));
+            Assert.That(_manager.BlocksOnGrid, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void ReorderRenderingOrder_AssignsStableAscendingOrders()
+        {
+            SetUpOneCellPlacement();
+            var secondModel = new BlockModel(null, null);
+            _additionalBlockModels.Add(secondModel);
+            var secondViewModel = new BlockViewModel(secondModel);
+            var secondBlock = new BlockInstance(secondModel, secondViewModel, null,
+                Keep(new GameObject("Lifecycle second block")));
+            var firstOrder = -1;
+            var secondOrder = -1;
+            using var firstSubscription = _blockViewModel.SetSortingOrderCommand.Subscribe(value => firstOrder = value);
+            using var secondSubscription = secondViewModel.SetSortingOrderCommand.Subscribe(value => secondOrder = value);
+            ((ObservableList<GridBlockData>)_manager.BlocksOnGrid).Add(new GridBlockData(_block, Disposable.Empty));
+            ((ObservableList<GridBlockData>)_manager.BlocksOnGrid).Add(new GridBlockData(secondBlock, Disposable.Empty));
+
+            _manager.ReorderRenderingOrder();
+
+            Assert.That(firstOrder, Is.EqualTo(0));
+            Assert.That(secondOrder, Is.EqualTo(2));
+            secondViewModel.Dispose();
+            secondViewModel.BlockInteractionState.Dispose();
+            secondViewModel.SetSortingLayerCommand.Dispose();
+            secondViewModel.SetSortingOrderCommand.Dispose();
+            secondViewModel.ExplodeCommand.Dispose();
+            secondViewModel.ScaleInCommand.Dispose();
+            secondViewModel.RotateCommand.Dispose();
+            secondViewModel.DestroyCommand.Dispose();
+        }
+
+        [Test]
+        public void ClearGrid_RaisesLifecycleEventsAndClearsCommittedOccupancy()
+        {
+            SetUpOneCellPlacement();
+            Assert.That(_manager.TryPlaceBlock(_block, updateGrid: false), Is.True);
+            var aboutToClearCount = 0;
+            var clearedCount = 0;
+            using var aboutToClear = _manager.OnAboutToClearGrid.Subscribe(_ => aboutToClearCount++);
+            using var cleared = _manager.OnClearGrid.Subscribe(_ => clearedCount++);
+
+            var clearGrid = typeof(GridManager).GetMethod(nameof(GridManager.ClearGrid));
+            var operation = clearGrid.Invoke(_manager, new object[] { true, false });
+            var awaiter = operation.GetType().GetMethod("GetAwaiter").Invoke(operation, null);
+            awaiter.GetType().GetMethod("GetResult").Invoke(awaiter, null);
+
+            Assert.That(aboutToClearCount, Is.EqualTo(1));
+            Assert.That(clearedCount, Is.EqualTo(1));
+            Assert.That(_cell.CurrentAtom.Value, Is.Null);
+            Assert.That(_manager.BlocksOnGrid, Is.Empty);
+        }
+
+        [Test]
+        public void Placement_PreparesAllCellsBeforeVetoAndDoesNotPartiallyCommitIfCallbackOccupiesCell()
+        {
+            SetUpOneCellPlacement();
+            var preset = Keep(ScriptableObject.CreateInstance<GridPreset>());
+            preset.GridSize = new Vector2Int(2, 1);
+            SetManagerField("<CurrentGridPreset>k__BackingField", preset);
+            var secondCellModel = new CellModel();
+            _additionalCellModels.Add(secondCellModel);
+            _cell.ArrayIndex.Value = Vector2Int.zero;
+            var secondCellObject = Keep(new GameObject("Lifecycle second cell"));
+            secondCellObject.transform.position = _grid.GetCellCenterWorld(Vector3Int.right);
+            var secondCell = new CellInstance(secondCellModel, null, secondCellObject);
+            secondCellModel.ArrayIndex.Value = new Vector2Int(0, 1);
+            var firstCell = new CellInstance(_cell, null, Keep(new GameObject("Lifecycle first cell")));
+            SetManagerField("_cellArray", new CellInstance[,] { { firstCell, secondCell } });
+            AddAtomAt(secondCellObject.transform.position);
+
+            var callbackSawUnoccupiedCells = false;
+            using var subscription = _manager.OnAboutToPlaceBlock.Subscribe(_ =>
+            {
+                callbackSawUnoccupiedCells = _cell.CurrentAtom.Value == null &&
+                                             secondCellModel.CurrentAtom.Value == null;
+                secondCellModel.CurrentAtom.Value = _blockModel.Atoms[0];
+            });
+
+            Assert.That(_manager.ValidatePlacement(_blockModel), Is.True);
+            Assert.That(_manager.TryPlaceBlock(_block, updateGrid: false), Is.False);
+            Assert.That(callbackSawUnoccupiedCells, Is.True);
+            Assert.That(_cell.CurrentAtom.Value, Is.Null, "commit must not partially occupy the first cell");
+            Assert.That(secondCellModel.CurrentAtom.Value, Is.SameAs(_blockModel.Atoms[0]));
+            Assert.That(_manager.BlocksOnGrid, Is.Empty);
+        }
+
+        [Test]
         public void BlockPreset_GenerateSchemaDoesNotRebuildUnchangedSchemas()
         {
             var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
@@ -366,6 +526,31 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void CheckAvailableBlock_UsesRuntimeGeometryInsteadOfVisualPresetSchema()
+        {
+            SetUpOneCellPlacement();
+            var blockModel = SetBlockPreset(new[,] { { 1 } });
+            blockModel.SetShapeSchema(new[,] { { 1, 1 }, { 1, 0 } });
+
+            var canPlaceBlock = _manager.CheckAvailableBlock(new List<BlockModel> { blockModel }, out var availableBlocks);
+
+            Assert.That(canPlaceBlock, Is.False);
+            Assert.That(availableBlocks, Is.Empty);
+        }
+
+        [Test]
+        public void SpawnWithShapeLevelEvent_MakesRuntimeDataAvailableToGridConsumers()
+        {
+            var runtimeData = new ShapeLevelRuntimeData(null, null, null);
+
+            _hub.Publish(new SpawnWithShapeLevelEvent(runtimeData));
+
+            var property = typeof(GridManager).GetProperty("CurrentShapeLevelRuntimeData");
+            Assert.That(property, Is.Not.Null, "GridManager must expose the active authored level data");
+            Assert.That(property.GetValue(_manager), Is.SameAs(runtimeData));
+        }
+
+        [Test]
         public void CheckForContact_CollectsConnectedSameColorBlocksOnce()
         {
             SetUpOneCellPlacement(withViewModel: false);
@@ -427,6 +612,67 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void BlockManager_QueuesAuthoredPlayerBlocksInOrderOnShapeLevelEvent()
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+            var firstBlock = CreateBlockPreset(new[,] { { 1, 1 } });
+            var secondBlock = CreateBlockPreset(new[,] { { 1 }, { 1 }, { 1 } });
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                null,
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                new[] { firstBlock, secondBlock })));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(queueField, Is.Not.Null, "BlockManager must retain authored player blocks");
+            var queue = (Queue<BlockPreset>)queueField.GetValue(blockManager);
+            Assert.That(queue, Has.Count.EqualTo(2));
+            Assert.That(queue.Dequeue(), Is.SameAs(firstBlock));
+            Assert.That(queue.Dequeue(), Is.SameAs(secondBlock));
+        }
+
+        [Test]
+        public void ResetBag_WhenContinuingShapeLevelRestoresAuthoredPlayerBlockQueue()
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+            var playerBlocks = new[]
+            {
+                CreateBlockPreset(new[,] { { 1, 1 } }),
+                CreateBlockPreset(new[,] { { 1 }, { 1 } })
+            };
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                null,
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                playerBlocks)));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var queue = (Queue<BlockPreset>)queueField.GetValue(blockManager);
+            queue.Dequeue();
+
+            blockManager.ResetBag(shouldRespawn: true);
+
+            queue = (Queue<BlockPreset>)queueField.GetValue(blockManager);
+            Assert.That(queue, Has.Count.EqualTo(playerBlocks.Length));
+        }
+
+        [Test]
         public void Swap_DoesNothingWhenSpawnBagIsEmpty()
         {
             SetUpOneCellPlacement();
@@ -481,6 +727,28 @@ namespace FitMe.Grid.Tests
             using var obstacleHandler = CreateObstacleHandler(preset);
 
             Assert.DoesNotThrow(() => GenerateObstacles(obstacleHandler));
+        }
+
+        [Test]
+        public void CreateObstacles_UsesAuthoredLevelInsteadOfLegacyObstacleGeneration()
+        {
+            SetUpOneCellPlacement(withViewModel: false);
+            SetManagerField("<IsGameplay>k__BackingField", true);
+            var board = (GridPreset)typeof(GridManager)
+                .GetProperty(nameof(GridManager.CurrentGridPreset))
+                .GetValue(_manager);
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                board,
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                Array.Empty<BlockPreset>())));
+            var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
+            preset.BlockSchema.schema = new[,] { { 1 } };
+            preset.GenerateSchema();
+            using var obstacleHandler = CreateObstacleHandler(preset);
+            var cellsCreated = (Subject<Unit>)typeof(GridManager).GetField("_onCellsCreated",
+                BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_manager);
+
+            Assert.DoesNotThrow(() => cellsCreated.OnNext(Unit.Default));
         }
 
         [TestCase("OnCellsCreated")]
@@ -542,23 +810,33 @@ namespace FitMe.Grid.Tests
 
         private sealed class CountingHub : IMessageHub, IDisposable
         {
-            private readonly List<IDisposable> _streams = new();
+            private readonly Dictionary<Type, IDisposable> _streams = new();
             public int ActiveHandlers { get; private set; }
-            public void Publish<TMessage>(TMessage message) { }
+            public void Publish<TMessage>(TMessage message) => GetStream<TMessage>().OnNext(message);
             public IDisposable Subscribe<TMessage>(Action<TMessage> action)
             {
                 ActiveHandlers++;
-                return Disposable.Create(() => ActiveHandlers--);
+                var subscription = GetStream<TMessage>().Subscribe(action);
+                return Disposable.Create(() =>
+                {
+                    subscription.Dispose();
+                    ActiveHandlers--;
+                });
             }
-            public Observable<TMessage> GetObservable<TMessage>()
+            public Observable<TMessage> GetObservable<TMessage>() => GetStream<TMessage>();
+
+            private Subject<TMessage> GetStream<TMessage>()
             {
-                var subject = new Subject<TMessage>();
-                _streams.Add(subject);
-                return subject;
+                if (!_streams.TryGetValue(typeof(TMessage), out var stream))
+                {
+                    stream = new Subject<TMessage>();
+                    _streams.Add(typeof(TMessage), stream);
+                }
+                return (Subject<TMessage>)stream;
             }
             public void Dispose()
             {
-                foreach (var stream in _streams) stream.Dispose();
+                foreach (var stream in _streams.Values) stream.Dispose();
             }
         }
 

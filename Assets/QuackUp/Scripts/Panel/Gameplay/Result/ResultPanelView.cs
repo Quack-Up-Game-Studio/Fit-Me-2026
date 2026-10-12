@@ -21,6 +21,8 @@ namespace FitMe.Panel
         [SerializeField] private GameObject notEnoughEnergyBlock;
         [SerializeField] private UIButton3D mainMenuButton;
         [SerializeField] private UIButton3D retryButton;
+        [SerializeField] private UIButton3D nextLevelButton;
+        [SerializeField] private UIButton3D returnToLevelSelectButton;
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private TMP_Text fitText;
         [SerializeField] private ParticleSystem ringLight;
@@ -60,6 +62,35 @@ namespace FitMe.Panel
                 .Subscribe(_ => OnRetry())
                 .AddTo(ref disposableBuilder);
             
+            if (nextLevelButton)
+                nextLevelButton.Button.OnClickAsObservable()
+                    .Subscribe(_ => ViewModel.ToNextShapeLevelCommand.Execute(Unit.Default))
+                    .AddTo(ref disposableBuilder);
+
+            if (returnToLevelSelectButton)
+                returnToLevelSelectButton.Button.OnClickAsObservable()
+                    .Subscribe(_ => ViewModel.ToShapeLevelSelectCommand.Execute(Unit.Default))
+                    .AddTo(ref disposableBuilder);
+
+            ViewModel.IsShapeLevelResult
+                .Subscribe(isShapeLevel =>
+                {
+                    mainMenuButton.gameObject.SetActive(!isShapeLevel);
+                    if (nextLevelButton) nextLevelButton.gameObject.SetActive(isShapeLevel);
+                    if (returnToLevelSelectButton) returnToLevelSelectButton.gameObject.SetActive(isShapeLevel);
+                })
+                .AddTo(ref disposableBuilder);
+
+            ViewModel.CanGoToNextShapeLevel
+                .Subscribe(canGoNext =>
+                {
+                    if (!nextLevelButton) return;
+                    nextLevelButton.gameObject.SetActive(ViewModel.IsShapeLevelResult.Value && canGoNext);
+                    nextLevelButton.Button.interactable = canGoNext;
+                    nextLevelButton.ApplyTint(canGoNext ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
+                })
+                .AddTo(ref disposableBuilder);
+
             ViewModel.ScoreText
                 .Subscribe(text => scoreText.text = text)
                 .AddTo(ref disposableBuilder);
@@ -77,6 +108,9 @@ namespace FitMe.Panel
             ViewModel.InfiniteEnergy
                 .Subscribe(_ => OnEnergyUpdated())
                 .AddTo(ref disposableBuilder);
+            ViewModel.IsShapeLevelResult
+                .Subscribe(_ => OnEnergyUpdated())
+                .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }
         
@@ -91,7 +125,7 @@ namespace FitMe.Panel
             var shouldEnable = ViewModel.HasEnoughEnergy(1);
             retryButton.Button.interactable = shouldEnable;
             retryButton.ApplyTint(shouldEnable ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
-            notEnoughEnergyBlock.SetActive(!shouldEnable);
+            notEnoughEnergyBlock.SetActive(!shouldEnable && !ViewModel.IsShapeLevelResult.Value);
         }
 
         protected override void OnVisibilityStateChanged(VisibilityState state)
@@ -128,11 +162,22 @@ namespace FitMe.Panel
             retryButton.ApplyTint(ButtonSelectionState.Disabled);
             mainMenuButton.Button.interactable = false;
             mainMenuButton.ApplyTint(ButtonSelectionState.Disabled);
+            if (nextLevelButton)
+            {
+                nextLevelButton.Button.interactable = false;
+                nextLevelButton.ApplyTint(ButtonSelectionState.Disabled);
+            }
+            if (returnToLevelSelectButton)
+            {
+                returnToLevelSelectButton.Button.interactable = false;
+                returnToLevelSelectButton.ApplyTint(ButtonSelectionState.Disabled);
+            }
+
             await UniTask.WaitForSeconds(scoreDisplayInterval, cancellationToken: cancellationToken);
             await ShowHighScore(data);
             await UniTask.WaitForSeconds(scoreDisplayInterval, cancellationToken: cancellationToken);
             await ShowFitMeScore(data);
-            if (!ViewModel.HasEnoughEnergy(1))
+            if (!ViewModel.IsShapeLevelResult.Value && !ViewModel.HasEnoughEnergy(1))
             {
                 await UniTask.WaitForSeconds(outOfEnergyPopUpDelay, cancellationToken: cancellationToken);
                 var promise = new Promise<Unit>();
@@ -142,6 +187,19 @@ namespace FitMe.Panel
             OnEnergyUpdated();
             mainMenuButton.Button.interactable = true;
             mainMenuButton.ApplyTint(ButtonSelectionState.Normal);
+            if (nextLevelButton)
+            {
+                var canGoNext = ViewModel.IsShapeLevelResult.Value && ViewModel.CanGoToNextShapeLevel.Value;
+                nextLevelButton.Button.interactable = canGoNext;
+                nextLevelButton.ApplyTint(canGoNext ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
+            }
+            if (returnToLevelSelectButton)
+            {
+                returnToLevelSelectButton.Button.interactable = ViewModel.IsShapeLevelResult.Value;
+                returnToLevelSelectButton.ApplyTint(ViewModel.IsShapeLevelResult.Value
+                    ? ButtonSelectionState.Normal
+                    : ButtonSelectionState.Disabled);
+            }
             data.Promise.TrySetResult(Unit.Default);
         }
         

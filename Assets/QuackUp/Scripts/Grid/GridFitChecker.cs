@@ -12,7 +12,7 @@ namespace FitMe.Grid
             availableBlocks = new List<BlockModel>();
             foreach (var block in blocksToCheck)
             {
-                var schemas = block.BlockPreset.BlockSchemas;
+                var schemas = block.BlockSchemas;
                 for (var i = 0; i < schemas.Count; i++)
                 {
                     if (!CanFit(vacantSchema, schemas[i].schema)) continue;

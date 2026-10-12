@@ -3,6 +3,8 @@
   "rootNamespace": "FitMe.Grid.Tests",
   "references": [
     "FitMe.Grid",
+    "FitMe.GameData",
+    "FitMe.Scene",
     "FitMe.Shared",
     "QuackUp.Utils",
     "QuackUp.Audio",
@@ -18,7 +20,9 @@
     "nunit.framework.dll",
     "Sirenix.Serialization.dll",
     "R3.dll",
-    "ObservableCollections.dll"
+    "ObservableCollections.dll",
+    "MessagePack.dll",
+    "Semver.dll"
   ],
   "autoReferenced": false,
   "defineConstraints": ["UNITY_INCLUDE_TESTS"],

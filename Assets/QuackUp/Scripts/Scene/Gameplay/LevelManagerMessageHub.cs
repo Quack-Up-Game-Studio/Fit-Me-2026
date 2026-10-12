@@ -15,6 +15,7 @@ namespace FitMe.Scene
         public LevelManagerMessageHub(
             IPublisher<SpawnWithBlockPresetEvent> startSpawnBlockPublisher,
             IPublisher<SpawnWithGridPresetEvent> startSpawnPublisher,
+            IPublisher<SpawnWithShapeLevelEvent> shapeLevelSpawnPublisher,
             IPublisher<StartCreateGridEvent> startCreateGridPublisher,
             IPublisher<DifficultyChangeEvent> difficultyChangePublisher,
             ISubscriber<DifficultyChangeEvent> difficultyChangeSubscriber,
@@ -27,6 +28,9 @@ namespace FitMe.Scene
                 null);
             MessageWrappers[typeof(SpawnWithGridPresetEvent)] = new MessageWrapper<SpawnWithGridPresetEvent>(
                 startSpawnPublisher,
+                null);
+            MessageWrappers[typeof(SpawnWithShapeLevelEvent)] = new MessageWrapper<SpawnWithShapeLevelEvent>(
+                shapeLevelSpawnPublisher,
                 null);
             MessageWrappers[typeof(StartCreateGridEvent)] = new MessageWrapper<StartCreateGridEvent>(
                 startCreateGridPublisher,
