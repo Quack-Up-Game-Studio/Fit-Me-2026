@@ -49,6 +49,53 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ShapeLevelDefinition_InlineFootprintsRemainEditableAndOrderedInRuntimeData()
+        {
+            var inlineEntryConstructor = typeof(ShapePlayerBlockEntry).GetConstructor(
+                new[] { typeof(int[,]), typeof(int) });
+            Assert.That(inlineEntryConstructor, Is.Not.Null,
+                "Inline footprint entries need the same direct schema authoring model as preset-backed entries.");
+
+            var level = CreateValidLevel();
+            var inlineEntry = (ShapePlayerBlockEntry)inlineEntryConstructor.Invoke(new object[]
+            {
+                new[,] { { 1, 1 }, { 1, 0 } },
+                1
+            });
+            var singleCellPreset = CreateBlockPreset(new[,] { { 1 } });
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                inlineEntry,
+                new ShapePlayerBlockEntry(singleCellPreset, 1)
+            });
+
+            var runtimeData = level.ToRuntimeData();
+            var entriesProperty = runtimeData.GetType().GetProperty("PlayerBlockEntries");
+            Assert.That(entriesProperty, Is.Not.Null,
+                "The normalized runtime contract must retain ordered inline and preset-backed block schemas.");
+            var entries = (IList)entriesProperty.GetValue(runtimeData);
+
+            Assert.That(entries, Has.Count.EqualTo(2));
+            Assert.That(entries[0].GetType().GetProperty("Schema").GetValue(entries[0]),
+                Is.EqualTo(new[,] { { 1, 1 }, { 1, 0 } }));
+            Assert.That(entries[0].GetType().GetProperty("Preset").GetValue(entries[0]), Is.Null);
+            Assert.That(entries[1].GetType().GetProperty("Preset").GetValue(entries[1]), Is.SameAs(singleCellPreset));
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_UsesOdinSerializationWithoutChangingManualDefault()
+        {
+            Assert.That(typeof(ShapeLevelDefinition).BaseType.FullName,
+                Is.EqualTo("Sirenix.OdinInspector.SerializedScriptableObject"));
+
+            var level = CreateValidLevel();
+            var boardSourceProperty = typeof(ShapeLevelDefinition).GetProperty("BoardSource");
+            Assert.That(boardSourceProperty, Is.Not.Null,
+                "The level Inspector must expose the Manual/Generated board-source dropdown.");
+            Assert.That(boardSourceProperty.GetValue(level).ToString(), Is.EqualTo("Manual"));
+        }
+
+        [Test]
         public void ShapeLevelDefinition_ExpandsGroupedCountsToIndividualRuntimeBlocksInOrder()
         {
             var level = CreateValidLevel();
