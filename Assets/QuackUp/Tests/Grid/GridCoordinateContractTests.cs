@@ -70,6 +70,37 @@ namespace FitMe.Grid.Tests
             }
         }
 
+        [Test]
+        public void ShapeRuntimeMask_CreatesOnlyNormalizedPlayableCellsWithoutAReusablePreset()
+        {
+            var fixture = new GridCreationFixture();
+            var mask = new[,] { { 1, 0, 1 }, { 0, 1, 0 } };
+            var runtimeData = new ShapeLevelRuntimeData(
+                null,
+                mask,
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                Array.Empty<ShapePlayerBlockRuntimeEntry>());
+
+            try
+            {
+                fixture.CreateShapeGrid(runtimeData);
+
+                Assert.That(fixture.Cells.GetLength(0), Is.EqualTo(2));
+                Assert.That(fixture.Cells.GetLength(1), Is.EqualTo(3));
+                Assert.That(fixture.Cells[0, 0], Is.Not.Null);
+                Assert.That(fixture.Cells[0, 1], Is.Null);
+                Assert.That(fixture.Cells[0, 2], Is.Not.Null);
+                Assert.That(fixture.Cells[1, 0], Is.Null);
+                Assert.That(fixture.Cells[1, 1], Is.Not.Null);
+                Assert.That(fixture.Cells[1, 2], Is.Null);
+                Assert.That(fixture.CreatedCells, Has.Count.EqualTo(3));
+            }
+            finally
+            {
+                fixture.Dispose();
+            }
+        }
+
         private sealed class GridCreationFixture : IDisposable
         {
             private readonly GridPreset _preset;
@@ -117,6 +148,18 @@ namespace FitMe.Grid.Tests
                 isGameplay.SetValue(_manager, true);
                 var createCells = typeof(GridManagerType).GetMethod("CreateCells", BindingFlags.Instance | BindingFlags.NonPublic);
                 createCells.Invoke(_manager, null);
+            }
+
+            public void CreateShapeGrid(ShapeLevelRuntimeData runtimeData)
+            {
+                _preset.PresetGridType = GridType.Rectangle;
+                _preset.GridSize = runtimeData.GridSize;
+                typeof(GridManagerType).GetProperty(nameof(GridManagerType.CurrentShapeLevelRuntimeData))
+                    .SetValue(_manager, runtimeData);
+                typeof(GridManagerType).GetProperty(nameof(GridManagerType.IsGameplay))
+                    .SetValue(_manager, true);
+                typeof(GridManagerType).GetMethod("CreateCells", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(_manager, null);
             }
 
             public void Dispose()

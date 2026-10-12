@@ -1,0 +1,324 @@
+using System;
+using FitMe.GameData;
+using FitMe.Grid;
+using UnityEditor;
+using UnityEngine;
+
+namespace FitMe.GameData.Editor
+{
+    public sealed class ShapePlaysetGenerationEditorWindow : EditorWindow
+    {
+        private static readonly Color[] BlockPalette =
+        {
+            new(0.20f, 0.56f, 0.86f),
+            new(0.34f, 0.72f, 0.42f),
+            new(0.90f, 0.63f, 0.20f),
+            new(0.69f, 0.40f, 0.82f),
+            new(0.15f, 0.72f, 0.72f),
+            new(0.88f, 0.38f, 0.42f),
+            new(0.65f, 0.67f, 0.24f),
+            new(0.40f, 0.52f, 0.78f)
+        };
+
+        [SerializeField] private ShapePlaysetGenerationProfile _profile;
+        [SerializeField] private int _seed = 1;
+        [SerializeField] private Vector2 _scrollPosition;
+        private ShapePlaysetGenerationResult _generationResult;
+        private string _generationMessage;
+        private string _saveMessage;
+        private MessageType _saveMessageType = MessageType.Info;
+
+        [MenuItem("FitMe/Shape Mode/Playset Generator")]
+        private static void OpenWindow()
+        {
+            var window = GetWindow<ShapePlaysetGenerationEditorWindow>("Shape Playset Generator");
+            window.minSize = new Vector2(680f, 520f);
+            window.Show();
+        }
+
+        private void OnGUI()
+        {
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+            EditorGUILayout.LabelField("Shape Playset Generator", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Generate deterministic, solvable Shape Mode content. Generated boards and custom footprints are saved inline in a new ShapeLevelDefinition; existing level or preset assets are not overwritten.",
+                MessageType.Info);
+
+            EditorGUI.BeginChangeCheck();
+            _profile = (ShapePlaysetGenerationProfile)EditorGUILayout.ObjectField(
+                "Generation Profile", _profile, typeof(ShapePlaysetGenerationProfile), false);
+            EditorGUILayout.BeginHorizontal();
+            _seed = EditorGUILayout.IntField("Seed", _seed);
+            if (GUILayout.Button("◀", GUILayout.Width(32f))) StepSeed(-1);
+            if (GUILayout.Button("▶", GUILayout.Width(32f))) StepSeed(1);
+            EditorGUILayout.EndHorizontal();
+            if (EditorGUI.EndChangeCheck()) ClearGeneratedResult();
+
+            if (!_profile)
+            {
+                EditorGUILayout.HelpBox(
+                    "Assign a ShapePlaysetGenerationProfile asset. Create one from Assets → Create → FitMe → GameData → Level → Shape Playset Generation Profile.",
+                    MessageType.Warning);
+                EditorGUILayout.EndScrollView();
+                return;
+            }
+
+            var config = _profile.CreateConfig();
+            var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
+            if (!validation.IsValid)
+                EditorGUILayout.HelpBox($"Profile configuration is invalid: {FormatConfigurationErrors(validation.Errors)}",
+                    MessageType.Error);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUI.BeginDisabledGroup(!validation.IsValid);
+            if (GUILayout.Button("Generate / Refresh", GUILayout.Height(30f))) Generate(config);
+            EditorGUI.EndDisabledGroup();
+            var hasPlayset = _generationResult != null && _generationResult.IsSuccess &&
+                             _generationResult.Playset != null;
+            EditorGUI.BeginDisabledGroup(!hasPlayset);
+            if (GUILayout.Button("Save as New Shape Level…", GUILayout.Height(30f))) SaveGeneratedLevel();
+            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.EndHorizontal();
+
+            if (!string.IsNullOrEmpty(_generationMessage))
+                EditorGUILayout.HelpBox(_generationMessage,
+                    _generationResult != null && _generationResult.IsSuccess ? MessageType.Info : MessageType.Error);
+            if (!string.IsNullOrEmpty(_saveMessage)) EditorGUILayout.HelpBox(_saveMessage, _saveMessageType);
+
+            if (_generationResult != null && !_generationResult.IsSuccess)
+                DrawGenerationFailure(_generationResult);
+            else if (hasPlayset)
+                DrawGeneratedPreview(_generationResult.Playset,
+                    _generationResult.ConfigurationValidation.FeasibilityStatus);
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        private void StepSeed(int delta)
+        {
+            _seed = unchecked(_seed + delta);
+            ClearGeneratedResult();
+            GUI.changed = true;
+        }
+
+        private void ClearGeneratedResult()
+        {
+            _generationResult = null;
+            _generationMessage = null;
+            _saveMessage = null;
+        }
+
+        private void Generate(ShapePlaysetGenerationConfig config)
+        {
+            _generationResult = ShapePlaysetGenerator.Generate(config, _seed);
+            _saveMessage = null;
+            if (_generationResult.IsSuccess)
+            {
+                _generationMessage =
+                    $"Generated successfully with seed {_generationResult.Playset.Seed} on attempt {_generationResult.Playset.AttemptIndex + 1}.";
+            }
+            else
+            {
+                _generationMessage =
+                    $"Generation failed ({_generationResult.Error}) after {_generationResult.AttemptsTried} attempt(s).";
+            }
+        }
+
+        private void DrawGenerationFailure(ShapePlaysetGenerationResult result)
+        {
+            EditorGUILayout.LabelField("Generation diagnostics", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Configuration feasibility",
+                result.ConfigurationValidation.FeasibilityStatus.ToString());
+            if (result.ConfigurationValidation.FeasibilityStatus == ShapePlaysetFeasibilityStatus.Unproven)
+                EditorGUILayout.HelpBox(
+                    "The bounded candidate search did not prove this profile infeasible; its retry/search budgets may have been exhausted.",
+                    MessageType.Warning);
+            EditorGUILayout.LabelField("Last attempt", result.LastAttemptError.ToString());
+            EditorGUILayout.LabelField("Obstacle repair failures", result.CandidateFailures.ObstacleRepairFailures.ToString());
+            EditorGUILayout.LabelField("Obstacle repair budget exhaustions",
+                result.CandidateFailures.ObstacleRepairBudgetExhaustions.ToString());
+            EditorGUILayout.LabelField("Tiling failures", result.CandidateFailures.TilingFailures.ToString());
+            EditorGUILayout.LabelField("Tiling budget exhaustions",
+                result.CandidateFailures.TilingBudgetExhaustions.ToString());
+            EditorGUILayout.LabelField("Invariant failures",
+                result.CandidateFailures.GenerationInvariantFailures.ToString());
+        }
+
+        private void DrawGeneratedPreview(
+            GeneratedShapePlayset playset,
+            ShapePlaysetFeasibilityStatus feasibilityStatus)
+        {
+            var board = playset.BoardMask;
+            var obstacles = playset.ObstacleMask;
+            var difficulty = playset.Difficulty;
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Solved playset preview", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Board dimensions",
+                $"{board.GetLength(1)} columns × {board.GetLength(0)} rows");
+            EditorGUILayout.LabelField("Attempt", $"{playset.AttemptIndex + 1} · generator v{playset.GeneratorVersion}");
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginVertical(GUILayout.Width(380f));
+            DrawSolvedBoard(board, obstacles, playset.PlayerBlocks);
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Provisional difficulty metrics", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Profile feasibility", feasibilityStatus.ToString());
+            if (feasibilityStatus == ShapePlaysetFeasibilityStatus.Unproven)
+                EditorGUILayout.HelpBox(
+                    "The profile search space is unproven. This successful seeded candidate is solvable, but it does not prove every profile range is feasible.",
+                    MessageType.Warning);
+            EditorGUILayout.LabelField("Provisional score",
+                $"{difficulty.ProvisionalDifficultyScore} · score model v{difficulty.ScoreModelVersion}");
+            EditorGUILayout.LabelField("Playable cells", difficulty.PlayableCellCount.ToString());
+            EditorGUILayout.LabelField("Obstacle cells", difficulty.ObstacleCellCount.ToString());
+            EditorGUILayout.LabelField("Player cells / blocks", $"{difficulty.PlayerCellCount} / {difficulty.BlockCount}");
+            EditorGUILayout.LabelField("Legal placements",
+                $"total {difficulty.TotalLegalPlacements}, average {difficulty.AverageLegalPlacementsPerBlock:F1} per block");
+            EditorGUILayout.LabelField("Placements per block range",
+                $"{difficulty.MinimumLegalPlacementsPerBlock}–{difficulty.MaximumLegalPlacementsPerBlock}");
+            EditorGUILayout.LabelField("Obstacle ratio", $"{difficulty.ObstacleRatio:P1}");
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.HelpBox(
+                "Difficulty values are provisional generator heuristics. Saved provenance records the generation origin and does not claim the level remains unedited.",
+                MessageType.Info);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Ordered player blocks", EditorStyles.boldLabel);
+            for (var index = 0; index < playset.PlayerBlocks.Count; index++) DrawPlayerBlock(index, playset.PlayerBlocks[index]);
+        }
+
+        private static void DrawSolvedBoard(
+            int[,] board, int[,] obstacles, System.Collections.Generic.IReadOnlyList<GeneratedShapeBlock> blocks)
+        {
+            var rows = board.GetLength(0);
+            var columns = board.GetLength(1);
+            var blockAtCell = new int[rows, columns];
+            for (var row = 0; row < rows; row++)
+            for (var column = 0; column < columns; column++) blockAtCell[row, column] = -1;
+
+            for (var blockIndex = 0; blockIndex < blocks.Count; blockIndex++)
+            {
+                var placement = blocks[blockIndex].SolvedPlacement;
+                for (var cellIndex = 0; cellIndex < placement.Length; cellIndex++)
+                {
+                    var row = placement[cellIndex].x;
+                    var column = placement[cellIndex].y;
+                    if (row < 0 || row >= rows || column < 0 || column >= columns) continue;
+                    blockAtCell[row, column] = blockIndex;
+                }
+            }
+
+            const float maxPreviewSide = 360f;
+            var cellSize = Mathf.Max(6f, maxPreviewSide / Mathf.Max(rows, columns));
+            var boardRect = GUILayoutUtility.GetRect(
+                columns * cellSize, rows * cellSize,
+                GUILayout.Width(columns * cellSize), GUILayout.Height(rows * cellSize));
+            for (var row = 0; row < rows; row++)
+            for (var column = 0; column < columns; column++)
+            {
+                var cellRect = new Rect(
+                    boardRect.x + column * cellSize, boardRect.y + row * cellSize,
+                    cellSize, cellSize);
+                EditorGUI.DrawRect(cellRect, new Color(0.04f, 0.05f, 0.07f));
+                cellRect.xMin += 1f;
+                cellRect.yMin += 1f;
+                cellRect.xMax -= 1f;
+                cellRect.yMax -= 1f;
+
+                Color color;
+                if (board[row, column] == 0)
+                    color = new Color(0.12f, 0.13f, 0.15f);
+                else if (obstacles[row, column] == 1)
+                    color = new Color(0.76f, 0.24f, 0.18f);
+                else if (blockAtCell[row, column] >= 0)
+                    color = BlockPalette[blockAtCell[row, column] % BlockPalette.Length];
+                else
+                    color = new Color(0.36f, 0.38f, 0.42f);
+                EditorGUI.DrawRect(cellRect, color);
+            }
+
+            EditorGUILayout.LabelField("Board cells are colored by solved block; obstacles are red and void cells are dark.",
+                EditorStyles.miniLabel);
+        }
+
+        private static void DrawPlayerBlock(int index, GeneratedShapeBlock block)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.BeginHorizontal();
+            var blockColorRect = GUILayoutUtility.GetRect(
+                16f, 16f, GUILayout.Width(16f), GUILayout.Height(16f));
+            EditorGUI.DrawRect(blockColorRect, BlockPalette[index % BlockPalette.Length]);
+            var source = block.IsPredefined
+                ? $"Preset · {(block.PreferredPreset ? block.PreferredPreset.name : "<missing preset>")}"
+                : "Generated inline footprint";
+            EditorGUILayout.LabelField($"Block {index + 1} · {source}", EditorStyles.boldLabel);
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.LabelField("Solved cells / clockwise rotation",
+                $"{block.SolvedPlacement.Length} · {block.PlacementRotationQuarterTurns} quarter-turn(s)");
+            DrawFootprint(block.Footprint);
+            EditorGUILayout.EndVertical();
+        }
+
+        private static void DrawFootprint(int[,] footprint)
+        {
+            var rows = footprint.GetLength(0);
+            var columns = footprint.GetLength(1);
+            const float cellSize = 18f;
+            var rect = GUILayoutUtility.GetRect(
+                columns * cellSize, rows * cellSize,
+                GUILayout.Width(columns * cellSize), GUILayout.Height(rows * cellSize));
+            for (var row = 0; row < rows; row++)
+            for (var column = 0; column < columns; column++)
+            {
+                var cellRect = new Rect(
+                    rect.x + column * cellSize, rect.y + row * cellSize,
+                    cellSize, cellSize);
+                EditorGUI.DrawRect(cellRect, new Color(0.04f, 0.05f, 0.07f));
+                cellRect.xMin += 1f;
+                cellRect.yMin += 1f;
+                cellRect.xMax -= 1f;
+                cellRect.yMax -= 1f;
+                EditorGUI.DrawRect(cellRect, footprint[row, column] == 1
+                    ? new Color(0.30f, 0.68f, 0.80f)
+                    : new Color(0.17f, 0.18f, 0.20f));
+            }
+        }
+
+        private void SaveGeneratedLevel()
+        {
+            if (_generationResult?.Playset == null) return;
+            var defaultName = _profile
+                ? $"{_profile.name}_Seed_{_generationResult.Playset.Seed}"
+                : $"ShapeLevel_Seed_{_generationResult.Playset.Seed}";
+            var assetPath = EditorUtility.SaveFilePanelInProject(
+                "Save Generated Shape Level", defaultName, "asset",
+                "Choose a new path. Existing level assets will never be overwritten.");
+            if (string.IsNullOrEmpty(assetPath)) return;
+
+            try
+            {
+                var level = ShapePlaysetGeneratedLevelAssetCreator.CreateNewLevelAsset(
+                    _generationResult.Playset, assetPath);
+                Selection.activeObject = level;
+                EditorGUIUtility.PingObject(level);
+                _saveMessage = $"Saved inline ShapeLevelDefinition: {assetPath}";
+                _saveMessageType = MessageType.Info;
+            }
+            catch (Exception exception)
+            {
+                _saveMessage = exception.Message;
+                _saveMessageType = MessageType.Error;
+            }
+        }
+
+        private static string FormatConfigurationErrors(
+            System.Collections.Generic.IReadOnlyList<ShapePlaysetConfigurationError> errors)
+        {
+            var messages = new string[errors.Count];
+            for (var index = 0; index < errors.Count; index++) messages[index] = errors[index].ToString();
+            return string.Join(", ", messages);
+        }
+    }
+}

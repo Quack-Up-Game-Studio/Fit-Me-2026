@@ -91,7 +91,7 @@ namespace FitMe.Grid
         public Observable<Unit> OnSwap => _onSwap;
         private readonly Subject<Unit> _onSwap = new();
         private Queue<SpawnBlockData> _spawnBag = new();
-        private Queue<BlockPreset> _shapeBlockQueue = new();
+        private Queue<ShapePlayerBlockRuntimeEntry> _shapeBlockQueue = new();
         private ShapeLevelRuntimeData _shapeLevelRuntimeData;
         private readonly List<SpawnBlockData> _blockPool = new();
         private BlockInstance _currentPreviewBlock;
@@ -173,8 +173,8 @@ namespace FitMe.Grid
         private void OnSpawnWithShapeLevel(SpawnWithShapeLevelEvent eventData)
         {
             _shapeLevelRuntimeData = eventData.RuntimeData;
-            _shapeBlockQueue = new Queue<BlockPreset>(
-                _shapeLevelRuntimeData?.PlayerBlocks ?? Array.Empty<BlockPreset>());
+            _shapeBlockQueue = new Queue<ShapePlayerBlockRuntimeEntry>(
+                _shapeLevelRuntimeData?.PlayerBlockEntries ?? Array.Empty<ShapePlayerBlockRuntimeEntry>());
         }
 
         private void OnCellsCreated()
@@ -303,7 +303,8 @@ namespace FitMe.Grid
                 _continued = false;
                 if (_shapeLevelRuntimeData != null)
                 {
-                    _shapeBlockQueue = new Queue<BlockPreset>(_shapeLevelRuntimeData.PlayerBlocks);
+                    _shapeBlockQueue = new Queue<ShapePlayerBlockRuntimeEntry>(
+                        _shapeLevelRuntimeData.PlayerBlockEntries);
                     SpawnShapeBlocks();
                 }
                 else
@@ -357,10 +358,10 @@ namespace FitMe.Grid
                 if (!_spawnPoints[i].IsFree || _shapeBlockQueue.Count == 0) continue;
 
                 var spawnPoint = _spawnPoints[i];
-                var blockPreset = _shapeBlockQueue.Dequeue();
-                if (!blockPreset) continue;
+                var playerBlock = _shapeBlockQueue.Dequeue();
+                if (playerBlock == null) continue;
 
-                var schema = blockPreset.BlockSchema?.schema;
+                var schema = playerBlock.Schema;
                 if (schema == null || schema.GetLength(0) == 0 || schema.GetLength(1) == 0)
                 {
                     DebugUtils.LogWarning("Shape Mode skipped a player block with an empty schema.");
@@ -377,7 +378,7 @@ namespace FitMe.Grid
                     _config.ObjectScale,
                     schema,
                     true,
-                    blockPreset);
+                    playerBlock.Preset);
                 block.Model.SpawnIndex = i;
                 spawnPoint.IsFree = false;
                 spawnPoint.CurrentBlock = block;

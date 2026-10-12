@@ -49,6 +49,119 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ShapeLevelDefinition_InlineFootprintsRemainEditableAndOrderedInRuntimeData()
+        {
+            var inlineEntryConstructor = typeof(ShapePlayerBlockEntry).GetConstructor(
+                new[] { typeof(int[,]), typeof(int) });
+            Assert.That(inlineEntryConstructor, Is.Not.Null,
+                "Inline footprint entries need the same direct schema authoring model as preset-backed entries.");
+
+            var level = CreateValidLevel();
+            var inlineEntry = (ShapePlayerBlockEntry)inlineEntryConstructor.Invoke(new object[]
+            {
+                new[,] { { 1, 1 }, { 1, 0 } },
+                1
+            });
+            var singleCellPreset = CreateBlockPreset(new[,] { { 1 } });
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                inlineEntry,
+                new ShapePlayerBlockEntry(singleCellPreset, 1)
+            });
+
+            var runtimeData = level.ToRuntimeData();
+            var entriesProperty = runtimeData.GetType().GetProperty("PlayerBlockEntries");
+            Assert.That(entriesProperty, Is.Not.Null,
+                "The normalized runtime contract must retain ordered inline and preset-backed block schemas.");
+            var entries = (IList)entriesProperty.GetValue(runtimeData);
+
+            Assert.That(entries, Has.Count.EqualTo(2));
+            Assert.That(entries[0].GetType().GetProperty("Schema").GetValue(entries[0]),
+                Is.EqualTo(new[,] { { 1, 1 }, { 1, 0 } }));
+            Assert.That(entries[0].GetType().GetProperty("Preset").GetValue(entries[0]), Is.Null);
+            Assert.That(entries[1].GetType().GetProperty("Preset").GetValue(entries[1]), Is.SameAs(singleCellPreset));
+        }
+
+        [Test]
+        public void InlineFootprintInspectorUsesOdinMatrixAndPreservingResizeAction()
+        {
+            var entry = new ShapePlayerBlockEntry(new[,] { { 1, 1 }, { 1, 0 } }, 1);
+            var footprintProperty = typeof(ShapePlayerBlockEntry).GetProperty(nameof(ShapePlayerBlockEntry.InlineFootprint));
+            Assert.That(footprintProperty, Is.Not.Null);
+            Assert.That(Array.Exists(footprintProperty.GetCustomAttributes(false),
+                attribute => attribute.GetType().Name == "TableMatrixAttribute"), Is.True,
+                "Inline footprints need the Odin cell-matrix editor.");
+
+            var sizeBackingField = typeof(ShapePlayerBlockEntry).GetField(
+                "<InlineFootprintSize>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(sizeBackingField, Is.Not.Null);
+            Assert.That(sizeBackingField.IsDefined(typeof(SerializeField), inherit: true), Is.True,
+                "Current footprint dimensions must survive asset serialization.");
+            Assert.That(Array.Exists(sizeBackingField.GetCustomAttributes(false),
+                attribute => attribute.GetType().Name == "ReadOnlyAttribute"), Is.True,
+                "Current dimensions must not be edited before the resize action runs.");
+            var targetProperty = typeof(ShapePlayerBlockEntry).GetProperty(
+                nameof(ShapePlayerBlockEntry.InlineFootprintResizeTarget));
+            Assert.That(targetProperty, Is.Not.Null);
+            var targetBackingField = typeof(ShapePlayerBlockEntry).GetField(
+                "<InlineFootprintResizeTarget>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(targetBackingField, Is.Not.Null);
+            Assert.That(targetBackingField.IsDefined(typeof(SerializeField), inherit: true), Is.True,
+                "Requested dimensions must survive asset serialization.");
+            Assert.That(Array.Exists(targetBackingField.GetCustomAttributes(false),
+                attribute => attribute.GetType().Name == "ReadOnlyAttribute"), Is.False,
+                "Requested resize dimensions must be editable in the Inspector.");
+            var resizeMethod = typeof(ShapePlayerBlockEntry).GetMethod(
+                "RefreshInlineFootprint", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(resizeMethod, Is.Not.Null);
+            Assert.That(Array.Exists(resizeMethod.GetCustomAttributes(false),
+                attribute => attribute.GetType().Name == "ButtonAttribute"), Is.True,
+                "The Inspector must expose a resize/refresh action.");
+
+            var setSize = targetProperty.GetSetMethod(nonPublic: true);
+            Assert.That(setSize, Is.Not.Null);
+            setSize.Invoke(entry, new object[] { new Vector2Int(3, 1) });
+            resizeMethod.Invoke(entry, null);
+
+            Assert.That(entry.InlineFootprintSize, Is.EqualTo(new Vector2Int(3, 1)));
+            Assert.That(entry.InlineFootprintResizeTarget, Is.EqualTo(new Vector2Int(3, 1)));
+            Assert.That(entry.InlineFootprint, Is.EqualTo(new[,] { { 1, 1, 0 } }));
+
+            var legacyEntry = new ShapePlayerBlockEntry(new[,] { { 1, 1 }, { 1, 0 } }, 1);
+            setSize.Invoke(legacyEntry, new object[] { Vector2Int.zero });
+            resizeMethod.Invoke(legacyEntry, null);
+            Assert.That(legacyEntry.InlineFootprintSize, Is.EqualTo(new Vector2Int(2, 2)));
+            Assert.That(legacyEntry.InlineFootprint, Is.EqualTo(new[,] { { 1, 1 }, { 1, 0 } }));
+        }
+
+        [Test]
+        public void Validate_RejectsDiagonalOnlyInlinePlayerBlockFootprint()
+        {
+            var level = CreateValidLevel();
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                new ShapePlayerBlockEntry(new[,] { { 1, 0 }, { 0, 1 } }, 1)
+            });
+
+            var result = ShapeLevelDataValidator.Validate(level);
+
+            Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.InvalidPlayerBlockSchema));
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_UsesOdinSerializationWithoutChangingManualDefault()
+        {
+            Assert.That(typeof(ShapeLevelDefinition).BaseType.FullName,
+                Is.EqualTo("Sirenix.OdinInspector.SerializedScriptableObject"));
+
+            var level = CreateValidLevel();
+            var boardSourceProperty = typeof(ShapeLevelDefinition).GetProperty("BoardSource");
+            Assert.That(boardSourceProperty, Is.Not.Null,
+                "The level Inspector must expose the Manual/Generated board-source dropdown.");
+            Assert.That(boardSourceProperty.GetValue(level).ToString(), Is.EqualTo("Manual"));
+        }
+
+        [Test]
         public void ShapeLevelDefinition_ExpandsGroupedCountsToIndividualRuntimeBlocksInOrder()
         {
             var level = CreateValidLevel();
@@ -81,6 +194,35 @@ namespace FitMe.Grid.Tests
 
             var result = ShapeLevelDataValidator.Validate(level);
             Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.InvalidPlayerBlockCount));
+        }
+
+        [Test]
+        public void Validate_RejectsDiagonalOnlyPlayerBlockPreset()
+        {
+            var level = CreateValidLevel();
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                new ShapePlayerBlockEntry(CreateBlockPreset(new[,] { { 1, 0 }, { 0, 1 } }), 1)
+            });
+
+            var result = ShapeLevelDataValidator.Validate(level);
+
+            Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.InvalidPlayerBlockSchema));
+        }
+
+        [Test]
+        public void Validate_AcceptsFourConnectedPresetWithInternalEmptyCells()
+        {
+            var level = CreateValidLevel();
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                new ShapePlayerBlockEntry(
+                    CreateBlockPreset(new[,] { { 1, 1, 1 }, { 1, 0, 0 } }), 1)
+            });
+
+            var result = ShapeLevelDataValidator.Validate(level);
+
+            Assert.That(result.IsValid, Is.True, string.Join("\n", result.Errors));
         }
 
         [Test]
@@ -120,6 +262,59 @@ namespace FitMe.Grid.Tests
             Assert.That(byKey, Is.SameAs(first));
             Assert.That(catalog.GetOrderedLevels()[0], Is.SameAs(first));
             Assert.That(catalog.GetOrderedLevels()[1], Is.SameAs(second));
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_GeneratedInlineContentSurvivesAssetSaveAndReload()
+        {
+            _assetFolderPath = $"Assets/__ShapeLevelSerializationTests_{Guid.NewGuid():N}";
+            AssetDatabase.CreateFolder("Assets", _assetFolderPath.Substring("Assets/".Length));
+            var assetPath = $"{_assetFolderPath}/Generated.asset";
+            var reloadedAssetPath = $"{_assetFolderPath}/Reloaded.asset";
+            var boardMask = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var obstacleMask = new int[2, 3];
+            var inlineFootprint = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var level = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+            level.SetGeneratedContent(boardMask, obstacleMask, new[]
+            {
+                new ShapePlayerBlockEntry(inlineFootprint, 1)
+            });
+
+            AssetDatabase.CreateAsset(level, assetPath);
+            AssetDatabase.SaveAssets();
+            Assert.That(AssetDatabase.CopyAsset(assetPath, reloadedAssetPath), Is.True);
+            AssetDatabase.ImportAsset(reloadedAssetPath, ImportAssetOptions.ForceUpdate);
+
+            var reloaded = AssetDatabase.LoadAssetAtPath<ShapeLevelDefinition>(reloadedAssetPath);
+            Assert.That(reloaded, Is.Not.Null);
+            Assert.That(reloaded.BoardSource, Is.EqualTo(ShapeBoardSource.Generated));
+            Assert.That(reloaded.GeneratedBoardMask, Is.EqualTo(boardMask));
+            Assert.That(reloaded.GeneratedObstacleMask, Is.EqualTo(obstacleMask));
+            Assert.That(reloaded.PlayerBlocks, Has.Count.EqualTo(1));
+            Assert.That(reloaded.PlayerBlocks[0].InlineFootprint, Is.EqualTo(inlineFootprint));
+            Assert.That(reloaded.PlayerBlocks[0].InlineFootprintSize, Is.EqualTo(new Vector2Int(3, 2)));
+            Assert.That(reloaded.PlayerBlocks[0].InlineFootprintResizeTarget, Is.EqualTo(new Vector2Int(3, 2)));
+            Assert.That(reloaded.ToRuntimeData().PlayableMask, Is.EqualTo(boardMask));
+        }
+
+        [Test]
+        public void ShapeLevelCatalog_SurvivesAssetSaveAndReload()
+        {
+            _assetFolderPath = $"Assets/__ShapeLevelCatalogSerializationTests_{Guid.NewGuid():N}";
+            AssetDatabase.CreateFolder("Assets", _assetFolderPath.Substring("Assets/".Length));
+            var assetPath = $"{_assetFolderPath}/Catalog.asset";
+            var reloadedAssetPath = $"{_assetFolderPath}/ReloadedCatalog.asset";
+            var catalog = ScriptableObject.CreateInstance<ShapeLevelCatalog>();
+
+            AssetDatabase.CreateAsset(catalog, assetPath);
+            AssetDatabase.SaveAssets();
+            Assert.That(AssetDatabase.CopyAsset(assetPath, reloadedAssetPath), Is.True);
+            AssetDatabase.ImportAsset(reloadedAssetPath, ImportAssetOptions.ForceUpdate);
+
+            var reloaded = AssetDatabase.LoadAssetAtPath<ShapeLevelCatalog>(reloadedAssetPath);
+            Assert.That(reloaded, Is.Not.Null);
+            Assert.That(reloaded.Levels, Is.Not.Null);
+            Assert.That(reloaded.GetOrderedLevels(), Is.Empty);
         }
 
         [Test]

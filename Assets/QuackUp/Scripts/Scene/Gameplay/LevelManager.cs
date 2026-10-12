@@ -333,8 +333,13 @@ namespace FitMe.Scene
             }
 
             if (_shapeLevelDefinition)
+            {
                 _gridPreset = _shapeLevelDefinition.Board;
-            _gridPreset ??= GetLevelFromPool();
+            }
+            else if (!_gridPreset)
+            {
+                _gridPreset = GetLevelFromPool();
+            }
             _difficultyCurve = _config.ShapeLevelCurve;
             _levelCycle = _config.ShapeLevelsPerCycle;
         }

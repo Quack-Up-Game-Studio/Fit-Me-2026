@@ -5,10 +5,25 @@ using FitMe.Shared;
 using QuackUp.Utils;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace FitMe.GameData
 {
+    public enum ShapeBoardSource
+    {
+        Manual,
+        Generated
+    }
+
+    public enum ShapePlayerBlockSource
+    {
+        Preset,
+        InlineFootprint
+    }
+
     public enum ShapeLevelValidationError
     {
         MissingBoard,
@@ -27,24 +42,124 @@ namespace FitMe.GameData
         NullLevelDefinition,
         NullPlayerBlockEntry,
         InvalidPlayerBlockCount,
+        InvalidPlayerBlockSource,
+        InvalidBoardSource,
+        InvalidGeneratedBoard,
+        InvalidGeneratedObstacleMask,
     }
 
     [Serializable]
+    [ShowOdinSerializedPropertiesInInspector]
     public sealed class ShapePlayerBlockEntry
     {
-        [SerializeField] private BlockPreset _preset;
+        [SerializeField, ShowIf(nameof(Source), ShapePlayerBlockSource.Preset)] private BlockPreset _preset;
         [SerializeField, Min(1)] private int _count = 1;
+        [SerializeField] private ShapePlayerBlockSource _source;
+        [field: SerializeField, MinValue(1), ReadOnly, ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)]
+        public Vector2Int InlineFootprintSize { get; private set; } = new(3, 3);
+        [field: SerializeField, MinValue(1), ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)]
+        public Vector2Int InlineFootprintResizeTarget { get; private set; } = Vector2Int.zero;
+        [SerializeField, HideInInspector] private int[] _inlineFootprintCells = new int[9];
 
         public BlockPreset Preset => _preset;
         public int Count => _count;
+        public ShapePlayerBlockSource Source => _source;
+
+#if UNITY_EDITOR
+        [ShowInInspector, ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)]
+        [TableMatrix(SquareCells = true, Transpose = true, DrawElementMethod = nameof(DrawInlineFootprintCell))]
+#endif
+        public int[,] InlineFootprint
+        {
+            get => GetInlineFootprint();
+            set => SetInlineFootprint(value);
+        }
 
         public ShapePlayerBlockEntry() { }
-
         public ShapePlayerBlockEntry(BlockPreset preset, int count)
         {
             _preset = preset;
             _count = count;
+            _source = ShapePlayerBlockSource.Preset;
         }
+
+        public ShapePlayerBlockEntry(int[,] inlineFootprint, int count)
+        {
+            _count = count;
+            _source = ShapePlayerBlockSource.InlineFootprint;
+            SetInlineFootprint(inlineFootprint);
+        }
+
+        [Button("Refresh Footprint"), ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)]
+        private void RefreshInlineFootprint()
+        {
+            var resizeTarget = InlineFootprintResizeTarget;
+            if (resizeTarget.x <= 0 || resizeTarget.y <= 0) resizeTarget = InlineFootprintSize;
+            var width = Math.Max(1, resizeTarget.x);
+            var height = Math.Max(1, resizeTarget.y);
+            var resized = new int[height, width];
+            var previous = GetInlineFootprint();
+            for (var row = 0; row < Math.Min(previous.GetLength(0), height); row++)
+            for (var column = 0; column < Math.Min(previous.GetLength(1), width); column++)
+                resized[row, column] = previous[row, column];
+            InlineFootprintSize = new Vector2Int(width, height);
+            InlineFootprintResizeTarget = InlineFootprintSize;
+            StoreInlineFootprint(resized);
+        }
+
+        private int[,] GetInlineFootprint()
+        {
+            if (InlineFootprintSize.x <= 0 || InlineFootprintSize.y <= 0) return new int[0, 0];
+            var matrix = new int[InlineFootprintSize.y, InlineFootprintSize.x];
+            if (_inlineFootprintCells == null) return matrix;
+            for (var row = 0; row < matrix.GetLength(0); row++)
+            for (var column = 0; column < matrix.GetLength(1); column++)
+            {
+                var index = row * matrix.GetLength(1) + column;
+                if (index < _inlineFootprintCells.Length) matrix[row, column] = _inlineFootprintCells[index];
+            }
+            return matrix;
+        }
+
+        private void SetInlineFootprint(int[,] matrix)
+        {
+            if (matrix == null)
+            {
+                InlineFootprintSize = Vector2Int.zero;
+                InlineFootprintResizeTarget = Vector2Int.zero;
+                _inlineFootprintCells = Array.Empty<int>();
+                return;
+            }
+
+            InlineFootprintSize = new Vector2Int(matrix.GetLength(1), matrix.GetLength(0));
+            InlineFootprintResizeTarget = InlineFootprintSize;
+            StoreInlineFootprint(matrix);
+        }
+
+        private void StoreInlineFootprint(int[,] matrix)
+        {
+            _inlineFootprintCells = new int[matrix.Length];
+            var index = 0;
+            for (var row = 0; row < matrix.GetLength(0); row++)
+            for (var column = 0; column < matrix.GetLength(1); column++)
+                _inlineFootprintCells[index++] = matrix[row, column];
+        }
+
+#if UNITY_EDITOR
+        private static int DrawInlineFootprintCell(Rect rect, int value)
+        {
+            if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+            {
+                value = value == 1 ? 0 : 1;
+                GUI.changed = true;
+                Event.current.Use();
+            }
+
+            EditorGUI.DrawRect(new Rect(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 2),
+                value == 1 ? Color.green : Color.grey);
+            return value;
+        }
+#endif
     }
 
     public sealed class ShapeLevelValidationResult
@@ -62,95 +177,17 @@ namespace FitMe.GameData
         }
     }
 
-    [CreateAssetMenu(fileName = "Shape Level", menuName = "FitMe/GameData/Level/Shape Level")]
-    public sealed class ShapeLevelDefinition : ScriptableObject
-    {
-        [SerializeField] private GridPreset _board;
-        [SerializeField] private List<ShapePlayerBlockEntry> _playerBlocks = new();
-
-        public GridPreset Board => _board;
-        public IReadOnlyList<ShapePlayerBlockEntry> PlayerBlocks =>
-            _playerBlocks ?? (IReadOnlyList<ShapePlayerBlockEntry>)Array.Empty<ShapePlayerBlockEntry>();
-
-        public ShapeLevelRuntimeData ToRuntimeData()
-        {
-            var validation = ShapeLevelDataValidator.Validate(this);
-            if (!validation.IsValid)
-                throw new InvalidOperationException(
-                    $"Shape level '{name}' is invalid: {string.Join(", ", validation.Errors)}");
-
-            var runtimePlayerBlocks = new List<BlockPreset>();
-            foreach (var entry in PlayerBlocks)
-            for (var i = 0; i < entry.Count; i++)
-                runtimePlayerBlocks.Add(entry.Preset);
-
-            return new ShapeLevelRuntimeData(
-                Board,
-                ShapeLevelObstacleBuilder.Build(Board),
-                runtimePlayerBlocks);
-        }
-    }
-
-    [CreateAssetMenu(fileName = "Shape Level Catalog", menuName = "FitMe/GameData/Level/Shape Level Catalog")]
-    public sealed class ShapeLevelCatalog : SerializedScriptableObject
-    {
-        [OdinSerialize] private OrderedDictionary<string, ShapeLevelDefinition> _levels = new();
-
-        private OrderedDictionary<string, ShapeLevelDefinition> Entries =>
-            _levels ?? (_levels = new OrderedDictionary<string, ShapeLevelDefinition>());
-
-        public IReadOnlyOrderedDictionary<string, ShapeLevelDefinition> Levels => Entries;
-
-        public bool TryGetById(string levelId, out ShapeLevelDefinition level)
-        {
-            level = null;
-            if (string.IsNullOrEmpty(levelId) || !Entries.TryGetValue(levelId, out var candidate) || !candidate)
-                return false;
-            level = candidate;
-            return true;
-        }
-
-        public bool TryGetId(ShapeLevelDefinition level, out string levelId)
-        {
-            levelId = null;
-            if (!level) return false;
-
-            var keys = Entries.Keys.GetEnumerator();
-            for (var index = 0; index < Entries.Count; index++)
-            {
-                if (!keys.MoveNext()) return false;
-                if (Entries[index] != level) continue;
-                levelId = keys.Current;
-                return true;
-            }
-
-            return false;
-        }
-
-        public IReadOnlyList<ShapeLevelDefinition> GetOrderedLevels()
-        {
-            var ordered = new List<ShapeLevelDefinition>();
-            for (var i = 0; i < Entries.Count; i++)
-            {
-                var level = Entries[i];
-                if (level) ordered.Add(level);
-            }
-            return ordered;
-        }
-
-        public ShapeLevelValidationResult Validate() => ShapeLevelDataValidator.Validate(this);
-
-        internal IReadOnlyOrderedDictionary<string, ShapeLevelDefinition> GetLevelsForValidation() => Entries;
-    }
-
     internal static class ShapeLevelObstacleBuilder
     {
         public static List<ShapeObstacleRuntimeData> Build(GridPreset board)
         {
-            var result = new List<ShapeObstacleRuntimeData>();
-            if (!board || board.ObstacleMode != ObstacleMode.Custom) return result;
+            if (!board || board.ObstacleMode != ObstacleMode.Custom) return new List<ShapeObstacleRuntimeData>();
+            return Build(board.CustomObstacleData);
+        }
 
-            var obstacleGrid = board.CustomObstacleData;
+        public static List<ShapeObstacleRuntimeData> Build(ObstacleData[,] obstacleGrid)
+        {
+            var result = new List<ShapeObstacleRuntimeData>();
             if (obstacleGrid == null || obstacleGrid.Length == 0) return result;
 
             var rows = obstacleGrid.GetLength(0);
@@ -226,6 +263,14 @@ namespace FitMe.GameData
             if (!level)
             {
                 result.Add(ShapeLevelValidationError.NullLevelDefinition);
+                return result;
+            }
+
+            if (level.BoardSource == ShapeBoardSource.Generated)
+                return ValidateGeneratedLevel(level, result);
+            if (level.BoardSource != ShapeBoardSource.Manual)
+            {
+                result.Add(ShapeLevelValidationError.InvalidBoardSource);
                 return result;
             }
 
@@ -311,6 +356,70 @@ namespace FitMe.GameData
                 }
             }
 
+            var playerAtomCount = CountPlayerAtoms(level, result);
+            if (playerAtomCount != playableCount - obstacleCellCount)
+                result.Add(ShapeLevelValidationError.BlockCapacityMismatch);
+
+            return result;
+        }
+
+        private static ShapeLevelValidationResult ValidateGeneratedLevel(
+            ShapeLevelDefinition level,
+            ShapeLevelValidationResult result)
+        {
+            var boardMask = level.GetGeneratedBoardMaskForValidation();
+            var obstacleMask = level.GetGeneratedObstacleMaskForValidation();
+            if (boardMask == null || boardMask.Length == 0)
+            {
+                result.Add(ShapeLevelValidationError.InvalidGeneratedBoard);
+                return result;
+            }
+
+            var rows = boardMask.GetLength(0);
+            var columns = boardMask.GetLength(1);
+            if (rows <= 0 || columns <= 0 || level.GeneratedBoardSize != new Vector2Int(columns, rows))
+            {
+                result.Add(ShapeLevelValidationError.InvalidBoardSize);
+                return result;
+            }
+            if (obstacleMask == null || obstacleMask.GetLength(0) != rows || obstacleMask.GetLength(1) != columns)
+            {
+                result.Add(ShapeLevelValidationError.InvalidGeneratedObstacleMask);
+                return result;
+            }
+
+            var playable = new bool[rows, columns];
+            var playableCount = 0;
+            var obstacleCellCount = 0;
+            for (var row = 0; row < rows; row++)
+            for (var column = 0; column < columns; column++)
+            {
+                var boardValue = boardMask[row, column];
+                var obstacleValue = obstacleMask[row, column];
+                if (boardValue != 0 && boardValue != 1)
+                    result.Add(ShapeLevelValidationError.InvalidGridValue);
+                if (obstacleValue != 0 && obstacleValue != 1)
+                    result.Add(ShapeLevelValidationError.InvalidGeneratedObstacleMask);
+                playable[row, column] = boardValue == 1;
+                if (playable[row, column]) playableCount++;
+                if (obstacleValue != 1) continue;
+                if (!playable[row, column])
+                {
+                    result.Add(ShapeLevelValidationError.ObstacleOnVoidCell);
+                    continue;
+                }
+                obstacleCellCount++;
+            }
+
+            if (playableCount == 0) result.Add(ShapeLevelValidationError.EmptyPlayableBoard);
+            var playerAtomCount = CountPlayerAtoms(level, result);
+            if (playerAtomCount != playableCount - obstacleCellCount)
+                result.Add(ShapeLevelValidationError.BlockCapacityMismatch);
+            return result;
+        }
+
+        private static long CountPlayerAtoms(ShapeLevelDefinition level, ShapeLevelValidationResult result)
+        {
             long playerAtomCount = 0;
             foreach (var entry in level.PlayerBlocks)
             {
@@ -322,26 +431,34 @@ namespace FitMe.GameData
 
                 var hasValidCount = entry.Count > 0;
                 if (!hasValidCount) result.Add(ShapeLevelValidationError.InvalidPlayerBlockCount);
-
-                if (!entry.Preset)
+                int[,] schema;
+                if (entry.Source == ShapePlayerBlockSource.Preset)
                 {
-                    result.Add(ShapeLevelValidationError.NullPlayerBlockPreset);
+                    if (!entry.Preset)
+                    {
+                        result.Add(ShapeLevelValidationError.NullPlayerBlockPreset);
+                        continue;
+                    }
+                    schema = entry.Preset.BlockSchema?.schema;
+                }
+                else if (entry.Source == ShapePlayerBlockSource.InlineFootprint)
+                {
+                    schema = entry.InlineFootprint;
+                }
+                else
+                {
+                    result.Add(ShapeLevelValidationError.InvalidPlayerBlockSource);
                     continue;
                 }
 
-                if (!TryCountPresetCells(entry.Preset, out var blockCellCount))
+                if (!TryCountSchemaCells(schema, out var blockCellCount))
                 {
                     result.Add(ShapeLevelValidationError.InvalidPlayerBlockSchema);
                     continue;
                 }
-
                 if (hasValidCount) playerAtomCount += (long)blockCellCount * entry.Count;
             }
-
-            if (playerAtomCount != playableCount - obstacleCellCount)
-                result.Add(ShapeLevelValidationError.BlockCapacityMismatch);
-
-            return result;
+            return playerAtomCount;
         }
 
         public static ShapeLevelValidationResult Validate(ShapeLevelCatalog catalog)
@@ -379,10 +496,9 @@ namespace FitMe.GameData
             return result;
         }
 
-        private static bool TryCountPresetCells(BlockPreset preset, out int occupiedCellCount)
+        private static bool TryCountSchemaCells(int[,] schema, out int occupiedCellCount)
         {
             occupiedCellCount = 0;
-            var schema = preset.BlockSchema?.schema;
             if (schema == null || schema.GetLength(0) == 0 || schema.GetLength(1) == 0)
                 return false;
 
@@ -395,7 +511,46 @@ namespace FitMe.GameData
                 else if (value != 0) isValid = false;
             }
 
-            return isValid && occupiedCellCount > 0;
+            return isValid && occupiedCellCount > 0 &&
+                   AreFourConnected(schema, occupiedCellCount);
+        }
+
+        private static bool AreFourConnected(int[,] schema, int expectedCellCount)
+        {
+            var visited = new bool[schema.GetLength(0), schema.GetLength(1)];
+            var queue = new Queue<Vector2Int>();
+            var startFound = false;
+            for (var row = 0; row < schema.GetLength(0) && !startFound; row++)
+            for (var column = 0; column < schema.GetLength(1); column++)
+            {
+                if (schema[row, column] != 1) continue;
+                visited[row, column] = true;
+                queue.Enqueue(new Vector2Int(row, column));
+                startFound = true;
+                break;
+            }
+
+            var reachedCellCount = 0;
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+                reachedCellCount++;
+                EnqueueBlockCell(cell.x - 1, cell.y, schema, visited, queue);
+                EnqueueBlockCell(cell.x + 1, cell.y, schema, visited, queue);
+                EnqueueBlockCell(cell.x, cell.y - 1, schema, visited, queue);
+                EnqueueBlockCell(cell.x, cell.y + 1, schema, visited, queue);
+            }
+            return reachedCellCount == expectedCellCount;
+        }
+
+        private static void EnqueueBlockCell(
+            int row, int column, int[,] schema, bool[,] visited, Queue<Vector2Int> queue)
+        {
+            if (row < 0 || row >= schema.GetLength(0) ||
+                column < 0 || column >= schema.GetLength(1) ||
+                schema[row, column] != 1 || visited[row, column]) return;
+            visited[row, column] = true;
+            queue.Enqueue(new Vector2Int(row, column));
         }
     }
 }

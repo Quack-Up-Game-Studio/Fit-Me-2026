@@ -112,7 +112,9 @@ namespace FitMe.Grid
         [field: SerializeField, InlineEditor]
         public GridPreset CurrentGridPreset { get; private set; }
         public ShapeLevelRuntimeData CurrentShapeLevelRuntimeData { get; private set; }
-        public Vector2Int CurrentGridSize => CurrentGridPreset.GridSize;
+        public Vector2Int CurrentGridSize => CurrentShapeLevelRuntimeData != null
+            ? CurrentShapeLevelRuntimeData.GridSize
+            : CurrentGridPreset.GridSize;
         [field: SerializeField, Sirenix.OdinInspector.ReadOnly] 
         public Vector2Int CurrentOffset { get; private set; } = new(0, 0);
         #if UNITY_EDITOR
@@ -246,12 +248,16 @@ namespace FitMe.Grid
         private void OnSpawnWithShapeLevel(SpawnWithShapeLevelEvent eventData)
         {
             CurrentShapeLevelRuntimeData = eventData.RuntimeData;
+            CurrentGridPreset = CurrentShapeLevelRuntimeData?.Board;
         }
         
         private void StartGameplay()
         {
             if (!IsGameplay) return;
-            SetUpGameplayGridPreset();
+            if (CurrentShapeLevelRuntimeData == null)
+                SetUpGameplayGridPreset();
+            else
+                CurrentGridPreset = CurrentShapeLevelRuntimeData.Board;
             CreateCells();
         }
 
@@ -438,10 +444,11 @@ namespace FitMe.Grid
             var column = CurrentGridSize.x;
             var cellSize = _grid.cellSize.x;
             _cellArray = new CellInstance[row, column];
+            var playableMask = GetCurrentPlayableMask();
             for (var x = 0; x < row; x++)
             for (var y = 0; y < column; y++)
             {
-                if (CurrentGridPreset.PresetGridType is GridType.Custom && CurrentGridPreset.customGrid[x, y] == 0) continue; 
+                if (playableMask != null && playableMask[x, y] == 0) continue;
                 var halfSize = cellSize / 2;
                 var spawnPosition =
                     (Vector3)(new Vector2(halfSize, halfSize) +
@@ -456,6 +463,16 @@ namespace FitMe.Grid
             }
             _onCellsCreated.OnNext(Unit.Default);
         }
+
+        private int[,] GetCurrentPlayableMask()
+        {
+            if (CurrentShapeLevelRuntimeData != null)
+                return CurrentShapeLevelRuntimeData.PlayableMask;
+            if (!CurrentGridPreset || CurrentGridPreset.PresetGridType != GridType.Custom)
+                return null;
+            return CurrentGridPreset.customGrid;
+        }
+
         #endregion
         
         #region Blocks
@@ -465,8 +482,7 @@ namespace FitMe.Grid
 
             var resolvedCells = new List<CellInstance>(atoms.Count);
             var targetIndexes = new List<Vector2Int>(atoms.Count);
-            var isCustomGrid = CurrentGridPreset != null && CurrentGridPreset.PresetGridType is GridType.Custom;
-            var stageMask = isCustomGrid ? CurrentGridPreset.customGrid : null;
+            var stageMask = GetCurrentPlayableMask();
 
             foreach (var atom in atoms)
             {
@@ -533,9 +549,7 @@ namespace FitMe.Grid
                 !BlockPlacementValidator.TryValidate(
                     CurrentGridSize.y,
                     CurrentGridSize.x,
-                    CurrentGridPreset != null && CurrentGridPreset.PresetGridType is GridType.Custom
-                        ? CurrentGridPreset.customGrid
-                        : null,
+                    GetCurrentPlayableMask(),
                     cells.ConvertAll(cell => cell.Model.ArrayIndex.Value),
                     index => GetCellByArrayIndex(index).Model.CurrentAtom.Value != null,
                     out _))
