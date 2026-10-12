@@ -55,8 +55,10 @@ namespace FitMe.GameData
         [SerializeField, ShowIf(nameof(Source), ShapePlayerBlockSource.Preset)] private BlockPreset _preset;
         [SerializeField, Min(1)] private int _count = 1;
         [SerializeField] private ShapePlayerBlockSource _source;
-        [field: SerializeField, MinValue(1), ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)]
+        [field: SerializeField, MinValue(1), ReadOnly, ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)]
         public Vector2Int InlineFootprintSize { get; private set; } = new(3, 3);
+        [field: SerializeField, MinValue(1), ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)]
+        public Vector2Int InlineFootprintResizeTarget { get; private set; } = Vector2Int.zero;
         [SerializeField, HideInInspector] private int[] _inlineFootprintCells = new int[9];
 
         public BlockPreset Preset => _preset;
@@ -91,14 +93,17 @@ namespace FitMe.GameData
         [Button("Refresh Footprint"), ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)]
         private void RefreshInlineFootprint()
         {
-            var width = Math.Max(1, InlineFootprintSize.x);
-            var height = Math.Max(1, InlineFootprintSize.y);
+            var resizeTarget = InlineFootprintResizeTarget;
+            if (resizeTarget.x <= 0 || resizeTarget.y <= 0) resizeTarget = InlineFootprintSize;
+            var width = Math.Max(1, resizeTarget.x);
+            var height = Math.Max(1, resizeTarget.y);
             var resized = new int[height, width];
             var previous = GetInlineFootprint();
             for (var row = 0; row < Math.Min(previous.GetLength(0), height); row++)
             for (var column = 0; column < Math.Min(previous.GetLength(1), width); column++)
                 resized[row, column] = previous[row, column];
             InlineFootprintSize = new Vector2Int(width, height);
+            InlineFootprintResizeTarget = InlineFootprintSize;
             StoreInlineFootprint(resized);
         }
 
@@ -121,11 +126,13 @@ namespace FitMe.GameData
             if (matrix == null)
             {
                 InlineFootprintSize = Vector2Int.zero;
+                InlineFootprintResizeTarget = Vector2Int.zero;
                 _inlineFootprintCells = Array.Empty<int>();
                 return;
             }
 
             InlineFootprintSize = new Vector2Int(matrix.GetLength(1), matrix.GetLength(0));
+            InlineFootprintResizeTarget = InlineFootprintSize;
             StoreInlineFootprint(matrix);
         }
 

@@ -1,6 +1,6 @@
 # Shape Level Generation: Editor and Runtime Integration Plan
 
-**Status:** Implementation in progress. The user authorized implementation in chat on 2026-10-12; each Git add/commit/push still requires review and explicit approval for its exact scope.
+**Status:** Implementation and automated verification are complete; interactive Unity Editor/gameplay smoke remains pending because this environment has no `DISPLAY`. The user authorized implementation in chat on 2026-10-12; each Git add/commit/push still requires review and explicit approval for its exact scope.
 **Worktree:** `.worktrees/shape-playset-generator`
 **Branch / baseline:** `feature/shape-playset-generator`; implementation continues from the previously approved generator/data/runtime checkpoints.
 **Related contract:** [`shape_level_data_contract.md`](shape_level_data_contract.md)
@@ -12,9 +12,10 @@
 - [x] Level/catalog ScriptableObject script mapping and asset save/reload behavior verified.
 - [x] Separate generation-profile asset implemented and save/reload-tested (`fc4c7e21`).
 - [x] Generated-result conversion and serialized origin-only provenance implemented; generated masks, mixed block order, preset references, inline footprints, config snapshot, and provisional metrics survive asset save/reload (`e1bf936c`).
-- [ ] Editor-only asset creator and generator window are implemented in the worktree; asset creation is EditMode-tested, and the window compiles in the Editor assembly. The last full Grid run before the new Inspector contract probes passed 119/119. The latest expanded run passed 121/122: `InlineFootprintInspectorUsesOdinMatrixAndPreservingResizeAction` exposed a resize-preservation defect that remains to be fixed.
-- [ ] Final broader EditMode/PlayMode verification and final review remain.
-- [ ] Manual Editor and gameplay smoke checks remain: Editor GUI capture was unavailable in this environment (`computer_use` reported no `DISPLAY`), so do not treat the visual/interactive checks below as passed.
+- [x] Editor-only asset creator and generator window implemented in an Editor-only assembly; generated levels are saved as new inline `ShapeLevelDefinition` assets, selected in the normal Inspector, and existing assets are not overwritten. The asset-creator tests pass, the window compiles in the Editor assembly, and profile generation leaves profile settings and preferred preset schemas unchanged.
+- [x] Inline footprint authoring uses Odin's cell `TableMatrix`, separate serialized current/resize-target dimensions, and a resize action that preserves overlapping cells. Four-way connectivity rejection and footprint/dimension save-reload parity are covered by tests.
+- [x] Final relevant automated suites pass: Grid EditMode 122/122, SceneManagement EditMode 47/47, and SceneManagement PlayMode 6/6. The PlayMode suite covers scene-loading infrastructure, not an interactive Shape Mode gameplay smoke.
+- [ ] Manual Editor and gameplay smoke checks remain: Editor GUI capture was unavailable in this environment (`computer_use` reported no `DISPLAY`), so do not treat visual Inspector/window behavior or end-to-end gameplay as manually verified.
 
 ## Goal
 

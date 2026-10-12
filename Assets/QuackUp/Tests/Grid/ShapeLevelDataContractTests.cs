@@ -96,7 +96,21 @@ namespace FitMe.Grid.Tests
                 "<InlineFootprintSize>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(sizeBackingField, Is.Not.Null);
             Assert.That(sizeBackingField.IsDefined(typeof(SerializeField), inherit: true), Is.True,
-                "Editable footprint dimensions must survive asset serialization.");
+                "Current footprint dimensions must survive asset serialization.");
+            Assert.That(Array.Exists(sizeBackingField.GetCustomAttributes(false),
+                attribute => attribute.GetType().Name == "ReadOnlyAttribute"), Is.True,
+                "Current dimensions must not be edited before the resize action runs.");
+            var targetProperty = typeof(ShapePlayerBlockEntry).GetProperty(
+                nameof(ShapePlayerBlockEntry.InlineFootprintResizeTarget));
+            Assert.That(targetProperty, Is.Not.Null);
+            var targetBackingField = typeof(ShapePlayerBlockEntry).GetField(
+                "<InlineFootprintResizeTarget>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(targetBackingField, Is.Not.Null);
+            Assert.That(targetBackingField.IsDefined(typeof(SerializeField), inherit: true), Is.True,
+                "Requested dimensions must survive asset serialization.");
+            Assert.That(Array.Exists(targetBackingField.GetCustomAttributes(false),
+                attribute => attribute.GetType().Name == "ReadOnlyAttribute"), Is.False,
+                "Requested resize dimensions must be editable in the Inspector.");
             var resizeMethod = typeof(ShapePlayerBlockEntry).GetMethod(
                 "RefreshInlineFootprint", BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(resizeMethod, Is.Not.Null);
@@ -104,13 +118,20 @@ namespace FitMe.Grid.Tests
                 attribute => attribute.GetType().Name == "ButtonAttribute"), Is.True,
                 "The Inspector must expose a resize/refresh action.");
 
-            var setSize = typeof(ShapePlayerBlockEntry).GetProperty(
-                nameof(ShapePlayerBlockEntry.InlineFootprintSize)).GetSetMethod(nonPublic: true);
+            var setSize = targetProperty.GetSetMethod(nonPublic: true);
             Assert.That(setSize, Is.Not.Null);
             setSize.Invoke(entry, new object[] { new Vector2Int(3, 1) });
             resizeMethod.Invoke(entry, null);
 
+            Assert.That(entry.InlineFootprintSize, Is.EqualTo(new Vector2Int(3, 1)));
+            Assert.That(entry.InlineFootprintResizeTarget, Is.EqualTo(new Vector2Int(3, 1)));
             Assert.That(entry.InlineFootprint, Is.EqualTo(new[,] { { 1, 1, 0 } }));
+
+            var legacyEntry = new ShapePlayerBlockEntry(new[,] { { 1, 1 }, { 1, 0 } }, 1);
+            setSize.Invoke(legacyEntry, new object[] { Vector2Int.zero });
+            resizeMethod.Invoke(legacyEntry, null);
+            Assert.That(legacyEntry.InlineFootprintSize, Is.EqualTo(new Vector2Int(2, 2)));
+            Assert.That(legacyEntry.InlineFootprint, Is.EqualTo(new[,] { { 1, 1 }, { 1, 0 } }));
         }
 
         [Test]
@@ -271,6 +292,8 @@ namespace FitMe.Grid.Tests
             Assert.That(reloaded.GeneratedObstacleMask, Is.EqualTo(obstacleMask));
             Assert.That(reloaded.PlayerBlocks, Has.Count.EqualTo(1));
             Assert.That(reloaded.PlayerBlocks[0].InlineFootprint, Is.EqualTo(inlineFootprint));
+            Assert.That(reloaded.PlayerBlocks[0].InlineFootprintSize, Is.EqualTo(new Vector2Int(3, 2)));
+            Assert.That(reloaded.PlayerBlocks[0].InlineFootprintResizeTarget, Is.EqualTo(new Vector2Int(3, 2)));
             Assert.That(reloaded.ToRuntimeData().PlayableMask, Is.EqualTo(boardMask));
         }
 
