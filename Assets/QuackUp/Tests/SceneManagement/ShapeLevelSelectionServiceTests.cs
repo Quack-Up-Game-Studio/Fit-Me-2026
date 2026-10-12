@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using FitMe.GameData;
 using FitMe.Grid;
+using FitMe.Panel;
 using FitMe.Scene;
 using FitMe.Shared;
 using NUnit.Framework;
@@ -134,6 +135,39 @@ namespace QuackUp.SceneManagement.Tests
             Assert.That(missingCatalogService.TryDispatchSelection("shape-intro", 1, _ => dispatchCount++), Is.False);
             Assert.That(validService.TryDispatchSelection("shape-intro", 1, null), Is.False);
             Assert.That(dispatchCount, Is.Zero);
+        }
+
+        [Test]
+        public void ShapeLevelSelectViewModel_BuildsOrderedItemsWithUnlockState()
+        {
+            var first = CreateLevel();
+            first.name = "Shape Intro";
+            var second = CreateLevel();
+            second.name = "Shape Bridge";
+            var catalog = CreateCatalog(("shape-intro", first), ("shape-bridge", second));
+            using var viewModel = new ShapeLevelSelectViewModel(null, catalog, 1);
+
+            Assert.That(viewModel.Items, Has.Count.EqualTo(2));
+            Assert.That(viewModel.Items[0].LevelId, Is.EqualTo("shape-intro"));
+            Assert.That(viewModel.Items[0].DisplayName, Is.EqualTo("Shape Intro"));
+            Assert.That(viewModel.Items[0].Definition, Is.SameAs(first));
+            Assert.That(viewModel.Items[0].Order, Is.EqualTo(1));
+            Assert.That(viewModel.Items[0].IsUnlocked, Is.True);
+            Assert.That(viewModel.Items[0].IsSelectable, Is.True);
+            Assert.That(viewModel.Items[1].LevelId, Is.EqualTo("shape-bridge"));
+            Assert.That(viewModel.Items[1].DisplayName, Is.EqualTo("Shape Bridge"));
+            Assert.That(viewModel.Items[1].Definition, Is.SameAs(second));
+            Assert.That(viewModel.Items[1].Order, Is.EqualTo(2));
+            Assert.That(viewModel.Items[1].IsUnlocked, Is.False);
+            Assert.That(viewModel.Items[1].IsSelectable, Is.False);
+        }
+
+        [Test]
+        public void ShapeLevelSelectViewModel_WithoutCatalogReturnsNoItems()
+        {
+            using var viewModel = new ShapeLevelSelectViewModel(null, null, 1);
+
+            Assert.That(viewModel.Items, Is.Empty);
         }
 
         private ShapeLevelDefinition CreateLevel()
