@@ -230,6 +230,26 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ShapeLevelCatalog_SurvivesAssetSaveAndReload()
+        {
+            _assetFolderPath = $"Assets/__ShapeLevelCatalogSerializationTests_{Guid.NewGuid():N}";
+            AssetDatabase.CreateFolder("Assets", _assetFolderPath.Substring("Assets/".Length));
+            var assetPath = $"{_assetFolderPath}/Catalog.asset";
+            var reloadedAssetPath = $"{_assetFolderPath}/ReloadedCatalog.asset";
+            var catalog = ScriptableObject.CreateInstance<ShapeLevelCatalog>();
+
+            AssetDatabase.CreateAsset(catalog, assetPath);
+            AssetDatabase.SaveAssets();
+            Assert.That(AssetDatabase.CopyAsset(assetPath, reloadedAssetPath), Is.True);
+            AssetDatabase.ImportAsset(reloadedAssetPath, ImportAssetOptions.ForceUpdate);
+
+            var reloaded = AssetDatabase.LoadAssetAtPath<ShapeLevelCatalog>(reloadedAssetPath);
+            Assert.That(reloaded, Is.Not.Null);
+            Assert.That(reloaded.Levels, Is.Not.Null);
+            Assert.That(reloaded.GetOrderedLevels(), Is.Empty);
+        }
+
+        [Test]
         public void ShapeLevelDefinition_UsesGridPresetObstacleMatrixForRuntimeData()
         {
             var level = CreateValidLevel();
