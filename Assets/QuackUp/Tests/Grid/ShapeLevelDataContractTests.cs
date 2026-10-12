@@ -199,6 +199,37 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ShapeLevelDefinition_GeneratedInlineContentSurvivesAssetSaveAndReload()
+        {
+            _assetFolderPath = $"Assets/__ShapeLevelSerializationTests_{Guid.NewGuid():N}";
+            AssetDatabase.CreateFolder("Assets", _assetFolderPath.Substring("Assets/".Length));
+            var assetPath = $"{_assetFolderPath}/Generated.asset";
+            var reloadedAssetPath = $"{_assetFolderPath}/Reloaded.asset";
+            var boardMask = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var obstacleMask = new int[2, 3];
+            var inlineFootprint = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var level = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+            level.SetGeneratedContent(boardMask, obstacleMask, new[]
+            {
+                new ShapePlayerBlockEntry(inlineFootprint, 1)
+            });
+
+            AssetDatabase.CreateAsset(level, assetPath);
+            AssetDatabase.SaveAssets();
+            Assert.That(AssetDatabase.CopyAsset(assetPath, reloadedAssetPath), Is.True);
+            AssetDatabase.ImportAsset(reloadedAssetPath, ImportAssetOptions.ForceUpdate);
+
+            var reloaded = AssetDatabase.LoadAssetAtPath<ShapeLevelDefinition>(reloadedAssetPath);
+            Assert.That(reloaded, Is.Not.Null);
+            Assert.That(reloaded.BoardSource, Is.EqualTo(ShapeBoardSource.Generated));
+            Assert.That(reloaded.GeneratedBoardMask, Is.EqualTo(boardMask));
+            Assert.That(reloaded.GeneratedObstacleMask, Is.EqualTo(obstacleMask));
+            Assert.That(reloaded.PlayerBlocks, Has.Count.EqualTo(1));
+            Assert.That(reloaded.PlayerBlocks[0].InlineFootprint, Is.EqualTo(inlineFootprint));
+            Assert.That(reloaded.ToRuntimeData().PlayableMask, Is.EqualTo(boardMask));
+        }
+
+        [Test]
         public void ShapeLevelDefinition_UsesGridPresetObstacleMatrixForRuntimeData()
         {
             var level = CreateValidLevel();
