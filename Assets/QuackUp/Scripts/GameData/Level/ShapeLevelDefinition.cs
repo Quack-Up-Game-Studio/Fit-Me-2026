@@ -17,6 +17,7 @@ namespace FitMe.GameData
     {
         [SerializeField] private GridPreset _board;
         [SerializeField] private List<ShapePlayerBlockEntry> _playerBlocks = new();
+        [SerializeField] private ShapePlaysetGenerationProvenance _generationProvenance;
         [SerializeField, EnumToggleButtons] private ShapeBoardSource _boardSource;
         [field: SerializeField, MinValue(1), ShowIf(nameof(BoardSource), ShapeBoardSource.Generated)]
         public Vector2Int GeneratedBoardSize { get; private set; } = new(10, 10);
@@ -39,14 +40,33 @@ namespace FitMe.GameData
         public ShapeBoardSource BoardSource => _boardSource;
         public int[,] GeneratedBoardMask => Clone(_generatedBoardMask);
         public int[,] GeneratedObstacleMask => Clone(_generatedObstacleMask);
+        [ShowInInspector, ReadOnly]
+        public ShapePlaysetGenerationProvenance GenerationProvenance => _generationProvenance;
         public IReadOnlyList<ShapePlayerBlockEntry> PlayerBlocks =>
             _playerBlocks ?? (IReadOnlyList<ShapePlayerBlockEntry>)Array.Empty<ShapePlayerBlockEntry>();
+
+        public void SetGeneratedContent(GeneratedShapePlayset playset)
+        {
+            if (playset == null) throw new ArgumentNullException(nameof(playset));
+            var playerBlocks = new List<ShapePlayerBlockEntry>(playset.PlayerBlocks.Count);
+            for (var index = 0; index < playset.PlayerBlocks.Count; index++)
+            {
+                var generatedBlock = playset.PlayerBlocks[index];
+                playerBlocks.Add(generatedBlock.IsPredefined
+                    ? new ShapePlayerBlockEntry(generatedBlock.PreferredPreset, 1)
+                    : new ShapePlayerBlockEntry(generatedBlock.Footprint, 1));
+            }
+
+            SetGeneratedContent(playset.BoardMask, playset.ObstacleMask, playerBlocks);
+            _generationProvenance = new ShapePlaysetGenerationProvenance(playset);
+        }
 
         public void SetGeneratedContent(
             int[,] boardMask,
             int[,] obstacleMask,
             IReadOnlyList<ShapePlayerBlockEntry> playerBlocks)
         {
+            _generationProvenance = null;
             _boardSource = ShapeBoardSource.Generated;
             GeneratedBoardSize = boardMask == null
                 ? Vector2Int.zero
