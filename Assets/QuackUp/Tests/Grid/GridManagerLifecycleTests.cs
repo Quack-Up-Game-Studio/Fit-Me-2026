@@ -640,6 +640,48 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void BlockManager_QueuesNormalizedInlineAndPresetFootprintsInAuthoredOrder()
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+            var preset = CreateBlockPreset(new[,] { { 1 }, { 1 } });
+            var inlineFootprint = new[,] { { 1, 1, 0 }, { 0, 1, 1 } };
+            var runtimeData = new ShapeLevelRuntimeData(
+                null,
+                new[,] { { 1, 1, 1, 1, 1, 1 } },
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                new[]
+                {
+                    new ShapePlayerBlockRuntimeEntry(null, inlineFootprint),
+                    new ShapePlayerBlockRuntimeEntry(preset, preset.BlockSchema.schema)
+                });
+
+            _hub.Publish(new SpawnWithShapeLevelEvent(runtimeData));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(queueField, Is.Not.Null);
+            var queue = queueField.GetValue(blockManager);
+            Assert.That(queue.GetType().GetGenericArguments()[0],
+                Is.EqualTo(typeof(ShapePlayerBlockRuntimeEntry)));
+            var dequeue = queue.GetType().GetMethod("Dequeue");
+            var first = (ShapePlayerBlockRuntimeEntry)dequeue.Invoke(queue, null);
+            var second = (ShapePlayerBlockRuntimeEntry)dequeue.Invoke(queue, null);
+
+            Assert.That(first.Preset, Is.Null);
+            Assert.That(first.Schema, Is.EqualTo(inlineFootprint));
+            Assert.That(second.Preset, Is.SameAs(preset));
+            Assert.That(second.Schema, Is.EqualTo(preset.BlockSchema.schema));
+        }
+
+        [Test]
         public void ResetBag_WhenContinuingShapeLevelRestoresAuthoredPlayerBlockQueue()
         {
             var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());

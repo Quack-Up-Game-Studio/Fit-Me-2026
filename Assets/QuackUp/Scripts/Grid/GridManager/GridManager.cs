@@ -441,7 +441,7 @@ namespace FitMe.Grid
             for (var x = 0; x < row; x++)
             for (var y = 0; y < column; y++)
             {
-                if (CurrentGridPreset.PresetGridType is GridType.Custom && CurrentGridPreset.customGrid[x, y] == 0) continue; 
+                if (CurrentGridPreset.PresetGridType is GridType.Custom && CurrentGridPreset.customGrid[x, y] == 0) continue;
                 var halfSize = cellSize / 2;
                 var spawnPosition =
                     (Vector3)(new Vector2(halfSize, halfSize) +
@@ -456,6 +456,7 @@ namespace FitMe.Grid
             }
             _onCellsCreated.OnNext(Unit.Default);
         }
+
         #endregion
         
         #region Blocks
