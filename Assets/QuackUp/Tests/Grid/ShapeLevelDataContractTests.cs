@@ -83,6 +83,51 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void InlineFootprintInspectorUsesOdinMatrixAndPreservingResizeAction()
+        {
+            var entry = new ShapePlayerBlockEntry(new[,] { { 1, 1 }, { 1, 0 } }, 1);
+            var footprintProperty = typeof(ShapePlayerBlockEntry).GetProperty(nameof(ShapePlayerBlockEntry.InlineFootprint));
+            Assert.That(footprintProperty, Is.Not.Null);
+            Assert.That(Array.Exists(footprintProperty.GetCustomAttributes(false),
+                attribute => attribute.GetType().Name == "TableMatrixAttribute"), Is.True,
+                "Inline footprints need the Odin cell-matrix editor.");
+
+            var sizeBackingField = typeof(ShapePlayerBlockEntry).GetField(
+                "<InlineFootprintSize>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(sizeBackingField, Is.Not.Null);
+            Assert.That(sizeBackingField.IsDefined(typeof(SerializeField), inherit: true), Is.True,
+                "Editable footprint dimensions must survive asset serialization.");
+            var resizeMethod = typeof(ShapePlayerBlockEntry).GetMethod(
+                "RefreshInlineFootprint", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(resizeMethod, Is.Not.Null);
+            Assert.That(Array.Exists(resizeMethod.GetCustomAttributes(false),
+                attribute => attribute.GetType().Name == "ButtonAttribute"), Is.True,
+                "The Inspector must expose a resize/refresh action.");
+
+            var setSize = typeof(ShapePlayerBlockEntry).GetProperty(
+                nameof(ShapePlayerBlockEntry.InlineFootprintSize)).GetSetMethod(nonPublic: true);
+            Assert.That(setSize, Is.Not.Null);
+            setSize.Invoke(entry, new object[] { new Vector2Int(3, 1) });
+            resizeMethod.Invoke(entry, null);
+
+            Assert.That(entry.InlineFootprint, Is.EqualTo(new[,] { { 1, 1, 0 } }));
+        }
+
+        [Test]
+        public void Validate_RejectsDiagonalOnlyInlinePlayerBlockFootprint()
+        {
+            var level = CreateValidLevel();
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>
+            {
+                new ShapePlayerBlockEntry(new[,] { { 1, 0 }, { 0, 1 } }, 1)
+            });
+
+            var result = ShapeLevelDataValidator.Validate(level);
+
+            Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.InvalidPlayerBlockSchema));
+        }
+
+        [Test]
         public void ShapeLevelDefinition_UsesOdinSerializationWithoutChangingManualDefault()
         {
             Assert.That(typeof(ShapeLevelDefinition).BaseType.FullName,
