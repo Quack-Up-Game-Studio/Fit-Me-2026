@@ -14,7 +14,7 @@ Let designers generate a Shape Mode playset in the Unity Editor, inspect it, sav
 - Keep `GridPreset`; do not deprecate it as part of this work. It remains the Manual board source and continues to serve Classic/endless/tutorial and other existing consumers.
 - `ShapeLevelDefinition` exposes an explicit board-source dropdown with **Manual** and **Generated** choices. Manual selects a `GridPreset`; Generated uses inline board/obstacle data. Switching modes hides the inactive data but does not erase it.
 - Generated board data is editable in the level asset after generation. Generator provenance is separate from the current edit mode and must not imply the edited level still matches its original generated solution.
-- Use Odin's `SerializedScriptableObject` for `ShapeLevelDefinition` and Odin matrix drawing/serialization for inline grid, obstacle, and footprint data. Do not add UnityEditor references to runtime assemblies.
+- Use Odin's `SerializedScriptableObject` for `ShapeLevelDefinition` and Odin matrix drawing/serialization for inline grid, obstacle, and footprint data. Inline footprints should use the same cell-toggle `TableMatrix` editing experience as `BlockPreset.BlockSchema`, including width/height controls and a resize/refresh action. Do not add UnityEditor references to runtime assemblies.
 - Keep one ordered player-block entry collection. Each entry can reference a handcrafted `BlockPreset` or hold an inline footprint. Preserve entry order as runtime spawn order and retain the existing preset/count authoring behavior.
 - Normalize both Manual and Generated board sources, and both preset-backed and inline-footprint blocks, into one Shape Mode runtime contract.
 - The Editor is the generation entry point for this scope. The game loads saved level data; it does not procedurally generate a level at runtime.
@@ -35,6 +35,7 @@ Let designers generate a Shape Mode playset in the Unity Editor, inspect it, sav
 - Extend the existing serializable `ShapePlayerBlockEntry` rather than replacing the ordered collection.
 - Keep `_preset` and `_count` intact for old/manual entries; make the default source kind Preset so older serialized entries retain their meaning.
 - Add a source kind (`Preset` or `InlineFootprint`) and an Odin-serialized editable footprint for InlineFootprint entries. Store dimensions and a binary matrix; occupied cells must be non-empty and 4-connected.
+- Reuse the existing `BlockSchema` `TableMatrix` renderer/cell-toggle behavior if nested Odin serialization round-trips correctly. Otherwise, extract a shared footprint matrix drawer used by both `BlockPreset` and inline entries. Give inline entries BlockPreset-like width/height fields and a Refresh/Resize action that preserves cells where possible; do not copy BlockPreset-only identity/audio/preset asset behavior.
 - Preset-backed entries retain their `BlockPreset` reference and count. Inline footprints carry their own count. Generated output may initially write count-one entries in solver order to preserve the exact sequence; grouping can be added only when it does not change ordering.
 - The generator's solved placement and placement rotation are a solution witness/provenance, not a required gameplay instruction. Keep them in generation metadata if needed for review/reproduction; gameplay blocks remain freely placeable/rotatable per the existing Shape Mode rules.
 
@@ -127,6 +128,7 @@ Add focused failing tests for:
 ## Risks and mitigations
 
 - **Odin/base-class and existing-asset compatibility:** test real assets and save/reload before assuming a base-class change is transparent; retain serialized field names and Manual defaults; provide an explicit migration if evidence requires one.
+- **Nested footprint serialization and Inspector parity:** verify an inline `BlockSchema`/matrix nested in a player entry draws, edits, resizes, and survives save/reload. Keep the matrix UI shared so the two editors do not drift.
 - **Runtime assumptions about BlockPreset:** trace factory/model metadata access and define safe defaults for inline footprints with no preset before changing the queue.
 - **Grid coordinate orientation:** consistently use `[row, column]` / `[height, width]` in stored matrices and test against `GridSize` (`columns, rows`).
 - **Obstacle display data:** the generator outputs an obstacle mask, not all obstacle appearance settings. Define current Shape Mode defaults for generated obstacles; do not invent new gameplay semantics in this slice.
