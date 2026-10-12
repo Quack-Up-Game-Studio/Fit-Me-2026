@@ -31,10 +31,10 @@ MonoBehaviour:
   <GridHorizontalOffsetType>k__BackingField: 0
   <CustomOffsetX>k__BackingField: 0
   <GridVerticalOffsetType>k__BackingField: 1
-  <CustomOffsetY>k__BackingField: 2
+  <CustomOffsetY>k__BackingField: 3
   <ComboThreshold>k__BackingField: 2
   <CustomGridPositionOffsetX>k__BackingField: 0
-  <CustomGridPositionOffsetY>k__BackingField: 0.25
+  <CustomGridPositionOffsetY>k__BackingField: 0.65
   gridPresets:
   - {fileID: 11400000, guid: e6e4b61df806d2e88979d9032ce22de1, type: 2}
   <FitExplodeSfx>k__BackingField:
