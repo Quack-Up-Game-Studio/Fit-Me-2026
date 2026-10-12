@@ -240,6 +240,56 @@ namespace FitMe.Grid.Tests
                 Has.Length.EqualTo(1), "Saving a generated level must not create new BlockPreset assets.");
         }
 
+        [Test]
+        public void EditorAssetCreatorCreatesInlineLevelAndNeverOverwritesExistingAsset()
+        {
+            _assetFolderPath = $"Assets/__ShapePlaysetGenerationProfileTests_{System.Guid.NewGuid():N}";
+            AssetDatabase.CreateFolder("Assets", _assetFolderPath.Substring("Assets/".Length));
+            var levelPath = $"{_assetFolderPath}/GeneratedLevel.asset";
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 2,
+                maxBoardColumns: 2,
+                minBoardRows: 2,
+                maxBoardRows: 2,
+                minObstacleCells: 0,
+                maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1,
+                maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1,
+                maxGeneratedBlockRows: 2,
+                minPlayableRegionCells: 1);
+            var generation = ShapePlaysetGenerator.Generate(config, seed: 9);
+            Assert.That(generation.IsSuccess, Is.True, generation.Error.ToString());
+
+            var creatorType = System.Type.GetType(
+                "FitMe.GameData.Editor.ShapePlaysetGeneratedLevelAssetCreator, FitMe.GameData.Editor");
+            Assert.That(creatorType, Is.Not.Null,
+                "Saving generated content must be implemented in an Editor-only asset creator.");
+            var createAsset = creatorType.GetMethod(
+                "CreateNewLevelAsset",
+                BindingFlags.Public | BindingFlags.Static,
+                binder: null,
+                types: new[] { typeof(GeneratedShapePlayset), typeof(string) },
+                modifiers: null);
+            Assert.That(createAsset, Is.Not.Null);
+
+            var createdLevel = (ShapeLevelDefinition)createAsset.Invoke(
+                null, new object[] { generation.Playset, levelPath });
+            Assert.That(createdLevel, Is.Not.Null);
+            Assert.That(AssetDatabase.GetAssetPath(createdLevel), Is.EqualTo(levelPath));
+            Assert.That(AssetDatabase.LoadAssetAtPath<ShapeLevelDefinition>(levelPath), Is.SameAs(createdLevel));
+            Assert.That(ShapeLevelDataValidator.Validate(createdLevel).IsValid, Is.True);
+            Assert.That(createdLevel.BoardSource, Is.EqualTo(ShapeBoardSource.Generated));
+            Assert.That(createdLevel.PlayerBlocks, Is.Not.Empty);
+            Assert.That(AssetDatabase.FindAssets("t:BlockPreset", new[] { _assetFolderPath }),
+                Is.Empty, "Saving generated levels must not create BlockPreset assets.");
+
+            var overwriteError = Assert.Throws<TargetInvocationException>(() =>
+                createAsset.Invoke(null, new object[] { generation.Playset, levelPath }));
+            Assert.That(overwriteError.InnerException, Is.TypeOf<System.InvalidOperationException>());
+            Assert.That(AssetDatabase.LoadAssetAtPath<ShapeLevelDefinition>(levelPath), Is.SameAs(createdLevel));
+        }
+
         private T Keep<T>(T asset) where T : UnityEngine.Object
         {
             _transientAssets.Add(asset);
