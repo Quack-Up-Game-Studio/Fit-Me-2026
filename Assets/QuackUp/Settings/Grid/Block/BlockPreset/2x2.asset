@@ -175,8 +175,8 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-  <BlockShape>k__BackingField: 3
-  <BlockSprite>k__BackingField: {fileID: 0}
+  <Id>k__BackingField: 8edd71504576c2160adb0a55e4472f6f
+  <DisplayName>k__BackingField: 
   <BlockSize>k__BackingField: {x: 2, y: 2}
   <PickupSfx>k__BackingField:
     Guid:
