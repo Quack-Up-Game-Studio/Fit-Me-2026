@@ -706,14 +706,15 @@ namespace FitMe.Grid.Tests
             var preset = ScriptableObject.CreateInstance<BlockPreset>();
             typeof(BlockSchema).GetField("schema").SetValue(
                 typeof(BlockPreset).GetProperty(nameof(BlockPreset.BlockSchema)).GetValue(preset),
-                new[,] { { 1, 1 } });
+                new[,] { { 1, 1 }, { 1, 0 } });
             var config = new ShapePlaysetGenerationConfig(
                 minBoardColumns: 2, maxBoardColumns: 2,
                 minBoardRows: 2, maxBoardRows: 2,
                 minObstacleCells: 0, maxObstacleCells: 0,
-                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
-                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2,
-                preferredPlayerBlocks: new[] { new ShapePlayerBlockEntry(preset, 1) });
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 1,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
+                preferredPlayerBlocks: new[] { new ShapePlayerBlockEntry(preset, 1) },
+                maxSingletonFallbackBlocks: 1);
 
             try
             {
@@ -723,7 +724,7 @@ namespace FitMe.Grid.Tests
                 Assert.That(result.Playset.UsedPredefinedBlocks, Is.True);
                 Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(2));
                 Assert.That(result.Playset.Configuration.PreferredPlayerBlocks[0].PresetSchema,
-                    Is.EqualTo(new[,] { { 1, 1 } }));
+                    Is.EqualTo(new[,] { { 1, 1 }, { 1, 0 } }));
                 var predefinedCount = 0;
                 for (var index = 0; index < result.Playset.PlayerBlocks.Count; index++)
                     if (result.Playset.PlayerBlocks[index].IsPredefined) predefinedCount++;
@@ -738,7 +739,77 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void Generate_MaximizesPreferredCoveredCellsBeforeUsingMoreSmallerPresets()
+        public void Generate_ReusesPreferredPresetBeyondConfiguredCountAndFallbackDimensions()
+        {
+            var preset = CreatePreset(new[,] { { 1, 1 } });
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 4, maxBoardColumns: 4,
+                minBoardRows: 2, maxBoardRows: 2,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 1,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
+                preferredPlayerBlocks: new[] { new ShapePlayerBlockEntry(preset, 0) },
+                minPlayableRegionCells: 1);
+
+            try
+            {
+                var result = ShapePlaysetGenerator.Generate(config, seed: 19);
+
+                Assert.That(result.IsSuccess, Is.True,
+                    "A preferred shape is reusable and its dimensions/count do not constrain fallback blocks.");
+                Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(4));
+                Assert.That(result.Playset.UsedPredefinedBlocks, Is.True);
+                foreach (var block in result.Playset.PlayerBlocks)
+                    Assert.That(block.PreferredPreset, Is.SameAs(preset));
+                var level = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+                level.SetGeneratedContent(result.Playset);
+                Assert.That(level.PlayerBlocks, Has.Count.EqualTo(1));
+                Assert.That(level.PlayerBlocks[0].Preset, Is.SameAs(preset));
+                Assert.That(level.PlayerBlocks[0].Count, Is.EqualTo(4));
+                Object.DestroyImmediate(level);
+            }
+            finally
+            {
+                Object.DestroyImmediate(preset);
+            }
+        }
+
+        [Test]
+        public void Generate_UsesPreferredOrderToBreakEqualCoverageTies()
+        {
+            var firstPreset = CreatePreset(new[,] { { 1, 1 } });
+            var secondPreset = CreatePreset(new[,] { { 1 }, { 1 } });
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 2, maxBoardColumns: 2,
+                minBoardRows: 2, maxBoardRows: 2,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 1,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
+                preferredPlayerBlocks: new[]
+                {
+                    new ShapePlayerBlockEntry(firstPreset, 1),
+                    new ShapePlayerBlockEntry(secondPreset, 1)
+                },
+                minPlayableRegionCells: 1);
+
+            try
+            {
+                var result = ShapePlaysetGenerator.Generate(config, seed: 23);
+
+                Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
+                Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(2));
+                Assert.That(result.Playset.PlayerBlocks[0].PreferredPreset, Is.SameAs(firstPreset));
+                Assert.That(result.Playset.PlayerBlocks[1].PreferredPreset, Is.SameAs(firstPreset));
+            }
+            finally
+            {
+                Object.DestroyImmediate(firstPreset);
+                Object.DestroyImmediate(secondPreset);
+            }
+        }
+
+        [Test]
+        public void Generate_MaximizesPreferredCoverageBeforeProfileOrder()
         {
             var largerPreset = CreatePreset(new[,] { { 1, 0 }, { 1, 1 } });
             var smallerPreset = CreatePreset(new[,] { { 1, 1 } });
@@ -762,9 +833,8 @@ namespace FitMe.Grid.Tests
                 Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
                 Assert.That(result.Playset.Difficulty.PlayerCellCount, Is.EqualTo(4));
                 Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(2));
-                Assert.That(result.Playset.PlayerBlocks[0].PreferredPreset, Is.SameAs(largerPreset));
-                Assert.That(result.Playset.PlayerBlocks[1].PreferredPreset, Is.Null);
-                Assert.That(CountMaskCells(result.Playset.PlayerBlocks[1].Footprint), Is.EqualTo(1));
+                Assert.That(result.Playset.PlayerBlocks[0].PreferredPreset, Is.SameAs(smallerPreset));
+                Assert.That(result.Playset.PlayerBlocks[1].PreferredPreset, Is.SameAs(smallerPreset));
             }
             finally
             {
@@ -782,7 +852,7 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void Generate_MaximizesPreferredBlockCountAfterCoveredCellCount()
+        public void Generate_PrefersEarlierProfileEntryAfterEqualPreferredCoverage()
         {
             var squarePreset = CreatePreset(new[,] { { 1, 1 }, { 1, 1 } });
             var dominoPreset = CreatePreset(new[,] { { 1, 1 } });
@@ -804,9 +874,9 @@ namespace FitMe.Grid.Tests
 
                 Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
                 Assert.That(result.Playset.Difficulty.PlayerCellCount, Is.EqualTo(6));
-                Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(3));
-                for (var index = 0; index < result.Playset.PlayerBlocks.Count; index++)
-                    Assert.That(result.Playset.PlayerBlocks[index].PreferredPreset, Is.SameAs(dominoPreset));
+                Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(2));
+                Assert.That(result.Playset.PlayerBlocks[0].PreferredPreset, Is.SameAs(squarePreset));
+                Assert.That(result.Playset.PlayerBlocks[1].PreferredPreset, Is.SameAs(dominoPreset));
             }
             finally
             {
@@ -848,7 +918,7 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void ValidateConfiguration_RejectsPreferredSupplyAboveExpandedBlockLimit()
+        public void ValidateConfiguration_AcceptsPreferredEntryRegardlessOfCount()
         {
             var preset = ScriptableObject.CreateInstance<BlockPreset>();
             typeof(BlockSchema).GetField("schema").SetValue(
@@ -866,9 +936,7 @@ namespace FitMe.Grid.Tests
             {
                 var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
 
-                Assert.That(validation.IsValid, Is.False);
-                Assert.That(validation.Errors,
-                    Does.Contain(ShapePlaysetConfigurationError.InvalidPreferredBlockSupply));
+                Assert.That(validation.IsValid, Is.True, string.Join(", ", validation.Errors));
             }
             finally
             {

@@ -24,6 +24,7 @@ namespace FitMe.GameData
         [SerializeField, MinValue(1)] private int _maxTilingSearchNodes = 100000;
         [SerializeField, MinValue(1)] private int _maxCandidateAttempts = 8;
         [SerializeField, MinValue(0)] private int _maxSingletonFallbackBlocks;
+        [InfoBox("Preferred presets are reusable without limit. Count is ignored; fallback blocks use the dimension settings above.", InfoMessageType.Info)]
         [SerializeField, ListDrawerSettings(ShowIndexLabels = true)]
         private List<ShapePlayerBlockEntry> _preferredPlayerBlocks = new();
 

@@ -16,7 +16,6 @@ namespace FitMe.GameData
         private const int MaximumAcceptedObstacleCells = MaximumBoardCells - 1;
         private const int DifficultyScoreModelVersion = 1;
         private const int MaximumPreferredBlockCount = 16;
-        private const int MaximumExpandedPreferredBlockCount = 64;
 
         public static ShapePlaysetGenerationConfigValidation ValidateConfiguration(ShapePlaysetGenerationConfig config)
         {
@@ -202,10 +201,17 @@ namespace FitMe.GameData
             for (var entryIndex = 0; entryIndex < config.PreferredPlayerBlocks.Count; entryIndex++)
             {
                 var entry = config.PreferredPlayerBlocks[entryIndex];
+                var hasEarlierDuplicate = false;
+                for (var earlierIndex = 0; earlierIndex < entryIndex; earlierIndex++)
+                    if (ReferenceEquals(config.PreferredPlayerBlocks[earlierIndex].Preset, entry.Preset))
+                    {
+                        hasEarlierDuplicate = true;
+                        break;
+                    }
+                if (hasEarlierDuplicate) continue;
                 var footprint = GetPresetFootprint(entry.Preset);
-                for (var repeat = 0; repeat < entry.Count; repeat++)
-                    preferredBlocks.Add(new PreferredBlockCandidate(
-                        footprint, entry.Preset, CountCells(footprint)));
+                preferredBlocks.Add(new PreferredBlockCandidate(
+                    footprint, entry.Preset, CountCells(footprint), entryIndex));
             }
 
             var context = new TilingSearchContext(playableMask, config, preferredBlocks);
@@ -236,7 +242,7 @@ namespace FitMe.GameData
                 return;
             }
             if (CanPruneTilingBranch(context, occupiedCellCount,
-                    preferredCellCount, preferredBlockCount, singletonCount)) return;
+                    preferredCellCount, singletonCount)) return;
 
             var preferredCandidates = EnumeratePreferredPlacements(context, anchorIndex);
             if (context.BudgetExceeded) return;
@@ -244,7 +250,7 @@ namespace FitMe.GameData
             {
                 var candidate = preferredCandidates[candidateIndex];
                 SetCovered(context, candidate.CellIndices, true);
-                context.UsedPreferred[candidate.PreferredBlockIndex] = true;
+                context.PreferredCellsByPriority[candidate.PreferredBlockIndex] += candidate.CellIndices.Length;
                 context.CurrentBlocks.Add(new GeneratedShapeBlock(
                     candidate.Footprint, candidate.PreferredPreset, candidate.Placement,
                     candidate.PlacementRotationQuarterTurns));
@@ -252,7 +258,7 @@ namespace FitMe.GameData
                     preferredCellCount + candidate.CellIndices.Length, preferredBlockCount + 1,
                     singletonCount);
                 context.CurrentBlocks.RemoveAt(context.CurrentBlocks.Count - 1);
-                context.UsedPreferred[candidate.PreferredBlockIndex] = false;
+                context.PreferredCellsByPriority[candidate.PreferredBlockIndex] -= candidate.CellIndices.Length;
                 SetCovered(context, candidate.CellIndices, false);
                 if (context.StopSearch || context.BudgetExceeded) return;
             }
@@ -285,27 +291,22 @@ namespace FitMe.GameData
 
         private static bool CanPruneTilingBranch(
             TilingSearchContext context, int occupiedCellCount,
-            int preferredCellCount, int preferredBlockCount, int singletonCount)
+            int preferredCellCount, int singletonCount)
         {
             if (context.BestBlocks == null) return false;
-            var remainingPreferredCells = 0;
-            var remainingPreferredCount = 0;
-            for (var index = 0; index < context.PreferredBlocks.Count; index++)
-            {
-                if (context.UsedPreferred[index]) continue;
-                remainingPreferredCells += context.PreferredBlocks[index].CellCount;
-                remainingPreferredCount++;
-            }
             var uncoveredCellCount = context.TotalPlayableCells - occupiedCellCount;
             var maximumPreferredCells = preferredCellCount +
-                Math.Min(remainingPreferredCells, uncoveredCellCount);
+                (context.PreferredBlocks.Count == 0 ? 0 : uncoveredCellCount);
             if (maximumPreferredCells < context.BestPreferredCellCount) return true;
             if (maximumPreferredCells > context.BestPreferredCellCount) return false;
-
-            var maximumPreferredBlocks = preferredBlockCount + remainingPreferredCount;
-            if (maximumPreferredBlocks < context.BestPreferredBlockCount) return true;
-            return maximumPreferredBlocks == context.BestPreferredBlockCount &&
-                   singletonCount >= context.BestSingletonCount;
+            var optimisticPriorityCoverage = (int[])context.PreferredCellsByPriority.Clone();
+            if (optimisticPriorityCoverage.Length > 0)
+                optimisticPriorityCoverage[0] += uncoveredCellCount;
+            var priorityComparison = ComparePriorityCoverage(
+                optimisticPriorityCoverage, context.BestPreferredCellsByPriority);
+            if (priorityComparison < 0) return true;
+            if (priorityComparison > 0) return false;
+            return singletonCount >= context.BestSingletonCount;
         }
 
         private static List<TilingPlacementCandidate> EnumeratePreferredPlacements(
@@ -318,8 +319,6 @@ namespace FitMe.GameData
             var anchorColumn = anchorIndex % columns;
             for (var preferredIndex = 0; preferredIndex < context.PreferredBlocks.Count; preferredIndex++)
             {
-                if (context.UsedPreferred[preferredIndex] || HasEarlierAvailableDuplicate(context, preferredIndex))
-                    continue;
                 var preferred = context.PreferredBlocks[preferredIndex];
                 var source = GetCoordinates(preferred.Footprint);
                 var seenRotations = new HashSet<string>();
@@ -363,7 +362,7 @@ namespace FitMe.GameData
                         }
                         candidates.Add(new TilingPlacementCandidate(
                             cellIndices, preferred.Footprint, preferred.Preset, placement,
-                            preferredIndex, rotation, key));
+                            preferred.PreferenceIndex, rotation, key));
                     }
                 }
             }
@@ -377,13 +376,15 @@ namespace FitMe.GameData
             return candidates;
         }
 
-        private static bool HasEarlierAvailableDuplicate(TilingSearchContext context, int preferredIndex)
+        private static int ComparePriorityCoverage(IReadOnlyList<int> left, IReadOnlyList<int> right)
         {
-            var current = context.PreferredBlocks[preferredIndex];
-            for (var index = 0; index < preferredIndex; index++)
-                if (!context.UsedPreferred[index] &&
-                    ReferenceEquals(context.PreferredBlocks[index].Preset, current.Preset)) return true;
-            return false;
+            var count = Math.Min(left.Count, right.Count);
+            for (var index = 0; index < count; index++)
+            {
+                var comparison = left[index].CompareTo(right[index]);
+                if (comparison != 0) return comparison;
+            }
+            return left.Count.CompareTo(right.Count);
         }
 
         private static Vector2Int[] RotateCoordinates(IReadOnlyList<Vector2Int> source, int rotation)
@@ -1002,25 +1003,12 @@ namespace FitMe.GameData
         private static bool HasValidPreferredSupply(ShapePlaysetGenerationConfig config)
         {
             if (config.PreferredPlayerBlocks.Count > MaximumPreferredBlockCount) return false;
-            long totalArea = 0;
-            var totalBlockCount = 0;
             for (var index = 0; index < config.PreferredPlayerBlocks.Count; index++)
             {
                 var entry = config.PreferredPlayerBlocks[index];
-                if (entry == null || !entry.Preset || entry.Count < 1) return false;
-                totalBlockCount += entry.Count;
-                if (totalBlockCount > MaximumExpandedPreferredBlockCount) return false;
+                if (entry == null || !entry.Preset) return false;
                 var footprint = GetPresetFootprint(entry.Preset);
-                if (footprint == null ||
-                    (!IsWithinDimensions(footprint,
-                         config.MinGeneratedBlockRows, config.MaxGeneratedBlockRows,
-                         config.MinGeneratedBlockColumns, config.MaxGeneratedBlockColumns) &&
-                     !IsWithinDimensions(footprint.GetLength(1), footprint.GetLength(0),
-                         config.MinGeneratedBlockRows, config.MaxGeneratedBlockRows,
-                         config.MinGeneratedBlockColumns, config.MaxGeneratedBlockColumns)) ||
-                    !AreFourConnected(footprint)) return false;
-                totalArea += (long)CountCells(footprint) * entry.Count;
-                if (totalArea > MaximumBoardCells) return false;
+                if (footprint == null || !AreFourConnected(footprint)) return false;
             }
             return true;
         }
@@ -1038,10 +1026,9 @@ namespace FitMe.GameData
             public readonly bool[,] Covered;
             public readonly ShapePlaysetGenerationConfig Config;
             public readonly List<PreferredBlockCandidate> PreferredBlocks;
-            public readonly bool[] UsedPreferred;
+            public readonly int[] PreferredCellsByPriority;
             public readonly List<GeneratedShapeBlock> CurrentBlocks = new List<GeneratedShapeBlock>();
             public readonly int TotalPlayableCells;
-            public readonly int TotalPreferredCells;
             public int NodesVisited;
             public bool BudgetExceeded;
             public bool StopSearch;
@@ -1049,6 +1036,7 @@ namespace FitMe.GameData
             public int BestPreferredCellCount = -1;
             public int BestPreferredBlockCount = -1;
             public int BestSingletonCount = int.MaxValue;
+            public int[] BestPreferredCellsByPriority;
 
             public TilingSearchContext(
                 int[,] playableMask, ShapePlaysetGenerationConfig config,
@@ -1058,23 +1046,19 @@ namespace FitMe.GameData
                 Covered = new bool[playableMask.GetLength(0), playableMask.GetLength(1)];
                 Config = config;
                 PreferredBlocks = preferredBlocks;
-                UsedPreferred = new bool[preferredBlocks.Count];
+                PreferredCellsByPriority = new int[config.PreferredPlayerBlocks.Count];
                 TotalPlayableCells = CountCells(playableMask);
-                var preferredCellCount = 0;
-                for (var index = 0; index < preferredBlocks.Count; index++)
-                    preferredCellCount += preferredBlocks[index].CellCount;
-                TotalPreferredCells = preferredCellCount;
             }
 
             public void ConsiderCurrentSolution(
                 int preferredCellCount, int preferredBlockCount, int singletonCount)
             {
-                var isBetter = BestBlocks == null ||
-                    preferredCellCount > BestPreferredCellCount ||
-                    (preferredCellCount == BestPreferredCellCount &&
-                     preferredBlockCount > BestPreferredBlockCount) ||
-                    (preferredCellCount == BestPreferredCellCount &&
-                     preferredBlockCount == BestPreferredBlockCount &&
+                var priorityComparison = BestPreferredCellsByPriority == null
+                    ? 1
+                    : ComparePriorityCoverage(PreferredCellsByPriority, BestPreferredCellsByPriority);
+                var isBetter = BestBlocks == null || preferredCellCount > BestPreferredCellCount ||
+                    (preferredCellCount == BestPreferredCellCount && priorityComparison > 0) ||
+                    (preferredCellCount == BestPreferredCellCount && priorityComparison == 0 &&
                      singletonCount < BestSingletonCount);
                 if (!isBetter) return;
 
@@ -1082,9 +1066,10 @@ namespace FitMe.GameData
                 BestPreferredCellCount = preferredCellCount;
                 BestPreferredBlockCount = preferredBlockCount;
                 BestSingletonCount = singletonCount;
-                if (TotalPreferredCells <= TotalPlayableCells &&
-                    preferredCellCount == TotalPreferredCells &&
-                    preferredBlockCount == PreferredBlocks.Count && singletonCount == 0)
+                BestPreferredCellsByPriority = (int[])PreferredCellsByPriority.Clone();
+                if (PreferredCellsByPriority.Length > 0 &&
+                    preferredCellCount == TotalPlayableCells &&
+                    PreferredCellsByPriority[0] == TotalPlayableCells)
                     StopSearch = true;
             }
         }
@@ -1094,12 +1079,14 @@ namespace FitMe.GameData
             public readonly int[,] Footprint;
             public readonly BlockPreset Preset;
             public readonly int CellCount;
+            public readonly int PreferenceIndex;
 
-            public PreferredBlockCandidate(int[,] footprint, BlockPreset preset, int cellCount)
+            public PreferredBlockCandidate(int[,] footprint, BlockPreset preset, int cellCount, int preferenceIndex)
             {
                 Footprint = footprint;
                 Preset = preset;
                 CellCount = cellCount;
+                PreferenceIndex = preferenceIndex;
             }
         }
 

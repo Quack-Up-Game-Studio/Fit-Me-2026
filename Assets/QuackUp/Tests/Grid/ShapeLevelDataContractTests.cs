@@ -265,6 +265,46 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void Catalog_EnumeratesEntriesInInsertionOrderWithMatchingKeysAndValues()
+        {
+            var first = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            var second = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            var catalog = CreateCatalog(("first", first), ("second", second));
+            var entries = new List<KeyValuePair<string, ShapeLevelDefinition>>();
+
+            foreach (var entry in catalog.Levels) entries.Add(entry);
+
+            Assert.That(entries, Has.Count.EqualTo(2));
+            Assert.That(entries[0].Key, Is.EqualTo("first"));
+            Assert.That(entries[0].Value, Is.SameAs(first));
+            Assert.That(entries[1].Key, Is.EqualTo("second"));
+            Assert.That(entries[1].Value, Is.SameAs(second));
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_GroupsRepeatedGeneratedFootprintsByFirstSeenShape()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 2, maxBoardColumns: 2,
+                minBoardRows: 2, maxBoardRows: 2,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 2, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
+                minPlayableRegionCells: 1);
+            var generated = ShapePlaysetGenerator.Generate(config, seed: 29);
+            Assert.That(generated.IsSuccess, Is.True, generated.Error.ToString());
+            var level = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+
+            level.SetGeneratedContent(generated.Playset);
+
+            Assert.That(generated.Playset.PlayerBlocks, Has.Count.EqualTo(2));
+            Assert.That(level.PlayerBlocks, Has.Count.EqualTo(1));
+            Assert.That(level.PlayerBlocks[0].Source, Is.EqualTo(ShapePlayerBlockSource.InlineFootprint));
+            Assert.That(level.PlayerBlocks[0].Count, Is.EqualTo(2));
+            Assert.That(level.ToRuntimeData().PlayerBlockEntries, Has.Count.EqualTo(2));
+        }
+
+        [Test]
         public void ShapeLevelDefinition_GeneratedInlineContentSurvivesAssetSaveAndReload()
         {
             _assetFolderPath = $"Assets/__ShapeLevelSerializationTests_{Guid.NewGuid():N}";

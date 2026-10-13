@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using FitMe.Grid;
 using FitMe.Shared;
 using Sirenix.OdinInspector;
@@ -15,9 +16,9 @@ namespace FitMe.GameData
     [ShowOdinSerializedPropertiesInInspector]
     public sealed class ShapeLevelDefinition : SerializedScriptableObject
     {
-        [SerializeField] private GridPreset _board;
+        [SerializeField, ShowIf(nameof(BoardSource), ShapeBoardSource.Manual)] private GridPreset _board;
         [SerializeField] private List<ShapePlayerBlockEntry> _playerBlocks = new();
-        [SerializeField] private ShapePlaysetGenerationProvenance _generationProvenance;
+        [SerializeField, HideInInspector] private ShapePlaysetGenerationProvenance _generationProvenance;
         [SerializeField, EnumToggleButtons] private ShapeBoardSource _boardSource;
         [field: SerializeField, MinValue(1), ShowIf(nameof(BoardSource), ShapeBoardSource.Generated)]
         public Vector2Int GeneratedBoardSize { get; private set; } = new(10, 10);
@@ -40,7 +41,7 @@ namespace FitMe.GameData
         public ShapeBoardSource BoardSource => _boardSource;
         public int[,] GeneratedBoardMask => Clone(_generatedBoardMask);
         public int[,] GeneratedObstacleMask => Clone(_generatedObstacleMask);
-        [ShowInInspector, ReadOnly]
+        [ShowInInspector, ReadOnly, InlineProperty]
         public ShapePlaysetGenerationProvenance GenerationProvenance => _generationProvenance;
         public IReadOnlyList<ShapePlayerBlockEntry> PlayerBlocks =>
             _playerBlocks ?? (IReadOnlyList<ShapePlayerBlockEntry>)Array.Empty<ShapePlayerBlockEntry>();
@@ -49,9 +50,23 @@ namespace FitMe.GameData
         {
             if (playset == null) throw new ArgumentNullException(nameof(playset));
             var playerBlocks = new List<ShapePlayerBlockEntry>(playset.PlayerBlocks.Count);
+            var groupsByKey = new Dictionary<string, int>();
             for (var index = 0; index < playset.PlayerBlocks.Count; index++)
             {
                 var generatedBlock = playset.PlayerBlocks[index];
+                var groupKey = generatedBlock.IsPredefined
+                    ? "preset:" + generatedBlock.PreferredPreset.GetInstanceID()
+                    : "inline:" + CreateNormalizedFootprintKey(generatedBlock.Footprint);
+                if (groupsByKey.TryGetValue(groupKey, out var groupIndex))
+                {
+                    var existing = playerBlocks[groupIndex];
+                    playerBlocks[groupIndex] = existing.Source == ShapePlayerBlockSource.Preset
+                        ? new ShapePlayerBlockEntry(existing.Preset, existing.Count + 1)
+                        : new ShapePlayerBlockEntry(existing.InlineFootprint, existing.Count + 1);
+                    continue;
+                }
+
+                groupsByKey.Add(groupKey, playerBlocks.Count);
                 playerBlocks.Add(generatedBlock.IsPredefined
                     ? new ShapePlayerBlockEntry(generatedBlock.PreferredPreset, 1)
                     : new ShapePlayerBlockEntry(generatedBlock.Footprint, 1));
@@ -59,6 +74,34 @@ namespace FitMe.GameData
 
             SetGeneratedContent(playset.BoardMask, playset.ObstacleMask, playerBlocks);
             _generationProvenance = new ShapePlaysetGenerationProvenance(playset);
+        }
+
+        private static string CreateNormalizedFootprintKey(int[,] footprint)
+        {
+            if (footprint == null || footprint.Length == 0) return "0x0:";
+            var minRow = footprint.GetLength(0);
+            var minColumn = footprint.GetLength(1);
+            var maxRow = -1;
+            var maxColumn = -1;
+            for (var row = 0; row < footprint.GetLength(0); row++)
+            for (var column = 0; column < footprint.GetLength(1); column++)
+            {
+                if (footprint[row, column] == 0) continue;
+                minRow = Math.Min(minRow, row);
+                minColumn = Math.Min(minColumn, column);
+                maxRow = Math.Max(maxRow, row);
+                maxColumn = Math.Max(maxColumn, column);
+            }
+            if (maxRow < minRow || maxColumn < minColumn) return "0x0:";
+
+            var rows = maxRow - minRow + 1;
+            var columns = maxColumn - minColumn + 1;
+            var key = new StringBuilder(rows * columns + 16);
+            key.Append(rows).Append('x').Append(columns).Append(':');
+            for (var row = minRow; row <= maxRow; row++)
+            for (var column = minColumn; column <= maxColumn; column++)
+                key.Append(footprint[row, column] == 0 ? '0' : '1');
+            return key.ToString();
         }
 
         public void SetGeneratedContent(

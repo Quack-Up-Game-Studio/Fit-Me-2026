@@ -23,6 +23,7 @@ namespace FitMe.GameData.Editor
         [SerializeField] private ShapePlaysetGenerationProfile _profile;
         [SerializeField] private int _seed = 1;
         [SerializeField] private Vector2 _scrollPosition;
+        [SerializeField] private bool _showTechnicalDiagnostics;
         private ShapePlaysetGenerationResult _generationResult;
         private string _generationMessage;
         private string _saveMessage;
@@ -51,6 +52,7 @@ namespace FitMe.GameData.Editor
             _seed = EditorGUILayout.IntField("Seed", _seed);
             if (GUILayout.Button("◀", GUILayout.Width(32f))) StepSeed(-1);
             if (GUILayout.Button("▶", GUILayout.Width(32f))) StepSeed(1);
+            if (GUILayout.Button("Randomize", GUILayout.Width(90f))) RandomizeSeed();
             EditorGUILayout.EndHorizontal();
             if (EditorGUI.EndChangeCheck()) ClearGeneratedResult();
 
@@ -101,6 +103,13 @@ namespace FitMe.GameData.Editor
             GUI.changed = true;
         }
 
+        private void RandomizeSeed()
+        {
+            _seed = Guid.NewGuid().GetHashCode();
+            ClearGeneratedResult();
+            GUI.changed = true;
+        }
+
         private void ClearGeneratedResult()
         {
             _generationResult = null;
@@ -119,14 +128,42 @@ namespace FitMe.GameData.Editor
             }
             else
             {
-                _generationMessage =
-                    $"Generation failed ({_generationResult.Error}) after {_generationResult.AttemptsTried} attempt(s).";
+                _generationMessage = FormatDesignerFailure(_generationResult);
             }
+        }
+
+        private static string FormatDesignerFailure(ShapePlaysetGenerationResult result)
+        {
+            var attempts = result.AttemptsTried;
+            if (result.LastAttemptError == ShapePlaysetGenerationError.TilingBudgetExceeded &&
+                result.CandidateFailures.TilingBudgetExhaustions == attempts)
+                return $"Couldn’t find a complete block layout within the search limit. " +
+                       $"Tried {attempts} boards and reached the tiling search limit on all of them. " +
+                       "This doesn’t prove the profile can’t work. Try increasing the tiling search budget, " +
+                       "simplifying the board or obstacles, or allowing smaller fallback blocks.";
+
+            if (result.LastAttemptError == ShapePlaysetGenerationError.TilingFailed)
+                return $"Couldn’t find a complete block layout for any of the {attempts} candidate boards. " +
+                       "This doesn’t prove every board in the profile is impossible. Try allowing smaller " +
+                       "fallback blocks, enabling singleton fallback blocks, or reducing obstacles.";
+
+            if (result.LastAttemptError == ShapePlaysetGenerationError.ObstacleRepairBudgetExceeded)
+                return $"Couldn’t place a usable obstacle layout within the search limit after {attempts} attempt(s). " +
+                       "Try increasing the obstacle-repair budget or reducing the obstacle count.";
+
+            if (result.LastAttemptError == ShapePlaysetGenerationError.ObstacleRepairFailed)
+                return $"Couldn’t place obstacles while keeping enough playable space after {attempts} attempt(s). " +
+                       "Try reducing the obstacle count or lowering the minimum playable-region size.";
+
+            return $"Couldn’t generate a valid playset after {attempts} attempt(s). " +
+                   "Review the profile settings and technical diagnostics below.";
         }
 
         private void DrawGenerationFailure(ShapePlaysetGenerationResult result)
         {
-            EditorGUILayout.LabelField("Generation diagnostics", EditorStyles.boldLabel);
+            _showTechnicalDiagnostics = EditorGUILayout.Foldout(
+                _showTechnicalDiagnostics, "Technical diagnostics", true);
+            if (!_showTechnicalDiagnostics) return;
             EditorGUILayout.LabelField("Configuration feasibility",
                 result.ConfigurationValidation.FeasibilityStatus.ToString());
             if (result.ConfigurationValidation.FeasibilityStatus == ShapePlaysetFeasibilityStatus.Unproven)
@@ -157,29 +194,20 @@ namespace FitMe.GameData.Editor
                 $"{board.GetLength(1)} columns × {board.GetLength(0)} rows");
             EditorGUILayout.LabelField("Attempt", $"{playset.AttemptIndex + 1} · generator v{playset.GeneratorVersion}");
 
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.BeginVertical(GUILayout.Width(380f));
-            DrawSolvedBoard(board, obstacles, playset.PlayerBlocks);
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField("Provisional difficulty metrics", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("Profile feasibility", feasibilityStatus.ToString());
-            if (feasibilityStatus == ShapePlaysetFeasibilityStatus.Unproven)
-                EditorGUILayout.HelpBox(
-                    "The profile search space is unproven. This successful seeded candidate is solvable, but it does not prove every profile range is feasible.",
-                    MessageType.Warning);
-            EditorGUILayout.LabelField("Provisional score",
-                $"{difficulty.ProvisionalDifficultyScore} · score model v{difficulty.ScoreModelVersion}");
-            EditorGUILayout.LabelField("Playable cells", difficulty.PlayableCellCount.ToString());
-            EditorGUILayout.LabelField("Obstacle cells", difficulty.ObstacleCellCount.ToString());
-            EditorGUILayout.LabelField("Player cells / blocks", $"{difficulty.PlayerCellCount} / {difficulty.BlockCount}");
-            EditorGUILayout.LabelField("Legal placements",
-                $"total {difficulty.TotalLegalPlacements}, average {difficulty.AverageLegalPlacementsPerBlock:F1} per block");
-            EditorGUILayout.LabelField("Placements per block range",
-                $"{difficulty.MinimumLegalPlacementsPerBlock}–{difficulty.MaximumLegalPlacementsPerBlock}");
-            EditorGUILayout.LabelField("Obstacle ratio", $"{difficulty.ObstacleRatio:P1}");
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.EndHorizontal();
+            if (position.width >= 900f)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.BeginVertical(GUILayout.Width(380f));
+                DrawSolvedBoard(board, obstacles, playset.PlayerBlocks);
+                EditorGUILayout.EndVertical();
+                DrawDifficultyMetrics(difficulty, feasibilityStatus);
+                EditorGUILayout.EndHorizontal();
+            }
+            else
+            {
+                DrawSolvedBoard(board, obstacles, playset.PlayerBlocks);
+                DrawDifficultyMetrics(difficulty, feasibilityStatus);
+            }
             EditorGUILayout.HelpBox(
                 "Difficulty values are provisional generator heuristics. Saved provenance records the generation origin and does not claim the level remains unedited.",
                 MessageType.Info);
@@ -239,8 +267,34 @@ namespace FitMe.GameData.Editor
                 EditorGUI.DrawRect(cellRect, color);
             }
 
-            EditorGUILayout.LabelField("Board cells are colored by solved block; obstacles are red and void cells are dark.",
-                EditorStyles.miniLabel);
+            EditorGUILayout.HelpBox(
+                "Board cells are colored by solved block; obstacles are red and void cells are dark.",
+                MessageType.None);
+        }
+
+        private static void DrawDifficultyMetrics(
+            ShapePlaysetDifficultyMetrics difficulty, ShapePlaysetFeasibilityStatus feasibilityStatus)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Provisional difficulty metrics", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Profile feasibility", feasibilityStatus.ToString());
+            if (feasibilityStatus == ShapePlaysetFeasibilityStatus.Unproven)
+                EditorGUILayout.HelpBox(
+                    "This seeded board is solvable, but it does not prove every profile range is feasible.",
+                    MessageType.Warning);
+            EditorGUILayout.LabelField("Provisional score",
+                $"{difficulty.ProvisionalDifficultyScore} · score model v{difficulty.ScoreModelVersion}");
+            EditorGUILayout.LabelField("Playable cells", difficulty.PlayableCellCount.ToString());
+            EditorGUILayout.LabelField("Obstacle cells", difficulty.ObstacleCellCount.ToString());
+            EditorGUILayout.LabelField("Player cells / blocks", $"{difficulty.PlayerCellCount} / {difficulty.BlockCount}");
+            EditorGUILayout.LabelField("Legal placements",
+                $"{difficulty.TotalLegalPlacements} total · {difficulty.AverageLegalPlacementsPerBlock:F1} average per block");
+            EditorGUILayout.LabelField("Minimum placements per block",
+                difficulty.MinimumLegalPlacementsPerBlock.ToString());
+            EditorGUILayout.LabelField("Maximum placements per block",
+                difficulty.MaximumLegalPlacementsPerBlock.ToString());
+            EditorGUILayout.LabelField("Obstacle ratio", $"{difficulty.ObstacleRatio:P1}");
+            EditorGUILayout.EndVertical();
         }
 
         private static void DrawPlayerBlock(int index, GeneratedShapeBlock block)

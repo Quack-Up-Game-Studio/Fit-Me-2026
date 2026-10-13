@@ -108,7 +108,7 @@ namespace FitMe.Grid.Tests
             var reloadedLevelPath = $"{_assetFolderPath}/ReloadedGeneratedLevel.asset";
 
             var presetAsset = ScriptableObject.CreateInstance<BlockPreset>();
-            presetAsset.BlockSchema.schema = new[,] { { 1, 1 } };
+            presetAsset.BlockSchema.schema = new[,] { { 1, 1 }, { 1, 0 } };
             AssetDatabase.CreateAsset(presetAsset, presetPath);
             AssetDatabase.SaveAssets();
             AssetDatabase.ImportAsset(presetPath, ImportAssetOptions.ForceUpdate);
@@ -125,11 +125,12 @@ namespace FitMe.Grid.Tests
                 minObstacleCells: 0,
                 maxObstacleCells: 0,
                 minGeneratedBlockColumns: 1,
-                maxGeneratedBlockColumns: 2,
+                maxGeneratedBlockColumns: 1,
                 minGeneratedBlockRows: 1,
-                maxGeneratedBlockRows: 2,
+                maxGeneratedBlockRows: 1,
                 preferredPlayerBlocks: new[] { new ShapePlayerBlockEntry(preset, 1) },
-                minPlayableRegionCells: 1);
+                minPlayableRegionCells: 1,
+                maxSingletonFallbackBlocks: 1);
             var generation = ShapePlaysetGenerator.Generate(config, seed: 9);
             Assert.That(generation.IsSuccess, Is.True, generation.Error.ToString());
             Assert.That(generation.Playset.PlayerBlocks, Has.Count.EqualTo(2));

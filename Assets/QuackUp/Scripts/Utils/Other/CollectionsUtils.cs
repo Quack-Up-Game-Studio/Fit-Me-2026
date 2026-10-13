@@ -62,9 +62,11 @@ namespace QuackUp.Utils
 
         public new IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            foreach (var entry in this)
+            var enumerator = base.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
+                var entry = enumerator.Entry;
+                yield return new KeyValuePair<TKey, TValue>((TKey)entry.Key, (TValue)entry.Value);
             }
         }
     }
