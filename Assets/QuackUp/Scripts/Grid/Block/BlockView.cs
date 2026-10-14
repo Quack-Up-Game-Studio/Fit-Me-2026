@@ -159,13 +159,18 @@ namespace FitMe.Grid
             {
                 obstacleSpriteRenderer.enabled = true;
                 obstacleSpriteRenderer.sprite = _blockConfig.ObstacleSprite;
-                meshRenderer.enabled = false;
+                SetSpineRendererVisible(false);
             }
             else
             {
                 obstacleSpriteRenderer.enabled = false;
-                meshRenderer.enabled = true;
+                SetSpineRendererVisible(true);
             }
+        }
+
+        private void SetSpineRendererVisible(bool visible)
+        {
+            meshRenderer.enabled = visible && !_blockConfig.UseAtomSprite;
         }
 
         #region Initalization
@@ -174,6 +179,7 @@ namespace FitMe.Grid
             skeletonAnimation.skeletonDataAsset = _blockConfig.SkeletonDataAsset;
             skeletonAnimation.Initialize(true);
             skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
+            SetSpineRendererVisible(true);
             StartIdleTimer();
         }
         #endregion

@@ -476,24 +476,42 @@ namespace FitMe.Grid
         #endregion
         
         #region Blocks
-        private List<CellInstance> ResolvePlacementCells(IReadOnlyList<AtomInstance> atoms)
+        private bool TryResolvePlacementCells(
+            IReadOnlyList<AtomInstance> atoms,
+            out List<CellInstance> resolvedCells)
         {
-            if (atoms == null || atoms.Count == 0) return null;
+            resolvedCells = new List<CellInstance>(atoms?.Count ?? 0);
+            if (atoms == null || atoms.Count == 0) return false;
 
-            var resolvedCells = new List<CellInstance>(atoms.Count);
             var targetIndexes = new List<Vector2Int>(atoms.Count);
+            var resolvedIndexes = new HashSet<Vector2Int>();
             var stageMask = GetCurrentPlayableMask();
+            var allAtomsResolved = true;
 
             foreach (var atom in atoms)
             {
+                if (atom?.GameObject == null)
+                {
+                    allAtomsResolved = false;
+                    continue;
+                }
+
                 var cellPosition = atom.GameObject.transform.position.WithZ(0);
                 var cell = GetCellByPosition(cellPosition);
-                if (cell == null) return null;
+                if (cell == null)
+                {
+                    allAtomsResolved = false;
+                    continue;
+                }
 
                 var targetIndex = cell.Model.ArrayIndex.Value;
                 targetIndexes.Add(targetIndex);
-                resolvedCells.Add(cell);
+                if (resolvedIndexes.Add(targetIndex))
+                    resolvedCells.Add(cell);
             }
+
+            if (!allAtomsResolved || targetIndexes.Count != atoms.Count)
+                return false;
 
             if (!BlockPlacementValidator.TryValidate(
                     CurrentGridSize.y,
@@ -502,9 +520,9 @@ namespace FitMe.Grid
                     targetIndexes,
                     index => GetCellByArrayIndex(index).Model.CurrentAtom.Value != null,
                     out _))
-                return null;
+                return false;
 
-            return resolvedCells;
+            return true;
         }
 
         /// <summary>
@@ -515,16 +533,11 @@ namespace FitMe.Grid
         public bool ValidatePlacement(BlockModel blockModel)
         {
             ResetPreviousValidationCells();
-            var cells = ResolvePlacementCells(blockModel?.Atoms);
-            if (cells == null)
-            {
-                _previousValidationCells.ForEach(cell => cell.Model.State.Value = CellState.CannotBePlaced);
-                return false;
-            }
-
+            var isValid = TryResolvePlacementCells(blockModel?.Atoms, out var cells);
             _previousValidationCells = cells;
-            _previousValidationCells.ForEach(cell => cell.Model.State.Value = CellState.CanBePlaced);
-            return true;
+            var cellState = isValid ? CellState.CanBePlaced : CellState.CannotBePlaced;
+            _previousValidationCells.ForEach(cell => cell.Model.State.Value = cellState);
+            return isValid;
         }
 
         /// <summary>
@@ -540,8 +553,7 @@ namespace FitMe.Grid
             var blockViewTransform = blockInstance.GameObject.transform;
             var cellSize = _grid.cellSize.x;
             blockViewTransform.localScale = Vector3.one * cellSize;
-            var cells = ResolvePlacementCells(blockInstance.Model.Atoms);
-            if (cells == null) return false;
+            if (!TryResolvePlacementCells(blockInstance.Model.Atoms, out var cells)) return false;
 
             using var cancellationTokenSource = new CancellationTokenSource();
             _onAboutToPlaceBlock.OnNext((blockInstance, cancellationTokenSource));

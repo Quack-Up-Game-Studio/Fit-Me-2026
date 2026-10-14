@@ -478,7 +478,8 @@ namespace FitMe.Grid
                     _config.ObjectScale,
                     schema,
                     true,
-                    playerBlock.PlayerBlock.Preset);
+                    playerBlock.PlayerBlock.Preset,
+                    _config.ShapeModeBlockConfig);
                 block.Model.SpawnIndex = i;
                 spawnPoint.IsFree = false;
                 spawnPoint.CurrentBlock = block;
@@ -501,7 +502,8 @@ namespace FitMe.Grid
             float objectScale,
             int[,] schemaOverride = null,
             bool allowRotation = true,
-            BlockPreset presetOverride = null)
+            BlockPreset presetOverride = null,
+            BlockConfig blockConfigOverride = null)
         {
             //block.BlockView.Transform.rotation = randomRotationQuaternion;
             BlockInstance block = _blockFactory.Create(
@@ -514,7 +516,8 @@ namespace FitMe.Grid
                     worldSpace = true,
                 },
                 schemaOverride,
-                presetOverride);
+                presetOverride,
+                blockConfigOverride);
             block.GameObject.name = $"Block_{shape}";
             block.Model.ChangeColor(color, false);
             block.Controller.AllowRotation = allowRotation;
@@ -757,7 +760,8 @@ namespace FitMe.Grid
                     _config.PreviewScale,
                     schema,
                     true,
-                    entry.Preset);
+                    entry.Preset,
+                    _config.ShapeModeBlockConfig);
 
                 block.Controller.SetActive(false);
                 spawnPoint.CurrentBlock = block;

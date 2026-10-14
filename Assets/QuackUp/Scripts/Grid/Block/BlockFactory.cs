@@ -53,12 +53,9 @@ namespace FitMe.Grid
 
         public BlockInstance Create(BlockShape blockShape, Vector3 position, Quaternion rotation,
             InstantiateParameters? instantiateParameters = null, int[,] schemaOverride = null,
-            BlockPreset presetOverride = null)
+            BlockPreset presetOverride = null, BlockConfig blockConfigOverride = null)
         {
-            if (!_blockManagerConfig.BlockConfigDictionary.TryGetValue(blockShape, out var blockConfig))
-            {
-                throw new ArgumentException($"Block config '{blockShape}' not found in BlockConfigDictionary.");
-            }
+            var blockConfig = _blockManagerConfig.GetBlockConfig(blockShape, blockConfigOverride);
 
             BlockPreset blockPreset;
             if (presetOverride)

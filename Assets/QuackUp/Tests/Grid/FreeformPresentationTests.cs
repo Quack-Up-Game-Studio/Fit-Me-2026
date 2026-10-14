@@ -137,6 +137,60 @@ namespace FitMe.Grid.Tests
             CollectionAssert.AreEqual(expected.Select(index => ExpectedOutline(schema, index)), outlineSettings);
         }
 
+        [Test]
+        public void BlockView_AtomSpriteModeKeepsSpineHiddenWhenBlockReturnsToNormal()
+        {
+            var blockConfig = Keep(ScriptableObject.CreateInstance<BlockConfig>());
+            SetField(blockConfig, "<UseAtomSprite>k__BackingField", true);
+            var blockObject = Keep(new GameObject("Atom-sprite block"));
+            var meshRenderer = blockObject.AddComponent<MeshRenderer>();
+            var obstacleObject = Keep(new GameObject("Obstacle sprite"));
+            obstacleObject.transform.SetParent(blockObject.transform, false);
+            var obstacleSpriteRenderer = obstacleObject.AddComponent<SpriteRenderer>();
+            var blockView = blockObject.AddComponent<BlockView>();
+            SetField(blockView, "meshRenderer", meshRenderer);
+            SetField(blockView, "obstacleSpriteRenderer", obstacleSpriteRenderer);
+            SetField(blockView, "_blockConfig", blockConfig);
+
+            typeof(BlockView).GetMethod("OnBlockStateChanged", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(blockView, new object[] { BlockState.Obstacle, BlockState.Normal });
+
+            Assert.That(meshRenderer.enabled, Is.False,
+                "Returning to Normal must not turn on the Spine renderer when atom sprites are selected.");
+        }
+
+        [Test]
+        public void BlockManagerConfig_ExplicitShapeModeConfigOverridesOneByOneConfig()
+        {
+            var managerConfig = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var oneByOneConfig = Keep(ScriptableObject.CreateInstance<BlockConfig>());
+            var shapeModeConfig = Keep(ScriptableObject.CreateInstance<BlockConfig>());
+            SetField(managerConfig, "_blockConfigDictionary", new Dictionary<BlockShape, BlockConfig>
+            {
+                [BlockShape.OneByOne] = oneByOneConfig
+            });
+
+            var shapeModeProperty = typeof(BlockManagerConfig).GetProperty("ShapeModeBlockConfig");
+            Assert.That(shapeModeProperty, Is.Not.Null,
+                "BlockManagerConfig needs an explicit shared config reference for arbitrary Shape Mode blocks.");
+            if (shapeModeProperty == null) return;
+            shapeModeProperty.SetValue(managerConfig, shapeModeConfig);
+
+            var resolveMethod = typeof(BlockManagerConfig).GetMethod("GetBlockConfig",
+                new[] { typeof(BlockShape), typeof(BlockConfig) });
+            Assert.That(resolveMethod, Is.Not.Null,
+                "Config resolution must allow a mode-specific config to override the shape dictionary.");
+            if (resolveMethod == null) return;
+
+            var selected = resolveMethod.Invoke(managerConfig, new object[]
+                { BlockShape.OneByOne, shapeModeProperty.GetValue(managerConfig) });
+            var classicFallback = resolveMethod.Invoke(managerConfig, new object[]
+                { BlockShape.OneByOne, null });
+
+            Assert.That(selected, Is.SameAs(shapeModeConfig));
+            Assert.That(classicFallback, Is.SameAs(oneByOneConfig));
+        }
+
         private T Keep<T>(T item) where T : Object
         {
             _objects.Add(item);

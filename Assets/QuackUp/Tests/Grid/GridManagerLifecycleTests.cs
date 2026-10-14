@@ -388,7 +388,7 @@ namespace FitMe.Grid.Tests
             _cell.CurrentAtom.Value = _blockModel.Atoms[0];
 
             Assert.That(_manager.ValidatePlacement(_blockModel), Is.False);
-            Assert.That(_cell.State.Value, Is.EqualTo(CellState.None));
+            Assert.That(_cell.State.Value, Is.EqualTo(CellState.CannotBePlaced));
         }
 
         [Test]
