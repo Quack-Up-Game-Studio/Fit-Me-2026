@@ -15,7 +15,6 @@ namespace FitMe.GameData
         private const int MaximumBoardCells = MaximumBoardDimension * MaximumBoardDimension;
         private const int MaximumAcceptedObstacleCells = MaximumBoardCells - 1;
         private const int MaximumAcceptedVoidCells = MaximumBoardCells - 1;
-        private const int DifficultyScoreModelVersion = 1;
         private const int MaximumPreferredBlockCount = 16;
 
         public static ShapePlaysetGenerationConfigValidation ValidateConfiguration(ShapePlaysetGenerationConfig config)
@@ -673,85 +672,11 @@ namespace FitMe.GameData
         private static ShapePlaysetDifficultyMetrics CalculateMetrics(
             int[,] playableMask, int obstacleCellCount, int voidCellCount, IReadOnlyList<GeneratedShapeBlock> blocks)
         {
-            var playableCellCount = CountCells(playableMask);
-            var totalPlacements = 0;
-            var minimumPlacements = int.MaxValue;
-            var maximumPlacements = 0;
-            var playerCellCount = 0;
-            var score = 0;
+            var footprints = new List<int[,]>(blocks.Count);
             for (var index = 0; index < blocks.Count; index++)
-            {
-                var block = blocks[index];
-                var footprint = block.Footprint;
-                var cellCount = CountCells(footprint);
-                var bboxArea = footprint.Length;
-                var legalPlacements = CountLegalPlacements(playableMask, footprint);
-                totalPlacements += legalPlacements;
-                minimumPlacements = Math.Min(minimumPlacements, legalPlacements);
-                maximumPlacements = Math.Max(maximumPlacements, legalPlacements);
-                playerCellCount += cellCount;
-                score += (bboxArea - cellCount) * 2 + Math.Max(0, 8 - legalPlacements);
-            }
-
-            var average = blocks.Count == 0 ? 0f : (float)totalPlacements / blocks.Count;
-            var ratio = playableCellCount + obstacleCellCount == 0
-                ? 0f
-                : (float)obstacleCellCount / (playableCellCount + obstacleCellCount);
-            return new ShapePlaysetDifficultyMetrics(
-                playableCellCount, obstacleCellCount, voidCellCount, playerCellCount, blocks.Count,
-                totalPlacements, average, minimumPlacements == int.MaxValue ? 0 : minimumPlacements,
-                maximumPlacements, ratio, score, DifficultyScoreModelVersion);
-        }
-
-        private static int CountLegalPlacements(int[,] playableMask, int[,] footprint)
-        {
-            var source = GetCoordinates(footprint);
-            var uniqueRotations = new HashSet<string>();
-            var rows = playableMask.GetLength(0);
-            var columns = playableMask.GetLength(1);
-            var count = 0;
-            for (var rotation = 0; rotation < 4; rotation++)
-            {
-                var rotated = new Vector2Int[source.Count];
-                var minRow = int.MaxValue;
-                var minColumn = int.MaxValue;
-                for (var index = 0; index < source.Count; index++)
-                {
-                    var cell = source[index];
-                    for (var turn = 0; turn < rotation; turn++)
-                        cell = new Vector2Int(cell.y, -cell.x);
-                    rotated[index] = cell;
-                    minRow = Math.Min(minRow, cell.x);
-                    minColumn = Math.Min(minColumn, cell.y);
-                }
-                for (var index = 0; index < rotated.Length; index++)
-                    rotated[index] -= new Vector2Int(minRow, minColumn);
-                Array.Sort(rotated, (left, right) => left.x != right.x
-                    ? left.x.CompareTo(right.x)
-                    : left.y.CompareTo(right.y));
-                var shapeKey = string.Join(";", Array.ConvertAll(rotated,
-                    cell => cell.x + "," + cell.y));
-                if (!uniqueRotations.Add(shapeKey)) continue;
-
-                for (var originRow = 0; originRow < rows; originRow++)
-                for (var originColumn = 0; originColumn < columns; originColumn++)
-                {
-                    if (playableMask[originRow, originColumn] == 0) continue;
-                    var fits = true;
-                    for (var index = 0; index < rotated.Length; index++)
-                    {
-                        var row = originRow + rotated[index].x;
-                        var column = originColumn + rotated[index].y;
-                        if (row >= rows || column >= columns || playableMask[row, column] == 0)
-                        {
-                            fits = false;
-                            break;
-                        }
-                    }
-                    if (fits) count++;
-                }
-            }
-            return count;
+                footprints.Add(blocks[index].Footprint);
+            return ShapePlaysetDifficultyEvaluator.Evaluate(
+                playableMask, obstacleCellCount, voidCellCount, footprints);
         }
 
         private static int[,] GetPresetFootprint(BlockPreset preset)

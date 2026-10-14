@@ -12,6 +12,7 @@ namespace FitMe.GameData.Editor
         private ShapeLevelDesignSnapshot _snapshot;
         private ShapeLevelTilingResult _tilingResult;
         private IReadOnlyList<ShapeLevelValidationError> _tilingValidationErrors;
+        private ShapePlaysetDifficultyMetrics _difficultyMetrics;
         private bool _tilingNeedsValidation;
         private static GUIStyle _blockIndexLabelStyle;
 
@@ -47,6 +48,7 @@ namespace FitMe.GameData.Editor
             _snapshot = ShapeLevelDesignSnapshot.Create((ShapeLevelDefinition)target);
             _tilingResult = null;
             _tilingValidationErrors = null;
+            _difficultyMetrics = null;
             Repaint();
         }
 
@@ -74,9 +76,13 @@ namespace FitMe.GameData.Editor
                     blockSchemas.Add(schema);
             }
 
+            var playableMask = _snapshot.CreatePlayableMask();
             _tilingResult = ShapeLevelTilingSolver.Solve(
-                _snapshot.CreatePlayableMask(), blockSchemas,
+                playableMask, blockSchemas,
                 ShapeTilingValidationSettings.instance.MaxSearchNodes);
+            if (_tilingResult.IsFeasible)
+                _difficultyMetrics = ShapePlaysetDifficultyEvaluator.Evaluate(
+                    playableMask, _snapshot.ObstacleCellCount, _snapshot.VoidCellCount, blockSchemas);
         }
 
         private void DrawMetrics()
@@ -172,7 +178,34 @@ namespace FitMe.GameData.Editor
             EditorGUILayout.HelpBox(
                 $"{message}\nStatus: {_tilingResult.Status} · Search nodes: {_tilingResult.NodesVisited}",
                 messageType);
-            if (_tilingResult.IsFeasible) DrawSolvedTilingPreview(_tilingResult.Placements);
+            if (_tilingResult.IsFeasible)
+            {
+                DrawDifficultyMetrics();
+                DrawSolvedTilingPreview(_tilingResult.Placements);
+            }
+        }
+
+        private void DrawDifficultyMetrics()
+        {
+            if (_difficultyMetrics == null) return;
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Provisional difficulty heuristic", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Provisional score",
+                $"{_difficultyMetrics.ProvisionalDifficultyScore} · score model v{_difficultyMetrics.ScoreModelVersion}");
+            EditorGUILayout.LabelField("Playable cells", _difficultyMetrics.PlayableCellCount.ToString());
+            EditorGUILayout.LabelField("Obstacle cells", _difficultyMetrics.ObstacleCellCount.ToString());
+            EditorGUILayout.LabelField("Void cells", _difficultyMetrics.VoidCellCount.ToString());
+            EditorGUILayout.LabelField("Player cells / blocks",
+                $"{_difficultyMetrics.PlayerCellCount} / {_difficultyMetrics.BlockCount}");
+            EditorGUILayout.LabelField("Legal placements",
+                $"{_difficultyMetrics.TotalLegalPlacements} total · {_difficultyMetrics.AverageLegalPlacementsPerBlock:F1} average per block");
+            EditorGUILayout.LabelField("Minimum placements per block",
+                _difficultyMetrics.MinimumLegalPlacementsPerBlock.ToString());
+            EditorGUILayout.LabelField("Maximum placements per block",
+                _difficultyMetrics.MaximumLegalPlacementsPerBlock.ToString());
+            EditorGUILayout.LabelField("Obstacle ratio", $"{_difficultyMetrics.ObstacleRatio:P1}");
+            EditorGUILayout.EndVertical();
         }
 
         private void DrawSolvedTilingPreview(IReadOnlyList<ShapeLevelTilingPlacement> placements)

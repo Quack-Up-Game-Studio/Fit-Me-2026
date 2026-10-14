@@ -55,6 +55,55 @@ namespace FitMe.Grid.Tests
                 "The preview must reflect the edited domino footprint.");
         }
 
+        [Test]
+        public void ValidateTiling_ShowsDifficultyMetricsOnlyForFeasibleResult()
+        {
+            _level = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+            _level.SetGeneratedContent(
+                new[,] { { 1, 1 } },
+                new[,] { { 0, 0 } },
+                new[] { new ShapePlayerBlockEntry(new[,] { { 1 } }, 2) });
+            _editor = Editor.CreateEditor(_level);
+
+            InvokePrivate(_editor, "ValidateTiling");
+
+            var difficulty = GetPrivateField<ShapePlaysetDifficultyMetrics>(_editor, "_difficultyMetrics");
+            Assert.That(difficulty, Is.Not.Null);
+            Assert.That(difficulty.IsProvisional, Is.True);
+            Assert.That(difficulty.PlayableCellCount, Is.EqualTo(2));
+            Assert.That(difficulty.BlockCount, Is.EqualTo(2));
+            Assert.That(difficulty.TotalLegalPlacements, Is.EqualTo(4));
+            Assert.That(difficulty.ScoreModelVersion, Is.EqualTo(1));
+
+            _level.SetGeneratedContent(
+                new[,] { { 1, 0, 1 } },
+                new[,] { { 0, 0, 0 } },
+                new[] { new ShapePlayerBlockEntry(new[,] { { 1, 1 } }, 1) });
+            InvokePrivate(_editor, "RefreshDesignMetrics");
+            Assert.That(GetPrivateField<ShapePlaysetDifficultyMetrics>(_editor, "_difficultyMetrics"), Is.Null);
+
+            InvokePrivate(_editor, "ValidateTiling");
+
+            var result = GetPrivateField<ShapeLevelTilingResult>(_editor, "_tilingResult");
+            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Infeasible));
+            Assert.That(GetPrivateField<ShapePlaysetDifficultyMetrics>(_editor, "_difficultyMetrics"), Is.Null);
+
+            _level.SetGeneratedContent(
+                new[,] { { 1, 1, 1, 1 } },
+                new[,] { { 0, 0, 0, 0 } },
+                new[] { new ShapePlayerBlockEntry(new[,] { { 1, 1 } }, 2) });
+            InvokePrivate(_editor, "RefreshDesignMetrics");
+            InvokePrivate(_editor, "ValidateTiling");
+
+            result = GetPrivateField<ShapeLevelTilingResult>(_editor, "_tilingResult");
+            var refreshedDifficulty = GetPrivateField<ShapePlaysetDifficultyMetrics>(_editor, "_difficultyMetrics");
+            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Feasible));
+            Assert.That(refreshedDifficulty, Is.Not.Null);
+            Assert.That(refreshedDifficulty.PlayableCellCount, Is.EqualTo(4));
+            Assert.That(refreshedDifficulty.BlockCount, Is.EqualTo(2));
+            Assert.That(refreshedDifficulty.TotalLegalPlacements, Is.EqualTo(6));
+        }
+
         private static void InvokePrivate(object target, string methodName)
         {
             var method = target.GetType().GetMethod(
