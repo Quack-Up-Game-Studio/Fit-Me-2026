@@ -51,6 +51,7 @@ namespace FitMe.Grid
     public class BlockViewModel : IDisposable
     {
         public ReactiveProperty<BlockInteractionState> BlockInteractionState { get; private set; } = new(Grid.BlockInteractionState.PlacedOnSpawn);
+        public ReactiveProperty<Transform> SpawnReturnTarget { get; private set; } = new();
         public ReadOnlyReactiveProperty<BlockColor> BlockColor => _model.BlockColor;
         public ReadOnlyReactiveProperty<BlockState> BlockState => _model.BlockState;
         public ReactiveCommand<int> SetSortingLayerCommand { get; private set; } = new();
@@ -79,6 +80,12 @@ namespace FitMe.Grid
         public void Dispose()
         {
             _bindings?.Dispose();
+            SpawnReturnTarget.Dispose();
+        }
+
+        public void SetSpawnReturnTarget(Transform target)
+        {
+            SpawnReturnTarget.Value = target;
         }
     }
 }

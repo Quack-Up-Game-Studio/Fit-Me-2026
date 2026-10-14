@@ -72,6 +72,7 @@ namespace FitMe.Grid
             _originalParent = transform.parent;
             _originalPosition = transform.position;
             _originalEulerAngles = transform.eulerAngles;
+            _viewModel.SetSpawnReturnTarget(_originalParent);
             _originalSortingLayer = meshRenderer.sortingLayerID;
             _originalSortingOrder = meshRenderer.sortingOrder;
             Bind();
@@ -302,13 +303,16 @@ namespace FitMe.Grid
         }
 
         /// <summary>
-        /// Return the block to its original position, rotation and scale
+        /// Return the block to its current spawn slot, restoring its saved rotation and scale.
         /// </summary>
         private void ReturnToSpawn()
         {
             Tween.StopAll(transform);
-            transform.SetParent(_originalParent);
-            _transformTween = Tween.Position(transform, _originalPosition, 0.2f)
+            var returnTarget = _viewModel.SpawnReturnTarget.CurrentValue;
+            var returnParent = returnTarget ? returnTarget : _originalParent;
+            var returnPosition = returnTarget ? returnTarget.position : _originalPosition;
+            transform.SetParent(returnParent);
+            _transformTween = Tween.Position(transform, returnPosition, 0.2f)
                 .OnComplete(this, target =>
                 {
                     target.OnSetSortingLayer(_blockManagerConfig.SpawnSortingLayer);

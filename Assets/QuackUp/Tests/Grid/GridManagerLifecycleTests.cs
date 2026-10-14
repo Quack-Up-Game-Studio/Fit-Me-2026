@@ -1026,6 +1026,10 @@ namespace FitMe.Grid.Tests
             Assert.That(previewPoint.CurrentBlock, Is.SameAs(handBlock));
             Assert.That(nextBlock.GameObject.transform.parent, Is.SameAs(handTransform));
             Assert.That(handBlock.GameObject.transform.parent, Is.SameAs(previewTransform));
+            Assert.That(nextBlock.ViewModel.SpawnReturnTarget.Value, Is.SameAs(handTransform),
+                "a swapped-in block must return to its new hand slot after a rejected placement");
+            Assert.That(handBlock.ViewModel.SpawnReturnTarget.Value, Is.SameAs(previewTransform),
+                "the displaced block must return to its new preview slot");
             Assert.That(queue.Count, Is.EqualTo(2));
             var remainingSupply = queue.PeekNext(2);
             Assert.That(remainingSupply[0].PlayerBlock.Preset, Is.Null);

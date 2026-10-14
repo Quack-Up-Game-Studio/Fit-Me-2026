@@ -643,6 +643,7 @@ namespace FitMe.Grid
             var blockTransform = block.GameObject.transform;
             blockTransform.SetParent(spawnPoint.Transform, true);
             blockTransform.position = spawnPoint.Transform.position;
+            block.ViewModel?.SetSpawnReturnTarget(spawnPoint.Transform);
             blockTransform.localScale = Vector3.zero;
             block.ViewModel.ScaleInCommand.Execute(new ScaleInCommandData(
                 new Promise<Unit>(),
