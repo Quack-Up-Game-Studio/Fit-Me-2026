@@ -6,6 +6,12 @@
 
 The list order remains the spawn order. A single block is represented by `Count = 1`; identical presets may be grouped into one entry. The Inspector minimum is a convenience only—validation must still reject a missing entry, missing preset, or `Count < 1`.
 
+## Shape level Inspector design feedback
+
+`ShapeLevelDefinition` exposes read-only design metrics derived from the current board and ordered player-block entries. Playable cells are cells the current board permits blocks to occupy after custom obstacles are removed. Metrics include playable, obstacle, void, and player-block cell counts plus the capacity difference. **Refresh Design Metrics** forces a recomputation; metrics are not serialized or treated as authoritative state.
+
+**Validate Tiling** runs a bounded exact-cover search using the current block list and the game's four rotational orientations. A successful result proves a tiling exists; an exhausted search budget is reported as inconclusive, never as infeasible. Structural level errors block the search and are shown separately. Search budget is shared and editor-only in `ProjectSettings/FitMeShapeTilingValidationSettings.asset`, surfaced under Project Settings → Fit Me → Shape Level Validation; it is independent of generation profiles and does not affect runtime gameplay.
+
 ## Validation and capacity
 
 For each entry, count the occupied atoms in the referenced preset schema and multiply by `Count`. The total must exactly equal the board's playable cells minus custom obstacle cells:

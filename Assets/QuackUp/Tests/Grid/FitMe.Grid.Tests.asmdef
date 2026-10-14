@@ -4,6 +4,7 @@
   "references": [
     "FitMe.Grid",
     "FitMe.GameData",
+    "FitMe.GameData.Editor",
     "FitMe.Scene",
     "FitMe.Shared",
     "QuackUp.Utils",
