@@ -30,6 +30,81 @@ namespace FitMe.Grid
             this.blockColor = blockColor;
         }
     }
+
+    public sealed class ShapeBlockSupplyQueue
+    {
+        public readonly struct Item
+        {
+            public ShapePlayerBlockRuntimeEntry PlayerBlock { get; }
+            public Quaternion Rotation { get; }
+            public BlockColor Color { get; }
+
+            public Item(ShapePlayerBlockRuntimeEntry playerBlock, Quaternion rotation, BlockColor color)
+            {
+                PlayerBlock = playerBlock;
+                Rotation = rotation;
+                Color = color;
+            }
+
+            public Item WithAppearance(Quaternion rotation, BlockColor color) =>
+                new(PlayerBlock, rotation, color);
+        }
+
+        private readonly LinkedList<Item> _upcoming = new();
+
+        public int Count => _upcoming.Count;
+
+        public void Reset(IEnumerable<Item> items)
+        {
+            _upcoming.Clear();
+            if (items == null) return;
+
+            foreach (var item in items)
+            {
+                var schema = item.PlayerBlock?.Schema;
+                if (schema == null || schema.GetLength(0) == 0 || schema.GetLength(1) == 0)
+                    continue;
+
+                _upcoming.AddLast(item);
+            }
+        }
+
+        public IReadOnlyList<Item> PeekNext(int count)
+        {
+            if (count <= 0 || _upcoming.Count == 0) return Array.Empty<Item>();
+
+            var result = new List<Item>(Math.Min(count, _upcoming.Count));
+            var node = _upcoming.First;
+            while (node != null && result.Count < count)
+            {
+                result.Add(node.Value);
+                node = node.Next;
+            }
+
+            return result;
+        }
+
+        public bool TryTakeNext(out Item item)
+        {
+            if (_upcoming.First == null)
+            {
+                item = default;
+                return false;
+            }
+
+            item = _upcoming.First.Value;
+            _upcoming.RemoveFirst();
+            return true;
+        }
+
+        public bool TrySwapWithNext(Item activeItem, out Item incomingItem)
+        {
+            if (!TryTakeNext(out incomingItem)) return false;
+
+            _upcoming.AddFirst(activeItem);
+            return true;
+        }
+    }
     
     [Serializable]
     public class BlockManager : IDisposable
@@ -86,12 +161,26 @@ namespace FitMe.Grid
             .Select(x => x.CurrentBlock)
             .ToList();
 
-        public bool AllowSwapping { get; set; } = true;
+        private bool _allowSwapping = true;
+        public bool AllowSwapping
+        {
+            get => _allowSwapping;
+            set
+            {
+                _allowSwapping = value;
+                RefreshSwapAvailability();
+            }
+        }
+
+        public ReadOnlyReactiveProperty<bool> CanSwap => _readOnlyCanSwap;
 
         public Observable<Unit> OnSwap => _onSwap;
         private readonly Subject<Unit> _onSwap = new();
+        private readonly ReactiveProperty<bool> _canSwap = new(false);
+        private readonly ReadOnlyReactiveProperty<bool> _readOnlyCanSwap;
         private Queue<SpawnBlockData> _spawnBag = new();
-        private Queue<ShapePlayerBlockRuntimeEntry> _shapeBlockQueue = new();
+        private readonly ShapeBlockSupplyQueue _shapeBlockQueue = new();
+        private readonly Dictionary<int, ShapeBlockSupplyQueue.Item> _activeShapeSupplyBySpawnIndex = new();
         private ShapeLevelRuntimeData _shapeLevelRuntimeData;
         private readonly List<SpawnBlockData> _blockPool = new();
         private BlockInstance _currentPreviewBlock;
@@ -109,6 +198,8 @@ namespace FitMe.Grid
         private bool _continued;
         
         private IDisposable _subscriptions;
+        private IDisposable _swapTargetRotationSubscription;
+        private BlockInstance _rotationTrackedSwapTarget;
         #endregion
 
         [Inject]
@@ -128,6 +219,7 @@ namespace FitMe.Grid
             _blockFactory = blockFactory;
             _spawnPreviews = spawnPreviews;
             _messageHub = messageHub;
+            _readOnlyCanSwap = _canSwap.ToReadOnlyReactiveProperty();
             Subscribe();
         }
 
@@ -158,6 +250,9 @@ namespace FitMe.Grid
         public void Dispose()
         {
             _subscriptions?.Dispose();
+            _swapTargetRotationSubscription?.Dispose();
+            _readOnlyCanSwap.Dispose();
+            _canSwap.Dispose();
         }
 
         #region Events
@@ -172,9 +267,10 @@ namespace FitMe.Grid
 
         private void OnSpawnWithShapeLevel(SpawnWithShapeLevelEvent eventData)
         {
+            ResetBlockInSlot();
             _shapeLevelRuntimeData = eventData.RuntimeData;
-            _shapeBlockQueue = new Queue<ShapePlayerBlockRuntimeEntry>(
-                _shapeLevelRuntimeData?.PlayerBlockEntries ?? Array.Empty<ShapePlayerBlockRuntimeEntry>());
+            _shapeBlockQueue.Reset(CreateShapeBlockSupplyItems(_shapeLevelRuntimeData));
+            RefreshSwapAvailability();
         }
 
         private void OnCellsCreated()
@@ -288,7 +384,9 @@ namespace FitMe.Grid
                 spawnPoint.CurrentBlock = null;
                 spawnPoint.IsFree = true;
             }
-            
+
+            ClearPreviewSlots();
+            _activeShapeSupplyBySpawnIndex.Clear();
             _currentPreviewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
             _currentPreviewBlock = null;
         }
@@ -303,14 +401,18 @@ namespace FitMe.Grid
                 _continued = false;
                 if (_shapeLevelRuntimeData != null)
                 {
-                    _shapeBlockQueue = new Queue<ShapePlayerBlockRuntimeEntry>(
-                        _shapeLevelRuntimeData.PlayerBlockEntries);
+                    // Continue starts a fresh authored supply; swap order is preserved only during the run.
+                    _shapeBlockQueue.Reset(CreateShapeBlockSupplyItems(_shapeLevelRuntimeData));
                     SpawnShapeBlocks();
                 }
                 else
                 {
                     SpawnBlocksFromBag(true);
                 }
+            }
+            else
+            {
+                RefreshSwapAvailability();
             }
             Debug.LogWarning("BlockManager: Bag Reset!");
         }
@@ -346,6 +448,7 @@ namespace FitMe.Grid
             if (_smartRandomCount > 0) SmartRandom();
             //PreviewNextQueue();
             PreviewMultiNextQueue(_config.PreviewCount);
+            RefreshSwapAvailability();
             DebugUtils.Log($"Yuirin: Now has {_spawnBag.Count} items in bag.");
         }
 
@@ -355,38 +458,39 @@ namespace FitMe.Grid
             var spawnCount = Math.Min(_config.MaxRandomAmount, _spawnPoints.Length);
             for (var i = 0; i < spawnCount; i++)
             {
-                if (!_spawnPoints[i].IsFree || _shapeBlockQueue.Count == 0) continue;
+                if (!_spawnPoints[i].IsFree || !_shapeBlockQueue.TryTakeNext(out var playerBlock)) continue;
 
                 var spawnPoint = _spawnPoints[i];
-                var playerBlock = _shapeBlockQueue.Dequeue();
-                if (playerBlock == null) continue;
+                if (playerBlock.PlayerBlock == null) continue;
 
-                var schema = playerBlock.Schema;
+                var schema = playerBlock.PlayerBlock.Schema;
                 if (schema == null || schema.GetLength(0) == 0 || schema.GetLength(1) == 0)
                 {
                     DebugUtils.LogWarning("Shape Mode skipped a player block with an empty schema.");
                     continue;
                 }
 
-                var rotation = Quaternion.Euler(0f, 0f, Random.Range(0, 4) * 90f);
-                var color = EnumUtils.RandomValue<BlockColor>();
                 var block = InstantiateBlock(
                     spawnPoint.Transform,
-                    rotation,
+                    playerBlock.Rotation,
                     BlockShape.OneByOne,
-                    color,
+                    playerBlock.Color,
                     _config.ObjectScale,
                     schema,
                     true,
-                    playerBlock.Preset);
+                    playerBlock.PlayerBlock.Preset);
                 block.Model.SpawnIndex = i;
                 spawnPoint.IsFree = false;
                 spawnPoint.CurrentBlock = block;
+                _activeShapeSupplyBySpawnIndex[i] = playerBlock;
                 spawnedBlocks.Add(block);
             }
 
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
+
+            PreviewShapeQueue();
+            RefreshSwapAvailability();
         }
 
         private BlockInstance InstantiateBlock(
@@ -437,11 +541,18 @@ namespace FitMe.Grid
             spawnedBlocks.Add(block);
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
+            RefreshSwapAvailability();
         }
         
         public void Swap()
         {
-            if (!AllowSwapping || _spawnBag.Count == 0) return;
+            if (!AllowSwapping) return;
+            if (_shapeLevelRuntimeData != null)
+            {
+                SwapShapeBlock();
+                return;
+            }
+            if (_spawnBag.Count == 0) return;
             var blockToSwap = BlockOnHand.FirstOrDefault();
             if (blockToSwap == null) return;
             if (blockToSwap.Controller.IsRotating) return;
@@ -472,6 +583,71 @@ namespace FitMe.Grid
             //_previewBlocks[0] = newPreviewBlock;
             _onSwap?.OnNext(Unit.Default);
             //PreviewMultiNextQueue(_config.PreviewCount);
+            RefreshSwapAvailability();
+        }
+
+        private void SwapShapeBlock()
+        {
+            if (_shapeBlockQueue.Count == 0 || _spawnPoints == null || _spawnPreviews == null ||
+                _spawnPreviews.Length == 0)
+                return;
+
+            // The swap control is global, so target the first occupied hand slot in configured order.
+            var blockToSwap = BlockOnHand.FirstOrDefault();
+            var previewPoint = _spawnPreviews[0];
+            var previewBlock = previewPoint?.CurrentBlock;
+            if (blockToSwap == null || blockToSwap.Controller.IsRotating || previewPoint == null ||
+                previewPoint.IsFree || previewBlock == null)
+                return;
+
+            var spawnIndex = blockToSwap.Model.SpawnIndex;
+            if (spawnIndex < 0 || spawnIndex >= _spawnPoints.Length)
+                return;
+
+            var spawnPoint = _spawnPoints[spawnIndex];
+            if (spawnPoint == null || spawnPoint.IsFree ||
+                !ReferenceEquals(spawnPoint.CurrentBlock, blockToSwap) ||
+                spawnPoint.Transform == null || previewPoint.Transform == null)
+                return;
+
+            if (!_activeShapeSupplyBySpawnIndex.TryGetValue(spawnIndex, out var activeSupply) ||
+                activeSupply.PlayerBlock == null || activeSupply.PlayerBlock.Schema == null)
+                return;
+
+            activeSupply = activeSupply.WithAppearance(
+                blockToSwap.GameObject.transform.rotation,
+                blockToSwap.Model.BlockColor.CurrentValue);
+            if (!_shapeBlockQueue.TrySwapWithNext(
+                    activeSupply,
+                    out var incomingSupply))
+                return;
+
+            _activeShapeSupplyBySpawnIndex[spawnIndex] = incomingSupply;
+
+            MoveBlockToSpawnPoint(previewBlock, spawnPoint, _config.ObjectScale, true);
+            previewBlock.Model.SpawnIndex = spawnIndex;
+            spawnPoint.CurrentBlock = previewBlock;
+            spawnPoint.IsFree = false;
+
+            MoveBlockToSpawnPoint(blockToSwap, previewPoint, _config.PreviewScale, false);
+            previewPoint.CurrentBlock = blockToSwap;
+            previewPoint.IsFree = false;
+
+            _messageHub.Publish(new BlockSpawnedEvent(new List<BlockInstance> { previewBlock }));
+            _onSwap?.OnNext(Unit.Default);
+            RefreshSwapAvailability();
+        }
+
+        private void MoveBlockToSpawnPoint(BlockInstance block, SpawnPointData spawnPoint, float scale, bool isActive)
+        {
+            var blockTransform = block.GameObject.transform;
+            blockTransform.SetParent(spawnPoint.Transform, true);
+            blockTransform.position = spawnPoint.Transform.position;
+            blockTransform.localScale = Vector3.zero;
+            block.ViewModel.ScaleInCommand.Execute(new ScaleInCommandData(
+                new Promise<Unit>(),
+                new Vector3(scale, scale, 1f)));
+            block.Controller.SetActive(isActive);
         }
 
         private void SmartRandom()
@@ -520,36 +696,164 @@ namespace FitMe.Grid
         
         private void PreviewMultiNextQueue(int previewCount)
         {
-            foreach (var previewBlock in BlockOnPreview)
+            ClearPreviewSlots();
+            if (_spawnPreviews == null || _spawnPreviews.Length == 0)
             {
-                previewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
+                RefreshSwapAvailability();
+                return;
             }
-            _spawnPreviews.ForEach(FreeSpawnPoint);
-            if (_spawnBag.Count == 0) return;
-            
-            var bagList = _spawnBag.ToList();
-            
-            Debug.Log(_spawnPreviews.Length);
-            //_previewBlocks.Clear();
-            for (int i = 0; i < _spawnPreviews.Length; i++)
+            if (_spawnBag.Count == 0)
             {
-                if (i >= _spawnPreviews.Length || i >= bagList.Count) break;
+                RefreshSwapAvailability();
+                return;
+            }
 
+            var bagList = _spawnBag.ToList();
+            var count = Math.Min(Math.Min(previewCount, _spawnPreviews.Length), bagList.Count);
+            for (var i = 0; i < count; i++)
+            {
                 var nextBlocks = bagList[i];
-        
                 var block = InstantiateBlock(
-                    _spawnPreviews[i].Transform, 
-                    nextBlocks.rotation, 
-                    nextBlocks.blockShape, 
-                    nextBlocks.blockColor, 
-                    _config.PreviewScale
-                );
-        
+                    _spawnPreviews[i].Transform,
+                    nextBlocks.rotation,
+                    nextBlocks.blockShape,
+                    nextBlocks.blockColor,
+                    _config.PreviewScale);
+
                 block.Controller.SetActive(false);
-                //_previewBlocks.Add(block);
                 _spawnPreviews[i].CurrentBlock = block;
                 _spawnPreviews[i].IsFree = false;
             }
+
+            RefreshSwapAvailability();
+        }
+
+        private void PreviewShapeQueue()
+        {
+            ClearPreviewSlots();
+            if (_spawnPreviews == null || _spawnPreviews.Length == 0 || _shapeBlockQueue.Count == 0)
+            {
+                RefreshSwapAvailability();
+                return;
+            }
+
+            var previewItems = _shapeBlockQueue.PeekNext(_config.PreviewCount);
+            var count = Math.Min(previewItems.Count, _spawnPreviews.Length);
+            for (var i = 0; i < count; i++)
+            {
+                var item = previewItems[i];
+                var entry = item.PlayerBlock;
+                var schema = entry?.Schema;
+                if (schema == null || schema.GetLength(0) == 0 || schema.GetLength(1) == 0)
+                    break;
+
+                var spawnPoint = _spawnPreviews[i];
+                var block = InstantiateBlock(
+                    spawnPoint.Transform,
+                    item.Rotation,
+                    BlockShape.OneByOne,
+                    item.Color,
+                    _config.PreviewScale,
+                    schema,
+                    true,
+                    entry.Preset);
+
+                block.Controller.SetActive(false);
+                spawnPoint.CurrentBlock = block;
+                spawnPoint.IsFree = false;
+            }
+
+            RefreshSwapAvailability();
+        }
+
+        private void ClearPreviewSlots()
+        {
+            if (_spawnPreviews == null)
+                return;
+
+            foreach (var spawnPoint in _spawnPreviews)
+            {
+                if (spawnPoint == null)
+                    continue;
+
+                spawnPoint.CurrentBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
+                spawnPoint.CurrentBlock = null;
+                spawnPoint.IsFree = true;
+            }
+        }
+
+        private static IEnumerable<ShapeBlockSupplyQueue.Item> CreateShapeBlockSupplyItems(
+            ShapeLevelRuntimeData runtimeData)
+        {
+            if (runtimeData?.PlayerBlockEntries == null)
+                return Array.Empty<ShapeBlockSupplyQueue.Item>();
+
+            var items = new List<ShapeBlockSupplyQueue.Item>(runtimeData.PlayerBlockEntries.Count);
+            foreach (var entry in runtimeData.PlayerBlockEntries)
+            {
+                var schema = entry?.Schema;
+                if (schema == null || schema.GetLength(0) == 0 || schema.GetLength(1) == 0)
+                {
+                    DebugUtils.LogWarning("Shape Mode skipped a player block with an empty schema.");
+                    continue;
+                }
+
+                items.Add(new ShapeBlockSupplyQueue.Item(
+                    entry,
+                    Quaternion.Euler(0f, 0f, UnityEngine.Random.Range(0, 4) * 90f),
+                    EnumUtils.RandomValue<BlockColor>()));
+            }
+
+            return items;
+        }
+
+        private void RefreshSwapAvailability()
+        {
+            var activeBlock = _spawnPoints == null ? null : BlockOnHand.FirstOrDefault();
+            TrackSwapTargetRotation(activeBlock);
+
+            var spawnIndex = activeBlock?.Model.SpawnIndex ?? -1;
+            var targetSpawnPoint = _spawnPoints != null && spawnIndex >= 0 && spawnIndex < _spawnPoints.Length
+                ? _spawnPoints[spawnIndex]
+                : null;
+            var hasHandBlock = activeBlock != null && activeBlock.Controller != null &&
+                               !activeBlock.Controller.IsRotating && targetSpawnPoint != null &&
+                               !targetSpawnPoint.IsFree && ReferenceEquals(targetSpawnPoint.CurrentBlock, activeBlock) &&
+                               targetSpawnPoint.Transform != null;
+            if (_shapeLevelRuntimeData != null)
+                hasHandBlock &= _activeShapeSupplyBySpawnIndex.TryGetValue(spawnIndex, out var activeSupply) &&
+                                IsValidShapeSupply(activeSupply);
+
+            var previewPoint = _spawnPreviews != null && _spawnPreviews.Length > 0 ? _spawnPreviews[0] : null;
+            var hasPreview = previewPoint != null && !previewPoint.IsFree &&
+                             previewPoint.CurrentBlock != null && previewPoint.Transform != null;
+            var hasUpcomingBlock = _shapeLevelRuntimeData != null
+                ? _shapeBlockQueue.Count > 0
+                : _spawnBag.Count > 0;
+            var canSwap = AllowSwapping && hasHandBlock && hasPreview && hasUpcomingBlock;
+            if (_canSwap.Value != canSwap)
+                _canSwap.Value = canSwap;
+        }
+
+        private void TrackSwapTargetRotation(BlockInstance activeBlock)
+        {
+            if (ReferenceEquals(_rotationTrackedSwapTarget, activeBlock))
+                return;
+
+            _swapTargetRotationSubscription?.Dispose();
+            _swapTargetRotationSubscription = null;
+            _rotationTrackedSwapTarget = activeBlock;
+            if (activeBlock?.Controller == null)
+                return;
+
+            _swapTargetRotationSubscription = activeBlock.Controller.OnRotationStateChanged
+                .Subscribe(_ => RefreshSwapAvailability());
+        }
+
+        private static bool IsValidShapeSupply(ShapeBlockSupplyQueue.Item supply)
+        {
+            var schema = supply.PlayerBlock?.Schema;
+            return schema != null && schema.GetLength(0) > 0 && schema.GetLength(1) > 0;
         }
         
         /// <summary>
@@ -629,6 +933,7 @@ namespace FitMe.Grid
         {
             _spawnPoints[index].IsFree = true;
             _spawnPoints[index].CurrentBlock = null;
+            _activeShapeSupplyBySpawnIndex.Remove(index);
         }
 
         public void FreeSpawnPoint(SpawnPointData spawnPointData)
@@ -639,12 +944,55 @@ namespace FitMe.Grid
         
         public void ResetSpawnPoint()
         {
-            foreach (var spawnPoint in _spawnPoints)
+            var isShapeMode = _shapeLevelRuntimeData != null;
+            if (isShapeMode)
+                ReturnActiveShapeSupplyToQueue();
+
+            _activeShapeSupplyBySpawnIndex.Clear();
+            if (_spawnPoints != null)
             {
-                spawnPoint.IsFree = true;
-                spawnPoint.CurrentBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
-                spawnPoint.CurrentBlock = null;
+                foreach (var spawnPoint in _spawnPoints)
+                {
+                    spawnPoint.IsFree = true;
+                    spawnPoint.CurrentBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
+                    spawnPoint.CurrentBlock = null;
+                }
             }
+
+            if (isShapeMode)
+            {
+                ClearPreviewSlots();
+                if (_blockFactory != null)
+                    PreviewShapeQueue();
+            }
+
+            RefreshSwapAvailability();
+        }
+
+        private void ReturnActiveShapeSupplyToQueue()
+        {
+            if (_spawnPoints == null)
+                return;
+
+            var returnedItems = new List<ShapeBlockSupplyQueue.Item>();
+            for (var i = 0; i < _spawnPoints.Length; i++)
+            {
+                var spawnPoint = _spawnPoints[i];
+                if (spawnPoint.IsFree || spawnPoint.CurrentBlock == null ||
+                    !_activeShapeSupplyBySpawnIndex.TryGetValue(i, out var supply))
+                    continue;
+
+                var block = spawnPoint.CurrentBlock;
+                returnedItems.Add(supply.WithAppearance(
+                    block.GameObject.transform.rotation,
+                    block.Model.BlockColor.CurrentValue));
+            }
+
+            if (returnedItems.Count == 0)
+                return;
+
+            returnedItems.AddRange(_shapeBlockQueue.PeekNext(_shapeBlockQueue.Count));
+            _shapeBlockQueue.Reset(returnedItems);
         }
         
         

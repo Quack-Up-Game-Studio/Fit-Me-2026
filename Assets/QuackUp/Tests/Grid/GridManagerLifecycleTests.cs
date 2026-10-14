@@ -28,6 +28,8 @@ namespace FitMe.Grid.Tests
         private readonly List<AtomModel> _additionalAtomModels = new();
         private readonly List<CellModel> _additionalCellModels = new();
         private readonly List<BlockModel> _additionalBlockModels = new();
+        private readonly List<BlockViewModel> _additionalBlockViewModels = new();
+        private readonly List<BlockController> _additionalBlockControllers = new();
 
         [SetUp]
         public void SetUp()
@@ -40,6 +42,8 @@ namespace FitMe.Grid.Tests
             _additionalAtomModels.Clear();
             _additionalCellModels.Clear();
             _additionalBlockModels.Clear();
+            _additionalBlockViewModels.Clear();
+            _additionalBlockControllers.Clear();
             var gridObject = Keep(new GameObject("Lifecycle test grid"));
             _grid = gridObject.AddComponent<UnityEngine.Grid>();
             var config = Keep(ScriptableObject.CreateInstance<GridManagerConfig>());
@@ -70,6 +74,19 @@ namespace FitMe.Grid.Tests
                 blockModel.UpdateGridCommand.Dispose();
                 blockModel.BlockState.Dispose();
             }
+            foreach (var blockViewModel in _additionalBlockViewModels)
+            {
+                blockViewModel.Dispose();
+                blockViewModel.BlockInteractionState.Dispose();
+                blockViewModel.SetSortingLayerCommand.Dispose();
+                blockViewModel.SetSortingOrderCommand.Dispose();
+                blockViewModel.ExplodeCommand.Dispose();
+                blockViewModel.ScaleInCommand.Dispose();
+                blockViewModel.RotateCommand.Dispose();
+                blockViewModel.DestroyCommand.Dispose();
+            }
+            foreach (var blockController in _additionalBlockControllers)
+                blockController.Dispose();
             _blockModel?.UpdateGridCommand.Dispose();
             _blockModel?.BlockState.Dispose();
             if (_blockViewModel != null)
@@ -108,6 +125,58 @@ namespace FitMe.Grid.Tests
             var preset = Keep(ScriptableObject.CreateInstance<BlockPreset>());
             preset.BlockSchema.schema = schema;
             return preset;
+        }
+
+        private BlockInstance CreateShapeTestBlock(
+            BlockManagerConfig config,
+            ShapeBlockSupplyQueue.Item item,
+            Transform parent,
+            int spawnIndex,
+            bool isActive)
+        {
+            var model = new BlockModel(null, null);
+            typeof(BlockModel).GetProperty(nameof(BlockModel.BlockPreset))
+                .SetValue(model, item.PlayerBlock.Preset);
+            model.SetShapeSchema(item.PlayerBlock.Schema);
+            model.ChangeColor(item.Color, updateGrid: false);
+            model.SpawnIndex = spawnIndex;
+
+            var viewModel = new BlockViewModel(model);
+            var controller = new BlockController(config, _manager, null, null, null);
+            var gameObject = Keep(new GameObject("Shape queue test block"));
+            gameObject.transform.SetParent(parent, false);
+            gameObject.transform.rotation = item.Rotation;
+            var block = new BlockInstance(model, viewModel, controller, gameObject);
+            controller.Initialize(block);
+            controller.SetActive(isActive);
+
+            _additionalBlockModels.Add(model);
+            _additionalBlockViewModels.Add(viewModel);
+            _additionalBlockControllers.Add(controller);
+            return block;
+        }
+
+        private static void RefreshBlockManagerSwapAvailability(BlockManager blockManager)
+        {
+            var refreshMethod = typeof(BlockManager).GetMethod("RefreshSwapAvailability",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(refreshMethod, Is.Not.Null);
+            refreshMethod.Invoke(blockManager, null);
+        }
+
+        private static BlockManager.SpawnPointData CreateSpawnPoint(
+            Transform transform,
+            BlockInstance block,
+            bool isFree)
+        {
+            var spawnPoint = new BlockManager.SpawnPointData
+            {
+                CurrentBlock = block,
+                IsFree = isFree
+            };
+            typeof(BlockManager.SpawnPointData).GetProperty(nameof(BlockManager.SpawnPointData.Transform))
+                .SetValue(spawnPoint, transform);
+            return spawnPoint;
         }
 
         private void SetManagerField(string name, object value)
@@ -612,6 +681,485 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ShapeBlockSupplyQueue_PeekNextReturnsAuthoredOrderWithoutConsuming()
+        {
+            var first = new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(CreateBlockPreset(new[,] { { 1 } }), new[,] { { 1 } }),
+                Quaternion.identity,
+                default);
+            var secondPreset = CreateBlockPreset(new[,] { { 1, 1 } });
+            var second = new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(secondPreset, secondPreset.BlockSchema.schema),
+                Quaternion.identity,
+                default);
+            var thirdPreset = CreateBlockPreset(new[,] { { 1 }, { 1 } });
+            var third = new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(thirdPreset, thirdPreset.BlockSchema.schema),
+                Quaternion.identity,
+                default);
+            var queue = new ShapeBlockSupplyQueue();
+            queue.Reset(new[] { first, second, third });
+
+            var preview = queue.PeekNext(2);
+
+            Assert.That(preview, Has.Count.EqualTo(2));
+            Assert.That(preview[0].PlayerBlock.Preset, Is.SameAs(first.PlayerBlock.Preset));
+            Assert.That(preview[1].PlayerBlock.Preset, Is.SameAs(second.PlayerBlock.Preset));
+            Assert.That(queue.Count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ShapeBlockSupplyQueue_SwapRequeuesDisplacedSupplyAtFront()
+        {
+            var activePreset = CreateBlockPreset(new[,] { { 1 } });
+            var active = new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(activePreset, activePreset.BlockSchema.schema),
+                Quaternion.identity,
+                default);
+            var nextPreset = CreateBlockPreset(new[,] { { 1, 1 } });
+            var next = new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(nextPreset, nextPreset.BlockSchema.schema),
+                Quaternion.Euler(0f, 0f, 90f),
+                default);
+            var remainingPreset = CreateBlockPreset(new[,] { { 1 }, { 1 } });
+            var remaining = new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(remainingPreset, remainingPreset.BlockSchema.schema),
+                Quaternion.identity,
+                default);
+            var queue = new ShapeBlockSupplyQueue();
+            queue.Reset(new[] { next, remaining });
+
+            var swapped = queue.TrySwapWithNext(active, out var incoming);
+            var preview = queue.PeekNext(2);
+
+            Assert.That(swapped, Is.True);
+            Assert.That(incoming.PlayerBlock.Preset, Is.SameAs(nextPreset));
+            Assert.That(queue.Count, Is.EqualTo(2));
+            Assert.That(preview[0].PlayerBlock.Preset, Is.SameAs(activePreset));
+            Assert.That(preview[1].PlayerBlock.Preset, Is.SameAs(remainingPreset));
+        }
+
+        [Test]
+        public void ShapeBlockSupplyQueue_CannotSwapWhenUpcomingSupplyIsEmpty()
+        {
+            var queue = new ShapeBlockSupplyQueue();
+            queue.Reset(Array.Empty<ShapeBlockSupplyQueue.Item>());
+
+            var swapped = queue.TrySwapWithNext(default, out var incoming);
+
+            Assert.That(swapped, Is.False);
+            Assert.That(incoming.PlayerBlock, Is.Null);
+            Assert.That(queue.Count, Is.Zero);
+        }
+
+        [Test]
+        public void ShapeBlockSupplyQueue_ResetSkipsInvalidEntriesWithoutBlockingLaterSupply()
+        {
+            var queue = new ShapeBlockSupplyQueue();
+            var validPreset = CreateBlockPreset(new[,] { { 1, 1 } });
+            queue.Reset(new[]
+            {
+                new ShapeBlockSupplyQueue.Item(
+                    new ShapePlayerBlockRuntimeEntry(null, null),
+                    Quaternion.identity,
+                    BlockColor.Red),
+                new ShapeBlockSupplyQueue.Item(
+                    new ShapePlayerBlockRuntimeEntry(validPreset, validPreset.BlockSchema.schema),
+                    Quaternion.identity,
+                    BlockColor.Blue)
+            });
+
+            Assert.That(queue.Count, Is.EqualTo(1));
+            Assert.That(queue.PeekNext(1)[0].PlayerBlock.Preset, Is.SameAs(validPreset));
+        }
+
+        [Test]
+        public void BlockManager_ShapeQueueSkipsInvalidEntriesBeforeLaterValidBlocks()
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+            var validPreset = CreateBlockPreset(new[,] { { 1, 1 } });
+            var runtimeData = new ShapeLevelRuntimeData(
+                null,
+                new[,] { { 1, 1 } },
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                new[]
+                {
+                    new ShapePlayerBlockRuntimeEntry(null, null),
+                    new ShapePlayerBlockRuntimeEntry(validPreset, validPreset.BlockSchema.schema)
+                });
+
+            _hub.Publish(new SpawnWithShapeLevelEvent(runtimeData));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(queueField, Is.Not.Null);
+            var queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            Assert.That(queue.Count, Is.EqualTo(1));
+            Assert.That(queue.PeekNext(1)[0].PlayerBlock.Preset, Is.SameAs(validPreset));
+        }
+
+        [Test]
+        public void BlockManager_NewShapeLevelClearsStaleSpawnBlocksBeforeReplacingSupply()
+        {
+            SetUpOneCellPlacement();
+            var preset = SetBlockPreset(new[,] { { 1 } }).BlockPreset;
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var handTransform = Keep(new GameObject("Old shape hand slot")).transform;
+            using var controller = new BlockController(config, _manager, null, null, null);
+            var handBlock = new BlockInstance(_blockModel, _blockViewModel, controller, _block.GameObject);
+            _block.GameObject.transform.SetParent(handTransform, false);
+            var handPoint = CreateSpawnPoint(handTransform, handBlock, false);
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                new[] { handPoint },
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+            var activeSupplyField = typeof(BlockManager).GetField("_activeShapeSupplyBySpawnIndex",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(activeSupplyField, Is.Not.Null);
+            var activeSupplies = (Dictionary<int, ShapeBlockSupplyQueue.Item>)activeSupplyField.GetValue(blockManager);
+            activeSupplies[0] = new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(preset, preset.BlockSchema.schema),
+                Quaternion.identity,
+                BlockColor.Red);
+
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                null,
+                new[,] { { 1 } },
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                Array.Empty<ShapePlayerBlockRuntimeEntry>())));
+
+            Assert.That(handPoint.IsFree, Is.True);
+            Assert.That(handPoint.CurrentBlock, Is.Null);
+            Assert.That(activeSupplies, Is.Empty);
+        }
+
+        [Test]
+        public void BlockManager_ResetSpawnPointReturnsActiveShapeSupplyToQueueFront()
+        {
+            var activePreset = CreateBlockPreset(new[,] { { 1 } });
+            var activeSchema = activePreset.BlockSchema.schema;
+            var nextPreset = CreateBlockPreset(new[,] { { 1, 1 } });
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var handTransform = Keep(new GameObject("Shape reset hand slot")).transform;
+            var handPoint = CreateSpawnPoint(handTransform, null, true);
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                new[] { handPoint },
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                null,
+                new[,] { { 1, 1, 1 } },
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                new[]
+                {
+                    new ShapePlayerBlockRuntimeEntry(null, activeSchema),
+                    new ShapePlayerBlockRuntimeEntry(nextPreset, nextPreset.BlockSchema.schema)
+                })));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var activeSupplyField = typeof(BlockManager).GetField("_activeShapeSupplyBySpawnIndex",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(queueField, Is.Not.Null);
+            Assert.That(activeSupplyField, Is.Not.Null);
+            var queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            Assert.That(queue.TryTakeNext(out var activeItem), Is.True);
+            handPoint.CurrentBlock = CreateShapeTestBlock(config, activeItem, handTransform, 0, true);
+            handPoint.IsFree = false;
+            var activeSupplies = (Dictionary<int, ShapeBlockSupplyQueue.Item>)activeSupplyField.GetValue(blockManager);
+            activeSupplies[0] = activeItem;
+
+            blockManager.ResetSpawnPoint();
+
+            Assert.That(handPoint.IsFree, Is.True);
+            Assert.That(handPoint.CurrentBlock, Is.Null);
+            Assert.That(queue.Count, Is.EqualTo(2));
+            var supplies = queue.PeekNext(2);
+            Assert.That(supplies[0].PlayerBlock.Preset, Is.Null);
+            Assert.That(supplies[0].PlayerBlock.Schema, Is.EqualTo(activeSchema));
+            Assert.That(supplies[1].PlayerBlock.Preset, Is.SameAs(nextPreset));
+        }
+
+        [Test]
+        public void BlockManager_ResetSpawnPointPreservesMultipleActiveSupplyOrder()
+        {
+            SetUpOneCellPlacement();
+            var presets = new[]
+            {
+                CreateBlockPreset(new[,] { { 1 } }),
+                CreateBlockPreset(new[,] { { 1, 1 } }),
+                CreateBlockPreset(new[,] { { 1, 1, 1 } }),
+                CreateBlockPreset(new[,] { { 1, 1, 1, 1 } })
+            };
+            var entries = Array.ConvertAll(presets,
+                preset => new ShapePlayerBlockRuntimeEntry(preset, preset.BlockSchema.schema));
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var firstTransform = Keep(new GameObject("First shape hand slot")).transform;
+            var secondTransform = Keep(new GameObject("Second shape hand slot")).transform;
+            var spawnPoints = new[]
+            {
+                CreateSpawnPoint(firstTransform, null, true),
+                CreateSpawnPoint(secondTransform, null, true)
+            };
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                spawnPoints,
+                null,
+                Array.Empty<BlockManager.SpawnPointData>(),
+                _hub);
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                null,
+                new[,] { { 1, 1, 1, 1 } },
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                entries)));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var activeSupplyField = typeof(BlockManager).GetField("_activeShapeSupplyBySpawnIndex",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(queueField, Is.Not.Null);
+            Assert.That(activeSupplyField, Is.Not.Null);
+            var queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            Assert.That(queue.TryTakeNext(out var firstSupply), Is.True);
+            Assert.That(queue.TryTakeNext(out var secondSupply), Is.True);
+
+            var firstActiveBlock = CreateShapeTestBlock(config, firstSupply, firstTransform, 0, true);
+            spawnPoints[0].CurrentBlock = firstActiveBlock;
+            spawnPoints[0].IsFree = false;
+            spawnPoints[1].CurrentBlock = CreateShapeTestBlock(config, secondSupply, secondTransform, 1, true);
+            spawnPoints[1].IsFree = false;
+            var activeSupplies = (Dictionary<int, ShapeBlockSupplyQueue.Item>)activeSupplyField.GetValue(blockManager);
+            activeSupplies[0] = firstSupply;
+            activeSupplies[1] = secondSupply;
+
+            Assert.That(queue.TrySwapWithNext(firstSupply, out var incomingSupply), Is.True);
+            firstActiveBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
+            spawnPoints[0].CurrentBlock = CreateShapeTestBlock(config, incomingSupply, firstTransform, 0, true);
+            activeSupplies[0] = incomingSupply;
+
+            blockManager.ResetSpawnPoint();
+
+            var supplies = queue.PeekNext(4);
+            Assert.That(queue.Count, Is.EqualTo(4));
+            var expectedPresets = new[] { presets[2], presets[1], presets[0], presets[3] };
+            for (var i = 0; i < expectedPresets.Length; i++)
+                Assert.That(supplies[i].PlayerBlock.Preset, Is.SameAs(expectedPresets[i]), $"Supply at position {i}");
+        }
+
+        [Test]
+        public void BlockManager_ShapeModeSwapUsesNextBlockAndRequeuesDisplacedBlockAtFront()
+        {
+            SetUpOneCellPlacement();
+            var activePreset = SetBlockPreset(new[,] { { 1 } }).BlockPreset;
+            var activeSchema = activePreset.BlockSchema.schema;
+            var nextPreset = CreateBlockPreset(new[,] { { 1, 1 } });
+            var remainingPreset = CreateBlockPreset(new[,] { { 1 }, { 1 } });
+            var runtimeData = new ShapeLevelRuntimeData(
+                null,
+                new[,] { { 1, 1, 1, 1, 1, 1 } },
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                new[]
+                {
+                    new ShapePlayerBlockRuntimeEntry(null, activeSchema),
+                    new ShapePlayerBlockRuntimeEntry(nextPreset, nextPreset.BlockSchema.schema),
+                    new ShapePlayerBlockRuntimeEntry(remainingPreset, remainingPreset.BlockSchema.schema)
+                });
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            config.PreviewCount = 2;
+            var handTransform = Keep(new GameObject("Shape hand slot")).transform;
+            var previewTransform = Keep(new GameObject("Shape preview slot")).transform;
+            var handPoint = CreateSpawnPoint(handTransform, null, true);
+            var previewPoint = CreateSpawnPoint(previewTransform, null, true);
+
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                new[] { handPoint },
+                null,
+                new[] { previewPoint },
+                _hub);
+            _hub.Publish(new SpawnWithShapeLevelEvent(runtimeData));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(queueField, Is.Not.Null);
+            var queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            Assert.That(queue.TryTakeNext(out var activeItem), Is.True);
+            var activeSupplyField = typeof(BlockManager).GetField("_activeShapeSupplyBySpawnIndex",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(activeSupplyField, Is.Not.Null);
+            var activeSupplies = (Dictionary<int, ShapeBlockSupplyQueue.Item>)activeSupplyField.GetValue(blockManager);
+            activeSupplies[0] = activeItem;
+            var handBlock = CreateShapeTestBlock(config, activeItem, handTransform, 0, true);
+            handPoint.CurrentBlock = handBlock;
+            handPoint.IsFree = false;
+
+            var nextItem = queue.PeekNext(2)[0];
+            var nextBlock = CreateShapeTestBlock(config, nextItem, previewTransform, -1, false);
+            previewPoint.CurrentBlock = nextBlock;
+            previewPoint.IsFree = false;
+            RefreshBlockManagerSwapAvailability(blockManager);
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+
+            blockManager.Swap();
+
+            Assert.That(handPoint.CurrentBlock, Is.SameAs(nextBlock));
+            Assert.That(previewPoint.CurrentBlock, Is.SameAs(handBlock));
+            Assert.That(nextBlock.GameObject.transform.parent, Is.SameAs(handTransform));
+            Assert.That(handBlock.GameObject.transform.parent, Is.SameAs(previewTransform));
+            Assert.That(queue.Count, Is.EqualTo(2));
+            var remainingSupply = queue.PeekNext(2);
+            Assert.That(remainingSupply[0].PlayerBlock.Preset, Is.Null);
+            Assert.That(remainingSupply[0].PlayerBlock.Schema, Is.EqualTo(activeSchema));
+            Assert.That(remainingSupply[1].PlayerBlock.Preset, Is.SameAs(remainingPreset));
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+        }
+
+        [Test]
+        public void BlockManager_ShapeModeSwapTargetsFirstOccupiedSlotWhenMultipleAreActive()
+        {
+            SetUpOneCellPlacement();
+            var presets = new[]
+            {
+                CreateBlockPreset(new[,] { { 1 } }),
+                CreateBlockPreset(new[,] { { 1, 1 } }),
+                CreateBlockPreset(new[,] { { 1, 1, 1 } }),
+                CreateBlockPreset(new[,] { { 1, 1, 1, 1 } })
+            };
+            var entries = Array.ConvertAll(presets,
+                preset => new ShapePlayerBlockRuntimeEntry(preset, preset.BlockSchema.schema));
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            config.PreviewCount = 1;
+            var firstHandTransform = Keep(new GameObject("First swap hand slot")).transform;
+            var secondHandTransform = Keep(new GameObject("Second swap hand slot")).transform;
+            var previewTransform = Keep(new GameObject("Multi-slot swap preview")).transform;
+            var firstHandPoint = CreateSpawnPoint(firstHandTransform, null, true);
+            var secondHandPoint = CreateSpawnPoint(secondHandTransform, null, true);
+            var previewPoint = CreateSpawnPoint(previewTransform, null, true);
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                new[] { firstHandPoint, secondHandPoint },
+                null,
+                new[] { previewPoint },
+                _hub);
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                null,
+                new[,] { { 1, 1, 1, 1 } },
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                entries)));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var activeSupplyField = typeof(BlockManager).GetField("_activeShapeSupplyBySpawnIndex",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(queueField, Is.Not.Null);
+            Assert.That(activeSupplyField, Is.Not.Null);
+            var queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            Assert.That(queue.TryTakeNext(out var firstSupply), Is.True);
+            Assert.That(queue.TryTakeNext(out var secondSupply), Is.True);
+            var firstActiveBlock = CreateShapeTestBlock(config, firstSupply, firstHandTransform, 0, true);
+            var secondActiveBlock = CreateShapeTestBlock(config, secondSupply, secondHandTransform, 1, true);
+            firstHandPoint.CurrentBlock = firstActiveBlock;
+            firstHandPoint.IsFree = false;
+            secondHandPoint.CurrentBlock = secondActiveBlock;
+            secondHandPoint.IsFree = false;
+            var activeSupplies = (Dictionary<int, ShapeBlockSupplyQueue.Item>)activeSupplyField.GetValue(blockManager);
+            activeSupplies[0] = firstSupply;
+            activeSupplies[1] = secondSupply;
+
+            var nextSupply = queue.PeekNext(1)[0];
+            var previewBlock = CreateShapeTestBlock(config, nextSupply, previewTransform, -1, false);
+            previewPoint.CurrentBlock = previewBlock;
+            previewPoint.IsFree = false;
+            RefreshBlockManagerSwapAvailability(blockManager);
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+            var setRotationState = typeof(BlockController).GetMethod("SetRotationState",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(setRotationState, Is.Not.Null);
+            setRotationState.Invoke(firstActiveBlock.Controller, new object[] { true });
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.False);
+            setRotationState.Invoke(firstActiveBlock.Controller, new object[] { false });
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+
+            blockManager.Swap();
+
+            Assert.That(firstHandPoint.CurrentBlock, Is.SameAs(previewBlock));
+            Assert.That(secondHandPoint.CurrentBlock, Is.SameAs(secondActiveBlock));
+            Assert.That(previewPoint.CurrentBlock, Is.SameAs(firstActiveBlock));
+            Assert.That(activeSupplies[0].PlayerBlock.Preset, Is.SameAs(presets[2]));
+            Assert.That(activeSupplies[1].PlayerBlock.Preset, Is.SameAs(presets[1]));
+            Assert.That(queue.Count, Is.EqualTo(2));
+            Assert.That(queue.PeekNext(2)[0].PlayerBlock.Preset, Is.SameAs(presets[0]));
+            Assert.That(queue.PeekNext(2)[1].PlayerBlock.Preset, Is.SameAs(presets[3]));
+        }
+
+        [Test]
+        public void BlockManager_ShapeModeSwapIsUnavailableWhenNoUpcomingBlockExists()
+        {
+            SetUpOneCellPlacement();
+            var activePreset = SetBlockPreset(new[,] { { 1 } }).BlockPreset;
+            var activeSchema = activePreset.BlockSchema.schema;
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var handTransform = Keep(new GameObject("Shape hand slot without queue")).transform;
+            var handPoint = CreateSpawnPoint(handTransform, null, true);
+            var previewPoint = CreateSpawnPoint(Keep(new GameObject("Empty preview slot")).transform, null, true);
+            using var blockManager = new BlockManager(
+                _manager,
+                config,
+                null,
+                new[] { handPoint },
+                null,
+                new[] { previewPoint },
+                _hub);
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(
+                null,
+                new[,] { { 1 } },
+                Array.Empty<ShapeObstacleRuntimeData>(),
+                new[] { new ShapePlayerBlockRuntimeEntry(null, activeSchema) })));
+
+            var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var activeSupplyField = typeof(BlockManager).GetField("_activeShapeSupplyBySpawnIndex",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(queueField, Is.Not.Null);
+            Assert.That(activeSupplyField, Is.Not.Null);
+            var queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            Assert.That(queue.TryTakeNext(out var activeItem), Is.True);
+            var activeSupplies = (Dictionary<int, ShapeBlockSupplyQueue.Item>)activeSupplyField.GetValue(blockManager);
+            activeSupplies[0] = activeItem;
+            var handBlock = CreateShapeTestBlock(config, activeItem, handTransform, 0, true);
+            handPoint.CurrentBlock = handBlock;
+            handPoint.IsFree = false;
+            RefreshBlockManagerSwapAvailability(blockManager);
+
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.False);
+            blockManager.Swap();
+            Assert.That(handPoint.CurrentBlock, Is.SameAs(handBlock));
+            Assert.That(queue.Count, Is.Zero);
+        }
+
+        [Test]
         public void BlockManager_QueuesAuthoredPlayerBlocksInOrderOnShapeLevelEvent()
         {
             var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
@@ -639,13 +1187,11 @@ namespace FitMe.Grid.Tests
             var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(queueField, Is.Not.Null, "BlockManager must retain authored player blocks");
-            var queue = queueField.GetValue(blockManager);
-            Assert.That(queue.GetType().GetGenericArguments()[0],
-                Is.EqualTo(typeof(ShapePlayerBlockRuntimeEntry)));
-            var entries = (Queue<ShapePlayerBlockRuntimeEntry>)queue;
+            var queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            var entries = queue.PeekNext(2);
             Assert.That(entries, Has.Count.EqualTo(2));
-            Assert.That(entries.Dequeue().Preset, Is.SameAs(firstBlock));
-            Assert.That(entries.Dequeue().Preset, Is.SameAs(secondBlock));
+            Assert.That(entries[0].PlayerBlock.Preset, Is.SameAs(firstBlock));
+            Assert.That(entries[1].PlayerBlock.Preset, Is.SameAs(secondBlock));
         }
 
         [Test]
@@ -677,12 +1223,10 @@ namespace FitMe.Grid.Tests
             var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(queueField, Is.Not.Null);
-            var queue = queueField.GetValue(blockManager);
-            Assert.That(queue.GetType().GetGenericArguments()[0],
-                Is.EqualTo(typeof(ShapePlayerBlockRuntimeEntry)));
-            var dequeue = queue.GetType().GetMethod("Dequeue");
-            var first = (ShapePlayerBlockRuntimeEntry)dequeue.Invoke(queue, null);
-            var second = (ShapePlayerBlockRuntimeEntry)dequeue.Invoke(queue, null);
+            var queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            var entries = queue.PeekNext(2);
+            var first = entries[0].PlayerBlock;
+            var second = entries[1].PlayerBlock;
 
             Assert.That(first.Preset, Is.Null);
             Assert.That(first.Schema, Is.EqualTo(inlineFootprint));
@@ -720,17 +1264,19 @@ namespace FitMe.Grid.Tests
             var queueField = typeof(BlockManager).GetField("_shapeBlockQueue",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(queueField, Is.Not.Null);
-            var queue = queueField.GetValue(blockManager);
-            Assert.That(queue.GetType().GetGenericArguments()[0],
-                Is.EqualTo(typeof(ShapePlayerBlockRuntimeEntry)));
-            var entries = (Queue<ShapePlayerBlockRuntimeEntry>)queue;
-            entries.Dequeue();
+            var queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            Assert.That(queue.TryTakeNext(out var activeItem), Is.True);
+            Assert.That(queue.TrySwapWithNext(activeItem, out var incomingItem), Is.True);
+            Assert.That(incomingItem.PlayerBlock.Preset, Is.SameAs(playerBlockEntries[1].Preset));
+            Assert.That(queue.PeekNext(1)[0].PlayerBlock.Schema, Is.EqualTo(inlineFootprint));
 
             blockManager.ResetBag(shouldRespawn: true);
 
-            entries = (Queue<ShapePlayerBlockRuntimeEntry>)queueField.GetValue(blockManager);
+            queue = (ShapeBlockSupplyQueue)queueField.GetValue(blockManager);
+            var entries = queue.PeekNext(playerBlockEntries.Length);
             Assert.That(entries, Has.Count.EqualTo(playerBlockEntries.Length));
-            Assert.That(entries.Dequeue().Schema, Is.EqualTo(inlineFootprint));
+            Assert.That(entries[0].PlayerBlock.Schema, Is.EqualTo(inlineFootprint));
+            Assert.That(entries[1].PlayerBlock.Preset, Is.SameAs(playerBlockEntries[1].Preset));
         }
 
         [Test]

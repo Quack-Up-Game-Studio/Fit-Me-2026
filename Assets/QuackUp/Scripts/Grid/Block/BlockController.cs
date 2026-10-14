@@ -26,8 +26,10 @@ namespace FitMe.Grid
         public bool AllowDrag { get; set; } = true;
         public bool IsRotating => _isRotating;
         public Observable<Unit> OnRotate => _onRotate;
+        public Observable<bool> OnRotationStateChanged => _onRotationStateChanged;
         
         private readonly Subject<Unit> _onRotate = new();
+        private readonly Subject<bool> _onRotationStateChanged = new();
         private readonly BlockManagerConfig _config;
         private readonly GridManager _gridManager;
         private readonly IGameStateManager _gameStateManager;
@@ -101,6 +103,8 @@ namespace FitMe.Grid
             _bindings?.Dispose();
             _longTapCts?.Cancel();
             _longTapCts?.Dispose();
+            _onRotate.Dispose();
+            _onRotationStateChanged.Dispose();
         }
 
         #region Interactions
@@ -356,6 +360,15 @@ namespace FitMe.Grid
             _isPickedUp = false;
         }
         
+        private void SetRotationState(bool isRotating)
+        {
+            if (_isRotating == isRotating)
+                return;
+
+            _isRotating = isRotating;
+            _onRotationStateChanged.OnNext(isRotating);
+        }
+
         private async UniTaskVoid RotateBlock()
         {
             if (AllowRotation && 
@@ -367,11 +380,17 @@ namespace FitMe.Grid
                 var rotateClockwise = _config.RotateClockwise ? -1f : 1f;
                 var rotation = Quaternion.Euler(0f, 0f,
                     _blockInstance.GameObject.transform.rotation.eulerAngles.z + rotateClockwise * 90f);
-                _isRotating = true;
+                SetRotationState(true);
                 var promise = new Promise<Unit>();
-                _blockInstance.ViewModel.RotateCommand.Execute(new(promise, rotation));
-                await promise.Task;
-                _isRotating = false;
+                try
+                {
+                    _blockInstance.ViewModel.RotateCommand.Execute(new(promise, rotation));
+                    await promise.Task;
+                }
+                finally
+                {
+                    SetRotationState(false);
+                }
                 _onRotate?.OnNext(Unit.Default);
             }
         }

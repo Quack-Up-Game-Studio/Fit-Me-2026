@@ -8,6 +8,7 @@ namespace FitMe.Panel
     public class SwapBlockViewModel : IDisposable
     {
         public ReactiveCommand SwapCommand { get; } = new();
+        public ReadOnlyReactiveProperty<bool> CanSwap => _blockManager.CanSwap;
         private readonly BlockManager _blockManager;
         
         private IDisposable _bindings;

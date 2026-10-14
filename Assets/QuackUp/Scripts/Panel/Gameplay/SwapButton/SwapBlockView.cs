@@ -23,6 +23,10 @@ namespace FitMe.Panel
         private void Bind()
         {
             var builder = Disposable.CreateBuilder();
+            swapButton.interactable = _viewModel.CanSwap.CurrentValue;
+            _viewModel.CanSwap
+                .Subscribe(canSwap => swapButton.interactable = canSwap)
+                .AddTo(ref builder);
             swapButton.OnClickAsObservable()
                 .Subscribe(_ => _viewModel.SwapCommand.Execute(Unit.Default))
                 .AddTo(ref builder);
