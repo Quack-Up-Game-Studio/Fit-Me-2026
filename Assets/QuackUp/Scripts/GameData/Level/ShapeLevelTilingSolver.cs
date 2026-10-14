@@ -12,16 +12,34 @@ namespace FitMe.GameData
         InvalidInput
     }
 
+    public sealed class ShapeLevelTilingPlacement
+    {
+        public int BlockIndex { get; }
+        public IReadOnlyList<Vector2Int> Cells { get; }
+
+        internal ShapeLevelTilingPlacement(int blockIndex, IReadOnlyList<Vector2Int> cells)
+        {
+            BlockIndex = blockIndex;
+            Cells = Array.AsReadOnly(new List<Vector2Int>(cells).ToArray());
+        }
+    }
+
     public sealed class ShapeLevelTilingResult
     {
         public ShapeLevelTilingStatus Status { get; }
         public int NodesVisited { get; }
+        public IReadOnlyList<ShapeLevelTilingPlacement> Placements { get; }
         public bool IsFeasible => Status == ShapeLevelTilingStatus.Feasible;
 
-        internal ShapeLevelTilingResult(ShapeLevelTilingStatus status, int nodesVisited)
+        internal ShapeLevelTilingResult(
+            ShapeLevelTilingStatus status, int nodesVisited,
+            IReadOnlyList<ShapeLevelTilingPlacement> placements = null)
         {
             Status = status;
             NodesVisited = nodesVisited;
+            Placements = placements == null
+                ? Array.AsReadOnly(Array.Empty<ShapeLevelTilingPlacement>())
+                : Array.AsReadOnly(new List<ShapeLevelTilingPlacement>(placements).ToArray());
         }
     }
 
@@ -69,7 +87,8 @@ namespace FitMe.GameData
                 : context.SearchLimitReached
                     ? ShapeLevelTilingStatus.SearchLimitReached
                     : ShapeLevelTilingStatus.Infeasible;
-            return new ShapeLevelTilingResult(status, context.NodesVisited);
+            var placements = found ? CreatePlacements(context.CurrentPlacements, columns) : null;
+            return new ShapeLevelTilingResult(status, context.NodesVisited, placements);
         }
 
         private static bool Search(SearchContext context, int placedCount, int coveredCount)
@@ -105,13 +124,32 @@ namespace FitMe.GameData
 
                     context.Placed[pieceIndex] = true;
                     SetCovered(context, cellIndices, true);
+                    context.CurrentPlacements.Add(new PendingPlacement(pieceIndex, cellIndices));
                     if (Search(context, placedCount + 1, coveredCount + cellIndices.Length)) return true;
+                    context.CurrentPlacements.RemoveAt(context.CurrentPlacements.Count - 1);
                     SetCovered(context, cellIndices, false);
                     context.Placed[pieceIndex] = false;
                     if (context.SearchLimitReached) return false;
                 }
             }
             return false;
+        }
+
+        private static IReadOnlyList<ShapeLevelTilingPlacement> CreatePlacements(
+            IReadOnlyList<PendingPlacement> pendingPlacements, int columns)
+        {
+            var placements = new ShapeLevelTilingPlacement[pendingPlacements.Count];
+            for (var index = 0; index < pendingPlacements.Count; index++)
+            {
+                var pending = pendingPlacements[index];
+                var cells = new Vector2Int[pending.CellIndices.Length];
+                for (var cellIndex = 0; cellIndex < pending.CellIndices.Length; cellIndex++)
+                    cells[cellIndex] = new Vector2Int(
+                        pending.CellIndices[cellIndex] / columns,
+                        pending.CellIndices[cellIndex] % columns);
+                placements[index] = new ShapeLevelTilingPlacement(pending.BlockIndex, cells);
+            }
+            return Array.AsReadOnly(placements);
         }
 
         private static bool HasEarlierEquivalentUnplacedPiece(SearchContext context, int pieceIndex)
@@ -255,6 +293,7 @@ namespace FitMe.GameData
             public readonly bool[,] Covered;
             public readonly Piece[] Pieces;
             public readonly bool[] Placed;
+            public readonly List<PendingPlacement> CurrentPlacements = new List<PendingPlacement>();
             public readonly int PlayableCellCount;
             public readonly int MaxSearchNodes;
             public int NodesVisited;
@@ -268,6 +307,18 @@ namespace FitMe.GameData
                 Placed = new bool[pieces.Length];
                 PlayableCellCount = playableCellCount;
                 MaxSearchNodes = maxSearchNodes;
+            }
+        }
+
+        private readonly struct PendingPlacement
+        {
+            public readonly int BlockIndex;
+            public readonly int[] CellIndices;
+
+            public PendingPlacement(int blockIndex, int[] cellIndices)
+            {
+                BlockIndex = blockIndex;
+                CellIndices = cellIndices;
             }
         }
 
