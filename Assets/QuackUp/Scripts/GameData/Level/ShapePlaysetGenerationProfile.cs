@@ -15,6 +15,8 @@ namespace FitMe.GameData
         [SerializeField, MinValue(1)] private int _maxBoardRows = 10;
         [SerializeField, MinValue(0)] private int _minObstacleCells;
         [SerializeField, MinValue(0)] private int _maxObstacleCells = 8;
+        [SerializeField, MinValue(0)] private int _minVoidCells;
+        [SerializeField, MinValue(0)] private int _maxVoidCells;
         [SerializeField, MinValue(1)] private int _minGeneratedBlockColumns = 1;
         [SerializeField, MinValue(1)] private int _maxGeneratedBlockColumns = 4;
         [SerializeField, MinValue(1)] private int _minGeneratedBlockRows = 1;
@@ -46,7 +48,9 @@ namespace FitMe.GameData
                 _maxObstacleRepairNodes,
                 _maxTilingSearchNodes,
                 _maxCandidateAttempts,
-                _maxSingletonFallbackBlocks);
+                _maxSingletonFallbackBlocks,
+                _minVoidCells,
+                _maxVoidCells);
         }
     }
 }

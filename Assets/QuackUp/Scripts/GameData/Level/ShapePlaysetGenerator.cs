@@ -14,6 +14,7 @@ namespace FitMe.GameData
         private const int MaximumBoardDimension = 32;
         private const int MaximumBoardCells = MaximumBoardDimension * MaximumBoardDimension;
         private const int MaximumAcceptedObstacleCells = MaximumBoardCells - 1;
+        private const int MaximumAcceptedVoidCells = MaximumBoardCells - 1;
         private const int DifficultyScoreModelVersion = 1;
         private const int MaximumPreferredBlockCount = 16;
 
@@ -52,6 +53,16 @@ namespace FitMe.GameData
                 config.MinObstacleCells > MaximumAcceptedObstacleCells || config.MaxObstacleCells < 0 ||
                 (long)config.MaxObstacleCells > (long)config.MaxBoardColumns * config.MaxBoardRows - 1)
                 errors.Add(ShapePlaysetConfigurationError.InvalidObstacleRange);
+
+            if (config.MinVoidCells < 0 || config.MaxVoidCells < config.MinVoidCells ||
+                config.MinVoidCells > MaximumAcceptedVoidCells || config.MaxVoidCells < 0 ||
+                (long)config.MaxVoidCells > (long)config.MaxBoardColumns * config.MaxBoardRows - 1)
+                errors.Add(ShapePlaysetConfigurationError.InvalidVoidRange);
+
+            if (config.MaxBoardColumns >= 1 && config.MaxBoardRows >= 1 &&
+                (long)config.MinVoidCells + config.MinObstacleCells >=
+                (long)config.MaxBoardColumns * config.MaxBoardRows)
+                errors.Add(ShapePlaysetConfigurationError.InvalidCombinedCellRange);
 
             if (config.MinPlayableRegionCells < 1)
                 errors.Add(ShapePlaysetConfigurationError.InvalidPlayableRegionThreshold);
@@ -103,22 +114,25 @@ namespace FitMe.GameData
             ShapePlaysetGenerationConfigValidation validation)
         {
             var dimensionAndCountRandom = new SeededRandom(DeriveAttemptSeed(attemptSeed, 0));
+            var boardMaskRandom = new SeededRandom(DeriveAttemptSeed(attemptSeed, 2));
             var obstacleMaskRandom = new SeededRandom(DeriveAttemptSeed(attemptSeed, 1));
             var columns = dimensionAndCountRandom.NextInclusive(
                 config.MinBoardColumns, config.MaxBoardColumns);
             var rows = dimensionAndCountRandom.NextInclusive(config.MinBoardRows, config.MaxBoardRows);
+            var selectedVoidCellCount = dimensionAndCountRandom.NextInclusive(
+                config.MinVoidCells, config.MaxVoidCells);
             var selectedObstacleCellCount = dimensionAndCountRandom.NextInclusive(
                 config.MinObstacleCells, config.MaxObstacleCells);
-            var board = new int[rows, columns];
-            for (var row = 0; row < rows; row++)
-            for (var column = 0; column < columns; column++) board[row, column] = 1;
+            var board = CreateBoardMask(rows, columns, selectedVoidCellCount, boardMaskRandom);
+            if (board == null)
+                return new ShapePlaysetGenerationResult(
+                    ShapePlaysetGenerationError.GenerationInvariantFailed, validation, null);
 
-            var obstacleMask = CreateObstacleMask(
-                rows, columns, selectedObstacleCellCount, obstacleMaskRandom);
+            var obstacleMask = CreateObstacleMask(board, selectedObstacleCellCount, obstacleMaskRandom);
             if (obstacleMask == null)
                 return new ShapePlaysetGenerationResult(
                     ShapePlaysetGenerationError.GenerationInvariantFailed, validation, null);
-            if (!TryRepairObstacleMask(obstacleMask, config.MinPlayableRegionCells,
+            if (!TryRepairObstacleMask(board, obstacleMask, config.MinPlayableRegionCells,
                     config.MaxObstacleRepairNodes, out var repairBudgetExceeded))
                 return new ShapePlaysetGenerationResult(
                     repairBudgetExceeded
@@ -129,10 +143,10 @@ namespace FitMe.GameData
             for (var row = 0; row < rows; row++)
             for (var column = 0; column < columns; column++)
             {
-                if (obstacleMask[row, column] != 0) continue;
+                if (board[row, column] == 0 || obstacleMask[row, column] != 0) continue;
                 playableMask[row, column] = 1;
             }
-            if (!ArePlayableRegionsAcceptable(obstacleMask, config.MinPlayableRegionCells))
+            if (!ArePlayableRegionsAcceptable(board, obstacleMask, config.MinPlayableRegionCells))
                 return new ShapePlaysetGenerationResult(
                     ShapePlaysetGenerationError.GenerationInvariantFailed, validation, null);
 
@@ -145,7 +159,7 @@ namespace FitMe.GameData
                     validation, null);
 
             var metrics = CalculateMetrics(
-                playableMask, CountCells(obstacleMask), generatedBlocks);
+                playableMask, CountCells(obstacleMask), rows * columns - CountCells(board), generatedBlocks);
             return Success(seed, attemptIndex, config, board, obstacleMask,
                 generatedBlocks, usedPredefined, metrics);
         }
@@ -164,18 +178,49 @@ namespace FitMe.GameData
             }
         }
 
-        private static int[,] CreateObstacleMask(
-            int rows, int columns, int obstacleCellCount, SeededRandom random)
+        private static int[,] CreateBoardMask(
+            int rows, int columns, int voidCellCount, SeededRandom random)
         {
-            var mask = new int[rows, columns];
-            if (obstacleCellCount == 0) return mask;
-            if (obstacleCellCount < 0 || obstacleCellCount >= rows * columns) return null;
+            if (voidCellCount < 0 || voidCellCount >= rows * columns) return null;
+            var boardMask = new int[rows, columns];
+            for (var row = 0; row < rows; row++)
+            for (var column = 0; column < columns; column++) boardMask[row, column] = 1;
+            if (voidCellCount == 0) return boardMask;
 
             var cells = new Vector2Int[rows * columns];
             var index = 0;
             for (var row = 0; row < rows; row++)
             for (var column = 0; column < columns; column++)
                 cells[index++] = new Vector2Int(row, column);
+
+            for (var selected = 0; selected < voidCellCount; selected++)
+            {
+                var swapIndex = selected + random.NextInclusive(0, cells.Length - selected - 1);
+                var temporary = cells[selected];
+                cells[selected] = cells[swapIndex];
+                cells[swapIndex] = temporary;
+                var cell = cells[selected];
+                boardMask[cell.x, cell.y] = 0;
+            }
+            return boardMask;
+        }
+
+        private static int[,] CreateObstacleMask(
+            int[,] boardMask, int obstacleCellCount, SeededRandom random)
+        {
+            var rows = boardMask.GetLength(0);
+            var columns = boardMask.GetLength(1);
+            var boardCellCount = CountCells(boardMask);
+            if (obstacleCellCount < 0 || obstacleCellCount >= boardCellCount) return null;
+            var mask = new int[rows, columns];
+            if (obstacleCellCount == 0) return mask;
+
+            var cells = new Vector2Int[boardCellCount];
+            var index = 0;
+            for (var row = 0; row < rows; row++)
+            for (var column = 0; column < columns; column++)
+                if (boardMask[row, column] == 1)
+                    cells[index++] = new Vector2Int(row, column);
 
             for (var selected = 0; selected < obstacleCellCount; selected++)
             {
@@ -626,7 +671,7 @@ namespace FitMe.GameData
                     seed, attemptIndex, config, board, obstacleMask, blocks, usedPredefined, metrics));
 
         private static ShapePlaysetDifficultyMetrics CalculateMetrics(
-            int[,] playableMask, int obstacleCellCount, IReadOnlyList<GeneratedShapeBlock> blocks)
+            int[,] playableMask, int obstacleCellCount, int voidCellCount, IReadOnlyList<GeneratedShapeBlock> blocks)
         {
             var playableCellCount = CountCells(playableMask);
             var totalPlacements = 0;
@@ -653,7 +698,7 @@ namespace FitMe.GameData
                 ? 0f
                 : (float)obstacleCellCount / (playableCellCount + obstacleCellCount);
             return new ShapePlaysetDifficultyMetrics(
-                playableCellCount, obstacleCellCount, playerCellCount, blocks.Count,
+                playableCellCount, obstacleCellCount, voidCellCount, playerCellCount, blocks.Count,
                 totalPlacements, average, minimumPlacements == int.MaxValue ? 0 : minimumPlacements,
                 maximumPlacements, ratio, score, DifficultyScoreModelVersion);
         }
@@ -798,7 +843,8 @@ namespace FitMe.GameData
         }
 
         private static bool TryRepairObstacleMask(
-            int[,] obstacleMask, int minimumRegionCells, int nodeBudget, out bool budgetExceeded)
+            int[,] boardMask, int[,] obstacleMask, int minimumRegionCells, int nodeBudget,
+            out bool budgetExceeded)
         {
             budgetExceeded = false;
             var nodesVisited = 0;
@@ -807,7 +853,7 @@ namespace FitMe.GameData
 
             while (true)
             {
-                var components = FindPlayableComponents(obstacleMask);
+                var components = FindPlayableComponents(boardMask, obstacleMask);
                 if (components.Count <= 1) break;
 
                 var targetIndex = 0;
@@ -824,7 +870,8 @@ namespace FitMe.GameData
                 }
                 if (sourceIndex < 0) break;
 
-                if (!TryFindConnectionPath(obstacleMask, components[sourceIndex], components[targetIndex],
+                if (!TryFindConnectionPath(boardMask, obstacleMask,
+                        components[sourceIndex], components[targetIndex],
                         ref nodesVisited, nodeBudget, out var path, out budgetExceeded))
                     return false;
 
@@ -841,16 +888,16 @@ namespace FitMe.GameData
                 if (clearedOnPath == 0) return false;
             }
 
-            if (!ArePlayableRegionsAcceptable(obstacleMask, minimumRegionCells)) return false;
+            if (!ArePlayableRegionsAcceptable(boardMask, obstacleMask, minimumRegionCells)) return false;
             if (clearedCells.Count > 0 &&
-                !TryRelocateClearedObstacles(obstacleMask, protectedCells, clearedCells.Count,
+                !TryRelocateClearedObstacles(boardMask, obstacleMask, protectedCells, clearedCells.Count,
                     0, minimumRegionCells, ref nodesVisited, nodeBudget, out budgetExceeded))
                 return false;
 
-            return ArePlayableRegionsAcceptable(obstacleMask, minimumRegionCells);
+            return ArePlayableRegionsAcceptable(boardMask, obstacleMask, minimumRegionCells);
         }
 
-        private static List<List<Vector2Int>> FindPlayableComponents(int[,] obstacleMask)
+        private static List<List<Vector2Int>> FindPlayableComponents(int[,] boardMask, int[,] obstacleMask)
         {
             var components = new List<List<Vector2Int>>();
             var visited = new bool[obstacleMask.GetLength(0), obstacleMask.GetLength(1)];
@@ -858,7 +905,7 @@ namespace FitMe.GameData
             for (var row = 0; row < obstacleMask.GetLength(0); row++)
             for (var column = 0; column < obstacleMask.GetLength(1); column++)
             {
-                if (obstacleMask[row, column] != 0 || visited[row, column]) continue;
+                if (boardMask[row, column] == 0 || obstacleMask[row, column] != 0 || visited[row, column]) continue;
                 var component = new List<Vector2Int>();
                 visited[row, column] = true;
                 queue.Enqueue(new Vector2Int(row, column));
@@ -866,10 +913,10 @@ namespace FitMe.GameData
                 {
                     var cell = queue.Dequeue();
                     component.Add(cell);
-                    EnqueuePlayableCell(cell.x - 1, cell.y, obstacleMask, visited, queue);
-                    EnqueuePlayableCell(cell.x + 1, cell.y, obstacleMask, visited, queue);
-                    EnqueuePlayableCell(cell.x, cell.y - 1, obstacleMask, visited, queue);
-                    EnqueuePlayableCell(cell.x, cell.y + 1, obstacleMask, visited, queue);
+                    EnqueuePlayableCell(cell.x - 1, cell.y, boardMask, obstacleMask, visited, queue);
+                    EnqueuePlayableCell(cell.x + 1, cell.y, boardMask, obstacleMask, visited, queue);
+                    EnqueuePlayableCell(cell.x, cell.y - 1, boardMask, obstacleMask, visited, queue);
+                    EnqueuePlayableCell(cell.x, cell.y + 1, boardMask, obstacleMask, visited, queue);
                 }
                 components.Add(component);
             }
@@ -877,18 +924,20 @@ namespace FitMe.GameData
         }
 
         private static void EnqueuePlayableCell(
-            int row, int column, int[,] obstacleMask, bool[,] visited, Queue<Vector2Int> queue)
+            int row, int column, int[,] boardMask, int[,] obstacleMask,
+            bool[,] visited, Queue<Vector2Int> queue)
         {
             if (row < 0 || row >= obstacleMask.GetLength(0) ||
                 column < 0 || column >= obstacleMask.GetLength(1) ||
-                obstacleMask[row, column] != 0 || visited[row, column]) return;
+                boardMask[row, column] == 0 || obstacleMask[row, column] != 0 || visited[row, column]) return;
             visited[row, column] = true;
             queue.Enqueue(new Vector2Int(row, column));
         }
 
-        private static bool ArePlayableRegionsAcceptable(int[,] obstacleMask, int minimumRegionCells)
+        private static bool ArePlayableRegionsAcceptable(
+            int[,] boardMask, int[,] obstacleMask, int minimumRegionCells)
         {
-            var components = FindPlayableComponents(obstacleMask);
+            var components = FindPlayableComponents(boardMask, obstacleMask);
             if (components.Count == 0) return false;
             if (components.Count == 1) return true;
             for (var index = 0; index < components.Count; index++)
@@ -897,7 +946,8 @@ namespace FitMe.GameData
         }
 
         private static bool TryFindConnectionPath(
-            int[,] obstacleMask, IReadOnlyList<Vector2Int> source, IReadOnlyList<Vector2Int> target,
+            int[,] boardMask, int[,] obstacleMask,
+            IReadOnlyList<Vector2Int> source, IReadOnlyList<Vector2Int> target,
             ref int nodesVisited, int nodeBudget, out List<Vector2Int> path, out bool budgetExceeded)
         {
             path = new List<Vector2Int>();
@@ -949,19 +999,20 @@ namespace FitMe.GameData
                     return true;
                 }
 
-                RelaxPathCell(current.x - 1, current.y, current, obstacleMask, distances, previous, visited);
-                RelaxPathCell(current.x, current.y - 1, current, obstacleMask, distances, previous, visited);
-                RelaxPathCell(current.x, current.y + 1, current, obstacleMask, distances, previous, visited);
-                RelaxPathCell(current.x + 1, current.y, current, obstacleMask, distances, previous, visited);
+                RelaxPathCell(current.x - 1, current.y, current, boardMask, obstacleMask, distances, previous, visited);
+                RelaxPathCell(current.x, current.y - 1, current, boardMask, obstacleMask, distances, previous, visited);
+                RelaxPathCell(current.x, current.y + 1, current, boardMask, obstacleMask, distances, previous, visited);
+                RelaxPathCell(current.x + 1, current.y, current, boardMask, obstacleMask, distances, previous, visited);
             }
         }
 
         private static void RelaxPathCell(
-            int row, int column, Vector2Int from, int[,] obstacleMask,
+            int row, int column, Vector2Int from, int[,] boardMask, int[,] obstacleMask,
             int[,] distances, Vector2Int[,] previous, bool[,] visited)
         {
             if (row < 0 || row >= obstacleMask.GetLength(0) ||
-                column < 0 || column >= obstacleMask.GetLength(1) || visited[row, column]) return;
+                column < 0 || column >= obstacleMask.GetLength(1) ||
+                boardMask[row, column] == 0 || visited[row, column]) return;
             var distance = distances[from.x, from.y] + (obstacleMask[row, column] == 0 ? 0 : 1);
             if (distance >= distances[row, column]) return;
             distances[row, column] = distance;
@@ -969,11 +1020,13 @@ namespace FitMe.GameData
         }
 
         private static bool TryRelocateClearedObstacles(
-            int[,] obstacleMask, bool[,] protectedCells, int remaining, int firstCandidate,
-            int minimumRegionCells, ref int nodesVisited, int nodeBudget, out bool budgetExceeded)
+            int[,] boardMask, int[,] obstacleMask, bool[,] protectedCells, int remaining,
+            int firstCandidate, int minimumRegionCells, ref int nodesVisited,
+            int nodeBudget, out bool budgetExceeded)
         {
             budgetExceeded = false;
-            if (remaining == 0) return ArePlayableRegionsAcceptable(obstacleMask, minimumRegionCells);
+            if (remaining == 0)
+                return ArePlayableRegionsAcceptable(boardMask, obstacleMask, minimumRegionCells);
             var rows = obstacleMask.GetLength(0);
             var columns = obstacleMask.GetLength(1);
             var cellCount = rows * columns;
@@ -981,7 +1034,8 @@ namespace FitMe.GameData
             {
                 var row = candidate / columns;
                 var column = candidate % columns;
-                if (obstacleMask[row, column] != 0 || protectedCells[row, column]) continue;
+                if (boardMask[row, column] == 0 || obstacleMask[row, column] != 0 ||
+                    protectedCells[row, column]) continue;
                 if (nodesVisited >= nodeBudget)
                 {
                     budgetExceeded = true;
@@ -989,8 +1043,8 @@ namespace FitMe.GameData
                 }
                 nodesVisited++;
                 obstacleMask[row, column] = 1;
-                if (ArePlayableRegionsAcceptable(obstacleMask, minimumRegionCells) &&
-                    TryRelocateClearedObstacles(obstacleMask, protectedCells, remaining - 1,
+                if (ArePlayableRegionsAcceptable(boardMask, obstacleMask, minimumRegionCells) &&
+                    TryRelocateClearedObstacles(boardMask, obstacleMask, protectedCells, remaining - 1,
                         candidate + 1, minimumRegionCells, ref nodesVisited, nodeBudget,
                         out budgetExceeded))
                     return true;

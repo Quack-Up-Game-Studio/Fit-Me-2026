@@ -51,6 +51,8 @@ namespace FitMe.Grid.Tests
             SetPrivateField(profile, "_maxBoardRows", 4);
             SetPrivateField(profile, "_minObstacleCells", 1);
             SetPrivateField(profile, "_maxObstacleCells", 2);
+            SetPrivateField(profile, "_minVoidCells", 3);
+            SetPrivateField(profile, "_maxVoidCells", 5);
             SetPrivateField(profile, "_minGeneratedBlockColumns", 1);
             SetPrivateField(profile, "_maxGeneratedBlockColumns", 3);
             SetPrivateField(profile, "_minGeneratedBlockRows", 1);
@@ -83,6 +85,8 @@ namespace FitMe.Grid.Tests
             Assert.That(config.MaxBoardRows, Is.EqualTo(4));
             Assert.That(config.MinObstacleCells, Is.EqualTo(1));
             Assert.That(config.MaxObstacleCells, Is.EqualTo(2));
+            AssertProperty(config, "MinVoidCells", 3);
+            AssertProperty(config, "MaxVoidCells", 5);
             Assert.That(config.MinGeneratedBlockColumns, Is.EqualTo(1));
             Assert.That(config.MaxGeneratedBlockColumns, Is.EqualTo(3));
             Assert.That(config.MinGeneratedBlockRows, Is.EqualTo(1));
@@ -120,17 +124,19 @@ namespace FitMe.Grid.Tests
             var config = new ShapePlaysetGenerationConfig(
                 minBoardColumns: 2,
                 maxBoardColumns: 2,
-                minBoardRows: 2,
-                maxBoardRows: 2,
+                minBoardRows: 3,
+                maxBoardRows: 3,
                 minObstacleCells: 0,
                 maxObstacleCells: 0,
                 minGeneratedBlockColumns: 1,
-                maxGeneratedBlockColumns: 1,
+                maxGeneratedBlockColumns: 2,
                 minGeneratedBlockRows: 1,
-                maxGeneratedBlockRows: 1,
+                maxGeneratedBlockRows: 2,
                 preferredPlayerBlocks: new[] { new ShapePlayerBlockEntry(preset, 1) },
                 minPlayableRegionCells: 1,
-                maxSingletonFallbackBlocks: 1);
+                maxSingletonFallbackBlocks: 1,
+                minVoidCells: 1,
+                maxVoidCells: 1);
             var generation = ShapePlaysetGenerator.Generate(config, seed: 9);
             Assert.That(generation.IsSuccess, Is.True, generation.Error.ToString());
             Assert.That(generation.Playset.PlayerBlocks, Has.Count.EqualTo(2));
@@ -203,6 +209,8 @@ namespace FitMe.Grid.Tests
             AssertProperty(provenanceConfiguration, "MinBoardColumns", config.MinBoardColumns);
             AssertProperty(provenanceConfiguration, "MaxBoardRows", config.MaxBoardRows);
             AssertProperty(provenanceConfiguration, "MaxTilingSearchNodes", config.MaxTilingSearchNodes);
+            AssertProperty(provenanceConfiguration, "MinVoidCells", 1);
+            AssertProperty(provenanceConfiguration, "MaxVoidCells", 1);
             var preferredSnapshots = GetProperty(provenanceConfiguration, "PreferredPlayerBlocks") as ICollection;
             Assert.That(preferredSnapshots, Is.Not.Null);
             Assert.That(preferredSnapshots.Count, Is.EqualTo(1));
@@ -213,6 +221,7 @@ namespace FitMe.Grid.Tests
             var difficulty = GetProperty(provenance, "Difficulty");
             AssertProperty(difficulty, "IsProvisional", true);
             AssertProperty(difficulty, "PlayableCellCount", generation.Playset.Difficulty.PlayableCellCount);
+            AssertProperty(difficulty, "VoidCellCount", 1);
             AssertProperty(difficulty, "ProvisionalDifficultyScore",
                 generation.Playset.Difficulty.ProvisionalDifficultyScore);
 
@@ -236,6 +245,9 @@ namespace FitMe.Grid.Tests
             Assert.That(reloadedProvenance, Is.Not.Null);
             AssertProperty(reloadedProvenance, "Seed", generation.Playset.Seed);
             AssertProperty(reloadedProvenance, "GeneratorVersion", generation.Playset.GeneratorVersion);
+            AssertProperty(GetProperty(reloadedProvenance, "Configuration"), "MinVoidCells", 1);
+            AssertProperty(GetProperty(reloadedProvenance, "Configuration"), "MaxVoidCells", 1);
+            AssertProperty(GetProperty(reloadedProvenance, "Difficulty"), "VoidCellCount", 1);
             AssertProperty(GetProperty(reloadedProvenance, "Difficulty"), "IsProvisional", true);
             Assert.That(AssetDatabase.FindAssets("t:BlockPreset", new[] { _assetFolderPath }),
                 Has.Length.EqualTo(1), "Saving a generated level must not create new BlockPreset assets.");

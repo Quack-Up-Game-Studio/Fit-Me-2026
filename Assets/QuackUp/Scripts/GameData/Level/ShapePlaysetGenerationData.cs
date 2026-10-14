@@ -12,6 +12,8 @@ namespace FitMe.GameData
         InvalidBoardDimensions,
         BoardTooLarge,
         InvalidObstacleRange,
+        InvalidVoidRange,
+        InvalidCombinedCellRange,
         InvalidGeneratedBlockDimensions,
         InvalidPreferredBlockSupply,
         InvalidPlayableRegionThreshold,
@@ -46,6 +48,8 @@ namespace FitMe.GameData
         public int MaxBoardRows { get; }
         public int MinObstacleCells { get; }
         public int MaxObstacleCells { get; }
+        public int MinVoidCells { get; }
+        public int MaxVoidCells { get; }
         public int MinGeneratedBlockColumns { get; }
         public int MaxGeneratedBlockColumns { get; }
         public int MinGeneratedBlockRows { get; }
@@ -68,7 +72,9 @@ namespace FitMe.GameData
             int maxObstacleRepairNodes = 50000,
             int maxTilingSearchNodes = 100000,
             int maxCandidateAttempts = 8,
-            int maxSingletonFallbackBlocks = 0)
+            int maxSingletonFallbackBlocks = 0,
+            int minVoidCells = 0,
+            int maxVoidCells = 0)
         {
             MinBoardColumns = minBoardColumns;
             MaxBoardColumns = maxBoardColumns;
@@ -76,6 +82,8 @@ namespace FitMe.GameData
             MaxBoardRows = maxBoardRows;
             MinObstacleCells = minObstacleCells;
             MaxObstacleCells = maxObstacleCells;
+            MinVoidCells = minVoidCells;
+            MaxVoidCells = maxVoidCells;
             MinGeneratedBlockColumns = minGeneratedBlockColumns;
             MaxGeneratedBlockColumns = maxGeneratedBlockColumns;
             MinGeneratedBlockRows = minGeneratedBlockRows;
@@ -115,6 +123,8 @@ namespace FitMe.GameData
         public int MaxBoardRows { get; }
         public int MinObstacleCells { get; }
         public int MaxObstacleCells { get; }
+        public int MinVoidCells { get; }
+        public int MaxVoidCells { get; }
         public int MinGeneratedBlockColumns { get; }
         public int MaxGeneratedBlockColumns { get; }
         public int MinGeneratedBlockRows { get; }
@@ -134,6 +144,8 @@ namespace FitMe.GameData
             MaxBoardRows = config.MaxBoardRows;
             MinObstacleCells = config.MinObstacleCells;
             MaxObstacleCells = config.MaxObstacleCells;
+            MinVoidCells = config.MinVoidCells;
+            MaxVoidCells = config.MaxVoidCells;
             MinGeneratedBlockColumns = config.MinGeneratedBlockColumns;
             MaxGeneratedBlockColumns = config.MaxGeneratedBlockColumns;
             MinGeneratedBlockRows = config.MinGeneratedBlockRows;
@@ -198,6 +210,7 @@ namespace FitMe.GameData
     {
         public int PlayableCellCount { get; }
         public int ObstacleCellCount { get; }
+        public int VoidCellCount { get; }
         public int PlayerCellCount { get; }
         public int BlockCount { get; }
         public int TotalLegalPlacements { get; }
@@ -210,13 +223,14 @@ namespace FitMe.GameData
         public bool IsProvisional => true;
 
         internal ShapePlaysetDifficultyMetrics(
-            int playableCellCount, int obstacleCellCount, int playerCellCount, int blockCount,
+            int playableCellCount, int obstacleCellCount, int voidCellCount, int playerCellCount, int blockCount,
             int totalLegalPlacements, float averageLegalPlacementsPerBlock,
             int minimumLegalPlacementsPerBlock, int maximumLegalPlacementsPerBlock,
             float obstacleRatio, int provisionalDifficultyScore, int scoreModelVersion)
         {
             PlayableCellCount = playableCellCount;
             ObstacleCellCount = obstacleCellCount;
+            VoidCellCount = voidCellCount;
             PlayerCellCount = playerCellCount;
             BlockCount = blockCount;
             TotalLegalPlacements = totalLegalPlacements;
@@ -231,7 +245,7 @@ namespace FitMe.GameData
 
     public sealed class GeneratedShapePlayset
     {
-        public const int CurrentGeneratorVersion = 2;
+        public const int CurrentGeneratorVersion = 3;
 
         public int Seed { get; }
         public int AttemptIndex { get; }

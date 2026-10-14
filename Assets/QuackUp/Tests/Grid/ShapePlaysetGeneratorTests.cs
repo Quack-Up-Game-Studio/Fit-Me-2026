@@ -23,6 +23,209 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void GenerationProfile_ExposesVoidCellRangeWithZeroDefaults()
+        {
+            var profile = ScriptableObject.CreateInstance<ShapePlaysetGenerationProfile>();
+            try
+            {
+                var flags = System.Reflection.BindingFlags.Instance |
+                            System.Reflection.BindingFlags.NonPublic;
+                var minVoidField = typeof(ShapePlaysetGenerationProfile).GetField("_minVoidCells", flags);
+                var maxVoidField = typeof(ShapePlaysetGenerationProfile).GetField("_maxVoidCells", flags);
+                Assert.That(minVoidField, Is.Not.Null, "The profile should expose a minimum void-cell setting.");
+                Assert.That(maxVoidField, Is.Not.Null, "The profile should expose a maximum void-cell setting.");
+
+                var config = profile.CreateConfig();
+                var minVoidProperty = config.GetType().GetProperty("MinVoidCells");
+                var maxVoidProperty = config.GetType().GetProperty("MaxVoidCells");
+                Assert.That(minVoidProperty, Is.Not.Null);
+                Assert.That(maxVoidProperty, Is.Not.Null);
+                Assert.That(minVoidProperty.GetValue(config), Is.EqualTo(0));
+                Assert.That(maxVoidProperty.GetValue(config), Is.EqualTo(0));
+            }
+            finally
+            {
+                Object.DestroyImmediate(profile);
+            }
+        }
+
+        [Test]
+        public void Generate_ProfileVoidSettingsProduceExactDeterministicHolesWithoutObstacleOverlap()
+        {
+            var profile = ScriptableObject.CreateInstance<ShapePlaysetGenerationProfile>();
+            try
+            {
+                SetProfileInt(profile, "_minBoardColumns", 4);
+                SetProfileInt(profile, "_maxBoardColumns", 4);
+                SetProfileInt(profile, "_minBoardRows", 4);
+                SetProfileInt(profile, "_maxBoardRows", 4);
+                SetProfileInt(profile, "_minObstacleCells", 2);
+                SetProfileInt(profile, "_maxObstacleCells", 2);
+                SetProfileInt(profile, "_minVoidCells", 2);
+                SetProfileInt(profile, "_maxVoidCells", 2);
+                SetProfileInt(profile, "_minGeneratedBlockColumns", 1);
+                SetProfileInt(profile, "_maxGeneratedBlockColumns", 1);
+                SetProfileInt(profile, "_minGeneratedBlockRows", 1);
+                SetProfileInt(profile, "_maxGeneratedBlockRows", 1);
+                SetProfileInt(profile, "_minPlayableRegionCells", 1);
+                SetProfileInt(profile, "_maxSingletonFallbackBlocks", 14);
+                SetProfileInt(profile, "_maxCandidateAttempts", 1);
+
+                var config = profile.CreateConfig();
+                var first = ShapePlaysetGenerator.Generate(config, seed: 41);
+                var second = ShapePlaysetGenerator.Generate(config, seed: 41);
+
+                Assert.That(first.IsSuccess, Is.True, first.Error.ToString());
+                Assert.That(second.IsSuccess, Is.True, second.Error.ToString());
+                var board = first.Playset.BoardMask;
+                var obstacles = first.Playset.ObstacleMask;
+                var secondBoard = second.Playset.BoardMask;
+                var secondObstacles = second.Playset.ObstacleMask;
+                var voidCount = 0;
+                var obstacleCount = 0;
+                var playableCount = 0;
+                for (var row = 0; row < board.GetLength(0); row++)
+                for (var column = 0; column < board.GetLength(1); column++)
+                {
+                    Assert.That(board[row, column], Is.EqualTo(secondBoard[row, column]));
+                    Assert.That(obstacles[row, column], Is.EqualTo(secondObstacles[row, column]));
+                    if (board[row, column] == 0)
+                    {
+                        voidCount++;
+                        Assert.That(obstacles[row, column], Is.Zero,
+                            $"Void at ({row}, {column}) must not contain an obstacle.");
+                    }
+                    else if (obstacles[row, column] == 1)
+                        obstacleCount++;
+                    else
+                        playableCount++;
+                }
+
+                Assert.That(voidCount, Is.EqualTo(2));
+                Assert.That(obstacleCount, Is.EqualTo(2));
+                Assert.That(playableCount, Is.EqualTo(12));
+                Assert.That(first.Playset.Difficulty.PlayableCellCount, Is.EqualTo(playableCount));
+                Assert.That(GetProperty(first.Playset.Difficulty, "VoidCellCount"), Is.EqualTo(voidCount));
+                Assert.That(GetProperty(first.Playset.Configuration, "MinVoidCells"), Is.EqualTo(2));
+                Assert.That(GetProperty(first.Playset.Configuration, "MaxVoidCells"), Is.EqualTo(2));
+                var covered = new int[board.GetLength(0), board.GetLength(1)];
+                var expectedPlayable = new int[board.GetLength(0), board.GetLength(1)];
+                for (var row = 0; row < board.GetLength(0); row++)
+                for (var column = 0; column < board.GetLength(1); column++)
+                    expectedPlayable[row, column] = board[row, column] == 1 && obstacles[row, column] == 0 ? 1 : 0;
+                for (var blockIndex = 0; blockIndex < first.Playset.PlayerBlocks.Count; blockIndex++)
+                foreach (var cell in first.Playset.PlayerBlocks[blockIndex].SolvedPlacement)
+                {
+                    Assert.That(board[cell.x, cell.y], Is.EqualTo(1));
+                    Assert.That(obstacles[cell.x, cell.y], Is.Zero);
+                    Assert.That(covered[cell.x, cell.y], Is.Zero,
+                        $"Playable cell ({cell.x}, {cell.y}) is covered more than once.");
+                    covered[cell.x, cell.y] = 1;
+                }
+                for (var row = 0; row < board.GetLength(0); row++)
+                for (var column = 0; column < board.GetLength(1); column++)
+                    Assert.That(covered[row, column], Is.EqualTo(expectedPlayable[row, column]));
+                var components = GetPlayableComponentSizes(board, obstacles);
+                foreach (var componentSize in components)
+                    Assert.That(componentSize, Is.GreaterThanOrEqualTo(1));
+            }
+            finally
+            {
+                Object.DestroyImmediate(profile);
+            }
+        }
+
+        [Test]
+        public void Generate_SamplesVoidCountWithinInclusiveProfileBounds()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 4, maxBoardColumns: 4,
+                minBoardRows: 4, maxBoardRows: 4,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 1,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
+                minPlayableRegionCells: 1,
+                maxCandidateAttempts: 1,
+                maxSingletonFallbackBlocks: 15,
+                minVoidCells: 1, maxVoidCells: 3);
+            var sawMinimum = false;
+            var sawMiddle = false;
+            var sawMaximum = false;
+
+            for (var seed = 0; seed < 32; seed++)
+            {
+                var result = ShapePlaysetGenerator.Generate(config, seed);
+                Assert.That(result.IsSuccess, Is.True, $"seed={seed}; error={result.Error}");
+                var board = result.Playset.BoardMask;
+                var voidCount = board.Length - CountMaskCells(board);
+                Assert.That(voidCount, Is.InRange(1, 3));
+                sawMinimum |= voidCount == 1;
+                sawMiddle |= voidCount == 2;
+                sawMaximum |= voidCount == 3;
+            }
+
+            Assert.That(sawMinimum && sawMiddle && sawMaximum, Is.True,
+                "Fixed seeds should demonstrate that both configured bounds and an intermediate count are selectable.");
+        }
+
+        [Test]
+        public void ObstacleRepairRelocatesClearedObstacleOnlyToPlayableBoardCells()
+        {
+            var boardMask = new[,]
+            {
+                { 1, 1, 1 },
+                { 1, 0, 1 },
+                { 1, 1, 1 }
+            };
+            var obstacleMask = new[,]
+            {
+                { 0, 1, 0 },
+                { 0, 0, 0 },
+                { 0, 1, 0 }
+            };
+            var repairMethod = typeof(ShapePlaysetGenerator).GetMethod(
+                "TryRepairObstacleMask",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            Assert.That(repairMethod, Is.Not.Null);
+            var arguments = new object[] { boardMask, obstacleMask, 4, 50000, false };
+
+            var repaired = (bool)repairMethod.Invoke(null, arguments);
+
+            Assert.That(repaired, Is.True);
+            Assert.That(obstacleMask[1, 1], Is.Zero, "Obstacle repair must never place an obstacle on a void.");
+            Assert.That(CountMaskCells(obstacleMask), Is.EqualTo(2),
+                "Repair must preserve the original obstacle count.");
+            var components = GetPlayableComponentSizes(boardMask, obstacleMask);
+            Assert.That(components, Has.Count.EqualTo(1));
+            Assert.That(components[0], Is.EqualTo(6));
+        }
+
+        [Test]
+        public void Generate_ObstacleRepairCannotJoinRegionsAcrossVoidCells()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 3, maxBoardColumns: 3,
+                minBoardRows: 3, maxBoardRows: 3,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 1,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
+                minPlayableRegionCells: 4,
+                maxCandidateAttempts: 1,
+                maxSingletonFallbackBlocks: 6,
+                minVoidCells: 3, maxVoidCells: 3);
+
+            var rejectedVoidBarrier = false;
+            for (var seed = 0; seed < 512 && !rejectedVoidBarrier; seed++)
+            {
+                var result = ShapePlaysetGenerator.Generate(config, seed);
+                rejectedVoidBarrier = result.LastAttemptError == ShapePlaysetGenerationError.ObstacleRepairFailed;
+            }
+
+            Assert.That(rejectedVoidBarrier, Is.True,
+                "A void-separated board with undersized regions must not be treated as traversable during repair.");
+        }
+
+        [Test]
         public void Generate_ReturnsDeterministicConnectedExactCoverOnAcceptedBaseConfiguration()
         {
             var config = new ShapePlaysetGenerationConfig(
@@ -220,6 +423,73 @@ namespace FitMe.Grid.Tests
 
             Assert.That(validation.IsValid, Is.False);
             Assert.That(validation.Errors, Does.Contain(ShapePlaysetConfigurationError.InvalidObstacleRange));
+        }
+
+        [Test]
+        public void ValidateConfiguration_RejectsInvalidVoidRangeAsConfigurationError()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 4, maxBoardColumns: 4,
+                minBoardRows: 4, maxBoardRows: 4,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2,
+                minVoidCells: -1, maxVoidCells: 0);
+
+            var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
+
+            Assert.That(validation.IsValid, Is.False);
+            Assert.That(validation.Errors, Does.Contain(ShapePlaysetConfigurationError.InvalidVoidRange));
+        }
+
+        [Test]
+        public void ValidateConfiguration_RejectsVoidMaximumThatCannotFitLargestBoard()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 4, maxBoardColumns: 4,
+                minBoardRows: 4, maxBoardRows: 4,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2,
+                minVoidCells: 0, maxVoidCells: 16);
+
+            var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
+
+            Assert.That(validation.IsValid, Is.False);
+            Assert.That(validation.Errors, Does.Contain(ShapePlaysetConfigurationError.InvalidVoidRange));
+        }
+
+        [Test]
+        public void ValidateConfiguration_RejectsMinimumVoidAndObstacleCountsThatConsumeLargestBoard()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 4, maxBoardColumns: 4,
+                minBoardRows: 4, maxBoardRows: 4,
+                minObstacleCells: 1, maxObstacleCells: 1,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2,
+                minVoidCells: 15, maxVoidCells: 15);
+
+            var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
+
+            Assert.That(validation.IsValid, Is.False);
+            Assert.That(validation.Errors, Does.Contain(ShapePlaysetConfigurationError.InvalidCombinedCellRange));
+        }
+
+        [Test]
+        public void ValidateConfiguration_AcceptsVoidCountThatFitsLargerConfiguredBoard()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 3, maxBoardColumns: 4,
+                minBoardRows: 3, maxBoardRows: 4,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2,
+                minVoidCells: 9, maxVoidCells: 9);
+
+            var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
+
+            Assert.That(validation.IsValid, Is.True, string.Join(", ", validation.Errors));
         }
 
         [Test]
@@ -942,6 +1212,22 @@ namespace FitMe.Grid.Tests
             {
                 Object.DestroyImmediate(preset);
             }
+        }
+
+        private static void SetProfileInt(ShapePlaysetGenerationProfile profile, string fieldName, int value)
+        {
+            var field = typeof(ShapePlaysetGenerationProfile).GetField(
+                fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null, $"Expected profile setting {fieldName}.");
+            field.SetValue(profile, value);
+        }
+
+        private static object GetProperty(object target, string propertyName)
+        {
+            var property = target.GetType().GetProperty(
+                propertyName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            Assert.That(property, Is.Not.Null, $"Expected property {propertyName}.");
+            return property.GetValue(target);
         }
     }
 }

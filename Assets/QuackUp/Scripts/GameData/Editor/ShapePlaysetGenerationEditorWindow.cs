@@ -286,6 +286,7 @@ namespace FitMe.GameData.Editor
                 $"{difficulty.ProvisionalDifficultyScore} · score model v{difficulty.ScoreModelVersion}");
             EditorGUILayout.LabelField("Playable cells", difficulty.PlayableCellCount.ToString());
             EditorGUILayout.LabelField("Obstacle cells", difficulty.ObstacleCellCount.ToString());
+            EditorGUILayout.LabelField("Void cells", difficulty.VoidCellCount.ToString());
             EditorGUILayout.LabelField("Player cells / blocks", $"{difficulty.PlayerCellCount} / {difficulty.BlockCount}");
             EditorGUILayout.LabelField("Legal placements",
                 $"{difficulty.TotalLegalPlacements} total · {difficulty.AverageLegalPlacementsPerBlock:F1} average per block");

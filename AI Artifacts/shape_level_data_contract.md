@@ -26,6 +26,12 @@ Reject empty/invalid preset schemas as before. Use a wide accumulator for the mu
 
 Keep future generators compatible with this boundary: they may group repeated presets when writing level definitions, but solver/runtime data must use individual block instances.
 
+## Shape playset generator void cells
+
+`ShapePlaysetGenerationProfile` configures an inclusive `MinVoidCells`–`MaxVoidCells` range. Both values default to `0`, preserving the existing full-rectangle board for profiles that do not opt into void generation. The generator samples that exact number of unique cells into the existing `BoardMask` as zeroes; it does not introduce a second void mask.
+
+Obstacle sampling and any obstacle-repair relocation are restricted to cells where `BoardMask == 1`. Region detection, repair paths, and exact-cover tiling treat zero-valued board cells as permanently unavailable. Generation provenance records both configured bounds and the resulting void-cell count; changing seeded output behavior advances the generator version.
+
 ## Serialized asset changes
 
 Changing the list element type is a serialized-data schema change. Before shipping authored `ShapeLevelDefinition` assets that use the old `List<BlockPreset>` layout, migrate each prior list item into an entry with the same preset and `Count = 1`, then verify the asset in Unity Editor. Do not assume Unity will automatically convert the old references into nested serializable entries.

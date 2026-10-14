@@ -55,6 +55,8 @@ namespace FitMe.GameData
         [SerializeField] private int _maxBoardRows;
         [SerializeField] private int _minObstacleCells;
         [SerializeField] private int _maxObstacleCells;
+        [SerializeField] private int _minVoidCells;
+        [SerializeField] private int _maxVoidCells;
         [SerializeField] private int _minGeneratedBlockColumns;
         [SerializeField] private int _maxGeneratedBlockColumns;
         [SerializeField] private int _minGeneratedBlockRows;
@@ -72,6 +74,8 @@ namespace FitMe.GameData
         public int MaxBoardRows => _maxBoardRows;
         public int MinObstacleCells => _minObstacleCells;
         public int MaxObstacleCells => _maxObstacleCells;
+        public int MinVoidCells => _minVoidCells;
+        public int MaxVoidCells => _maxVoidCells;
         public int MinGeneratedBlockColumns => _minGeneratedBlockColumns;
         public int MaxGeneratedBlockColumns => _maxGeneratedBlockColumns;
         public int MinGeneratedBlockRows => _minGeneratedBlockRows;
@@ -94,6 +98,8 @@ namespace FitMe.GameData
             _maxBoardRows = snapshot.MaxBoardRows;
             _minObstacleCells = snapshot.MinObstacleCells;
             _maxObstacleCells = snapshot.MaxObstacleCells;
+            _minVoidCells = snapshot.MinVoidCells;
+            _maxVoidCells = snapshot.MaxVoidCells;
             _minGeneratedBlockColumns = snapshot.MinGeneratedBlockColumns;
             _maxGeneratedBlockColumns = snapshot.MaxGeneratedBlockColumns;
             _minGeneratedBlockRows = snapshot.MinGeneratedBlockRows;
@@ -116,6 +122,7 @@ namespace FitMe.GameData
     {
         [SerializeField] private int _playableCellCount;
         [SerializeField] private int _obstacleCellCount;
+        [SerializeField] private int _voidCellCount;
         [SerializeField] private int _playerCellCount;
         [SerializeField] private int _blockCount;
         [SerializeField] private int _totalLegalPlacements;
@@ -128,6 +135,7 @@ namespace FitMe.GameData
 
         public int PlayableCellCount => _playableCellCount;
         public int ObstacleCellCount => _obstacleCellCount;
+        public int VoidCellCount => _voidCellCount;
         public int PlayerCellCount => _playerCellCount;
         public int BlockCount => _blockCount;
         public int TotalLegalPlacements => _totalLegalPlacements;
@@ -143,6 +151,7 @@ namespace FitMe.GameData
         {
             _playableCellCount = metrics.PlayableCellCount;
             _obstacleCellCount = metrics.ObstacleCellCount;
+            _voidCellCount = metrics.VoidCellCount;
             _playerCellCount = metrics.PlayerCellCount;
             _blockCount = metrics.BlockCount;
             _totalLegalPlacements = metrics.TotalLegalPlacements;
