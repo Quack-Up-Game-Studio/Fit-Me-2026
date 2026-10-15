@@ -380,12 +380,8 @@ namespace FitMe.GameData.Editor
         {
             var placements = new List<ShapeLevelTilingPlacement>(playset.PlayerBlocks.Count);
             for (var blockIndex = 0; blockIndex < playset.PlayerBlocks.Count; blockIndex++)
-                placements.Add((ShapeLevelTilingPlacement)Activator.CreateInstance(
-                    typeof(ShapeLevelTilingPlacement),
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
-                    null,
-                    new object[] { blockIndex, playset.PlayerBlocks[blockIndex].SolvedPlacement },
-                    null));
+                placements.Add(new ShapeLevelTilingPlacement(
+                    blockIndex, playset.PlayerBlocks[blockIndex].SolvedPlacement));
             return Array.AsReadOnly(placements.ToArray());
         }
 
