@@ -7,18 +7,24 @@ namespace FitMe.GameData
     /// <summary>Calculates the generator's provisional placement-count heuristic for a board and block list.</summary>
     public static class ShapePlaysetDifficultyEvaluator
     {
-        public const int CurrentScoreModelVersion = 1;
+        public const int CurrentScoreModelVersion = 2;
 
         public static ShapePlaysetDifficultyMetrics Evaluate(
             int[,] playableMask,
             int obstacleCellCount,
             int voidCellCount,
-            IReadOnlyList<int[,]> blockFootprints)
+            IReadOnlyList<int[,]> blockFootprints,
+            int solutionCount = 0,
+            bool solutionCountIsExact = false)
         {
             if (playableMask == null) throw new ArgumentNullException(nameof(playableMask));
             if (blockFootprints == null) throw new ArgumentNullException(nameof(blockFootprints));
             if (obstacleCellCount < 0) throw new ArgumentOutOfRangeException(nameof(obstacleCellCount));
             if (voidCellCount < 0) throw new ArgumentOutOfRangeException(nameof(voidCellCount));
+            if (solutionCount < 0) throw new ArgumentOutOfRangeException(nameof(solutionCount));
+            if (solutionCount == 0 && solutionCountIsExact)
+                throw new ArgumentException("An exact solution count must be positive for a feasible playset.",
+                    nameof(solutionCountIsExact));
 
             var playableCellCount = CountCells(playableMask);
             var totalPlacements = 0;
@@ -48,11 +54,20 @@ namespace FitMe.GameData
             var obstacleRatio = playableCellCount + obstacleCellCount == 0
                 ? 0f
                 : (float)obstacleCellCount / (playableCellCount + obstacleCellCount);
+            score = Math.Max(0, score - CalculateSolutionMultiplicityPenalty(solutionCount));
             return new ShapePlaysetDifficultyMetrics(
                 playableCellCount, obstacleCellCount, voidCellCount, playerCellCount, blockFootprints.Count,
                 totalPlacements, averagePlacements,
                 minimumPlacements == int.MaxValue ? 0 : minimumPlacements,
-                maximumPlacements, obstacleRatio, score, CurrentScoreModelVersion);
+                maximumPlacements, obstacleRatio, score, CurrentScoreModelVersion,
+                solutionCount, solutionCountIsExact);
+        }
+
+        private static int CalculateSolutionMultiplicityPenalty(int solutionCount)
+        {
+            if (solutionCount <= 1) return 0;
+            var ambiguityLevel = (int)Math.Ceiling(Math.Log(solutionCount, 2d));
+            return 3 * ambiguityLevel;
         }
 
         private static int CountLegalPlacements(int[,] playableMask, int[,] footprint)

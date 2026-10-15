@@ -56,6 +56,53 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ValidateTiling_StoresMultipleSolutionsAndNavigationResetsAfterEdit()
+        {
+            _level = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+            _level.SetGeneratedContent(
+                new[,] { { 1, 1 }, { 1, 1 } },
+                new[,] { { 0, 0 }, { 0, 0 } },
+                new[] { new ShapePlayerBlockEntry(new[,] { { 1, 1 } }, 2) });
+            _editor = Editor.CreateEditor(_level);
+
+            InvokePrivate(_editor, "ValidateTiling");
+
+            var result = GetPrivateField<ShapeLevelTilingResult>(_editor, "_tilingResult");
+            Assert.That(result.SolutionCount, Is.EqualTo(2));
+            Assert.That(result.Solutions, Has.Count.EqualTo(2));
+            Assert.That(GetPrivateField<int>(_editor, "_selectedSolutionIndex"), Is.Zero);
+
+            InvokePrivate(_editor, "StepSolution", 1);
+            Assert.That(GetPrivateField<int>(_editor, "_selectedSolutionIndex"), Is.EqualTo(1));
+
+            InvokePrivate(_editor, "RefreshDesignMetrics");
+            Assert.That(GetPrivateField<int>(_editor, "_selectedSolutionIndex"), Is.Zero);
+            Assert.That(GetPrivateField<ShapeLevelTilingResult>(_editor, "_tilingResult"), Is.Null);
+        }
+
+        [Test]
+        public void ValidateTiling_InvalidatesCachedPreviewWhenDefinitionChangesExternally()
+        {
+            _level = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+            _level.SetGeneratedContent(
+                new[,] { { 1, 1 } },
+                new[,] { { 0, 0 } },
+                new[] { new ShapePlayerBlockEntry(new[,] { { 1 } }, 2) });
+            _editor = Editor.CreateEditor(_level);
+            InvokePrivate(_editor, "ValidateTiling");
+
+            _level.SetGeneratedContent(
+                new[,] { { 1, 0, 1 } },
+                new[,] { { 0, 0, 0 } },
+                new[] { new ShapePlayerBlockEntry(new[,] { { 1, 1 } }, 1) });
+            InvokePrivate(_editor, "CheckDefinitionFingerprint");
+
+            Assert.That(GetPrivateField<ShapeLevelTilingResult>(_editor, "_tilingResult"), Is.Null);
+            Assert.That(GetPrivateField<ShapePlaysetDifficultyMetrics>(_editor, "_difficultyMetrics"), Is.Null);
+            Assert.That(GetPrivateField<bool>(_editor, "_tilingNeedsValidation"), Is.True);
+        }
+
+        [Test]
         public void ValidateTiling_ShowsDifficultyMetricsOnlyForFeasibleResult()
         {
             _level = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
@@ -73,7 +120,8 @@ namespace FitMe.Grid.Tests
             Assert.That(difficulty.PlayableCellCount, Is.EqualTo(2));
             Assert.That(difficulty.BlockCount, Is.EqualTo(2));
             Assert.That(difficulty.TotalLegalPlacements, Is.EqualTo(4));
-            Assert.That(difficulty.ScoreModelVersion, Is.EqualTo(1));
+            Assert.That(difficulty.ScoreModelVersion,
+                Is.EqualTo(ShapePlaysetDifficultyEvaluator.CurrentScoreModelVersion));
 
             _level.SetGeneratedContent(
                 new[,] { { 1, 0, 1 } },
@@ -104,12 +152,12 @@ namespace FitMe.Grid.Tests
             Assert.That(refreshedDifficulty.TotalLegalPlacements, Is.EqualTo(6));
         }
 
-        private static void InvokePrivate(object target, string methodName)
+        private static void InvokePrivate(object target, string methodName, params object[] arguments)
         {
             var method = target.GetType().GetMethod(
                 methodName, BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(method, Is.Not.Null, $"Expected private method {methodName}.");
-            method.Invoke(target, null);
+            method.Invoke(target, arguments);
         }
 
         private static T GetPrivateField<T>(object target, string fieldName)

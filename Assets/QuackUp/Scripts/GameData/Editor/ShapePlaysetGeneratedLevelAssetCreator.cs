@@ -10,6 +10,12 @@ namespace FitMe.GameData.Editor
     {
         public static ShapeLevelDefinition CreateNewLevelAsset(GeneratedShapePlayset playset, string assetPath)
         {
+            return CreateNewLevelAsset(playset, assetPath, playset?.Difficulty);
+        }
+
+        public static ShapeLevelDefinition CreateNewLevelAsset(
+            GeneratedShapePlayset playset, string assetPath, ShapePlaysetDifficultyMetrics difficultyMetrics)
+        {
             if (playset == null) throw new ArgumentNullException(nameof(playset));
             var normalizedAssetPath = NormalizeAssetPath(assetPath);
             var absoluteAssetPath = GetAbsoluteAssetPath(normalizedAssetPath);
@@ -25,7 +31,7 @@ namespace FitMe.GameData.Editor
             try
             {
                 level.name = Path.GetFileNameWithoutExtension(normalizedAssetPath);
-                level.SetGeneratedContent(playset);
+                level.SetGeneratedContent(playset, difficultyMetrics);
                 var validation = ShapeLevelDataValidator.Validate(level);
                 if (!validation.IsValid)
                     throw new InvalidOperationException(

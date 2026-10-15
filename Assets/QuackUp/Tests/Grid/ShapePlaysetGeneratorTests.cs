@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FitMe.GameData;
 using FitMe.Grid;
 using NUnit.Framework;
@@ -21,6 +22,31 @@ namespace FitMe.Grid.Tests
             var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
 
             Assert.That(validation.IsValid, Is.True, string.Join(", ", validation.Errors));
+        }
+
+        [Test]
+        public void DifficultyEvaluator_ReducesProvisionalScoreAsSolutionMultiplicityIncreases()
+        {
+            var playableMask = new[,] { { 1, 1 }, { 1, 1 } };
+            var blocks = new List<int[,]>
+            {
+                new[,] { { 1, 1 } },
+                new[,] { { 1, 1 } }
+            };
+            var unique = ShapePlaysetDifficultyEvaluator.Evaluate(
+                playableMask, obstacleCellCount: 0, voidCellCount: 0, blockFootprints: blocks,
+                solutionCount: 1, solutionCountIsExact: true);
+            var many = ShapePlaysetDifficultyEvaluator.Evaluate(
+                playableMask, obstacleCellCount: 0, voidCellCount: 0, blockFootprints: blocks,
+                solutionCount: 8, solutionCountIsExact: false);
+
+            Assert.That(unique.ScoreModelVersion, Is.EqualTo(2));
+            Assert.That(unique.HasSolutionCount, Is.True);
+            Assert.That(unique.IsSolutionCountExact, Is.True);
+            Assert.That(many.SolutionCount, Is.EqualTo(8));
+            Assert.That(many.IsSolutionCountExact, Is.False);
+            Assert.That(unique.ProvisionalDifficultyScore,
+                Is.GreaterThan(many.ProvisionalDifficultyScore));
         }
 
         [Test]
@@ -252,7 +278,8 @@ namespace FitMe.Grid.Tests
             Assert.That(first.Playset.Configuration.MinBoardColumns, Is.EqualTo(config.MinBoardColumns));
             Assert.That(first.Playset.Configuration.MaxObstacleCells, Is.EqualTo(config.MaxObstacleCells));
             Assert.That(first.Playset.GeneratorVersion, Is.EqualTo(GeneratedShapePlayset.CurrentGeneratorVersion));
-            Assert.That(first.Playset.Difficulty.ScoreModelVersion, Is.EqualTo(1));
+            Assert.That(first.Playset.Difficulty.ScoreModelVersion,
+                Is.EqualTo(ShapePlaysetDifficultyEvaluator.CurrentScoreModelVersion));
             for (var blockIndex = 0; blockIndex < first.Playset.PlayerBlocks.Count; blockIndex++)
                 Assert.That(first.Playset.PlayerBlocks[blockIndex].Footprint,
                     Is.EqualTo(second.Playset.PlayerBlocks[blockIndex].Footprint));

@@ -48,6 +48,12 @@ namespace FitMe.GameData
 
         public void SetGeneratedContent(GeneratedShapePlayset playset)
         {
+            SetGeneratedContent(playset, playset?.Difficulty);
+        }
+
+        public void SetGeneratedContent(
+            GeneratedShapePlayset playset, ShapePlaysetDifficultyMetrics difficultyMetrics)
+        {
             if (playset == null) throw new ArgumentNullException(nameof(playset));
             var playerBlocks = new List<ShapePlayerBlockEntry>(playset.PlayerBlocks.Count);
             var groupsByKey = new Dictionary<string, int>();
@@ -73,7 +79,8 @@ namespace FitMe.GameData
             }
 
             SetGeneratedContent(playset.BoardMask, playset.ObstacleMask, playerBlocks);
-            _generationProvenance = new ShapePlaysetGenerationProvenance(playset);
+            _generationProvenance = new ShapePlaysetGenerationProvenance(
+                playset, difficultyMetrics ?? playset.Difficulty);
         }
 
         private static string CreateNormalizedFootprintKey(int[,] footprint)

@@ -225,6 +225,9 @@ namespace FitMe.GameData
         public int MinimumLegalPlacementsPerBlock { get; }
         public int MaximumLegalPlacementsPerBlock { get; }
         public float ObstacleRatio { get; }
+        public int SolutionCount { get; }
+        public bool HasSolutionCount => SolutionCount > 0;
+        public bool IsSolutionCountExact { get; }
         public int ProvisionalDifficultyScore { get; }
         public int ScoreModelVersion { get; }
         public bool IsProvisional => true;
@@ -233,7 +236,8 @@ namespace FitMe.GameData
             int playableCellCount, int obstacleCellCount, int voidCellCount, int playerCellCount, int blockCount,
             int totalLegalPlacements, float averageLegalPlacementsPerBlock,
             int minimumLegalPlacementsPerBlock, int maximumLegalPlacementsPerBlock,
-            float obstacleRatio, int provisionalDifficultyScore, int scoreModelVersion)
+            float obstacleRatio, int provisionalDifficultyScore, int scoreModelVersion,
+            int solutionCount, bool isSolutionCountExact)
         {
             PlayableCellCount = playableCellCount;
             ObstacleCellCount = obstacleCellCount;
@@ -245,6 +249,8 @@ namespace FitMe.GameData
             MinimumLegalPlacementsPerBlock = minimumLegalPlacementsPerBlock;
             MaximumLegalPlacementsPerBlock = maximumLegalPlacementsPerBlock;
             ObstacleRatio = obstacleRatio;
+            SolutionCount = solutionCount;
+            IsSolutionCountExact = isSolutionCountExact;
             ProvisionalDifficultyScore = provisionalDifficultyScore;
             ScoreModelVersion = scoreModelVersion;
         }

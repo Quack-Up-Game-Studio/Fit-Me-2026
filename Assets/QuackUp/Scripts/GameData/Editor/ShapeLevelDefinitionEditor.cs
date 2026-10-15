@@ -14,6 +14,8 @@ namespace FitMe.GameData.Editor
         private IReadOnlyList<ShapeLevelValidationError> _tilingValidationErrors;
         private ShapePlaysetDifficultyMetrics _difficultyMetrics;
         private bool _tilingNeedsValidation;
+        private int _selectedSolutionIndex;
+        private int _validatedDefinitionFingerprint;
         private static GUIStyle _blockIndexLabelStyle;
 
         protected override void OnEnable()
@@ -46,9 +48,12 @@ namespace FitMe.GameData.Editor
             _tilingNeedsValidation = _tilingNeedsValidation ||
                                      _tilingResult != null || _tilingValidationErrors != null;
             _snapshot = ShapeLevelDesignSnapshot.Create((ShapeLevelDefinition)target);
+            if (!_tilingNeedsValidation)
+                _validatedDefinitionFingerprint = GetDefinitionFingerprint((ShapeLevelDefinition)target);
             _tilingResult = null;
             _tilingValidationErrors = null;
             _difficultyMetrics = null;
+            _selectedSolutionIndex = 0;
             Repaint();
         }
 
@@ -77,12 +82,14 @@ namespace FitMe.GameData.Editor
             }
 
             var playableMask = _snapshot.CreatePlayableMask();
-            _tilingResult = ShapeLevelTilingSolver.Solve(
+            _tilingResult = ShapeLevelTilingSolver.EnumerateSolutions(
                 playableMask, blockSchemas,
-                ShapeTilingValidationSettings.instance.MaxSearchNodes);
+                ShapeTilingValidationSettings.instance.MaxSearchNodes,
+                ShapeTilingValidationSettings.instance.MaxStoredSolutions);
             if (_tilingResult.IsFeasible)
                 _difficultyMetrics = ShapePlaysetDifficultyEvaluator.Evaluate(
-                    playableMask, _snapshot.ObstacleCellCount, _snapshot.VoidCellCount, blockSchemas);
+                    playableMask, _snapshot.ObstacleCellCount, _snapshot.VoidCellCount, blockSchemas,
+                    _tilingResult.SolutionCount, _tilingResult.IsSearchComplete);
         }
 
         private void DrawMetrics()
@@ -144,18 +151,19 @@ namespace FitMe.GameData.Editor
 
         private void DrawTilingResult()
         {
-            if (_tilingNeedsValidation)
-            {
-                EditorGUILayout.HelpBox(
-                    "The level definition changed since the last tiling check. Run Validate Tiling to refresh the solved preview.",
-                    MessageType.Info);
-                return;
-            }
+            CheckDefinitionFingerprint();
             if (_tilingValidationErrors != null)
             {
                 EditorGUILayout.HelpBox(
                     "Tiling check not run because the level data is invalid:\n" +
                     FormatValidationErrors(_tilingValidationErrors), MessageType.Error);
+                return;
+            }
+            if (_tilingNeedsValidation && _tilingResult == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "The level definition changed since the last tiling check. Run Validate Tiling to refresh the solved preview.",
+                    MessageType.Info);
                 return;
             }
             if (_tilingResult == null) return;
@@ -169,10 +177,14 @@ namespace FitMe.GameData.Editor
             };
             var message = _tilingResult.Status switch
             {
-                ShapeLevelTilingStatus.Feasible => "A complete tiling was found.",
+                ShapeLevelTilingStatus.Feasible =>
+                    $"{_tilingResult.SolutionCount} distinct solution(s) found.",
                 ShapeLevelTilingStatus.Infeasible => "No complete tiling exists for this exact block list.",
                 ShapeLevelTilingStatus.SearchLimitReached =>
-                    "Search limit reached; result is inconclusive. Adjust the shared budget in Project Settings → Fit Me → Shape Level Validation.",
+                    _tilingResult.IsFeasible
+                        ? $"Search limit reached; at least {_tilingResult.SolutionCount} distinct solution(s) found. " +
+                          "Adjust the shared budget in Project Settings → Fit Me → Shape Level Validation to continue searching."
+                        : "Search limit reached before a solution was found; result is inconclusive. Adjust the shared budget in Project Settings → Fit Me → Shape Level Validation.",
                 _ => "The solver rejected the supplied board or block data."
             };
             EditorGUILayout.HelpBox(
@@ -181,8 +193,127 @@ namespace FitMe.GameData.Editor
             if (_tilingResult.IsFeasible)
             {
                 DrawDifficultyMetrics();
-                DrawSolvedTilingPreview(_tilingResult.Placements);
+                if (_tilingResult.Solutions.Count > 0)
+                {
+                    DrawSolutionNavigation();
+                    DrawSolvedTilingPreview(_tilingResult.Solutions[_selectedSolutionIndex]);
+                }
+                else
+                    EditorGUILayout.HelpBox(
+                        "A solution was verified, but no preview could be retained under the current settings. Increase Maximum Stored Solution Previews and validate again.",
+                        MessageType.Warning);
             }
+        }
+
+        private void CheckDefinitionFingerprint()
+        {
+            var fingerprint = GetDefinitionFingerprint((ShapeLevelDefinition)target);
+            if (_validatedDefinitionFingerprint == fingerprint) return;
+            _validatedDefinitionFingerprint = fingerprint;
+            _tilingNeedsValidation = true;
+            _tilingResult = null;
+            _difficultyMetrics = null;
+            _selectedSolutionIndex = 0;
+            _snapshot = ShapeLevelDesignSnapshot.Create((ShapeLevelDefinition)target);
+            _tilingValidationErrors = _snapshot.Errors.Count > 0 ? _snapshot.Errors : null;
+        }
+
+        private static int GetDefinitionFingerprint(ShapeLevelDefinition level)
+        {
+            unchecked
+            {
+                var hash = 17;
+                hash = hash * 31 + (int)level.BoardSource;
+                if (level.BoardSource == ShapeBoardSource.Generated)
+                {
+                    AddMatrixHash(ref hash, level.GeneratedBoardMask);
+                    AddMatrixHash(ref hash, level.GeneratedObstacleMask);
+                }
+                else
+                {
+                    var board = level.Board;
+                    hash = hash * 31 + (board ? board.GetInstanceID() : 0);
+                    if (board)
+                    {
+                        hash = hash * 31 + board.GridSize.GetHashCode();
+                        hash = hash * 31 + (int)board.PresetGridType;
+                        hash = hash * 31 + (int)board.ObstacleMode;
+                        var customGrid = board.customGrid;
+                        if (customGrid != null)
+                            foreach (var value in customGrid) hash = hash * 31 + value;
+                        var obstacleGrid = board.CustomObstacleData;
+                        if (obstacleGrid != null)
+                            foreach (var cell in obstacleGrid)
+                            {
+                                hash = hash * 31 + (cell != null && cell.hasCell ? 1 : 0);
+                                hash = hash * 31 + (cell != null && cell.hasObstacle ? 1 : 0);
+                            }
+                    }
+                }
+
+                foreach (var entry in level.PlayerBlocks)
+                {
+                    if (entry == null)
+                    {
+                        hash = hash * 31;
+                        continue;
+                    }
+                    hash = hash * 31 + entry.Count;
+                    hash = hash * 31 + (int)entry.Source;
+                    if (entry.Source == ShapePlayerBlockSource.Preset)
+                    {
+                        var preset = entry.Preset;
+                        hash = hash * 31 + (preset ? preset.GetInstanceID() : 0);
+                        if (preset && preset.BlockSchema?.schema != null)
+                            AddMatrixHash(ref hash, preset.BlockSchema.schema);
+                    }
+                    else
+                        AddMatrixHash(ref hash, entry.InlineFootprint);
+                }
+                return hash;
+            }
+        }
+
+        private static void AddMatrixHash(ref int hash, int[,] matrix)
+        {
+            if (matrix == null)
+            {
+                hash = hash * 31;
+                return;
+            }
+            hash = hash * 31 + matrix.GetLength(0);
+            hash = hash * 31 + matrix.GetLength(1);
+            foreach (var value in matrix) hash = hash * 31 + value;
+        }
+
+        private void DrawSolutionNavigation()
+        {
+            var storedCount = _tilingResult.Solutions.Count;
+            if (storedCount == 0) return;
+            _selectedSolutionIndex = Mathf.Clamp(_selectedSolutionIndex, 0, storedCount - 1);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUI.BeginDisabledGroup(_selectedSolutionIndex == 0);
+            if (GUILayout.Button("◀", GUILayout.Width(32f))) StepSolution(-1);
+            EditorGUI.EndDisabledGroup();
+            var countLabel = _tilingResult.IsSearchComplete
+                ? _tilingResult.SolutionCount > storedCount
+                    ? $"Preview {_selectedSolutionIndex + 1} of {storedCount} retained · {_tilingResult.SolutionCount} solutions total"
+                    : $"Solution {_selectedSolutionIndex + 1} of {_tilingResult.SolutionCount}"
+                : $"Preview {_selectedSolutionIndex + 1} of {storedCount} retained · at least {_tilingResult.SolutionCount} found";
+            EditorGUILayout.LabelField(countLabel, EditorStyles.centeredGreyMiniLabel);
+            EditorGUI.BeginDisabledGroup(_selectedSolutionIndex >= storedCount - 1);
+            if (GUILayout.Button("▶", GUILayout.Width(32f))) StepSolution(1);
+            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void StepSolution(int direction)
+        {
+            var storedCount = _tilingResult?.Solutions.Count ?? 0;
+            if (storedCount == 0) return;
+            _selectedSolutionIndex = Mathf.Clamp(_selectedSolutionIndex + direction, 0, storedCount - 1);
+            Repaint();
         }
 
         private void DrawDifficultyMetrics()
@@ -204,7 +335,14 @@ namespace FitMe.GameData.Editor
                 _difficultyMetrics.MinimumLegalPlacementsPerBlock.ToString());
             EditorGUILayout.LabelField("Maximum placements per block",
                 _difficultyMetrics.MaximumLegalPlacementsPerBlock.ToString());
+            EditorGUILayout.LabelField("Distinct solutions",
+                _difficultyMetrics.IsSolutionCountExact
+                    ? _difficultyMetrics.SolutionCount.ToString()
+                    : $"at least {_difficultyMetrics.SolutionCount}");
             EditorGUILayout.LabelField("Obstacle ratio", $"{_difficultyMetrics.ObstacleRatio:P1}");
+            EditorGUILayout.HelpBox(
+                "More distinct solutions reduce the heuristic score. An at-least count uses only the known lower bound, so the score remains provisional.",
+                MessageType.None);
             EditorGUILayout.EndVertical();
         }
 

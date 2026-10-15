@@ -69,6 +69,66 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void EnumerateSolutions_CountsDistinctTilingsForEquivalentBlocks()
+        {
+            var result = ShapeLevelTilingSolver.EnumerateSolutions(
+                new[,] { { 1, 1 }, { 1, 1 } },
+                new[] { new[,] { { 1, 1 } }, new[,] { { 1, 1 } } },
+                maxSearchNodes: 100,
+                maxStoredSolutions: 10);
+
+            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Feasible));
+            Assert.That(result.SolutionCount, Is.EqualTo(2));
+            Assert.That(result.Solutions, Has.Count.EqualTo(2));
+            Assert.That(result.IsSearchComplete, Is.True);
+        }
+
+        [Test]
+        public void EnumerateSolutions_ContinuesCountingAfterPreviewStorageLimit()
+        {
+            var result = ShapeLevelTilingSolver.EnumerateSolutions(
+                new[,] { { 1, 1 }, { 1, 1 } },
+                new[] { new[,] { { 1, 1 } }, new[,] { { 1, 1 } } },
+                maxSearchNodes: 100,
+                maxStoredSolutions: 1);
+
+            Assert.That(result.SolutionCount, Is.EqualTo(2));
+            Assert.That(result.Solutions, Has.Count.EqualTo(1));
+            Assert.That(result.IsSearchComplete, Is.True);
+        }
+
+        [Test]
+        public void EnumerateSolutions_ReportsAtLeastCountWhenSearchBudgetRunsOut()
+        {
+            var result = ShapeLevelTilingSolver.EnumerateSolutions(
+                new[,] { { 1, 1 }, { 1, 1 } },
+                new[] { new[,] { { 1, 1 } }, new[,] { { 1, 1 } } },
+                maxSearchNodes: 2,
+                maxStoredSolutions: 1);
+
+            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.SearchLimitReached));
+            Assert.That(result.SolutionCount, Is.EqualTo(1));
+            Assert.That(result.Solutions, Has.Count.EqualTo(1),
+                "Preview storage is independently capped while enumeration continues.");
+            Assert.That(result.IsSearchComplete, Is.False);
+        }
+
+        [Test]
+        public void EnumerateSolutions_RecognizesSolutionAtExactNodeBudgetBoundary()
+        {
+            var result = ShapeLevelTilingSolver.EnumerateSolutions(
+                new[,] { { 1 } },
+                new[] { new[,] { { 1 } } },
+                maxSearchNodes: 1,
+                maxStoredSolutions: 1);
+
+            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Feasible));
+            Assert.That(result.SolutionCount, Is.EqualTo(1));
+            Assert.That(result.IsSearchComplete, Is.True);
+            Assert.That(result.NodesVisited, Is.EqualTo(1));
+        }
+
+        [Test]
         public void Solve_ProvesInfeasibleWhenEqualAreaPiecesCannotFitDisconnectedCells()
         {
             var result = ShapeLevelTilingSolver.Solve(

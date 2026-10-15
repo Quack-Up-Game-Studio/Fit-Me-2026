@@ -130,6 +130,8 @@ namespace FitMe.GameData
         [SerializeField] private int _minimumLegalPlacementsPerBlock;
         [SerializeField] private int _maximumLegalPlacementsPerBlock;
         [SerializeField] private float _obstacleRatio;
+        [SerializeField] private int _solutionCount;
+        [SerializeField] private bool _isSolutionCountExact;
         [SerializeField] private int _provisionalDifficultyScore;
         [SerializeField] private int _scoreModelVersion;
 
@@ -143,6 +145,9 @@ namespace FitMe.GameData
         public int MinimumLegalPlacementsPerBlock => _minimumLegalPlacementsPerBlock;
         public int MaximumLegalPlacementsPerBlock => _maximumLegalPlacementsPerBlock;
         public float ObstacleRatio => _obstacleRatio;
+        public int SolutionCount => _solutionCount;
+        public bool HasSolutionCount => _solutionCount > 0;
+        public bool IsSolutionCountExact => _isSolutionCountExact;
         public int ProvisionalDifficultyScore => _provisionalDifficultyScore;
         public int ScoreModelVersion => _scoreModelVersion;
         public bool IsProvisional => true;
@@ -159,6 +164,8 @@ namespace FitMe.GameData
             _minimumLegalPlacementsPerBlock = metrics.MinimumLegalPlacementsPerBlock;
             _maximumLegalPlacementsPerBlock = metrics.MaximumLegalPlacementsPerBlock;
             _obstacleRatio = metrics.ObstacleRatio;
+            _solutionCount = metrics.SolutionCount;
+            _isSolutionCountExact = metrics.IsSolutionCountExact;
             _provisionalDifficultyScore = metrics.ProvisionalDifficultyScore;
             _scoreModelVersion = metrics.ScoreModelVersion;
         }
@@ -183,14 +190,15 @@ namespace FitMe.GameData
         /// <summary>Records generation origin only; it does not assert that current level data is unchanged.</summary>
         public bool IsOriginOnly => true;
 
-        internal ShapePlaysetGenerationProvenance(GeneratedShapePlayset playset)
+        internal ShapePlaysetGenerationProvenance(
+            GeneratedShapePlayset playset, ShapePlaysetDifficultyMetrics difficultyMetrics = null)
         {
             _seed = playset.Seed;
             _attemptIndex = playset.AttemptIndex;
             _generatorVersion = playset.GeneratorVersion;
             _optimizationStatus = playset.OptimizationStatus;
             _configuration = new ShapePlaysetConfigurationProvenance(playset.Configuration);
-            _difficulty = new ShapePlaysetDifficultyProvenance(playset.Difficulty);
+            _difficulty = new ShapePlaysetDifficultyProvenance(difficultyMetrics ?? playset.Difficulty);
         }
     }
 }

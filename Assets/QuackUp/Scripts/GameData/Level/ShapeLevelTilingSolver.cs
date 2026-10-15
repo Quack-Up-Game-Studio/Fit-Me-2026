@@ -17,7 +17,7 @@ namespace FitMe.GameData
         public int BlockIndex { get; }
         public IReadOnlyList<Vector2Int> Cells { get; }
 
-        internal ShapeLevelTilingPlacement(int blockIndex, IReadOnlyList<Vector2Int> cells)
+        public ShapeLevelTilingPlacement(int blockIndex, IReadOnlyList<Vector2Int> cells)
         {
             BlockIndex = blockIndex;
             Cells = Array.AsReadOnly(new List<Vector2Int>(cells).ToArray());
@@ -28,18 +28,25 @@ namespace FitMe.GameData
     {
         public ShapeLevelTilingStatus Status { get; }
         public int NodesVisited { get; }
-        public IReadOnlyList<ShapeLevelTilingPlacement> Placements { get; }
-        public bool IsFeasible => Status == ShapeLevelTilingStatus.Feasible;
+        public IReadOnlyList<IReadOnlyList<ShapeLevelTilingPlacement>> Solutions { get; }
+        public IReadOnlyList<ShapeLevelTilingPlacement> Placements =>
+            Solutions.Count == 0 ? Array.Empty<ShapeLevelTilingPlacement>() : Solutions[0];
+        public int SolutionCount { get; }
+        public bool IsSearchComplete { get; }
+        public bool IsFeasible => SolutionCount > 0;
 
         internal ShapeLevelTilingResult(
-            ShapeLevelTilingStatus status, int nodesVisited,
-            IReadOnlyList<ShapeLevelTilingPlacement> placements = null)
+            ShapeLevelTilingStatus status, int nodesVisited, int solutionCount,
+            IReadOnlyList<IReadOnlyList<ShapeLevelTilingPlacement>> solutions,
+            bool isSearchComplete)
         {
             Status = status;
             NodesVisited = nodesVisited;
-            Placements = placements == null
-                ? Array.AsReadOnly(Array.Empty<ShapeLevelTilingPlacement>())
-                : Array.AsReadOnly(new List<ShapeLevelTilingPlacement>(placements).ToArray());
+            SolutionCount = solutionCount;
+            Solutions = solutions == null
+                ? Array.AsReadOnly(Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>())
+                : Array.AsReadOnly(new List<IReadOnlyList<ShapeLevelTilingPlacement>>(solutions).ToArray());
+            IsSearchComplete = isSearchComplete;
         }
     }
 
@@ -49,9 +56,24 @@ namespace FitMe.GameData
         public static ShapeLevelTilingResult Solve(
             int[,] playableMask, IReadOnlyList<int[,]> blockSchemas, int maxSearchNodes)
         {
+            return RunSearch(playableMask, blockSchemas, maxSearchNodes, 1, stopAfterFirst: true);
+        }
+
+        public static ShapeLevelTilingResult EnumerateSolutions(
+            int[,] playableMask, IReadOnlyList<int[,]> blockSchemas,
+            int maxSearchNodes, int maxStoredSolutions)
+        {
+            return RunSearch(playableMask, blockSchemas, maxSearchNodes, maxStoredSolutions, stopAfterFirst: false);
+        }
+
+        private static ShapeLevelTilingResult RunSearch(
+            int[,] playableMask, IReadOnlyList<int[,]> blockSchemas,
+            int maxSearchNodes, int maxStoredSolutions, bool stopAfterFirst)
+        {
             if (playableMask == null || playableMask.Length == 0 ||
-                blockSchemas == null || maxSearchNodes < 1)
-                return new ShapeLevelTilingResult(ShapeLevelTilingStatus.InvalidInput, 0);
+                blockSchemas == null || maxSearchNodes < 1 || maxStoredSolutions < 1)
+                return CreateResult(ShapeLevelTilingStatus.InvalidInput, 0, 0,
+                    Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: false);
 
             var rows = playableMask.GetLength(0);
             var columns = playableMask.GetLength(1);
@@ -62,46 +84,68 @@ namespace FitMe.GameData
             {
                 var value = playableMask[row, column];
                 if (value != 0 && value != 1)
-                    return new ShapeLevelTilingResult(ShapeLevelTilingStatus.InvalidInput, 0);
+                    return CreateResult(ShapeLevelTilingStatus.InvalidInput, 0, 0,
+                        Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: false);
                 playable[row, column] = value == 1;
                 if (playable[row, column]) playableCellCount++;
             }
             if (playableCellCount == 0)
-                return new ShapeLevelTilingResult(ShapeLevelTilingStatus.InvalidInput, 0);
+                return CreateResult(ShapeLevelTilingStatus.InvalidInput, 0, 0,
+                    Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: false);
 
             var pieces = new Piece[blockSchemas.Count];
             long totalBlockCells = 0;
             for (var index = 0; index < blockSchemas.Count; index++)
             {
                 if (!TryCreatePiece(blockSchemas[index], out pieces[index]))
-                    return new ShapeLevelTilingResult(ShapeLevelTilingStatus.InvalidInput, 0);
+                    return CreateResult(ShapeLevelTilingStatus.InvalidInput, 0, 0,
+                        Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: false);
                 totalBlockCells += pieces[index].CellCount;
             }
             if (totalBlockCells != playableCellCount)
-                return new ShapeLevelTilingResult(ShapeLevelTilingStatus.Infeasible, 0);
+                return CreateResult(ShapeLevelTilingStatus.Infeasible, 0, 0,
+                    Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: true);
 
-            var context = new SearchContext(playable, pieces, playableCellCount, maxSearchNodes);
-            var found = Search(context, 0, 0);
-            var status = found
-                ? ShapeLevelTilingStatus.Feasible
-                : context.SearchLimitReached
-                    ? ShapeLevelTilingStatus.SearchLimitReached
+            var context = new SearchContext(
+                playable, pieces, playableCellCount, maxSearchNodes, maxStoredSolutions, columns, stopAfterFirst);
+            Search(context, 0, 0);
+            var isSearchComplete = !context.SearchLimitReached &&
+                                   (!stopAfterFirst || context.SolutionCount == 0);
+            var status = context.SearchLimitReached
+                ? ShapeLevelTilingStatus.SearchLimitReached
+                : context.SolutionCount > 0 || context.FirstSolution != null
+                    ? ShapeLevelTilingStatus.Feasible
                     : ShapeLevelTilingStatus.Infeasible;
-            var placements = found ? CreatePlacements(context.CurrentPlacements, columns) : null;
-            return new ShapeLevelTilingResult(status, context.NodesVisited, placements);
+            if (context.Solutions.Count == 0 && context.FirstSolution != null)
+                context.Solutions.Add(context.FirstSolution);
+            return CreateResult(status, context.NodesVisited, context.SolutionCount,
+                context.Solutions, isSearchComplete);
         }
+
+        private static ShapeLevelTilingResult CreateResult(
+            ShapeLevelTilingStatus status, int nodesVisited, int solutionCount,
+            IReadOnlyList<IReadOnlyList<ShapeLevelTilingPlacement>> solutions, bool isSearchComplete) =>
+            new(status, nodesVisited, solutionCount, solutions, isSearchComplete);
 
         private static bool Search(SearchContext context, int placedCount, int coveredCount)
         {
+            if (coveredCount == context.PlayableCellCount)
+            {
+                if (placedCount != context.Pieces.Length) return false;
+                context.SolutionCount++;
+                var solution = CreatePlacements(context.CurrentPlacements, context.Columns);
+                context.FirstSolution ??= solution;
+                if (context.Solutions.Count < context.MaxStoredSolutions)
+                    context.Solutions.Add(solution);
+                return context.StopAfterFirst;
+            }
+
             if (context.NodesVisited >= context.MaxSearchNodes)
             {
                 context.SearchLimitReached = true;
                 return false;
             }
             context.NodesVisited++;
-
-            if (coveredCount == context.PlayableCellCount)
-                return placedCount == context.Pieces.Length;
 
             var anchor = FindFirstUncoveredCell(context);
             if (anchor.x < 0) return false;
@@ -129,7 +173,7 @@ namespace FitMe.GameData
                     context.CurrentPlacements.RemoveAt(context.CurrentPlacements.Count - 1);
                     SetCovered(context, cellIndices, false);
                     context.Placed[pieceIndex] = false;
-                    if (context.SearchLimitReached) return false;
+                    if (context.SearchLimitReached || context.StopAfterFirst && context.SolutionCount > 0) return false;
                 }
             }
             return false;
@@ -294,12 +338,21 @@ namespace FitMe.GameData
             public readonly Piece[] Pieces;
             public readonly bool[] Placed;
             public readonly List<PendingPlacement> CurrentPlacements = new List<PendingPlacement>();
+            public readonly List<IReadOnlyList<ShapeLevelTilingPlacement>> Solutions =
+                new List<IReadOnlyList<ShapeLevelTilingPlacement>>();
             public readonly int PlayableCellCount;
             public readonly int MaxSearchNodes;
+            public readonly int MaxStoredSolutions;
+            public readonly int Columns;
+            public readonly bool StopAfterFirst;
+            public IReadOnlyList<ShapeLevelTilingPlacement> FirstSolution;
+            public int SolutionCount;
             public int NodesVisited;
             public bool SearchLimitReached;
 
-            public SearchContext(bool[,] playable, Piece[] pieces, int playableCellCount, int maxSearchNodes)
+            public SearchContext(
+                bool[,] playable, Piece[] pieces, int playableCellCount,
+                int maxSearchNodes, int maxStoredSolutions, int columns, bool stopAfterFirst)
             {
                 Playable = playable;
                 Covered = new bool[playable.GetLength(0), playable.GetLength(1)];
@@ -307,6 +360,9 @@ namespace FitMe.GameData
                 Placed = new bool[pieces.Length];
                 PlayableCellCount = playableCellCount;
                 MaxSearchNodes = maxSearchNodes;
+                MaxStoredSolutions = maxStoredSolutions;
+                Columns = columns;
+                StopAfterFirst = stopAfterFirst;
             }
         }
 

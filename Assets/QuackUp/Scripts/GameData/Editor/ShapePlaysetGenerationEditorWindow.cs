@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FitMe.GameData;
 using FitMe.Grid;
 using UnityEditor;
@@ -25,6 +26,10 @@ namespace FitMe.GameData.Editor
         [SerializeField] private Vector2 _scrollPosition;
         [SerializeField] private bool _showTechnicalDiagnostics;
         private ShapePlaysetGenerationResult _generationResult;
+        private ShapeLevelTilingResult _solutionResult;
+        private IReadOnlyList<ShapeLevelTilingPlacement> _generatorVerifiedSolution;
+        private ShapePlaysetDifficultyMetrics _difficultyMetrics;
+        private int _selectedSolutionIndex;
         private string _generationMessage;
         private string _saveMessage;
         private MessageType _saveMessageType = MessageType.Info;
@@ -117,17 +122,28 @@ namespace FitMe.GameData.Editor
         private void ClearGeneratedResult()
         {
             _generationResult = null;
+            _solutionResult = null;
+            _generatorVerifiedSolution = null;
+            _difficultyMetrics = null;
+            _selectedSolutionIndex = 0;
             _generationMessage = null;
             _saveMessage = null;
         }
 
         private void Generate(ShapePlaysetGenerationConfig config)
         {
+            _solutionResult = null;
+            _generatorVerifiedSolution = null;
+            _difficultyMetrics = null;
+            _selectedSolutionIndex = 0;
             _generationResult = ShapePlaysetGenerator.Generate(config, _seed);
             _saveMessage = null;
             if (_generationResult.IsSuccess)
             {
                 var playset = _generationResult.Playset;
+                _generatorVerifiedSolution = CreateVerifiedSolution(playset);
+                _solutionResult = AnalyzeSolutions(playset);
+                _difficultyMetrics = EvaluateDifficulty(playset, _solutionResult);
                 _generationMessage = playset.OptimizationStatus == ShapePlaysetOptimizationStatus.BudgetLimited
                     ? $"Generated a valid layout with seed {playset.Seed} on attempt {playset.AttemptIndex + 1}. " +
                       "The preferred-coverage search reached its limit; this is the best layout found so far, " +
@@ -195,9 +211,9 @@ namespace FitMe.GameData.Editor
         {
             var board = playset.BoardMask;
             var obstacles = playset.ObstacleMask;
-            var difficulty = playset.Difficulty;
+            var difficulty = _difficultyMetrics ?? playset.Difficulty;
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Solved playset preview", EditorStyles.boldLabel);
+            DrawSolutionNavigation();
             EditorGUILayout.LabelField("Board dimensions",
                 $"{board.GetLength(1)} columns × {board.GetLength(0)} rows");
             EditorGUILayout.LabelField("Attempt", $"{playset.AttemptIndex + 1} · generator v{playset.GeneratorVersion}");
@@ -206,14 +222,14 @@ namespace FitMe.GameData.Editor
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.BeginVertical(GUILayout.Width(380f));
-                DrawSolvedBoard(board, obstacles, playset.PlayerBlocks);
+                DrawSolvedBoard(board, obstacles, playset.PlayerBlocks, _solutionResult, _selectedSolutionIndex);
                 EditorGUILayout.EndVertical();
                 DrawDifficultyMetrics(difficulty, feasibilityStatus);
                 EditorGUILayout.EndHorizontal();
             }
             else
             {
-                DrawSolvedBoard(board, obstacles, playset.PlayerBlocks);
+                DrawSolvedBoard(board, obstacles, playset.PlayerBlocks, _solutionResult, _selectedSolutionIndex);
                 DrawDifficultyMetrics(difficulty, feasibilityStatus);
             }
             EditorGUILayout.HelpBox(
@@ -225,8 +241,10 @@ namespace FitMe.GameData.Editor
             for (var index = 0; index < playset.PlayerBlocks.Count; index++) DrawPlayerBlock(index, playset.PlayerBlocks[index]);
         }
 
-        private static void DrawSolvedBoard(
-            int[,] board, int[,] obstacles, System.Collections.Generic.IReadOnlyList<GeneratedShapeBlock> blocks)
+        private void DrawSolvedBoard(
+            int[,] board, int[,] obstacles,
+            System.Collections.Generic.IReadOnlyList<GeneratedShapeBlock> blocks,
+            ShapeLevelTilingResult solutionResult, int selectedSolutionIndex)
         {
             var rows = board.GetLength(0);
             var columns = board.GetLength(1);
@@ -234,15 +252,40 @@ namespace FitMe.GameData.Editor
             for (var row = 0; row < rows; row++)
             for (var column = 0; column < columns; column++) blockAtCell[row, column] = -1;
 
-            for (var blockIndex = 0; blockIndex < blocks.Count; blockIndex++)
+            var hasSelectedEnumeratedSolution = solutionResult != null && selectedSolutionIndex >= 0 &&
+                                                selectedSolutionIndex < solutionResult.Solutions.Count;
+            var hasPlacementSolution = hasSelectedEnumeratedSolution || solutionResult == null;
+            if (hasPlacementSolution)
             {
-                var placement = blocks[blockIndex].SolvedPlacement;
-                for (var cellIndex = 0; cellIndex < placement.Length; cellIndex++)
+                var placements = hasSelectedEnumeratedSolution
+                    ? solutionResult.Solutions[selectedSolutionIndex]
+                    : _generatorVerifiedSolution;
+                if (placements == null) return;
+                foreach (var placement in placements)
                 {
-                    var row = placement[cellIndex].x;
-                    var column = placement[cellIndex].y;
-                    if (row < 0 || row >= rows || column < 0 || column >= columns) continue;
-                    blockAtCell[row, column] = blockIndex;
+                    if (placement == null || placement.BlockIndex < 0 || placement.BlockIndex >= blocks.Count)
+                        continue;
+                    foreach (var position in placement.Cells)
+                    {
+                        var row = position.x;
+                        var column = position.y;
+                        if (row < 0 || row >= rows || column < 0 || column >= columns) continue;
+                        blockAtCell[row, column] = placement.BlockIndex;
+                    }
+                }
+            }
+            else
+            {
+                for (var blockIndex = 0; blockIndex < blocks.Count; blockIndex++)
+                {
+                    var placement = blocks[blockIndex].SolvedPlacement;
+                    for (var cellIndex = 0; cellIndex < placement.Length; cellIndex++)
+                    {
+                        var row = placement[cellIndex].x;
+                        var column = placement[cellIndex].y;
+                        if (row < 0 || row >= rows || column < 0 || column >= columns) continue;
+                        blockAtCell[row, column] = blockIndex;
+                    }
                 }
             }
 
@@ -273,11 +316,137 @@ namespace FitMe.GameData.Editor
                 else
                     color = new Color(0.36f, 0.38f, 0.42f);
                 EditorGUI.DrawRect(cellRect, color);
+                if (blockAtCell[row, column] >= 0 && cellSize >= 16f)
+                    EditorGUI.LabelField(cellRect, (blockAtCell[row, column] + 1).ToString(), BlockIndexLabelStyle);
             }
 
             EditorGUILayout.HelpBox(
                 "Board cells are colored by solved block; obstacles are red and void cells are dark.",
                 MessageType.None);
+        }
+
+        private void DrawSolutionNavigation()
+        {
+            var storedCount = _solutionResult?.Solutions.Count ?? 0;
+            _selectedSolutionIndex = storedCount == 0
+                ? 0
+                : Mathf.Clamp(_selectedSolutionIndex, 0, storedCount - 1);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Solved playset preview", EditorStyles.boldLabel);
+            EditorGUI.BeginDisabledGroup(_selectedSolutionIndex <= 0 || storedCount == 0);
+            if (GUILayout.Button("◀", GUILayout.Width(32f))) _selectedSolutionIndex--;
+            EditorGUI.EndDisabledGroup();
+            EditorGUI.BeginDisabledGroup(_selectedSolutionIndex >= storedCount - 1);
+            if (GUILayout.Button("▶", GUILayout.Width(32f))) _selectedSolutionIndex++;
+            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.EndHorizontal();
+
+            if (_solutionResult == null) return;
+            if (_solutionResult.SolutionCount == 0)
+            {
+                EditorGUILayout.HelpBox(
+                    _solutionResult.IsSearchComplete
+                        ? "The generator's verified layout is shown, but the solution checker did not rediscover it."
+                        : "The generator's verified layout is shown. Additional solution search reached its budget before finding any enumerated solutions.",
+                    MessageType.Warning);
+                EditorGUILayout.LabelField(
+                    "Verified layout previewed · solution count inconclusive",
+                    EditorStyles.miniLabel);
+                return;
+            }
+
+            if (storedCount == 0)
+            {
+                EditorGUILayout.LabelField(
+                    "Generator-verified layout shown; no solution preview was retained by the analyzer.",
+                    EditorStyles.miniLabel);
+                return;
+            }
+
+            var countLabel = _solutionResult.IsSearchComplete
+                ? $"{_solutionResult.SolutionCount} distinct solution(s) found"
+                : $"At least {_solutionResult.SolutionCount} distinct solution(s) found";
+            var previewLabel = _solutionResult.IsSearchComplete &&
+                               _solutionResult.SolutionCount == _solutionResult.Solutions.Count
+                ? $"Solution {_selectedSolutionIndex + 1} of {_solutionResult.SolutionCount}"
+                : $"Preview {_selectedSolutionIndex + 1} of {_solutionResult.Solutions.Count} retained";
+            EditorGUILayout.LabelField(
+                $"{countLabel} · {previewLabel} · {_solutionResult.NodesVisited:N0} search nodes",
+                EditorStyles.miniLabel);
+        }
+
+        private IReadOnlyList<ShapeLevelTilingPlacement> CreateVerifiedSolution(GeneratedShapePlayset playset)
+        {
+            var placements = new List<ShapeLevelTilingPlacement>(playset.PlayerBlocks.Count);
+            for (var blockIndex = 0; blockIndex < playset.PlayerBlocks.Count; blockIndex++)
+                placements.Add((ShapeLevelTilingPlacement)Activator.CreateInstance(
+                    typeof(ShapeLevelTilingPlacement),
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                    null,
+                    new object[] { blockIndex, playset.PlayerBlocks[blockIndex].SolvedPlacement },
+                    null));
+            return Array.AsReadOnly(placements.ToArray());
+        }
+
+        private static ShapeLevelTilingResult AnalyzeSolutions(GeneratedShapePlayset playset)
+        {
+            var board = playset.BoardMask;
+            var obstacles = playset.ObstacleMask;
+            var playableMask = new int[board.GetLength(0), board.GetLength(1)];
+            for (var row = 0; row < board.GetLength(0); row++)
+            for (var column = 0; column < board.GetLength(1); column++)
+                playableMask[row, column] = board[row, column] == 1 && obstacles[row, column] == 0 ? 1 : 0;
+
+            var footprints = new List<int[,]>(playset.PlayerBlocks.Count);
+            for (var index = 0; index < playset.PlayerBlocks.Count; index++)
+                footprints.Add(playset.PlayerBlocks[index].Footprint);
+            var settings = ShapeTilingValidationSettings.instance;
+            return ShapeLevelTilingSolver.EnumerateSolutions(
+                playableMask, footprints, settings.MaxSearchNodes, settings.MaxStoredSolutions);
+        }
+
+        private static ShapePlaysetDifficultyMetrics EvaluateDifficulty(
+            GeneratedShapePlayset playset, ShapeLevelTilingResult solutionResult)
+        {
+            var board = playset.BoardMask;
+            var obstacles = playset.ObstacleMask;
+            var playableMask = new int[board.GetLength(0), board.GetLength(1)];
+            var obstacleCount = 0;
+            for (var row = 0; row < board.GetLength(0); row++)
+            for (var column = 0; column < board.GetLength(1); column++)
+            {
+                var isObstacle = obstacles[row, column] == 1;
+                if (isObstacle) obstacleCount++;
+                playableMask[row, column] = board[row, column] == 1 && !isObstacle ? 1 : 0;
+            }
+
+            var footprints = new List<int[,]>(playset.PlayerBlocks.Count);
+            for (var index = 0; index < playset.PlayerBlocks.Count; index++)
+                footprints.Add(playset.PlayerBlocks[index].Footprint);
+            var discoveredCount = solutionResult?.SolutionCount ?? 0;
+            var knownLowerBound = Math.Max(1, discoveredCount);
+            var countIsExact = solutionResult != null && solutionResult.IsSearchComplete && discoveredCount > 0;
+            return ShapePlaysetDifficultyEvaluator.Evaluate(
+                playableMask, obstacleCount, playset.Difficulty.VoidCellCount, footprints,
+                knownLowerBound, countIsExact);
+        }
+
+        private static GUIStyle _blockIndexLabelStyle;
+
+        private static GUIStyle BlockIndexLabelStyle
+        {
+            get
+            {
+                if (_blockIndexLabelStyle != null) return _blockIndexLabelStyle;
+                _blockIndexLabelStyle = new GUIStyle(EditorStyles.miniBoldLabel)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    fontSize = 9
+                };
+                _blockIndexLabelStyle.normal.textColor = Color.white;
+                return _blockIndexLabelStyle;
+            }
         }
 
         private static void DrawDifficultyMetrics(
@@ -303,6 +472,16 @@ namespace FitMe.GameData.Editor
             EditorGUILayout.LabelField("Maximum placements per block",
                 difficulty.MaximumLegalPlacementsPerBlock.ToString());
             EditorGUILayout.LabelField("Obstacle ratio", $"{difficulty.ObstacleRatio:P1}");
+            if (difficulty.HasSolutionCount)
+            {
+                EditorGUILayout.LabelField("Distinct solutions",
+                    difficulty.IsSolutionCountExact
+                        ? difficulty.SolutionCount.ToString()
+                        : $"at least {difficulty.SolutionCount}");
+                EditorGUILayout.HelpBox(
+                    "More distinct solutions reduce the heuristic score. An at-least count uses only the known lower bound, so the score remains provisional.",
+                    MessageType.None);
+            }
             EditorGUILayout.EndVertical();
         }
 
@@ -363,7 +542,7 @@ namespace FitMe.GameData.Editor
             try
             {
                 var level = ShapePlaysetGeneratedLevelAssetCreator.CreateNewLevelAsset(
-                    _generationResult.Playset, assetPath);
+                    _generationResult.Playset, assetPath, _difficultyMetrics);
                 Selection.activeObject = level;
                 EditorGUIUtility.PingObject(level);
                 _saveMessage = $"Saved inline ShapeLevelDefinition: {assetPath}";
