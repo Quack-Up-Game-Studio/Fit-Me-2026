@@ -88,7 +88,7 @@ namespace FitMe.Panel
 
         private async UniTask ToMainMenu()
         {
-            await _loadSceneManager.LoadScene(SceneType.MainMenu, LoadSceneMode.Single, false);
+            await _loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false);
         }
     }
 }

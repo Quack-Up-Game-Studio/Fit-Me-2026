@@ -98,7 +98,8 @@ namespace FitMe.Grid
                     BlockShape.OneByOne,
                     obstacle.Color,
                     obstacle.Petrified,
-                    obstacle.Schema.schema);
+                    obstacle.Schema.schema,
+                    _blockManagerConfig.ShapeModeBlockConfig);
             }
         }
 
@@ -232,7 +233,8 @@ namespace FitMe.Grid
             BlockShape shape,
             BlockColor? color,
             bool petrified,
-            int[,] schemaOverride = null)
+            int[,] schemaOverride = null,
+            BlockConfig blockConfigOverride = null)
         {
             var destinationCell = _gridManager.GetCellByArrayIndex(topLeftCellArrayIndex);
             var rotation = Quaternion.Euler(0, 0, randomSchema.Index * 90f);
@@ -245,7 +247,8 @@ namespace FitMe.Grid
                     parent = null,
                     worldSpace = true,
                 },
-                schemaOverride);
+                schemaOverride,
+                blockConfigOverride: blockConfigOverride);
             var scale = new Vector3(_config.CellSize.x, _config.CellSize.y, 1f);
             block.GameObject.transform.localScale = scale;
             var topLeftBlockAtom = block.Model.Atoms

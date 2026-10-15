@@ -84,7 +84,11 @@ namespace FitMe.GameData.Editor
 
             if (!string.IsNullOrEmpty(_generationMessage))
                 EditorGUILayout.HelpBox(_generationMessage,
-                    _generationResult != null && _generationResult.IsSuccess ? MessageType.Info : MessageType.Error);
+                    _generationResult != null && _generationResult.IsSuccess
+                        ? _generationResult.Playset.OptimizationStatus == ShapePlaysetOptimizationStatus.BudgetLimited
+                            ? MessageType.Warning
+                            : MessageType.Info
+                        : MessageType.Error);
             if (!string.IsNullOrEmpty(_saveMessage)) EditorGUILayout.HelpBox(_saveMessage, _saveMessageType);
 
             if (_generationResult != null && !_generationResult.IsSuccess)
@@ -123,8 +127,12 @@ namespace FitMe.GameData.Editor
             _saveMessage = null;
             if (_generationResult.IsSuccess)
             {
-                _generationMessage =
-                    $"Generated successfully with seed {_generationResult.Playset.Seed} on attempt {_generationResult.Playset.AttemptIndex + 1}.";
+                var playset = _generationResult.Playset;
+                _generationMessage = playset.OptimizationStatus == ShapePlaysetOptimizationStatus.BudgetLimited
+                    ? $"Generated a valid layout with seed {playset.Seed} on attempt {playset.AttemptIndex + 1}. " +
+                      "The preferred-coverage search reached its limit; this is the best layout found so far, " +
+                      "not a proven maximum."
+                    : $"Generated successfully with seed {playset.Seed} on attempt {playset.AttemptIndex + 1}.";
             }
             else
             {

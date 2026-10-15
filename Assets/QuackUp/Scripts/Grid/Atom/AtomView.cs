@@ -51,7 +51,10 @@ namespace FitMe.Grid
             if (!blockConfig.UseAtomSprite) return;
             var disposableBuilder = Disposable.CreateBuilder();
             instance.Model.BlockColor
-                .Subscribe(OnBlockTypeChanged)
+                .Subscribe(_ => UpdateAtomSpriteColor(instance))
+                .AddTo(ref disposableBuilder);
+            instance.Model.BlockState
+                .Subscribe(_ => UpdateAtomSpriteColor(instance))
                 .AddTo(ref disposableBuilder);
             instance.ViewModel.SetSortingLayerCommand
                 .Subscribe(OnSetSortingLayer)
@@ -72,8 +75,15 @@ namespace FitMe.Grid
             spriteRenderer.sortingOrder = order;
         }
 
-        private void OnBlockTypeChanged(BlockColor color)
+        private void UpdateAtomSpriteColor(BlockInstance instance)
         {
+            if (instance.Model.BlockState.CurrentValue is BlockState.Obstacle)
+            {
+                spriteRenderer.color = instance.Model.Config.ObstacleAtomSpriteColor;
+                return;
+            }
+
+            var color = instance.Model.BlockColor.CurrentValue;
             if (!_blockManagerConfig.AtomColorDict.TryGetValue(color, out var spriteColor))
             {
                 DebugUtils.LogError($"BlockType.CurrentValue {color} is not defined");

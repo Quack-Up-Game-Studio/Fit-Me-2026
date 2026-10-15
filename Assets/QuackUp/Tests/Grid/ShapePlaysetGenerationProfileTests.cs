@@ -201,6 +201,10 @@ namespace FitMe.Grid.Tests
                 "Saved generated levels need explicit origin provenance, not just a profile reference.");
             var provenance = provenanceProperty.GetValue(level);
             Assert.That(provenance, Is.Not.Null);
+            var optimizationStatusProperty = typeof(GeneratedShapePlayset).GetProperty("OptimizationStatus");
+            Assert.That(optimizationStatusProperty, Is.Not.Null);
+            var expectedOptimizationStatus = optimizationStatusProperty.GetValue(generation.Playset);
+            AssertProperty(provenance, "OptimizationStatus", expectedOptimizationStatus);
             AssertProperty(provenance, "Seed", generation.Playset.Seed);
             AssertProperty(provenance, "AttemptIndex", generation.Playset.AttemptIndex);
             AssertProperty(provenance, "GeneratorVersion", generation.Playset.GeneratorVersion);
@@ -243,6 +247,7 @@ namespace FitMe.Grid.Tests
             Assert.That(reloadedLevel.ToRuntimeData().PlayerBlockEntries, Has.Count.EqualTo(2));
             var reloadedProvenance = provenanceProperty.GetValue(reloadedLevel);
             Assert.That(reloadedProvenance, Is.Not.Null);
+            AssertProperty(reloadedProvenance, "OptimizationStatus", expectedOptimizationStatus);
             AssertProperty(reloadedProvenance, "Seed", generation.Playset.Seed);
             AssertProperty(reloadedProvenance, "GeneratorVersion", generation.Playset.GeneratorVersion);
             AssertProperty(GetProperty(reloadedProvenance, "Configuration"), "MinVoidCells", 1);

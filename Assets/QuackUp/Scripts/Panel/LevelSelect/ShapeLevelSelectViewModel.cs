@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FitMe.GameData;
+using QuackUp.Save;
 using R3;
 
 namespace FitMe.Panel
@@ -34,18 +35,21 @@ namespace FitMe.Panel
 
     public sealed class ShapeLevelSelectViewModel : PanelViewModel
     {
-        private readonly List<ShapeLevelSelectItem> _items;
+        private List<ShapeLevelSelectItem> _items;
 
         public IReadOnlyList<ShapeLevelSelectItem> Items => _items;
         public ReactiveCommand<string> SelectLevelCommand { get; } = new();
         public ReactiveCommand<Unit> ReturnToModeSelectCommand { get; } = new();
+        public Observable<IReadOnlyList<ShapeLevelSelectItem>> ItemInitialized => _itemInitialized;
+        private readonly Subject<IReadOnlyList<ShapeLevelSelectItem>> _itemInitialized = new();
+        
+        private readonly ShapeLevelCatalog _catalog;
 
         public ShapeLevelSelectViewModel(
             PanelManager panelManager,
-            ShapeLevelCatalog catalog,
-            int highestUnlockedOrder) : base(panelManager)
+            ShapeLevelCatalog catalog) : base(panelManager)
         {
-            _items = BuildItems(catalog, Math.Max(1, highestUnlockedOrder));
+            _catalog = catalog;
         }
 
         public override void Dispose()
@@ -53,6 +57,14 @@ namespace FitMe.Panel
             base.Dispose();
             SelectLevelCommand.Dispose();
             ReturnToModeSelectCommand.Dispose();
+            _itemInitialized.Dispose();
+        }
+
+        public void InitializeItems(
+            int highestUnlockedOrder)
+        {
+            _items = BuildItems(_catalog, Math.Max(1, highestUnlockedOrder));
+            _itemInitialized.OnNext(_items);
         }
 
         private static List<ShapeLevelSelectItem> BuildItems(
@@ -62,17 +74,15 @@ namespace FitMe.Panel
             var items = new List<ShapeLevelSelectItem>();
             if (!catalog) return items;
 
-            var levels = catalog.Levels;
-            var keys = levels.Keys.GetEnumerator();
-            for (var index = 0; index < levels.Count; index++)
+            var catalogIsValid = catalog.Validate().IsValid;
+            var entries = catalog.Entries;
+            for (var index = 0; index < entries.Count; index++)
             {
-                if (!keys.MoveNext()) break;
-
-                // The catalog preserves insertion order for both keys and indexed values.
-                var levelId = keys.Current;
-                var definition = levels[index];
+                var entry = entries[index];
+                var levelId = entry?.Key;
+                var definition = entry?.LevelDefinition;
                 var order = index + 1;
-                var isValid = !string.IsNullOrWhiteSpace(levelId) && definition &&
+                var isValid = catalogIsValid && !string.IsNullOrWhiteSpace(levelId) && catalog.GetOrder(levelId) == order && definition &&
                     ShapeLevelDataValidator.Validate(definition).IsValid;
                 var displayName = definition && !string.IsNullOrWhiteSpace(definition.name)
                     ? definition.name

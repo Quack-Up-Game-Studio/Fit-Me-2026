@@ -167,7 +167,13 @@ namespace FitMe.Panel
         }
 
         protected virtual async UniTask Transition(string transitionKey, bool direction, CancellationToken cancellationToken = default)
-        {   
+        {
+            if (string.IsNullOrWhiteSpace(transitionKey))
+            {
+                await UniTask.CompletedTask;
+                return;
+            }
+
             if (!TryGetCrossfadeRule(transitionKey, out var rule))
             {
                 await UniTask.CompletedTask;

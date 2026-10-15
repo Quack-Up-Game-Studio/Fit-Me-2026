@@ -1,6 +1,7 @@
 using FitMe.GameData;
 using FitMe.Grid;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 
 namespace FitMe.Grid.Tests
@@ -594,6 +595,52 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void Generate_Failure2ProfileSeedProducesAUsablePlayset()
+        {
+            var preferredPresets = new[]
+            {
+                AssetDatabase.LoadAssetAtPath<BlockPreset>(
+                    "Assets/QuackUp/Settings/Grid/Block/BlockPreset/1x2.asset"),
+                AssetDatabase.LoadAssetAtPath<BlockPreset>(
+                    "Assets/QuackUp/Settings/Grid/Block/BlockPreset/1x3.asset"),
+                AssetDatabase.LoadAssetAtPath<BlockPreset>(
+                    "Assets/QuackUp/Settings/Grid/Block/BlockPreset/S.asset")
+            };
+            foreach (var preset in preferredPresets) Assert.That(preset, Is.Not.Null);
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 6, maxBoardColumns: 10,
+                minBoardRows: 6, maxBoardRows: 10,
+                minObstacleCells: 1, maxObstacleCells: 8,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 4,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 4,
+                preferredPlayerBlocks: new[]
+                {
+                    new ShapePlayerBlockEntry(preferredPresets[0], 1),
+                    new ShapePlayerBlockEntry(preferredPresets[1], 1),
+                    new ShapePlayerBlockEntry(preferredPresets[2], 1)
+                },
+                minPlayableRegionCells: 10,
+                maxObstacleRepairNodes: 50000,
+                maxTilingSearchNodes: 100000,
+                maxCandidateAttempts: 16,
+                maxSingletonFallbackBlocks: 20);
+
+            var result = ShapePlaysetGenerator.Generate(config, seed: -215018798);
+
+            Assert.That(result.IsSuccess, Is.True,
+                $"Expected a usable playset for the Failure2 profile seed; error={result.Error}, " +
+                $"last={result.LastAttemptError}, tiling budget exhaustions=" +
+                $"{result.CandidateFailures.TilingBudgetExhaustions}.");
+            Assert.That(result.Playset.Difficulty.PlayerCellCount,
+                Is.EqualTo(result.Playset.Difficulty.PlayableCellCount),
+                "A budget-limited result must still contain an exact, usable tiling.");
+            var optimizationStatus = typeof(GeneratedShapePlayset).GetProperty("OptimizationStatus");
+            Assert.That(optimizationStatus, Is.Not.Null,
+                "A usable best-found layout must disclose whether preferred coverage was optimized fully.");
+            Assert.That(optimizationStatus.GetValue(result.Playset).ToString(), Is.EqualTo("BudgetLimited"));
+        }
+
+        [Test]
         public void Generate_ReportsRotationForFallbackGeneratedInSwappedOrientation()
         {
             var config = new ShapePlaysetGenerationConfig(
@@ -1045,16 +1092,20 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void Generate_UsesPreferredOrderToBreakEqualCoverageTies()
+        public void Generate_UsesSeededTieBreakingForEquivalentPreferredPresets()
         {
-            var firstPreset = CreatePreset(new[,] { { 1, 1 } });
-            var secondPreset = CreatePreset(new[,] { { 1 }, { 1 } });
+            var firstPreset = CreatePreset(new[,] { { 1, 1 }, { 1, 1 } });
+            var secondPreset = CreatePreset(new[,] { { 1, 1 }, { 1, 1 } });
+            typeof(BlockPreset).GetProperty(nameof(BlockPreset.Id)).GetSetMethod(true)
+                .Invoke(firstPreset, new object[] { "preset-a" });
+            typeof(BlockPreset).GetProperty(nameof(BlockPreset.Id)).GetSetMethod(true)
+                .Invoke(secondPreset, new object[] { "preset-b" });
             var config = new ShapePlaysetGenerationConfig(
                 minBoardColumns: 2, maxBoardColumns: 2,
                 minBoardRows: 2, maxBoardRows: 2,
                 minObstacleCells: 0, maxObstacleCells: 0,
-                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 1,
-                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2,
                 preferredPlayerBlocks: new[]
                 {
                     new ShapePlayerBlockEntry(firstPreset, 1),
@@ -1064,17 +1115,77 @@ namespace FitMe.Grid.Tests
 
             try
             {
-                var result = ShapePlaysetGenerator.Generate(config, seed: 23);
+                var selectedPresetIds = new System.Collections.Generic.HashSet<string>();
+                for (var seed = 0; seed < 16; seed++)
+                {
+                    var first = ShapePlaysetGenerator.Generate(config, seed);
+                    var repeated = ShapePlaysetGenerator.Generate(config, seed);
 
-                Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
-                Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(2));
-                Assert.That(result.Playset.PlayerBlocks[0].PreferredPreset, Is.SameAs(firstPreset));
-                Assert.That(result.Playset.PlayerBlocks[1].PreferredPreset, Is.SameAs(firstPreset));
+                    Assert.That(first.IsSuccess, Is.True, $"seed={seed}; error={first.Error}");
+                    Assert.That(repeated.IsSuccess, Is.True, $"seed={seed}; error={repeated.Error}");
+                    Assert.That(first.Playset.PlayerBlocks, Has.Count.EqualTo(1));
+                    Assert.That(repeated.Playset.PlayerBlocks[0].PreferredPreset.Id,
+                        Is.EqualTo(first.Playset.PlayerBlocks[0].PreferredPreset.Id),
+                        $"The same seed must choose the same preset; seed={seed}.");
+                    selectedPresetIds.Add(first.Playset.PlayerBlocks[0].PreferredPreset.Id);
+                }
+
+                Assert.That(selectedPresetIds, Is.EquivalentTo(new[] { "preset-a", "preset-b" }),
+                    "Different seeds should vary equivalent preferred choices without list-order bias.");
             }
             finally
             {
                 Object.DestroyImmediate(firstPreset);
                 Object.DestroyImmediate(secondPreset);
+            }
+        }
+
+        [Test]
+        public void Generate_PrefersBalancedPresetCoverageWhenPreferredCoverageTies()
+        {
+            var triomino = CreatePreset(new[,] { { 1, 1, 1 } });
+            var domino = CreatePreset(new[,] { { 1, 1 } });
+            var singleton = CreatePreset(new[,] { { 1 } });
+            typeof(BlockPreset).GetProperty(nameof(BlockPreset.Id)).GetSetMethod(true)
+                .Invoke(triomino, new object[] { "triomino" });
+            typeof(BlockPreset).GetProperty(nameof(BlockPreset.Id)).GetSetMethod(true)
+                .Invoke(domino, new object[] { "domino" });
+            typeof(BlockPreset).GetProperty(nameof(BlockPreset.Id)).GetSetMethod(true)
+                .Invoke(singleton, new object[] { "singleton" });
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 3, maxBoardColumns: 3,
+                minBoardRows: 2, maxBoardRows: 2,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 1,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
+                preferredPlayerBlocks: new[]
+                {
+                    new ShapePlayerBlockEntry(triomino, 1),
+                    new ShapePlayerBlockEntry(domino, 1),
+                    new ShapePlayerBlockEntry(singleton, 1)
+                },
+                minPlayableRegionCells: 1);
+
+            try
+            {
+                var result = ShapePlaysetGenerator.Generate(config, seed: 31);
+
+                Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
+                Assert.That(result.Playset.Difficulty.PlayerCellCount, Is.EqualTo(6));
+                var usedPresetIds = new System.Collections.Generic.HashSet<string>();
+                foreach (var block in result.Playset.PlayerBlocks)
+                {
+                    Assert.That(block.IsPredefined, Is.True);
+                    usedPresetIds.Add(block.PreferredPreset.Id);
+                }
+                Assert.That(usedPresetIds, Is.EquivalentTo(new[] { "triomino", "domino", "singleton" }),
+                    "Among full preferred covers, scoring should favor a more balanced preset mix.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(triomino);
+                Object.DestroyImmediate(domino);
+                Object.DestroyImmediate(singleton);
             }
         }
 
@@ -1122,7 +1233,7 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void Generate_PrefersEarlierProfileEntryAfterEqualPreferredCoverage()
+        public void Generate_UsesMixedPreferredPresetsForExactCover()
         {
             var squarePreset = CreatePreset(new[,] { { 1, 1 }, { 1, 1 } });
             var dominoPreset = CreatePreset(new[,] { { 1, 1 } });
@@ -1145,8 +1256,9 @@ namespace FitMe.Grid.Tests
                 Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
                 Assert.That(result.Playset.Difficulty.PlayerCellCount, Is.EqualTo(6));
                 Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(2));
-                Assert.That(result.Playset.PlayerBlocks[0].PreferredPreset, Is.SameAs(squarePreset));
-                Assert.That(result.Playset.PlayerBlocks[1].PreferredPreset, Is.SameAs(dominoPreset));
+                var usedPresets = new System.Collections.Generic.HashSet<BlockPreset>();
+                foreach (var block in result.Playset.PlayerBlocks) usedPresets.Add(block.PreferredPreset);
+                Assert.That(usedPresets, Is.EquivalentTo(new[] { squarePreset, dominoPreset }));
             }
             finally
             {

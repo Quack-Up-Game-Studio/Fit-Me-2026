@@ -8,6 +8,7 @@ namespace FitMe.Panel
     public class ModeSelectViewModel : PanelViewModel
     {
         public ReactiveCommand<GameMode> SelectGameModeCommand { get; } = new();
+        public ReactiveCommand<Unit> ReturnToMainMenuCommand { get; } = new();
 
         [Inject]
         public ModeSelectViewModel(

@@ -46,6 +46,8 @@ namespace FitMe.GameData
         InvalidBoardSource,
         InvalidGeneratedBoard,
         InvalidGeneratedObstacleMask,
+        DuplicateCatalogKey,
+        NullCatalogEntry,
     }
 
     [Serializable]
@@ -461,6 +463,48 @@ namespace FitMe.GameData
             return playerAtomCount;
         }
 
+        internal static List<string> GetDuplicateCatalogKeys(IReadOnlyList<ShapeLevelCatalogEntry> entries)
+        {
+            var duplicates = new List<string>();
+            if (entries == null) return duplicates;
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            var reported = new HashSet<string>(StringComparer.Ordinal);
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var key = entries[i]?.Key;
+                if (string.IsNullOrWhiteSpace(key)) continue;
+                if (seen.Add(key)) continue;
+                if (!reported.Add(key)) continue;
+                duplicates.Add(key);
+            }
+
+            return duplicates;
+        }
+
+        private static ShapeLevelValidationResult ValidateCatalogEntryIdentities(
+            IReadOnlyList<ShapeLevelCatalogEntry> entries)
+        {
+            var result = new ShapeLevelValidationResult();
+            if (entries == null) return result;
+
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                if (entry == null)
+                {
+                    result.Add(ShapeLevelValidationError.NullCatalogEntry);
+                    continue;
+                }
+                if (string.IsNullOrWhiteSpace(entry.Key))
+                    result.Add(ShapeLevelValidationError.MissingCatalogKey);
+            }
+
+            foreach (var _ in GetDuplicateCatalogKeys(entries))
+                result.Add(ShapeLevelValidationError.DuplicateCatalogKey);
+            return result;
+        }
+
         public static ShapeLevelValidationResult Validate(ShapeLevelCatalog catalog)
         {
             var result = new ShapeLevelValidationResult();
@@ -470,20 +514,19 @@ namespace FitMe.GameData
                 return result;
             }
 
-            var levels = catalog.GetLevelsForValidation();
+            var levels = catalog.GetEntriesForValidation();
             if (levels == null || levels.Count == 0)
             {
                 result.Add(ShapeLevelValidationError.EmptyCatalog);
                 return result;
             }
 
-            var keys = levels.Keys.GetEnumerator();
+            result.AddRange(ValidateCatalogEntryIdentities(levels).Errors);
             for (var i = 0; i < levels.Count; i++)
             {
-                if (!keys.MoveNext()) break;
-                var key = keys.Current;
-                var level = levels[i];
-                if (string.IsNullOrWhiteSpace(key)) result.Add(ShapeLevelValidationError.MissingCatalogKey);
+                var entry = levels[i];
+                if (entry == null) continue;
+                var level = entry.LevelDefinition;
                 if (!level)
                 {
                     result.Add(ShapeLevelValidationError.NullLevelDefinition);

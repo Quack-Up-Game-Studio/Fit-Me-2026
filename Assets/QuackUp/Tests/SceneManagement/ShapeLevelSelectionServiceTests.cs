@@ -118,6 +118,21 @@ namespace QuackUp.SceneManagement.Tests
             Assert.That(dispatchCount, Is.Zero);
         }
 
+        [Test]
+        public void TryDispatchSelection_RejectsCatalogWithAnotherInvalidEntry()
+        {
+            var validLevel = CreateLevel();
+            var invalidLevel = CreateLevel();
+            var service = new ShapeLevelSelectionService(
+                CreateCatalog(("shape-intro", validLevel), (" ", invalidLevel)));
+            var dispatchCount = 0;
+
+            var dispatched = service.TryDispatchSelection("shape-intro", 1, _ => dispatchCount++);
+
+            Assert.That(dispatched, Is.False);
+            Assert.That(dispatchCount, Is.Zero);
+        }
+
         [TestCase(0)]
         [TestCase(-1)]
         public void TryDispatchSelection_RejectsInvalidUnlockProgress(int highestUnlockedOrder)
@@ -151,7 +166,8 @@ namespace QuackUp.SceneManagement.Tests
             var second = CreateLevel();
             second.name = "Shape Bridge";
             var catalog = CreateCatalog(("shape-intro", first), ("shape-bridge", second));
-            using var viewModel = new ShapeLevelSelectViewModel(null, catalog, 1);
+            using var viewModel = new ShapeLevelSelectViewModel(null, catalog);
+            viewModel.InitializeItems(1);
 
             Assert.That(viewModel.Items, Has.Count.EqualTo(2));
             Assert.That(viewModel.Items[0].LevelId, Is.EqualTo("shape-intro"));
@@ -169,9 +185,39 @@ namespace QuackUp.SceneManagement.Tests
         }
 
         [Test]
+        public void ShapeLevelSelectViewModel_MarksDuplicateKeysInvalid()
+        {
+            var level = CreateLevel();
+            var catalog = CreateCatalog(("duplicate", level), ("duplicate", level));
+            using var viewModel = new ShapeLevelSelectViewModel(null, catalog);
+            viewModel.InitializeItems(2);
+
+            Assert.That(viewModel.Items, Has.Count.EqualTo(2));
+            Assert.That(viewModel.Items[0].IsValid, Is.False);
+            Assert.That(viewModel.Items[1].IsValid, Is.False);
+            Assert.That(viewModel.Items[0].IsSelectable, Is.False);
+            Assert.That(viewModel.Items[1].IsSelectable, Is.False);
+        }
+
+        [Test]
+        public void ShapeLevelSelectViewModel_MarksWholeCatalogInvalidWhenAnyKeyIsMissing()
+        {
+            var validLevel = CreateLevel();
+            var anotherLevel = CreateLevel();
+            var catalog = CreateCatalog(("shape-intro", validLevel), (" ", anotherLevel));
+            using var viewModel = new ShapeLevelSelectViewModel(null, catalog);
+            viewModel.InitializeItems(2);
+
+            Assert.That(viewModel.Items, Has.Count.EqualTo(2));
+            Assert.That(viewModel.Items[0].IsValid, Is.False);
+            Assert.That(viewModel.Items[0].IsSelectable, Is.False);
+        }
+
+        [Test]
         public void ShapeLevelSelectViewModel_WithoutCatalogReturnsNoItems()
         {
-            using var viewModel = new ShapeLevelSelectViewModel(null, null, 1);
+            using var viewModel = new ShapeLevelSelectViewModel(null, null);
+            viewModel.InitializeItems(1);
 
             Assert.That(viewModel.Items, Is.Empty);
         }
@@ -197,11 +243,12 @@ namespace QuackUp.SceneManagement.Tests
         private ShapeLevelCatalog CreateCatalog(params (string id, ShapeLevelDefinition level)[] entries)
         {
             var catalog = Keep(ScriptableObject.CreateInstance<ShapeLevelCatalog>());
-            var levelsField = typeof(ShapeLevelCatalog).GetField("_levels", BindingFlags.Instance | BindingFlags.NonPublic);
-            var levels = Activator.CreateInstance(levelsField.FieldType);
-            var add = levelsField.FieldType.GetMethod("Add", new[] { typeof(string), typeof(ShapeLevelDefinition) });
-            foreach (var (id, level) in entries) add.Invoke(levels, new object[] { id, level });
-            levelsField.SetValue(catalog, levels);
+            var entriesField = typeof(ShapeLevelCatalog).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(entriesField, Is.Not.Null, "Expected serialized catalog entry list.");
+            var catalogEntries = new List<ShapeLevelCatalogEntry>();
+            foreach (var (id, level) in entries)
+                catalogEntries.Add(new ShapeLevelCatalogEntry(id, level));
+            entriesField.SetValue(catalog, catalogEntries);
             return catalog;
         }
 

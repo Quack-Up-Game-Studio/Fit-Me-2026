@@ -26,20 +26,11 @@ namespace FitMe.Scene
             int highestUnlockedOrder,
             Action<LevelSessionRequest> dispatch)
         {
-            if (dispatch == null || !_catalog || highestUnlockedOrder < 1 ||
+            if (dispatch == null || !_catalog || highestUnlockedOrder < 1 || !_catalog.Validate().IsValid ||
                 string.IsNullOrWhiteSpace(levelId) || !_catalog.TryGetById(levelId, out var level))
                 return false;
 
-            var levels = _catalog.Levels;
-            var keys = levels.Keys.GetEnumerator();
-            var levelOrder = 0;
-            for (var index = 0; index < levels.Count; index++)
-            {
-                if (!keys.MoveNext()) return false;
-                if (!string.Equals(keys.Current, levelId, StringComparison.Ordinal)) continue;
-                levelOrder = index + 1;
-                break;
-            }
+            var levelOrder = _catalog.GetOrder(levelId);
 
             if (levelOrder == 0 || levelOrder > highestUnlockedOrder ||
                 !ShapeLevelDataValidator.Validate(level).IsValid)

@@ -49,6 +49,9 @@ namespace FitMe.Scene
             modeSelectViewModel.SelectGameModeCommand
                 .SubscribeAwait((x, _) => OnModeSelected(x), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
+            modeSelectViewModel.ReturnToMainMenuCommand
+                .SubscribeAwait((_, _) => ReturnToMainMenu(), AwaitOperation.Drop)
+                .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
         }
         
@@ -73,6 +76,11 @@ namespace FitMe.Scene
             _energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.ModeSelectPlay);
             _pendingScenePayload.Set(new LevelSessionRequest(mode, null));
             await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
+        }
+
+        private async UniTask ReturnToMainMenu()
+        {
+            await _loadSceneManager.LoadScene(SceneType.MainMenu, LoadSceneMode.Single, false);
         }
     }
 }

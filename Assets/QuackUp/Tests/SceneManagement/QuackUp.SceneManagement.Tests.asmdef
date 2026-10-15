@@ -11,6 +11,7 @@
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner",
     "FitMe.Scene",
+    "FitMe.SceneManagement",
     "FitMe.Grid",
     "FitMe.Panel",
     "FitMe.GameData",

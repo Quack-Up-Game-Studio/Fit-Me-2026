@@ -40,6 +40,13 @@ namespace FitMe.GameData
         Unproven
     }
 
+    public enum ShapePlaysetOptimizationStatus
+    {
+        NotRecorded,
+        ProvenOptimal,
+        BudgetLimited
+    }
+
     public sealed class ShapePlaysetGenerationConfig
     {
         public int MinBoardColumns { get; }
@@ -245,7 +252,7 @@ namespace FitMe.GameData
 
     public sealed class GeneratedShapePlayset
     {
-        public const int CurrentGeneratorVersion = 3;
+        public const int CurrentGeneratorVersion = 4;
 
         public int Seed { get; }
         public int AttemptIndex { get; }
@@ -260,12 +267,13 @@ namespace FitMe.GameData
         public bool UsedPredefinedBlocks { get; }
         public bool IsSolvable => true;
         public ShapePlaysetDifficultyMetrics Difficulty { get; }
+        public ShapePlaysetOptimizationStatus OptimizationStatus { get; }
 
         internal GeneratedShapePlayset(
             int seed, int attemptIndex, ShapePlaysetGenerationConfig config,
             int[,] boardMask, int[,] obstacleMask,
             IReadOnlyList<GeneratedShapeBlock> playerBlocks, bool usedPredefinedBlocks,
-            ShapePlaysetDifficultyMetrics difficulty)
+            ShapePlaysetDifficultyMetrics difficulty, ShapePlaysetOptimizationStatus optimizationStatus)
         {
             Seed = seed;
             AttemptIndex = attemptIndex;
@@ -275,6 +283,7 @@ namespace FitMe.GameData
             PlayerBlocks = Array.AsReadOnly(new List<GeneratedShapeBlock>(playerBlocks).ToArray());
             UsedPredefinedBlocks = usedPredefinedBlocks;
             Difficulty = difficulty;
+            OptimizationStatus = optimizationStatus;
         }
     }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
@@ -23,7 +24,6 @@ namespace FitMe.Panel
         {
             base.Construct(viewModel);
             _viewModel = (ShapeLevelSelectViewModel)viewModel;
-            BuildLevelList();
             Bind();
         }
 
@@ -33,7 +33,7 @@ namespace FitMe.Panel
             _bindings?.Dispose();
         }
 
-        private void BuildLevelList()
+        private void BuildLevelList(IReadOnlyList<ShapeLevelSelectItem> items)
         {
             if (!levelListScrollRect || !levelListScrollRect.content || !levelItemPrefab)
             {
@@ -46,7 +46,7 @@ namespace FitMe.Panel
             }
 
             var content = levelListScrollRect.content;
-            foreach (var item in _viewModel.Items)
+            foreach (var item in items)
             {
                 var itemView = Instantiate(levelItemPrefab, content);
                 itemView.Construct(item, _viewModel.SelectLevelCommand.Execute);
@@ -54,7 +54,7 @@ namespace FitMe.Panel
 
             if (emptyStateText)
             {
-                emptyStateText.gameObject.SetActive(_viewModel.Items.Count == 0);
+                emptyStateText.gameObject.SetActive(items.Count == 0);
                 emptyStateText.text = "No Shape Levels are configured.";
             }
         }
@@ -70,6 +70,9 @@ namespace FitMe.Panel
             var disposableBuilder = Disposable.CreateBuilder();
             returnToModeSelectButton.OnClickAsObservable()
                 .Subscribe(_ => _viewModel.ReturnToModeSelectCommand.Execute(Unit.Default))
+                .AddTo(ref disposableBuilder);
+            _viewModel.ItemInitialized
+                .Subscribe(BuildLevelList)
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
         }

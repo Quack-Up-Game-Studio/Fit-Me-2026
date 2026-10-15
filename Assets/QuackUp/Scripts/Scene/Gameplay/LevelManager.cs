@@ -67,6 +67,7 @@ namespace FitMe.Scene
         private readonly IPendingScenePayload _pendingScenePayload;
         private readonly LoadSceneManager _loadSceneManager;
         private readonly ShapeLevelResultService _shapeLevelResultService;
+        private readonly ShapeLevelProgressService _shapeLevelProgressService;
 
         private GameMode _gameMode = GameMode.Classic;
         private GridPreset _gridPreset;
@@ -116,6 +117,7 @@ namespace FitMe.Scene
             _pendingScenePayload = pendingScenePayload;
             _loadSceneManager = loadSceneManager;
             _shapeLevelResultService = new ShapeLevelResultService(config.ShapeLevelCatalogAsset);
+            _shapeLevelProgressService = new ShapeLevelProgressService(config.ShapeLevelCatalogAsset);
             Initialize();
             Subscribe();
         }
@@ -202,9 +204,7 @@ namespace FitMe.Scene
                 return;
             }
 
-            LevelSessionRequest request;
-            if (!_pendingScenePayload.TryTake<LevelSessionRequest>(out request) &&
-                !_pendingScenePayload.TryTake<LevelSessionRequest>(out request))
+            if (!_pendingScenePayload.TryTake<LevelSessionRequest>(out var request))
                 request = new LevelSessionRequest(GameMode.Classic, null);
 
             _gameMode = request.GameMode;
@@ -324,7 +324,10 @@ namespace FitMe.Scene
                 {
                     var orderedLevels = catalog.GetOrderedLevels();
                     if (orderedLevels.Count > 0)
+                    {
                         _shapeLevelDefinition = orderedLevels[0];
+                        _shapeLevelId = catalog.GetIdAtOrder(1);
+                    }
                 }
                 else
                 {
@@ -466,25 +469,20 @@ namespace FitMe.Scene
         private ShapeLevelDefinition GetNextShapeLevel(ShapeLevelDefinition current)
         {
             var catalog = _config.ShapeLevelCatalogAsset;
-            if (!catalog) return current;
-
-            var validation = catalog.Validate();
-            if (!validation.IsValid)
-            {
-                DebugUtils.LogError($"Invalid Shape Level Catalog: {string.Join(", ", validation.Errors)}");
+            if (!catalog || string.IsNullOrWhiteSpace(_shapeLevelId) ||
+                !catalog.Validate().IsValid || !catalog.TryGetById(_shapeLevelId, out var catalogLevel) ||
+                catalogLevel != current)
                 return null;
-            }
 
-            var orderedLevels = catalog.GetOrderedLevels();
-            if (orderedLevels.Count == 0) return null;
+            var currentOrder = catalog.GetOrder(_shapeLevelId);
+            if (currentOrder < 1 || catalog.Count < 1) return null;
 
-            for (var i = 0; i < orderedLevels.Count; i++)
-            {
-                if (orderedLevels[i] != current) continue;
-                return orderedLevels[(i + 1) % orderedLevels.Count];
-            }
+            var nextOrder = currentOrder == catalog.Count ? 1 : currentOrder + 1;
+            var nextLevelId = catalog.GetIdAtOrder(nextOrder);
+            if (nextLevelId == null || !catalog.TryGetById(nextLevelId, out var nextLevel)) return null;
 
-            return orderedLevels[0];
+            _shapeLevelId = nextLevelId;
+            return nextLevel;
         }
 
         private bool SaveShapeLevelProgress()
@@ -492,29 +490,17 @@ namespace FitMe.Scene
             if (_gameMode != GameMode.LevelShape || !_shapeLevelDefinition || !_playerRecordSaveObject)
                 return false;
 
-            var catalog = _config.ShapeLevelCatalogAsset;
-            if (!catalog) return false;
+            var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+            if (saveData == null) return false;
 
-            var orderedLevels = catalog.GetOrderedLevels();
-            for (var index = 0; index < orderedLevels.Count; index++)
-            {
-                if (orderedLevels[index] != _shapeLevelDefinition) continue;
+            var levelScore = Math.Max(0, Score.Value - _scoreLastLevel);
+            if (!_shapeLevelProgressService.TryRecordPass(
+                    _shapeLevelId, _shapeLevelDefinition, saveData, levelScore, out var progressChanged))
+                return false;
 
-                var levelId = _shapeLevelId;
-                if (string.IsNullOrWhiteSpace(levelId) && !catalog.TryGetId(_shapeLevelDefinition, out levelId))
-                    return false;
-
-                var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
-                if (saveData == null) return false;
-                if (!saveData.IsShapeLevelUnlocked(index + 1)) return false;
-
-                var levelScore = Math.Max(0, Score.Value - _scoreLastLevel);
-                if (saveData.RecordShapeLevelPass(index + 1, levelId, levelScore))
-                    _saveManager.Save(_playerRecordSaveObject);
-                return true;
-            }
-
-            return false;
+            if (progressChanged)
+                _saveManager.Save(_playerRecordSaveObject);
+            return true;
         }
 
         private void OnSceneFinishIn()

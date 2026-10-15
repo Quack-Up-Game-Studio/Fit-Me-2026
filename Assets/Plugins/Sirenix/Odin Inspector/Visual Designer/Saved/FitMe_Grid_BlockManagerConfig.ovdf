@@ -20,7 +20,7 @@ Position: $root:2
 	GroupName = "References"
 
 # $DGvRVyDJQGz3EWecgErbzP
-Position: $root:38
+Position: $root:37
 + [Sirenix.OdinInspector.FoldoutGroupAttribute]
 	GroupName = "Audio"
 
@@ -189,3 +189,6 @@ Position: $7h7pX9KLWqGdjJMMjxYgWD:10
 
 # <DynamicDragOffsetCurve>k__BackingField
 Position: $7h7pX9KLWqGdjJMMjxYgWD:17
+
+# <ShapeModeBlockConfig>k__BackingField
+Position: $C2eSGcMnkTRi6CtF6kBfwx:3

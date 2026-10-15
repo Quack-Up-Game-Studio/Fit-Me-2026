@@ -20,50 +20,17 @@ MonoBehaviour:
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes:
-    - Name: _levels
-      Entry: 7
-      Data: 0|QuackUp.Utils.OrderedDictionary`2[[System.String, mscorlib],[FitMe.GameData.ShapeLevelDefinition,
-        FitMe.GameData]], QuackUp.Utils
-    - Name: 
-      Entry: 12
-      Data: 4
-    - Name: type
-      Entry: 1
-      Data: System.Collections.IEqualityComparer, mscorlib
-    - Name: KeyComparer
-      Entry: 6
-      Data: 
-    - Name: type
-      Entry: 1
-      Data: System.Boolean, mscorlib
-    - Name: ReadOnly
-      Entry: 5
-      Data: false
-    - Name: type
-      Entry: 1
-      Data: System.Int32, mscorlib
-    - Name: InitialCapacity
-      Entry: 3
-      Data: 0
-    - Name: type
-      Entry: 1
-      Data: System.Object[], mscorlib
-    - Name: ArrayList
-      Entry: 7
-      Data: 1|System.Object[], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
+    SerializationNodes: []
+  _entries:
+  - _key: level-1
+    _levelDefinition: {fileID: 11400000, guid: 19a59c2ebd9bd0b1d82f3112f44b8b33, type: 2}
+  - _key: level-2
+    _levelDefinition: {fileID: 11400000, guid: 73ec2c6178bad15d8b292233d6320415, type: 2}
+  - _key: level-3
+    _levelDefinition: {fileID: 11400000, guid: 73ec2c6178bad15d8b292233d6320415, type: 2}
+  - _key: level-4
+    _levelDefinition: {fileID: 11400000, guid: 73ec2c6178bad15d8b292233d6320415, type: 2}
+  - _key: level-5
+    _levelDefinition: {fileID: 11400000, guid: 73ec2c6178bad15d8b292233d6320415, type: 2}
+  - _key: level-6
+    _levelDefinition: {fileID: 11400000, guid: 73ec2c6178bad15d8b292233d6320415, type: 2}

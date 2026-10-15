@@ -233,52 +233,100 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void ShapeLevelCatalog_UsesOdinSerializedOrderedDictionaryAsItsSource()
+        public void ShapeLevelCatalog_UsesUnitySerializedDraggableEntryList()
         {
-            Assert.That(typeof(ShapeLevelCatalog).BaseType.FullName,
-                Is.EqualTo("Sirenix.OdinInspector.SerializedScriptableObject"));
+            var entriesField = typeof(ShapeLevelCatalog).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(entriesField, Is.Not.Null, "Catalog progression must be stored in a serialized entry list.");
+            Assert.That(entriesField.FieldType.IsGenericType, Is.True);
+            Assert.That(entriesField.FieldType.GetGenericTypeDefinition(), Is.EqualTo(typeof(List<>)));
+            Assert.That(Attribute.IsDefined(entriesField, typeof(SerializeField)), Is.True);
 
-            var levelsField = typeof(ShapeLevelCatalog).GetField("_levels", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.That(levelsField, Is.Not.Null);
-            Assert.That(levelsField.FieldType.Name, Is.EqualTo("OrderedDictionary`2"));
-            Assert.That(Array.Exists(levelsField.GetCustomAttributes(false), attribute =>
-                attribute.GetType().Name == "OdinSerializeAttribute"), Is.True);
+            var entryType = entriesField.FieldType.GetGenericArguments()[0];
+            Assert.That(entryType.Name, Is.EqualTo("ShapeLevelCatalogEntry"));
+            Assert.That(entryType.IsSerializable, Is.True);
+            AssertSerializedField(entryType, "_key", typeof(string));
+            AssertSerializedField(entryType, "_levelDefinition", typeof(ShapeLevelDefinition));
+
+            var listSettings = Array.Find(entriesField.GetCustomAttributes(false), attribute =>
+                attribute.GetType().Name == "ListDrawerSettingsAttribute");
+            Assert.That(listSettings, Is.Not.Null);
+            Assert.That(listSettings.GetType().GetProperty("DraggableItems")?.GetValue(listSettings), Is.EqualTo(true));
         }
 
         [Test]
-        public void Catalog_KeyAndInsertionPositionAreAuthoritative()
+        public void Catalog_ListOrderDefinesLookupAndProgressionOrder()
         {
             var first = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
             var second = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
-            var catalog = Keep(ScriptableObject.CreateInstance<ShapeLevelCatalog>());
-            var levelsField = typeof(ShapeLevelCatalog).GetField("_levels", BindingFlags.Instance | BindingFlags.NonPublic);
-            var levels = Activator.CreateInstance(levelsField.FieldType);
-            var add = levelsField.FieldType.GetMethod("Add", new[] { typeof(string), typeof(ShapeLevelDefinition) });
-            add.Invoke(levels, new object[] { "authoritative-key-1", first });
-            add.Invoke(levels, new object[] { "authoritative-key-2", second });
-            levelsField.SetValue(catalog, levels);
+            var catalog = CreateCatalog(("authoritative-key-1", first), ("authoritative-key-2", second));
+            var entriesField = typeof(ShapeLevelCatalog).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(entriesField, Is.Not.Null);
+            var entries = (IList)entriesField.GetValue(catalog);
+            var firstEntry = entries[0];
+            entries[0] = entries[1];
+            entries[1] = firstEntry;
 
             Assert.That(catalog.TryGetById("authoritative-key-1", out var byKey), Is.True);
             Assert.That(byKey, Is.SameAs(first));
-            Assert.That(catalog.GetOrderedLevels()[0], Is.SameAs(first));
-            Assert.That(catalog.GetOrderedLevels()[1], Is.SameAs(second));
+            Assert.That(catalog.GetOrder("authoritative-key-2"), Is.EqualTo(1));
+            Assert.That(catalog.GetIdAtOrder(1), Is.EqualTo("authoritative-key-2"));
+            Assert.That(catalog.GetOrderedLevels()[0], Is.SameAs(second));
+            Assert.That(catalog.GetOrderedLevels()[1], Is.SameAs(first));
         }
 
         [Test]
-        public void Catalog_EnumeratesEntriesInInsertionOrderWithMatchingKeysAndValues()
+        public void Catalog_ValidationRejectsDuplicateKeys()
         {
             var first = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
             var second = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
-            var catalog = CreateCatalog(("first", first), ("second", second));
-            var entries = new List<KeyValuePair<string, ShapeLevelDefinition>>();
+            var catalog = CreateCatalog(("duplicate", first), ("duplicate", second));
 
-            foreach (var entry in catalog.Levels) entries.Add(entry);
+            var result = catalog.Validate();
 
-            Assert.That(entries, Has.Count.EqualTo(2));
-            Assert.That(entries[0].Key, Is.EqualTo("first"));
-            Assert.That(entries[0].Value, Is.SameAs(first));
-            Assert.That(entries[1].Key, Is.EqualTo("second"));
-            Assert.That(entries[1].Value, Is.SameAs(second));
+            Assert.That(result.IsValid, Is.False);
+            Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.DuplicateCatalogKey));
+            Assert.That(catalog.TryGetById("duplicate", out _), Is.False);
+            Assert.That(catalog.TryGetId(first, out _), Is.False);
+            Assert.That(catalog.GetOrder("duplicate"), Is.Zero);
+        }
+
+        [Test]
+        public void Catalog_ValidationRejectsMissingKeys()
+        {
+            var level = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            var catalog = CreateCatalog(("  ", level));
+
+            var result = catalog.Validate();
+
+            Assert.That(result.IsValid, Is.False);
+            Assert.That(result.Errors, Does.Contain(ShapeLevelValidationError.MissingCatalogKey));
+            Assert.That(catalog.TryGetById("  ", out _), Is.False);
+        }
+
+        [Test]
+        public void ShapeLevelCatalog_OnValidateLogsDuplicateKeys()
+        {
+            var level = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            var catalog = CreateCatalog(("duplicate", level), ("duplicate", level));
+            catalog.name = "Duplicate catalog test";
+            var onValidate = typeof(ShapeLevelCatalog).GetMethod("OnValidate", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(onValidate, Is.Not.Null);
+
+            LogAssert.Expect(LogType.Error, "Duplicate level key 'duplicate' in Duplicate catalog test.");
+            onValidate.Invoke(catalog, null);
+        }
+
+        [Test]
+        public void ShapeLevelCatalog_OnValidateLogsMissingKeys()
+        {
+            var level = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            var catalog = CreateCatalog(("  ", level));
+            catalog.name = "Blank-key catalog test";
+            var onValidate = typeof(ShapeLevelCatalog).GetMethod("OnValidate", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(onValidate, Is.Not.Null);
+
+            LogAssert.Expect(LogType.Error, "Missing level key at entry 1 in Blank-key catalog test.");
+            onValidate.Invoke(catalog, null);
         }
 
         [Test]
@@ -344,7 +392,18 @@ namespace FitMe.Grid.Tests
             AssetDatabase.CreateFolder("Assets", _assetFolderPath.Substring("Assets/".Length));
             var assetPath = $"{_assetFolderPath}/Catalog.asset";
             var reloadedAssetPath = $"{_assetFolderPath}/ReloadedCatalog.asset";
+            var firstLevelPath = $"{_assetFolderPath}/FirstLevel.asset";
+            var secondLevelPath = $"{_assetFolderPath}/SecondLevel.asset";
+            var firstLevel = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+            var secondLevel = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+            AssetDatabase.CreateAsset(firstLevel, firstLevelPath);
+            AssetDatabase.CreateAsset(secondLevel, secondLevelPath);
             var catalog = ScriptableObject.CreateInstance<ShapeLevelCatalog>();
+            SetPrivateField(catalog, "_entries", new List<ShapeLevelCatalogEntry>
+            {
+                new("first", firstLevel),
+                new("second", secondLevel)
+            });
 
             AssetDatabase.CreateAsset(catalog, assetPath);
             AssetDatabase.SaveAssets();
@@ -353,8 +412,11 @@ namespace FitMe.Grid.Tests
 
             var reloaded = AssetDatabase.LoadAssetAtPath<ShapeLevelCatalog>(reloadedAssetPath);
             Assert.That(reloaded, Is.Not.Null);
-            Assert.That(reloaded.Levels, Is.Not.Null);
-            Assert.That(reloaded.GetOrderedLevels(), Is.Empty);
+            Assert.That(reloaded.GetOrderedLevels(), Has.Count.EqualTo(2));
+            Assert.That(reloaded.GetOrderedLevels()[0], Is.SameAs(AssetDatabase.LoadAssetAtPath<ShapeLevelDefinition>(firstLevelPath)));
+            Assert.That(reloaded.GetOrderedLevels()[1], Is.SameAs(AssetDatabase.LoadAssetAtPath<ShapeLevelDefinition>(secondLevelPath)));
+            Assert.That(reloaded.TryGetById("first", out var reloadedFirst), Is.True);
+            Assert.That(reloadedFirst, Is.SameAs(reloaded.GetOrderedLevels()[0]));
         }
 
         [Test]
@@ -596,12 +658,21 @@ namespace FitMe.Grid.Tests
         private ShapeLevelCatalog CreateCatalog(params (string key, ShapeLevelDefinition level)[] entries)
         {
             var catalog = Keep(ScriptableObject.CreateInstance<ShapeLevelCatalog>());
-            var levelsField = typeof(ShapeLevelCatalog).GetField("_levels", BindingFlags.Instance | BindingFlags.NonPublic);
-            var levels = Activator.CreateInstance(levelsField.FieldType);
-            var add = levelsField.FieldType.GetMethod("Add", new[] { typeof(string), typeof(ShapeLevelDefinition) });
-            foreach (var (key, level) in entries) add.Invoke(levels, new object[] { key, level });
-            levelsField.SetValue(catalog, levels);
+            var entriesField = typeof(ShapeLevelCatalog).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(entriesField, Is.Not.Null, "Expected serialized catalog entry list.");
+            var serializedEntries = new List<ShapeLevelCatalogEntry>();
+            foreach (var (key, level) in entries)
+                serializedEntries.Add(new ShapeLevelCatalogEntry(key, level));
+            entriesField.SetValue(catalog, serializedEntries);
             return catalog;
+        }
+
+        private static void AssertSerializedField(Type ownerType, string fieldName, Type fieldType)
+        {
+            var field = ownerType.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null, $"Expected serialized entry field {fieldName}.");
+            Assert.That(field.FieldType, Is.EqualTo(fieldType));
+            Assert.That(Attribute.IsDefined(field, typeof(SerializeField)), Is.True);
         }
 
         private T Keep<T>(T asset) where T : ScriptableObject

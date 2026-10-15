@@ -1,5 +1,13 @@
 # Shape Mode player-block authoring contract
 
+## Shape level catalog authoring
+
+`ShapeLevelCatalog` stores its progression as a Unity-serialized `List<ShapeLevelCatalogEntry>`. Each entry pairs a non-empty string key with a `ShapeLevelDefinition` reference. The list's current order is the progression order; do not add a separate order field or derive progression from dictionary enumeration.
+
+Entry keys must be non-empty and unique using ordinal, case-sensitive comparison. `OnValidate` refreshes a red validation summary in the catalog Inspector and reports missing or duplicate keys in the Unity Console. The **Validate Catalog** Inspector button runs the same validation on demand. Runtime catalog validation rejects duplicate, missing, or null entries. Lookup and order resolution fail closed when a key is ambiguous.
+
+When migrating an existing dictionary-backed catalog, preserve its prior enumeration order when populating the list. The Inspector list is draggable so authors can change progression order directly.
+
 ## Authoring model
 
 `ShapeLevelDefinition` stores its ordered player supply as `List<ShapePlayerBlockEntry>`. Each serializable entry has a `BlockPreset` reference and a positive `Count`, so repeated presets can be authored once with a quantity instead of one list element per block. The entry is an inline Unity-serializable class; do not replace it with a tuple, which is not a reliable Inspector-serialized field type.

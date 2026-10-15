@@ -48,7 +48,24 @@ namespace QuackUp.SceneManagement.Tests
         }
 
         [Test]
-        public void NextLevel_RejectsFailedRunWithoutReturningSessionRequest()
+        public void TryResolve_RejectsInvalidCatalogEvenWhenActiveLevelIsValid()
+        {
+            var first = CreateLevel();
+            var second = CreateLevel();
+            var catalog = CreateCatalog(("shape-one", first), (" ", second));
+            var active = LevelSessionRequest.ForShapeLevel("shape-one", first);
+            var service = new ShapeLevelResultService(catalog);
+
+            var resolved = service.TryResolve(
+                ShapeLevelResultAction.Retry, active, wasPassed: false,
+                new PlayerRecordSaveData(), out var outcome);
+
+            Assert.That(resolved, Is.False);
+            Assert.That(outcome.Action, Is.EqualTo(ShapeLevelResultAction.None));
+        }
+
+        [Test]
+        public void NextLevel_RejectsFailedRunWhenFollowingLevelIsStillLocked()
         {
             var first = CreateLevel();
             var second = CreateLevel();
@@ -62,6 +79,55 @@ namespace QuackUp.SceneManagement.Tests
             Assert.That(resolved, Is.False);
             Assert.That(outcome.Action, Is.EqualTo(ShapeLevelResultAction.None));
             Assert.That(progress.HighestUnlockedShapeOrder, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void NextLevel_RejectsFailedRunEvenWhenFollowingLevelWasAlreadyUnlocked()
+        {
+            var first = CreateLevel();
+            var second = CreateLevel();
+            var service = new ShapeLevelResultService(CreateCatalog(("shape-one", first), ("shape-two", second)));
+            var active = LevelSessionRequest.ForShapeLevel("shape-one", first);
+            var progress = new PlayerRecordSaveData();
+            progress.RecordShapeLevelPass(1, "shape-one", 100);
+
+            var resolved = service.TryResolve(
+                ShapeLevelResultAction.NextLevel, active, wasPassed: false, progress, out var outcome);
+
+            Assert.That(resolved, Is.False);
+            Assert.That(outcome.Action, Is.EqualTo(ShapeLevelResultAction.None));
+        }
+
+        [Test]
+        public void RecordPass_UsesLevelIdOrderWhenCatalogEntriesShareDefinition()
+        {
+            var first = CreateLevel();
+            var shared = CreateLevel();
+            var catalog = CreateCatalog(
+                ("level-1", first),
+                ("level-2", shared),
+                ("level-3", shared),
+                ("level-4", shared));
+            var progress = new PlayerRecordSaveData();
+            progress.RecordShapeLevelPass(1, "level-1", 10);
+            progress.RecordShapeLevelPass(2, "level-2", 20);
+            var service = new ShapeLevelProgressService(catalog);
+
+            var recorded = service.TryRecordPass(
+                "level-3", shared, progress, 30, out var progressChanged);
+
+            Assert.That(recorded, Is.True);
+            Assert.That(progressChanged, Is.True);
+            Assert.That(progress.HighestUnlockedShapeOrder, Is.EqualTo(4));
+            Assert.That(progress.ShapeLevelHighScores["level-3"], Is.EqualTo(30));
+
+            var active = LevelSessionRequest.ForShapeLevel("level-3", shared);
+            var resultService = new ShapeLevelResultService(catalog);
+            var canAdvance = resultService.TryResolve(
+                ShapeLevelResultAction.NextLevel, active, wasPassed: true, progress, out var outcome);
+
+            Assert.That(canAdvance, Is.True);
+            Assert.That(outcome.SessionRequest.ShapeLevelId, Is.EqualTo("level-4"));
         }
 
         [Test]
@@ -130,11 +196,12 @@ namespace QuackUp.SceneManagement.Tests
         private ShapeLevelCatalog CreateCatalog(params (string id, ShapeLevelDefinition level)[] entries)
         {
             var catalog = Keep(ScriptableObject.CreateInstance<ShapeLevelCatalog>());
-            var field = typeof(ShapeLevelCatalog).GetField("_levels", BindingFlags.Instance | BindingFlags.NonPublic);
-            var levels = Activator.CreateInstance(field.FieldType);
-            var add = field.FieldType.GetMethod("Add", new[] { typeof(string), typeof(ShapeLevelDefinition) });
-            foreach (var (id, level) in entries) add.Invoke(levels, new object[] { id, level });
-            field.SetValue(catalog, levels);
+            var field = typeof(ShapeLevelCatalog).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null, "Expected serialized catalog entry list.");
+            var catalogEntries = new List<ShapeLevelCatalogEntry>();
+            foreach (var (id, level) in entries)
+                catalogEntries.Add(new ShapeLevelCatalogEntry(id, level));
+            field.SetValue(catalog, catalogEntries);
             return catalog;
         }
 

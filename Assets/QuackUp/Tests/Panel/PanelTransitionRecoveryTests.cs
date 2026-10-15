@@ -61,6 +61,26 @@ namespace FitMe.Panel.Tests
         }
 
         [UnityTest]
+        public IEnumerator PanelView_NullTransitionKey_CompletesWithoutCrossfadeLookup()
+        {
+            var viewObject = new GameObject("PanelViewNullTransitionTest");
+            var view = viewObject.AddComponent<NullLookupPanelView>();
+            view.Prepare();
+            var viewModel = new TestPanelViewModel();
+            view.Construct(viewModel);
+
+            using var promise = new Promise<Unit>();
+            view.TriggerIn(promise, null);
+            yield return null;
+
+            Assert.That(promise.Task.Status, Is.EqualTo(UniTaskStatus.Succeeded));
+            Assert.That(viewModel.TransitionState.Value, Is.EqualTo(TransitionState.None));
+            view.Dispose();
+            viewModel.Dispose();
+            UnityEngine.Object.DestroyImmediate(viewObject);
+        }
+
+        [UnityTest]
         public IEnumerator PanelManager_ParallelIncomingFault_DrainsOutgoingBeforePropagating()
         {
             var from = new TestPanelViewModel();
@@ -232,6 +252,15 @@ namespace FitMe.Panel.Tests
                     return UniTask.FromException(new InvalidOperationException("transition fault"));
                 return (direction ? _incoming : _outgoing).Task.AttachExternalCancellation(cancellationToken);
             }
+        }
+
+        private sealed class NullLookupPanelView : PanelView
+        {
+            public void Prepare() => canvasGroup = gameObject.AddComponent<CanvasGroup>();
+
+            public void TriggerIn(Promise<Unit> promise, string key) =>
+                typeof(PanelView).GetMethod("OnTransitionIn", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(this, new object[] { new TransitionCommandData(promise, key) });
         }
 
         private sealed class TestPanelViewModel : IPanelViewModel

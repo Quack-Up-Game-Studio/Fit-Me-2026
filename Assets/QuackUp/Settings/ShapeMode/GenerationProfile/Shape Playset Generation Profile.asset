@@ -13,36 +13,20 @@ MonoBehaviour:
   m_Name: Shape Playset Generation Profile
   m_EditorClassIdentifier: FitMe.GameData::FitMe.GameData.ShapePlaysetGenerationProfile
   _minBoardColumns: 6
-  _maxBoardColumns: 10
+  _maxBoardColumns: 8
   _minBoardRows: 6
-  _maxBoardRows: 10
+  _maxBoardRows: 8
   _minObstacleCells: 1
   _maxObstacleCells: 8
+  _minVoidCells: 0
+  _maxVoidCells: 4
   _minGeneratedBlockColumns: 1
-  _maxGeneratedBlockColumns: 4
+  _maxGeneratedBlockColumns: 3
   _minGeneratedBlockRows: 1
-  _maxGeneratedBlockRows: 4
+  _maxGeneratedBlockRows: 2
   _minPlayableRegionCells: 10
   _maxObstacleRepairNodes: 50000
   _maxTilingSearchNodes: 100000
   _maxCandidateAttempts: 8
   _maxSingletonFallbackBlocks: 0
-  _preferredPlayerBlocks:
-  - _preset: {fileID: 11400000, guid: 48813fd71b19fbf9b992b37d71b3cd58, type: 2}
-    _count: 10
-    _source: 0
-    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
-    <InlineFootprintResizeTarget>k__BackingField: {x: 3, y: 3}
-    _inlineFootprintCells: 010000000000000001000000000000000100000000000000010000000000000001000000
-  - _preset: {fileID: 11400000, guid: fafdd8fbbccc2e8ee95af805d0c8e58b, type: 2}
-    _count: 10
-    _source: 0
-    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
-    <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
-    _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
-  - _preset: {fileID: 11400000, guid: 461f81137a62444b9a8570ca0ed7dc10, type: 2}
-    _count: 8
-    _source: 0
-    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
-    <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
-    _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+  _preferredPlayerBlocks: []

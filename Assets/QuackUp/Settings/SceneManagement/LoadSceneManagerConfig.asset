@@ -20,6 +20,7 @@ MonoBehaviour:
     - {fileID: 102900000, guid: ea756fcdf0bed2842bd0e10346cdb379, type: 3}
     - {fileID: 102900000, guid: f72f140b597b8c344a54f9dd7326b9e3, type: 3}
     - {fileID: 102900000, guid: c200760d613a86e458e05e3202ee98f2, type: 3}
+    - {fileID: 102900000, guid: ade82e8ce0f0d95159ad86b7b69aaa02, type: 3}
     - {fileID: 102900000, guid: 8c9cfa26abfee488c85f1582747f6a02, type: 3}
     - {fileID: 102900000, guid: 8cc75dda63b96a9d4ac74d3896439767, type: 3}
     SerializedBytesString: 
@@ -47,7 +48,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 7
+      Data: 8
     - Name: 
       Entry: 7
       Data: 
@@ -143,10 +144,10 @@ MonoBehaviour:
       Data: 6|Redcode.Extensions.SceneReference, Extensions
     - Name: _sceneObject
       Entry: 10
-      Data: 2
+      Data: 4
     - Name: _path
       Entry: 1
-      Data: Assets/QuackUp/Scenes/LevelSelect.unity
+      Data: Assets/QuackUp/Scenes/LevelSelect_New.unity
     - Name: 
       Entry: 8
       Data: 
@@ -164,7 +165,7 @@ MonoBehaviour:
       Data: 7|Redcode.Extensions.SceneReference, Extensions
     - Name: _sceneObject
       Entry: 10
-      Data: 4
+      Data: 5
     - Name: _path
       Entry: 1
       Data: Assets/QuackUp/Scenes/Gameplay.unity
@@ -185,10 +186,31 @@ MonoBehaviour:
       Data: 8|Redcode.Extensions.SceneReference, Extensions
     - Name: _sceneObject
       Entry: 10
-      Data: 5
+      Data: 6
     - Name: _path
       Entry: 1
       Data: Assets/QuackUp/Scenes/Tutorial.unity
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 7
+    - Name: $v
+      Entry: 7
+      Data: 9|Redcode.Extensions.SceneReference, Extensions
+    - Name: _sceneObject
+      Entry: 10
+      Data: 4
+    - Name: _path
+      Entry: 1
+      Data: Assets/QuackUp/Scenes/LevelSelect_New.unity
     - Name: 
       Entry: 8
       Data: 

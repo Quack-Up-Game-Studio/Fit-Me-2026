@@ -13,6 +13,7 @@ namespace FitMe.Panel
         [Title("References")]
         [SerializeField] private Button normalModeButton;
         [SerializeField] private Button levelShapeModeButton;
+        [SerializeField] private Button returnToMainMenuButton;
         
         private ModeSelectViewModel _vm;
 
@@ -37,6 +38,10 @@ namespace FitMe.Panel
                 .Subscribe(_ => OnLevelShapeMode())
                 .AddTo(ref disposableBuilder);
             
+            returnToMainMenuButton.OnClickAsObservable()
+                .Subscribe(_ => ReturnToMainMenu())
+                .AddTo(ref disposableBuilder);
+            
             _bindings = disposableBuilder.Build();
         }
         
@@ -54,6 +59,11 @@ namespace FitMe.Panel
         private void OnLevelShapeMode()
         {
             _vm.SelectGameModeCommand.Execute(GameMode.LevelShape);
+        }
+
+        private void ReturnToMainMenu()
+        {
+            _vm.ReturnToMainMenuCommand.Execute(Unit.Default);
         }
     }
 }

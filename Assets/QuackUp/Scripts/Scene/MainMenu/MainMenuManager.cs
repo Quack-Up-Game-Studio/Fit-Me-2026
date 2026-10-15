@@ -185,9 +185,10 @@ namespace FitMe.Scene.MainMenu
 
         private async UniTaskVoid ToGameplay()
         {
-            _energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.MainMenuPlay);
+            /*_energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.MainMenuPlay);
             _pendingScenePayload.Set(new LevelSessionRequest(GameMode.Classic, null));
-            await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);
+            await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);*/
+            await _loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false);
         }
 
         private void OnSceneFinishIn(LoadSceneStageEvent evt)

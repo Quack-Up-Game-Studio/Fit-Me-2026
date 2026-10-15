@@ -170,12 +170,14 @@ namespace FitMe.GameData
         [SerializeField] private int _seed;
         [SerializeField] private int _attemptIndex;
         [SerializeField] private int _generatorVersion;
+        [SerializeField] private ShapePlaysetOptimizationStatus _optimizationStatus;
         [SerializeField] private ShapePlaysetConfigurationProvenance _configuration;
         [SerializeField] private ShapePlaysetDifficultyProvenance _difficulty;
 
         public int Seed => _seed;
         public int AttemptIndex => _attemptIndex;
         public int GeneratorVersion => _generatorVersion;
+        public ShapePlaysetOptimizationStatus OptimizationStatus => _optimizationStatus;
         public ShapePlaysetConfigurationProvenance Configuration => _configuration;
         public ShapePlaysetDifficultyProvenance Difficulty => _difficulty;
         /// <summary>Records generation origin only; it does not assert that current level data is unchanged.</summary>
@@ -186,6 +188,7 @@ namespace FitMe.GameData
             _seed = playset.Seed;
             _attemptIndex = playset.AttemptIndex;
             _generatorVersion = playset.GeneratorVersion;
+            _optimizationStatus = playset.OptimizationStatus;
             _configuration = new ShapePlaysetConfigurationProvenance(playset.Configuration);
             _difficulty = new ShapePlaysetDifficultyProvenance(playset.Difficulty);
         }

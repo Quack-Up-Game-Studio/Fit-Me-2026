@@ -149,7 +149,7 @@ namespace FitMe.GameData
                 return new ShapePlaysetGenerationResult(
                     ShapePlaysetGenerationError.GenerationInvariantFailed, validation, null);
 
-            if (!TryBuildFallbackBlocks(playableMask, config, out var generatedBlocks,
+            if (!TryBuildFallbackBlocks(playableMask, config, attemptSeed, out var generatedBlocks,
                     out var usedPredefined, out var tilingBudgetExceeded))
                 return new ShapePlaysetGenerationResult(
                     tilingBudgetExceeded
@@ -160,7 +160,7 @@ namespace FitMe.GameData
             var metrics = CalculateMetrics(
                 playableMask, CountCells(obstacleMask), rows * columns - CountCells(board), generatedBlocks);
             return Success(seed, attemptIndex, config, board, obstacleMask,
-                generatedBlocks, usedPredefined, metrics);
+                generatedBlocks, usedPredefined, metrics, tilingBudgetExceeded);
         }
 
         private static int DeriveAttemptSeed(int seed, int attempt)
@@ -235,7 +235,7 @@ namespace FitMe.GameData
 
 
         private static bool TryBuildFallbackBlocks(
-            int[,] playableMask, ShapePlaysetGenerationConfig config,
+            int[,] playableMask, ShapePlaysetGenerationConfig config, int tieSeed,
             out List<GeneratedShapeBlock> generatedBlocks,
             out bool usedPredefined, out bool budgetExceeded)
         {
@@ -255,13 +255,14 @@ namespace FitMe.GameData
                 if (hasEarlierDuplicate) continue;
                 var footprint = GetPresetFootprint(entry.Preset);
                 preferredBlocks.Add(new PreferredBlockCandidate(
-                    footprint, entry.Preset, CountCells(footprint), entryIndex));
+                    footprint, entry.Preset, CountCells(footprint), entryIndex,
+                    GetSeededPreferenceRank(tieSeed, entry.Preset, footprint)));
             }
 
             var context = new TilingSearchContext(playableMask, config, preferredBlocks);
             SearchMixedTiling(context, 0, 0, 0, 0);
             budgetExceeded = context.BudgetExceeded;
-            if (budgetExceeded || context.BestBlocks == null) return false;
+            if (context.BestBlocks == null) return false;
 
             generatedBlocks = context.BestBlocks;
             usedPredefined = context.BestPreferredBlockCount > 0;
@@ -343,14 +344,11 @@ namespace FitMe.GameData
                 (context.PreferredBlocks.Count == 0 ? 0 : uncoveredCellCount);
             if (maximumPreferredCells < context.BestPreferredCellCount) return true;
             if (maximumPreferredCells > context.BestPreferredCellCount) return false;
-            var optimisticPriorityCoverage = (int[])context.PreferredCellsByPriority.Clone();
-            if (optimisticPriorityCoverage.Length > 0)
-                optimisticPriorityCoverage[0] += uncoveredCellCount;
-            var priorityComparison = ComparePriorityCoverage(
-                optimisticPriorityCoverage, context.BestPreferredCellsByPriority);
-            if (priorityComparison < 0) return true;
-            if (priorityComparison > 0) return false;
-            return singletonCount >= context.BestSingletonCount;
+            var minimumDiversityPenalty = GetMinimumDiversityPenalty(
+                context, context.BestPreferredCellCount);
+            return minimumDiversityPenalty > context.BestDiversityPenalty ||
+                   (minimumDiversityPenalty == context.BestDiversityPenalty &&
+                    singletonCount >= context.BestSingletonCount);
         }
 
         private static List<TilingPlacementCandidate> EnumeratePreferredPlacements(
@@ -412,23 +410,110 @@ namespace FitMe.GameData
             }
             candidates.Sort((left, right) =>
             {
-                var area = right.CellIndices.Length.CompareTo(left.CellIndices.Length);
-                if (area != 0) return area;
-                var preferredIndex = left.PreferredBlockIndex.CompareTo(right.PreferredBlockIndex);
-                return preferredIndex != 0 ? preferredIndex : string.CompareOrdinal(left.Key, right.Key);
+                var leftPenaltyIncrease = GetDiversityPenaltyIncrease(
+                    context.PreferredCellsByPriority[left.PreferredBlockIndex], left.CellIndices.Length);
+                var rightPenaltyIncrease = GetDiversityPenaltyIncrease(
+                    context.PreferredCellsByPriority[right.PreferredBlockIndex], right.CellIndices.Length);
+                var diversityComparison = leftPenaltyIncrease.CompareTo(rightPenaltyIncrease);
+                if (diversityComparison != 0) return diversityComparison;
+                var rankComparison = context.SeededPreferenceRanks[left.PreferredBlockIndex].CompareTo(
+                    context.SeededPreferenceRanks[right.PreferredBlockIndex]);
+                if (rankComparison != 0) return rankComparison;
+                var presetIdComparison = string.CompareOrdinal(
+                    left.PreferredPreset.Id, right.PreferredPreset.Id);
+                return presetIdComparison != 0
+                    ? presetIdComparison
+                    : string.CompareOrdinal(left.Key, right.Key);
             });
             return candidates;
         }
 
-        private static int ComparePriorityCoverage(IReadOnlyList<int> left, IReadOnlyList<int> right)
+        private static long GetDiversityPenaltyIncrease(int currentCoverage, int addedCoverage)
         {
-            var count = Math.Min(left.Count, right.Count);
-            for (var index = 0; index < count; index++)
+            return 2L * currentCoverage * addedCoverage + (long)addedCoverage * addedCoverage;
+        }
+
+        private static long GetDiversityPenalty(
+            TilingSearchContext context, IReadOnlyList<int> coverageByPreference)
+        {
+            long penalty = 0;
+            for (var index = 0; index < context.PreferredBlocks.Count; index++)
             {
-                var comparison = left[index].CompareTo(right[index]);
-                if (comparison != 0) return comparison;
+                var coverage = coverageByPreference[context.PreferredBlocks[index].PreferenceIndex];
+                penalty += (long)coverage * coverage;
             }
-            return left.Count.CompareTo(right.Count);
+            return penalty;
+        }
+
+        private static long GetMinimumDiversityPenalty(
+            TilingSearchContext context, int targetPreferredCellCount)
+        {
+            if (context.PreferredBlocks.Count == 0) return targetPreferredCellCount == 0 ? 0 : long.MaxValue;
+
+            var coverage = new int[context.PreferredBlocks.Count];
+            var currentPreferredCellCount = 0;
+            for (var index = 0; index < context.PreferredBlocks.Count; index++)
+            {
+                coverage[index] = context.PreferredCellsByPriority[
+                    context.PreferredBlocks[index].PreferenceIndex];
+                currentPreferredCellCount += coverage[index];
+            }
+            if (targetPreferredCellCount < currentPreferredCellCount) return long.MaxValue;
+            Array.Sort(coverage);
+
+            long remainingCells = targetPreferredCellCount - currentPreferredCellCount;
+            long level = coverage[0];
+            var balancedPresetCount = 1;
+            while (balancedPresetCount < coverage.Length)
+            {
+                var cellsToNextLevel = (long)(coverage[balancedPresetCount] - level) * balancedPresetCount;
+                if (remainingCells < cellsToNextLevel) break;
+                remainingCells -= cellsToNextLevel;
+                level = coverage[balancedPresetCount++];
+            }
+
+            var sharedIncrease = remainingCells / balancedPresetCount;
+            var extraCells = (int)(remainingCells % balancedPresetCount);
+            long minimumPenalty = 0;
+            for (var index = 0; index < balancedPresetCount; index++)
+            {
+                var finalCoverage = level + sharedIncrease + (index < extraCells ? 1 : 0);
+                minimumPenalty += finalCoverage * finalCoverage;
+            }
+            for (var index = balancedPresetCount; index < coverage.Length; index++)
+                minimumPenalty += (long)coverage[index] * coverage[index];
+            return minimumPenalty;
+        }
+
+        private static long GetTheoreticalMinimumDiversityPenalty(
+            TilingSearchContext context, int totalPreferredCellCount)
+        {
+            var presetCount = context.PreferredBlocks.Count;
+            if (presetCount == 0) return totalPreferredCellCount == 0 ? 0 : long.MaxValue;
+
+            var cellsPerPreset = totalPreferredCellCount / presetCount;
+            var presetsWithExtraCell = totalPreferredCellCount % presetCount;
+            var higherCoverage = cellsPerPreset + 1L;
+            return presetsWithExtraCell * higherCoverage * higherCoverage +
+                   (presetCount - presetsWithExtraCell) * (long)cellsPerPreset * cellsPerPreset;
+        }
+
+        private static uint GetSeededPreferenceRank(int seed, BlockPreset preset, int[,] footprint)
+        {
+            var identity = string.IsNullOrEmpty(preset.Id)
+                ? CreateCoordinateShapeKey(GetCoordinates(footprint))
+                : preset.Id;
+            unchecked
+            {
+                var hash = 2166136261u;
+                for (var index = 0; index < identity.Length; index++)
+                    hash = (hash ^ identity[index]) * 16777619u;
+                hash ^= (uint)seed;
+                hash += 0x9E3779B9u;
+                hash = (hash ^ (hash >> 16)) * 0x7FEB352Du;
+                hash = (hash ^ (hash >> 15)) * 0x846CA68Bu;
+                return hash ^ (hash >> 16);
+            }
         }
 
         private static Vector2Int[] RotateCoordinates(IReadOnlyList<Vector2Int> source, int rotation)
@@ -660,14 +745,17 @@ namespace FitMe.GameData
             int seed, int attemptIndex, ShapePlaysetGenerationConfig config,
             int[,] board, int[,] obstacleMask,
             IReadOnlyList<GeneratedShapeBlock> blocks, bool usedPredefined,
-            ShapePlaysetDifficultyMetrics metrics) =>
+            ShapePlaysetDifficultyMetrics metrics, bool optimizationBudgetExceeded) =>
             new ShapePlaysetGenerationResult(
                 ShapePlaysetGenerationError.None,
                 new ShapePlaysetGenerationConfigValidation(
                     Array.Empty<ShapePlaysetConfigurationError>(),
                     ShapePlaysetFeasibilityStatus.ProvenFeasible),
                 new GeneratedShapePlayset(
-                    seed, attemptIndex, config, board, obstacleMask, blocks, usedPredefined, metrics));
+                    seed, attemptIndex, config, board, obstacleMask, blocks, usedPredefined, metrics,
+                    optimizationBudgetExceeded
+                        ? ShapePlaysetOptimizationStatus.BudgetLimited
+                        : ShapePlaysetOptimizationStatus.ProvenOptimal));
 
         private static ShapePlaysetDifficultyMetrics CalculateMetrics(
             int[,] playableMask, int obstacleCellCount, int voidCellCount, IReadOnlyList<GeneratedShapeBlock> blocks)
@@ -1006,6 +1094,7 @@ namespace FitMe.GameData
             public readonly ShapePlaysetGenerationConfig Config;
             public readonly List<PreferredBlockCandidate> PreferredBlocks;
             public readonly int[] PreferredCellsByPriority;
+            public readonly uint[] SeededPreferenceRanks;
             public readonly List<GeneratedShapeBlock> CurrentBlocks = new List<GeneratedShapeBlock>();
             public readonly int TotalPlayableCells;
             public int NodesVisited;
@@ -1014,8 +1103,8 @@ namespace FitMe.GameData
             public List<GeneratedShapeBlock> BestBlocks;
             public int BestPreferredCellCount = -1;
             public int BestPreferredBlockCount = -1;
+            public long BestDiversityPenalty = long.MaxValue;
             public int BestSingletonCount = int.MaxValue;
-            public int[] BestPreferredCellsByPriority;
 
             public TilingSearchContext(
                 int[,] playableMask, ShapePlaysetGenerationConfig config,
@@ -1026,29 +1115,31 @@ namespace FitMe.GameData
                 Config = config;
                 PreferredBlocks = preferredBlocks;
                 PreferredCellsByPriority = new int[config.PreferredPlayerBlocks.Count];
+                SeededPreferenceRanks = new uint[config.PreferredPlayerBlocks.Count];
+                for (var index = 0; index < preferredBlocks.Count; index++)
+                    SeededPreferenceRanks[preferredBlocks[index].PreferenceIndex] =
+                        preferredBlocks[index].SeededRank;
                 TotalPlayableCells = CountCells(playableMask);
             }
 
             public void ConsiderCurrentSolution(
                 int preferredCellCount, int preferredBlockCount, int singletonCount)
             {
-                var priorityComparison = BestPreferredCellsByPriority == null
-                    ? 1
-                    : ComparePriorityCoverage(PreferredCellsByPriority, BestPreferredCellsByPriority);
+                var diversityPenalty = GetDiversityPenalty(this, PreferredCellsByPriority);
                 var isBetter = BestBlocks == null || preferredCellCount > BestPreferredCellCount ||
-                    (preferredCellCount == BestPreferredCellCount && priorityComparison > 0) ||
-                    (preferredCellCount == BestPreferredCellCount && priorityComparison == 0 &&
-                     singletonCount < BestSingletonCount);
+                    (preferredCellCount == BestPreferredCellCount &&
+                     diversityPenalty < BestDiversityPenalty) ||
+                    (preferredCellCount == BestPreferredCellCount &&
+                     diversityPenalty == BestDiversityPenalty && singletonCount < BestSingletonCount);
                 if (!isBetter) return;
 
                 BestBlocks = new List<GeneratedShapeBlock>(CurrentBlocks);
                 BestPreferredCellCount = preferredCellCount;
                 BestPreferredBlockCount = preferredBlockCount;
+                BestDiversityPenalty = diversityPenalty;
                 BestSingletonCount = singletonCount;
-                BestPreferredCellsByPriority = (int[])PreferredCellsByPriority.Clone();
-                if (PreferredCellsByPriority.Length > 0 &&
-                    preferredCellCount == TotalPlayableCells &&
-                    PreferredCellsByPriority[0] == TotalPlayableCells)
+                if (preferredCellCount == TotalPlayableCells && singletonCount == 0 &&
+                    diversityPenalty == GetTheoreticalMinimumDiversityPenalty(this, TotalPlayableCells))
                     StopSearch = true;
             }
         }
@@ -1059,13 +1150,16 @@ namespace FitMe.GameData
             public readonly BlockPreset Preset;
             public readonly int CellCount;
             public readonly int PreferenceIndex;
+            public readonly uint SeededRank;
 
-            public PreferredBlockCandidate(int[,] footprint, BlockPreset preset, int cellCount, int preferenceIndex)
+            public PreferredBlockCandidate(
+                int[,] footprint, BlockPreset preset, int cellCount, int preferenceIndex, uint seededRank)
             {
                 Footprint = footprint;
                 Preset = preset;
                 CellCount = cellCount;
                 PreferenceIndex = preferenceIndex;
+                SeededRank = seededRank;
             }
         }
 

@@ -161,11 +161,13 @@ namespace FitMe.Grid.Tests
 
             var catalog = Keep(ScriptableObject.CreateInstance<ShapeLevelCatalog>());
             catalog.name = "Test-only shape catalog";
-            var levelsField = typeof(ShapeLevelCatalog).GetField("_levels", BindingFlags.Instance | BindingFlags.NonPublic);
-            var levels = Activator.CreateInstance(levelsField.FieldType);
-            var add = levelsField.FieldType.GetMethod("Add", new[] { typeof(string), typeof(ShapeLevelDefinition) });
-            add.Invoke(levels, new object[] { "test-shape-001", level });
-            levelsField.SetValue(catalog, levels);
+            var entriesField = typeof(ShapeLevelCatalog).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(entriesField, Is.Not.Null, "Expected serialized catalog entry list.");
+            var catalogEntries = new List<ShapeLevelCatalogEntry>
+            {
+                new("test-shape-001", level)
+            };
+            entriesField.SetValue(catalog, catalogEntries);
 
             return (board, level, catalog);
         }

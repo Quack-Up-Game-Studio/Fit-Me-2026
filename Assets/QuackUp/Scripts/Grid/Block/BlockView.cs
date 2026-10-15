@@ -14,7 +14,8 @@ using VContainer;
 namespace FitMe.Grid
 {
     [ShowOdinSerializedPropertiesInInspector]
-    public class BlockView : SerializedMonoBehaviour, IDisposable, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
+    public class BlockView : SerializedMonoBehaviour, IDisposable, IBeginDragHandler, IDragHandler, IEndDragHandler,
+        IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region Inspectors
         [Title("References")]
@@ -157,8 +158,10 @@ namespace FitMe.Grid
             }
             if (current is BlockState.Obstacle)
             {
-                obstacleSpriteRenderer.enabled = true;
-                obstacleSpriteRenderer.sprite = _blockConfig.ObstacleSprite;
+                var useAtomSprites = _blockConfig.UseAtomSprite;
+                obstacleSpriteRenderer.enabled = !useAtomSprites;
+                if (!useAtomSprites)
+                    obstacleSpriteRenderer.sprite = _blockConfig.ObstacleSprite;
                 SetSpineRendererVisible(false);
             }
             else

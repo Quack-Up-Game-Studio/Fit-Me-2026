@@ -45,12 +45,18 @@ namespace FitMe.Scene
 
         public void Start()
         {
+            Subscribe();
+            PopulateItems().Forget();
+        }
+
+        private void Subscribe()
+        {
+            
             if (!_panelManager.TryGetPanel<ShapeLevelSelectViewModel>(ShapePanelId, out var viewModel))
             {
                 DebugUtils.LogError($"Shape Level Select scene requires a '{ShapePanelId}' startup panel.");
                 return;
             }
-
             var disposableBuilder = Disposable.CreateBuilder();
             viewModel.SelectLevelCommand
                 .SubscribeAwait((levelId, _) => SelectLevel(levelId), AwaitOperation.Drop)
@@ -59,6 +65,21 @@ namespace FitMe.Scene
                 .SubscribeAwait((_, _) => ReturnToModeSelect(), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
             _subscriptions = disposableBuilder.Build();
+        }
+
+        private async UniTaskVoid PopulateItems()
+        {
+            await _saveManager.WaitForSaveDataReady;
+            if (!_panelManager.TryGetPanel<ShapeLevelSelectViewModel>(ShapePanelId, out var viewModel))
+            {
+                DebugUtils.LogError($"Shape Level Select scene requires a '{ShapePanelId}' startup panel.");
+                return;
+            }
+            var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
+            var highestUnlockedOrder = saveObject
+                ? saveObject.GetSaveData<PlayerRecordSaveData>().HighestUnlockedShapeOrder
+                : 1;
+            viewModel.InitializeItems(highestUnlockedOrder);
         }
 
         public void Dispose()
