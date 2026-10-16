@@ -98,7 +98,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 0eca6b9dff73b81948ddfcbebb175778, type: 3}
+  m_Sprite: {fileID: 7619152406760005468, guid: a3fdcec777169c84eba3b366ffe8e5c8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -120,8 +120,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ded59fcc37b1c1a1a5df3b234e0d0a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.SpriteOutlineController
-  outlineColor: {r: 0, g: 0, b: 0, a: 1}
-  outlineWidth: 0.05
+  outlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 0.328
   outlineSettings:
     OutlineTop: 1
     OutlineBottom: 1
