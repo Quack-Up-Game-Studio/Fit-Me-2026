@@ -24,11 +24,11 @@ namespace FitMe.Scene
 
     public sealed class ShapeLevelResultService
     {
-        private readonly ShapeLevelCatalog _catalog;
+        private readonly ShapeLevelWorldCatalogService _catalogService;
 
-        public ShapeLevelResultService(ShapeLevelCatalog catalog)
+        public ShapeLevelResultService(ShapeLevelWorldCatalogService catalogService)
         {
-            _catalog = catalog;
+            _catalogService = catalogService;
         }
 
         public bool TryResolve(
@@ -39,8 +39,8 @@ namespace FitMe.Scene
             out ShapeLevelResultOutcome outcome)
         {
             outcome = new ShapeLevelResultOutcome(ShapeLevelResultAction.None, default);
-            if (!_catalog || progress == null || !_catalog.Validate().IsValid ||
-                !TryGetActiveOrder(activeRequest, out var activeOrder))
+            if (_catalogService == null || progress == null || !_catalogService.IsValid ||
+                !TryGetActiveOrder(_catalogService, activeRequest, out var activeOrder))
                 return false;
 
             switch (action)
@@ -51,16 +51,17 @@ namespace FitMe.Scene
                 case ShapeLevelResultAction.NextLevel:
                     if (!wasPassed) return false;
                     var nextOrder = activeOrder + 1;
-                    if (nextOrder > progress.HighestUnlockedShapeOrder || nextOrder > _catalog.Count)
+                    if (nextOrder > _catalogService.GetLevelCount(activeRequest.ShapeWorldKey) ||
+                        !progress.ShapeWorldProgress.TryGetValue(activeRequest.ShapeWorldKey, out var worldProgress) ||
+                        nextOrder > (worldProgress.CompletedLevelIds?.Count ?? 0) + 1)
                         return false;
 
-                    var nextLevelId = _catalog.GetIdAtOrder(nextOrder);
-                    if (nextLevelId == null || !_catalog.TryGetById(nextLevelId, out var nextLevel) ||
-                        !ShapeLevelDataValidator.Validate(nextLevel).IsValid)
+                    if (!_catalogService.TryGetLevelAtOrder(activeRequest.ShapeWorldKey, nextOrder,
+                            out var nextLevelId, out var nextLevel))
                         return false;
 
                     outcome = new ShapeLevelResultOutcome(
-                        action, LevelSessionRequest.ForShapeLevel(nextLevelId, nextLevel));
+                        action, LevelSessionRequest.ForShapeLevel(activeRequest.ShapeWorldKey, nextLevelId, nextLevel));
                     return true;
                 case ShapeLevelResultAction.ReturnToLevelSelect:
                     outcome = new ShapeLevelResultOutcome(action, default);
@@ -70,16 +71,16 @@ namespace FitMe.Scene
             }
         }
 
-        private bool TryGetActiveOrder(LevelSessionRequest request, out int order)
+        private static bool TryGetActiveOrder(ShapeLevelWorldCatalogService catalogService, LevelSessionRequest request, out int order)
         {
             order = 0;
             if (request.GameMode != FitMe.Shared.GameMode.LevelShape ||
                 string.IsNullOrWhiteSpace(request.ShapeLevelId) || !request.ShapeLevel ||
-                !_catalog.TryGetById(request.ShapeLevelId, out var catalogLevel) ||
+                !catalogService.TryGetLevel(request.ShapeWorldKey, request.ShapeLevelId, out var catalogLevel) ||
                 catalogLevel != request.ShapeLevel)
                 return false;
 
-            order = _catalog.GetOrder(request.ShapeLevelId);
+            order = catalogService.GetLevelOrder(request.ShapeWorldKey, request.ShapeLevelId);
             return order > 0;
         }
     }

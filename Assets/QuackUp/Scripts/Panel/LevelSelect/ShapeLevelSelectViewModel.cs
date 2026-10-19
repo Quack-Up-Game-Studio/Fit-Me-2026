@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using FitMe.GameData;
-using QuackUp.Save;
 using R3;
+using VContainer;
 
 namespace FitMe.Panel
 {
@@ -35,68 +35,70 @@ namespace FitMe.Panel
 
     public sealed class ShapeLevelSelectViewModel : PanelViewModel
     {
+        private readonly ShapeLevelWorldCatalogService _catalogService;
         private List<ShapeLevelSelectItem> _items;
 
         public IReadOnlyList<ShapeLevelSelectItem> Items => _items;
+        public ReactiveProperty<string> WorldDisplayName { get; } = new(string.Empty);
         public ReactiveCommand<string> SelectLevelCommand { get; } = new();
-        public ReactiveCommand<Unit> ReturnToModeSelectCommand { get; } = new();
+        public ReactiveCommand<Unit> BackToWorldsCommand { get; } = new();
         public Observable<IReadOnlyList<ShapeLevelSelectItem>> ItemInitialized => _itemInitialized;
         private readonly Subject<IReadOnlyList<ShapeLevelSelectItem>> _itemInitialized = new();
-        
-        private readonly ShapeLevelCatalog _catalog;
 
-        public ShapeLevelSelectViewModel(
-            PanelManager panelManager,
-            ShapeLevelCatalog catalog) : base(panelManager)
+        [Inject]
+        public ShapeLevelSelectViewModel(PanelManager panelManager, ShapeLevelWorldCatalogService catalogService) : base(panelManager)
         {
-            _catalog = catalog;
+            _catalogService = catalogService;
         }
 
         public override void Dispose()
         {
             base.Dispose();
+            WorldDisplayName.Dispose();
             SelectLevelCommand.Dispose();
-            ReturnToModeSelectCommand.Dispose();
+            BackToWorldsCommand.Dispose();
             _itemInitialized.Dispose();
         }
 
         public void InitializeItems(
-            int highestUnlockedOrder)
+            string worldKey,
+            System.Collections.Generic.IDictionary<string, ShapeWorldProgressData> progress)
         {
-            _items = BuildItems(_catalog, Math.Max(1, highestUnlockedOrder));
+            WorldDisplayName.Value = _catalogService != null && _catalogService.TryGetWorld(worldKey, out var worldInfo)
+                ? worldInfo.DisplayName
+                : string.Empty;
+
+            ShapeWorldProgressData worldProgress = null;
+            if (progress != null) progress.TryGetValue(worldKey, out worldProgress);
+            var levels = _catalogService?.GetLevels(worldKey) ?? Array.Empty<ShapeLevelInfo>();
+            _items = BuildItems(levels, worldProgress);
             _itemInitialized.OnNext(_items);
         }
 
         private static List<ShapeLevelSelectItem> BuildItems(
-            ShapeLevelCatalog catalog,
-            int highestUnlockedOrder)
+            IReadOnlyList<ShapeLevelInfo> levels,
+            ShapeWorldProgressData worldProgress)
         {
-            var items = new List<ShapeLevelSelectItem>();
-            if (!catalog) return items;
-
-            var catalogIsValid = catalog.Validate().IsValid;
-            var entries = catalog.Entries;
-            for (var index = 0; index < entries.Count; index++)
+            var items = new List<ShapeLevelSelectItem>(levels.Count);
+            for (var index = 0; index < levels.Count; index++)
             {
-                var entry = entries[index];
-                var levelId = entry?.Key;
-                var definition = entry?.LevelDefinition;
-                var order = index + 1;
-                var isValid = catalogIsValid && !string.IsNullOrWhiteSpace(levelId) && catalog.GetOrder(levelId) == order && definition &&
-                    ShapeLevelDataValidator.Validate(definition).IsValid;
-                var displayName = definition && !string.IsNullOrWhiteSpace(definition.name)
-                    ? definition.name
-                    : levelId;
+                var level = levels[index];
+                var unlocked = worldProgress?.IsUnlocked == true;
+                for (var precedingIndex = 0; unlocked && precedingIndex < index; precedingIndex++)
+                {
+                    var precedingId = levels[precedingIndex].LevelId;
+                    if (string.IsNullOrWhiteSpace(precedingId) || worldProgress.CompletedLevelIds?.Contains(precedingId) != true)
+                        unlocked = false;
+                }
 
                 items.Add(new ShapeLevelSelectItem(
-                    levelId,
-                    displayName,
-                    order,
-                    order <= highestUnlockedOrder,
-                    isValid,
-                    definition));
+                    level.LevelId,
+                    level.DisplayName,
+                    level.Order,
+                    unlocked,
+                    level.IsValid,
+                    level.Definition));
             }
-
             return items;
         }
     }

@@ -9,6 +9,7 @@ namespace QuackUp.SceneManagement
         void SetActive<T>(T payload);
         bool TryGetActive<T>(out T payload);
         bool TryRequeueActive();
+        bool TryTakeActive<T>(out T payload);
     }
 
     public sealed class PendingScenePayload : IPendingScenePayload
@@ -47,6 +48,18 @@ namespace QuackUp.SceneManagement
                 return true;
             }
 
+            payload = default;
+            return false;
+        }
+
+        public bool TryTakeActive<T>(out T payload)
+        {
+            if (_activePayload is T typedPayload)
+            {
+                _activePayload = null;
+                payload = typedPayload;
+                return true;
+            }
             payload = default;
             return false;
         }

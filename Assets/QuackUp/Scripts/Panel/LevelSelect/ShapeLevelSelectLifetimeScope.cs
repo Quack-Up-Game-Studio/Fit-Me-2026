@@ -14,6 +14,7 @@ namespace FitMe.Panel
     {
         [SerializeField, Required] private ShapeLevelSelectView panelView;
 
+
         protected override void Configure(IContainerBuilder builder)
         {
             base.Configure(builder);
@@ -26,6 +27,7 @@ namespace FitMe.Panel
             builder.RegisterComponent(panelView).AsSelf().As<IPanelView>();
             builder.Register<ShapeLevelSelectViewModel>(Lifetime.Singleton)
                 .AsSelf().As<IPanelViewModel>();
+
         }
 
         public override IPanelViewModel CreatPanel()

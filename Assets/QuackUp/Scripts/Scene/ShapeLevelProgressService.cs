@@ -1,34 +1,50 @@
+using System.Collections.Generic;
 using FitMe.GameData;
 
 namespace FitMe.Scene
 {
     public sealed class ShapeLevelProgressService
     {
-        private readonly ShapeLevelCatalog _catalog;
+        private readonly ShapeLevelWorldCatalogService _catalogService;
 
-        public ShapeLevelProgressService(ShapeLevelCatalog catalog)
+        public ShapeLevelProgressService(ShapeLevelWorldCatalogService catalogService)
         {
-            _catalog = catalog;
+            _catalogService = catalogService;
         }
 
         public bool TryRecordPass(
             string levelId,
+            string worldKey,
             ShapeLevelDefinition completedLevel,
             PlayerRecordSaveData progress,
-            int score,
             out bool progressChanged)
         {
             progressChanged = false;
-            if (!_catalog || progress == null || !_catalog.Validate().IsValid ||
-                string.IsNullOrWhiteSpace(levelId) ||
-                !_catalog.TryGetById(levelId, out var catalogLevel) || catalogLevel != completedLevel)
+            if (_catalogService == null || !_catalogService.IsValid || progress == null ||
+                !_catalogService.TryGetLevel(worldKey, levelId, out var catalogLevel) || catalogLevel != completedLevel)
                 return false;
 
-            var completedOrder = _catalog.GetOrder(levelId);
-            if (completedOrder < 1 || !progress.IsShapeLevelUnlocked(completedOrder))
+            progress.ShapeWorldProgress ??= new Dictionary<string, ShapeWorldProgressData>();
+            var initializationChanged = false;
+            foreach (var world in _catalogService.Worlds)
+                if (!progress.ShapeWorldProgress.ContainsKey(world.WorldKey)) initializationChanged = true;
+            ShapeWorldProgressRules.InitializeUnlocks(_catalogService, progress.ShapeWorldProgress);
+            if (!progress.ShapeWorldProgress.TryGetValue(worldKey, out var worldProgress) || !worldProgress.IsUnlocked ||
+                _catalogService.GetLevelOrder(worldKey, levelId) > (worldProgress.CompletedLevelIds?.Count ?? 0) + 1)
                 return false;
 
-            progressChanged = progress.RecordShapeLevelPass(completedOrder, levelId, score);
+            var wasCompleted = worldProgress.CompletedLevelIds?.Contains(levelId) == true;
+            var completionChanged = worldProgress.RecordLevelPass(levelId);
+            var nextOrder = _catalogService.GetWorldOrder(worldKey) + 1;
+            var unlocksNext = false;
+            if (_catalogService.IsWorldComplete(worldKey, progress.ShapeWorldProgress) &&
+                _catalogService.TryGetWorldAtOrder(nextOrder, out var nextWorld) &&
+                progress.ShapeWorldProgress.TryGetValue(nextWorld.WorldKey, out var nextProgress) && !nextProgress.IsUnlocked)
+            {
+                nextProgress.Unlock();
+                unlocksNext = true;
+            }
+            progressChanged = initializationChanged || completionChanged || unlocksNext || !wasCompleted;
             return true;
         }
     }

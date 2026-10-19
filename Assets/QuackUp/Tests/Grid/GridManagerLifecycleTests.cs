@@ -516,17 +516,22 @@ namespace FitMe.Grid.Tests
             var expectedColor = Color.magenta;
             spriteRenderer.color = expectedColor;
             var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            _blockModel = new BlockModel(null, null);
+            var color = (BlockColor)0;
+            _blockModel.ChangeColor(color, updateGrid: false);
+            var block = new BlockInstance(
+                _blockModel, null, null, Keep(new GameObject("Atom view edge test block")));
             typeof(AtomView).GetField("spriteRenderer",
                 BindingFlags.Instance | BindingFlags.NonPublic).SetValue(atomView, spriteRenderer);
             typeof(AtomView).GetField("_blockManagerConfig",
                 BindingFlags.Instance | BindingFlags.NonPublic).SetValue(atomView, config);
-            var handler = typeof(AtomView).GetMethod("OnBlockTypeChanged",
+            var updateColor = typeof(AtomView).GetMethod("UpdateAtomSpriteColor",
                 BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.That(handler, Is.Not.Null);
-            var color = Enum.ToObject(handler.GetParameters()[0].ParameterType, 0);
+            Assert.That(updateColor, Is.Not.Null);
+            if (updateColor == null) return;
             LogAssert.Expect(LogType.Error, $"BlockType.CurrentValue {color} is not defined");
 
-            handler.Invoke(atomView, new[] { color });
+            updateColor.Invoke(atomView, new object[] { block });
 
             Assert.That(spriteRenderer.color, Is.EqualTo(expectedColor));
         }

@@ -12,6 +12,8 @@ namespace QuackUp.SceneManagement.Tests
 {
     public sealed class ShapeLevelResultServiceTests
     {
+        private const string FirstWorldKey = "world-one";
+        private const string SecondWorldKey = "world-two";
         private readonly List<ScriptableObject> _createdAssets = new();
 
         [TearDown]
@@ -26,35 +28,36 @@ namespace QuackUp.SceneManagement.Tests
         }
 
         [Test]
-        public void Retry_ReturnsSameLevelRequestWithoutChangingProgress()
+        public void Retry_ReturnsSameWorldLevelRequestWithoutChangingProgress()
         {
             var first = CreateLevel();
             var second = CreateLevel();
-            var catalog = CreateCatalog(("shape-one", first), ("shape-two", second));
-            var active = LevelSessionRequest.ForShapeLevel("shape-one", first);
-            var progress = new PlayerRecordSaveData();
-            ShapeLevelResultOutcome outcome = default;
-            var service = new ShapeLevelResultService(catalog);
+            var worlds = CreateWorldCatalog(
+                (FirstWorldKey, CreateCatalog(("shape-one", first), ("shape-two", second))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-one", first);
+            var progress = CreateProgress((FirstWorldKey, true));
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
 
             var resolved = service.TryResolve(
-                ShapeLevelResultAction.Retry, active, wasPassed: false, progress, out outcome);
+                ShapeLevelResultAction.Retry, active, wasPassed: false, progress, out var outcome);
 
             Assert.That(resolved, Is.True);
             Assert.That(outcome.Action, Is.EqualTo(ShapeLevelResultAction.Retry));
+            Assert.That(outcome.SessionRequest.ShapeWorldKey, Is.EqualTo(FirstWorldKey));
             Assert.That(outcome.SessionRequest.ShapeLevelId, Is.EqualTo("shape-one"));
             Assert.That(outcome.SessionRequest.ShapeLevel, Is.SameAs(first));
-            Assert.That(progress.HighestUnlockedShapeOrder, Is.EqualTo(1));
-            Assert.That(progress.ShapeLevelHighScores, Is.Empty);
+            Assert.That(progress.ShapeWorldProgress[FirstWorldKey].IsUnlocked, Is.True);
+            Assert.That(progress.ShapeWorldProgress[FirstWorldKey].CompletedLevelIds, Is.Empty);
         }
 
         [Test]
-        public void TryResolve_RejectsInvalidCatalogEvenWhenActiveLevelIsValid()
+        public void TryResolve_RejectsInvalidWorldCatalogEvenWhenActiveLevelIsValid()
         {
             var first = CreateLevel();
-            var second = CreateLevel();
-            var catalog = CreateCatalog(("shape-one", first), (" ", second));
-            var active = LevelSessionRequest.ForShapeLevel("shape-one", first);
-            var service = new ShapeLevelResultService(catalog);
+            var invalidCatalog = CreateCatalog(("shape-one", first));
+            var worlds = CreateWorldCatalog((" ", invalidCatalog));
+            var active = LevelSessionRequest.ForShapeLevel(" ", "shape-one", first);
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
 
             var resolved = service.TryResolve(
                 ShapeLevelResultAction.Retry, active, wasPassed: false,
@@ -69,16 +72,17 @@ namespace QuackUp.SceneManagement.Tests
         {
             var first = CreateLevel();
             var second = CreateLevel();
-            var service = new ShapeLevelResultService(CreateCatalog(("shape-one", first), ("shape-two", second)));
-            var active = LevelSessionRequest.ForShapeLevel("shape-one", first);
-            var progress = new PlayerRecordSaveData();
+            var worlds = CreateWorldCatalog((FirstWorldKey, CreateCatalog(("shape-one", first), ("shape-two", second))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-one", first);
+            var progress = CreateProgress((FirstWorldKey, true));
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
 
             var resolved = service.TryResolve(
                 ShapeLevelResultAction.NextLevel, active, wasPassed: false, progress, out var outcome);
 
             Assert.That(resolved, Is.False);
             Assert.That(outcome.Action, Is.EqualTo(ShapeLevelResultAction.None));
-            Assert.That(progress.HighestUnlockedShapeOrder, Is.EqualTo(1));
+            Assert.That(progress.ShapeWorldProgress[FirstWorldKey].CompletedLevelIds, Is.Empty);
         }
 
         [Test]
@@ -86,47 +90,49 @@ namespace QuackUp.SceneManagement.Tests
         {
             var first = CreateLevel();
             var second = CreateLevel();
-            var service = new ShapeLevelResultService(CreateCatalog(("shape-one", first), ("shape-two", second)));
-            var active = LevelSessionRequest.ForShapeLevel("shape-one", first);
-            var progress = new PlayerRecordSaveData();
-            progress.RecordShapeLevelPass(1, "shape-one", 100);
+            var worlds = CreateWorldCatalog((FirstWorldKey, CreateCatalog(("shape-one", first), ("shape-two", second))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-one", first);
+            var progress = CreateProgress((FirstWorldKey, true));
+            progress.ShapeWorldProgress[FirstWorldKey].RecordLevelPass("shape-one");
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
 
             var resolved = service.TryResolve(
                 ShapeLevelResultAction.NextLevel, active, wasPassed: false, progress, out var outcome);
 
             Assert.That(resolved, Is.False);
             Assert.That(outcome.Action, Is.EqualTo(ShapeLevelResultAction.None));
+            Assert.That(progress.ShapeWorldProgress[FirstWorldKey].CompletedLevelIds, Does.Contain("shape-one"));
         }
 
         [Test]
-        public void RecordPass_UsesLevelIdOrderWhenCatalogEntriesShareDefinition()
+        public void RecordPass_UsesLevelIdOrderWhenCatalogEntriesShareDefinitionAndRetainsWorldProgress()
         {
             var first = CreateLevel();
             var shared = CreateLevel();
-            var catalog = CreateCatalog(
-                ("level-1", first),
-                ("level-2", shared),
-                ("level-3", shared),
-                ("level-4", shared));
-            var progress = new PlayerRecordSaveData();
-            progress.RecordShapeLevelPass(1, "level-1", 10);
-            progress.RecordShapeLevelPass(2, "level-2", 20);
-            var service = new ShapeLevelProgressService(catalog);
+            var firstCatalog = CreateCatalog(
+                ("level-1", first), ("level-2", shared), ("level-3", shared), ("level-4", shared));
+            var secondCatalog = CreateCatalog(("other-level", CreateLevel()));
+            var worlds = CreateWorldCatalog((FirstWorldKey, firstCatalog), (SecondWorldKey, secondCatalog));
+            var progress = CreateProgress((FirstWorldKey, true), (SecondWorldKey, true));
+            progress.ShapeWorldProgress[FirstWorldKey].RecordLevelPass("level-1");
+            progress.ShapeWorldProgress[FirstWorldKey].RecordLevelPass("level-2");
+            progress.ShapeWorldProgress[SecondWorldKey].RecordLevelPass("other-level");
+            var service = new ShapeLevelProgressService(new ShapeLevelWorldCatalogService(worlds));
 
-            var recorded = service.TryRecordPass(
-                "level-3", shared, progress, 30, out var progressChanged);
+            var recorded = service.TryRecordPass("level-3", FirstWorldKey, shared, progress, out var progressChanged);
 
             Assert.That(recorded, Is.True);
             Assert.That(progressChanged, Is.True);
-            Assert.That(progress.HighestUnlockedShapeOrder, Is.EqualTo(4));
-            Assert.That(progress.ShapeLevelHighScores["level-3"], Is.EqualTo(30));
+            Assert.That(progress.ShapeWorldProgress[FirstWorldKey].CompletedLevelIds, Does.Contain("level-3"));
+            Assert.That(progress.ShapeWorldProgress[SecondWorldKey].CompletedLevelIds, Does.Contain("other-level"));
 
-            var active = LevelSessionRequest.ForShapeLevel("level-3", shared);
-            var resultService = new ShapeLevelResultService(catalog);
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "level-3", shared);
+            var resultService = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
             var canAdvance = resultService.TryResolve(
                 ShapeLevelResultAction.NextLevel, active, wasPassed: true, progress, out var outcome);
 
             Assert.That(canAdvance, Is.True);
+            Assert.That(outcome.SessionRequest.ShapeWorldKey, Is.EqualTo(FirstWorldKey));
             Assert.That(outcome.SessionRequest.ShapeLevelId, Is.EqualTo("level-4"));
         }
 
@@ -135,33 +141,37 @@ namespace QuackUp.SceneManagement.Tests
         {
             var first = CreateLevel();
             var second = CreateLevel();
-            var service = new ShapeLevelResultService(CreateCatalog(("shape-one", first), ("shape-two", second)));
-            var active = LevelSessionRequest.ForShapeLevel("shape-one", first);
-            var progress = new PlayerRecordSaveData();
-            progress.RecordShapeLevelPass(1, "shape-one", 100);
+            var worlds = CreateWorldCatalog((FirstWorldKey, CreateCatalog(("shape-one", first), ("shape-two", second))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-one", first);
+            var progress = CreateProgress((FirstWorldKey, true));
+            progress.ShapeWorldProgress[FirstWorldKey].RecordLevelPass("shape-one");
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
 
             var resolved = service.TryResolve(
                 ShapeLevelResultAction.NextLevel, active, wasPassed: true, progress, out var outcome);
 
             Assert.That(resolved, Is.True);
+            Assert.That(outcome.SessionRequest.ShapeWorldKey, Is.EqualTo(FirstWorldKey));
             Assert.That(outcome.SessionRequest.ShapeLevelId, Is.EqualTo("shape-two"));
             Assert.That(outcome.SessionRequest.ShapeLevel, Is.SameAs(second));
         }
 
         [Test]
-        public void ReturnToLevelSelect_ProducesSelectionNavigationOutcome()
+        public void ReturnToLevelSelect_ProducesSelectionNavigationOutcomeWithoutLosingWorldKey()
         {
             var first = CreateLevel();
-            var service = new ShapeLevelResultService(CreateCatalog(("shape-one", first)));
-            var active = LevelSessionRequest.ForShapeLevel("shape-one", first);
+            var worlds = CreateWorldCatalog((FirstWorldKey, CreateCatalog(("shape-one", first))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-one", first);
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
 
             var resolved = service.TryResolve(
                 ShapeLevelResultAction.ReturnToLevelSelect, active, wasPassed: false,
-                new PlayerRecordSaveData(), out var outcome);
+                CreateProgress((FirstWorldKey, true)), out var outcome);
 
             Assert.That(resolved, Is.True);
             Assert.That(outcome.Action, Is.EqualTo(ShapeLevelResultAction.ReturnToLevelSelect));
             Assert.That(outcome.SessionRequest.ShapeLevel, Is.Null);
+            Assert.That(outcome.SessionRequest.ShapeWorldKey, Is.Null);
         }
 
         [Test]
@@ -169,15 +179,37 @@ namespace QuackUp.SceneManagement.Tests
         {
             var first = CreateLevel();
             var second = CreateLevel();
-            var service = new ShapeLevelResultService(CreateCatalog(("shape-one", first), ("shape-two", second)));
-            var active = LevelSessionRequest.ForShapeLevel("shape-one", first);
+            var worlds = CreateWorldCatalog((FirstWorldKey, CreateCatalog(("shape-one", first), ("shape-two", second))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-one", first);
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
 
             var resolved = service.TryResolve(
                 ShapeLevelResultAction.NextLevel, active, wasPassed: true,
-                new PlayerRecordSaveData(), out var outcome);
+                CreateProgress((FirstWorldKey, true)), out var outcome);
 
             Assert.That(resolved, Is.False);
             Assert.That(outcome.Action, Is.EqualTo(ShapeLevelResultAction.None));
+        }
+
+        [Test]
+        public void CatalogService_ResolvesInitialAndWrappedNextLevelsByStableId()
+        {
+            var sharedDefinition = CreateLevel();
+            var worlds = CreateWorldCatalog((FirstWorldKey, CreateCatalog(
+                ("level-first", sharedDefinition), ("level-second", sharedDefinition))));
+            var catalogService = new ShapeLevelWorldCatalogService(worlds);
+
+            Assert.That(catalogService.TryGetFirstLevel(FirstWorldKey, out var firstId, out var firstLevel), Is.True);
+            Assert.That(firstId, Is.EqualTo("level-first"));
+            Assert.That(firstLevel, Is.SameAs(sharedDefinition));
+
+            var resolved = catalogService.TryGetNextLevel(
+                FirstWorldKey, "level-second", sharedDefinition, wrapAtEnd: true,
+                out var nextId, out var nextLevel);
+
+            Assert.That(resolved, Is.True);
+            Assert.That(nextId, Is.EqualTo("level-first"));
+            Assert.That(nextLevel, Is.SameAs(sharedDefinition));
         }
 
         private ShapeLevelDefinition CreateLevel()
@@ -203,6 +235,26 @@ namespace QuackUp.SceneManagement.Tests
                 catalogEntries.Add(new ShapeLevelCatalogEntry(id, level));
             field.SetValue(catalog, catalogEntries);
             return catalog;
+        }
+
+        private ShapeLevelWorldCatalog CreateWorldCatalog(params (string key, ShapeLevelCatalog catalog)[] entries)
+        {
+            var worldCatalog = Keep(ScriptableObject.CreateInstance<ShapeLevelWorldCatalog>());
+            var field = typeof(ShapeLevelWorldCatalog).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null, "Expected serialized world catalog entry list.");
+            var worldEntries = new List<ShapeLevelWorldEntry>();
+            foreach (var (key, catalog) in entries)
+                worldEntries.Add(new ShapeLevelWorldEntry(key, catalog));
+            field.SetValue(worldCatalog, worldEntries);
+            return worldCatalog;
+        }
+
+        private static PlayerRecordSaveData CreateProgress(params (string key, bool unlocked)[] worlds)
+        {
+            var progress = new PlayerRecordSaveData();
+            foreach (var (key, unlocked) in worlds)
+                progress.ShapeWorldProgress[key] = new ShapeWorldProgressData(key, unlocked);
+            return progress;
         }
 
         private T Keep<T>(T asset) where T : ScriptableObject

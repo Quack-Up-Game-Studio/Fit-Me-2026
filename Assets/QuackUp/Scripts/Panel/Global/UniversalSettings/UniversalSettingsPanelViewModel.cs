@@ -20,6 +20,7 @@ namespace FitMe.Panel
         private readonly IAudioBusManager _audioBusManager;
         private readonly LoadSceneManager _loadSceneManager;
         private readonly IGameStateManager _gameStateManager;
+        private readonly ILevelManager _levelManager;
         private IDisposable _bindings;
         
         [Inject]
@@ -27,11 +28,13 @@ namespace FitMe.Panel
             IAudioBusManager audioBusManager,
             LoadSceneManager loadSceneManager,
             IGameStateManager gameStateManager,
+            ILevelManager levelManager,
             PanelManager panelManager) : base(panelManager)
         {
             _audioBusManager = audioBusManager;
             _loadSceneManager = loadSceneManager;
             _gameStateManager = gameStateManager;
+            _levelManager = levelManager;
             Bind();
         }
         
@@ -86,9 +89,16 @@ namespace FitMe.Panel
             _gameStateManager.SetPause(false);
         }
 
+        public static SceneType ResolveQuitDestination(GameMode gameMode) => gameMode switch
+        {
+            GameMode.LevelShape => SceneType.ShapeLevelSelect,
+            GameMode.Classic => SceneType.ModeSelect,
+            _ => SceneType.ModeSelect
+        };
+
         private async UniTask ToMainMenu()
         {
-            await _loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false);
+            await _loadSceneManager.LoadScene(ResolveQuitDestination(_levelManager.CurrentGameMode), LoadSceneMode.Single, false);
         }
     }
 }

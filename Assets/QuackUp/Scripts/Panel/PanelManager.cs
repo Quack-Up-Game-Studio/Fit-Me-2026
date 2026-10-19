@@ -49,11 +49,14 @@ namespace FitMe.Panel
                 _panels.Add(kvp.Key, panel);
             }
             Debug.Log($"PanelCount: {_panels.Count}");
-            Crossfade(_startupPanelId, _startupPanelId, new CrossfadeSettings
+            if (!string.IsNullOrWhiteSpace(_startupPanelId))
             {
-                crossFadeType = CrossfadeType.InOnly,
-                customOffset = 0f
-            }).Forget();
+                Crossfade(_startupPanelId, _startupPanelId, new CrossfadeSettings
+                {
+                    crossFadeType = CrossfadeType.InOnly,
+                    customOffset = 0f
+                }).Forget();
+            }
             _onFinishedInitialize.OnNext(Unit.Default);
         }
 

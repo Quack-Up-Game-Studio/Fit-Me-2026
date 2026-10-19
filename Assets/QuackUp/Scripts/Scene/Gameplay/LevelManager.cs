@@ -29,6 +29,7 @@ namespace FitMe.Scene
         public ReactiveProperty<int> Score { get; } = new(0);
         public ReactiveProperty<int> FitMe { get; } = new(0);
         public int CurrentObstacleCount { get; private set; }
+        public GameMode CurrentGameMode => _gameMode;
 
         /// <remarks>
         /// Use <see cref="SetGameState"/> to change game state.
@@ -68,11 +69,13 @@ namespace FitMe.Scene
         private readonly LoadSceneManager _loadSceneManager;
         private readonly ShapeLevelResultService _shapeLevelResultService;
         private readonly ShapeLevelProgressService _shapeLevelProgressService;
+        private readonly ShapeLevelWorldCatalogService _shapeLevelCatalogService;
 
         private GameMode _gameMode = GameMode.Classic;
         private GridPreset _gridPreset;
         private ShapeLevelDefinition _shapeLevelDefinition;
         private string _shapeLevelId;
+        private string _shapeWorldKey;
         private bool _shapeLevelPassed;
 
         private List<GridPreset> _presets;
@@ -88,6 +91,7 @@ namespace FitMe.Scene
         [Inject]
         public LevelManager(
             LevelManagerConfig config, 
+            ShapeLevelWorldCatalogService shapeLevelCatalogService,
             IAudioManager audioManager,
             [Key(LevelManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
             GridManager gridManager,
@@ -116,8 +120,9 @@ namespace FitMe.Scene
             _analyticsService = analyticsService;
             _pendingScenePayload = pendingScenePayload;
             _loadSceneManager = loadSceneManager;
-            _shapeLevelResultService = new ShapeLevelResultService(config.ShapeLevelCatalogAsset);
-            _shapeLevelProgressService = new ShapeLevelProgressService(config.ShapeLevelCatalogAsset);
+            _shapeLevelCatalogService = shapeLevelCatalogService;
+            _shapeLevelResultService = new ShapeLevelResultService(shapeLevelCatalogService);
+            _shapeLevelProgressService = new ShapeLevelProgressService(shapeLevelCatalogService);
             Initialize();
             Subscribe();
         }
@@ -211,8 +216,11 @@ namespace FitMe.Scene
             _gridPreset = request.GridPreset;
             _shapeLevelDefinition = request.ShapeLevel;
             _shapeLevelId = request.ShapeLevelId;
+            _shapeWorldKey = request.ShapeWorldKey;
             CheckGameMode();
-            request = new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition, _shapeLevelId);
+            request = _gameMode == GameMode.LevelShape
+                ? LevelSessionRequest.ForShapeLevel(_shapeWorldKey, _shapeLevelId, _shapeLevelDefinition)
+                : new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition, _shapeLevelId);
             ShapeLevelRuntimeData shapeRuntimeData;
             try
             {
@@ -316,23 +324,11 @@ namespace FitMe.Scene
         
         private void LevelShapeMode()
         {
-            if (!_shapeLevelDefinition && !_gridPreset && _config.ShapeLevelCatalogAsset)
+            if (!_shapeLevelDefinition && !_gridPreset && _shapeLevelCatalogService != null &&
+                _shapeLevelCatalogService.TryGetFirstLevel(_shapeWorldKey, out var initialLevelId, out var initialLevel))
             {
-                var catalog = _config.ShapeLevelCatalogAsset;
-                var validation = catalog.Validate();
-                if (validation.IsValid)
-                {
-                    var orderedLevels = catalog.GetOrderedLevels();
-                    if (orderedLevels.Count > 0)
-                    {
-                        _shapeLevelDefinition = orderedLevels[0];
-                        _shapeLevelId = catalog.GetIdAtOrder(1);
-                    }
-                }
-                else
-                {
-                    DebugUtils.LogError($"Invalid Shape Level Catalog: {string.Join(", ", validation.Errors)}");
-                }
+                _shapeLevelDefinition = initialLevel;
+                _shapeLevelId = initialLevelId;
             }
 
             if (_shapeLevelDefinition)
@@ -440,12 +436,11 @@ namespace FitMe.Scene
                 _gridPreset = _gameMode is GameMode.LevelShape ? GetLevelFromPool() : _config.OriginalLevel;
             }
 
-            if (_shapeLevelDefinition && _config.ShapeLevelCatalogAsset)
-                _config.ShapeLevelCatalogAsset.TryGetId(_shapeLevelDefinition, out _shapeLevelId);
-            else
-                _shapeLevelId = null;
+            if (!_shapeLevelDefinition) _shapeLevelId = null;
 
-            var request = new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition, _shapeLevelId);
+            var request = _gameMode == GameMode.LevelShape
+                ? LevelSessionRequest.ForShapeLevel(_shapeWorldKey, _shapeLevelId, _shapeLevelDefinition)
+                : new LevelSessionRequest(_gameMode, _gridPreset, _shapeLevelDefinition, _shapeLevelId);
             ShapeLevelRuntimeData shapeRuntimeData;
             try
             {
@@ -468,18 +463,14 @@ namespace FitMe.Scene
 
         private ShapeLevelDefinition GetNextShapeLevel(ShapeLevelDefinition current)
         {
-            var catalog = _config.ShapeLevelCatalogAsset;
-            if (!catalog || string.IsNullOrWhiteSpace(_shapeLevelId) ||
-                !catalog.Validate().IsValid || !catalog.TryGetById(_shapeLevelId, out var catalogLevel) ||
-                catalogLevel != current)
+            if (_shapeLevelCatalogService == null || string.IsNullOrWhiteSpace(_shapeLevelId) ||
+                !_shapeLevelCatalogService.TryGetNextLevel(
+                    _shapeWorldKey, _shapeLevelId, current, wrapAtEnd: true,
+                    out var nextLevelId, out var nextLevel))
+            {
+                _shapeLevelId = null;
                 return null;
-
-            var currentOrder = catalog.GetOrder(_shapeLevelId);
-            if (currentOrder < 1 || catalog.Count < 1) return null;
-
-            var nextOrder = currentOrder == catalog.Count ? 1 : currentOrder + 1;
-            var nextLevelId = catalog.GetIdAtOrder(nextOrder);
-            if (nextLevelId == null || !catalog.TryGetById(nextLevelId, out var nextLevel)) return null;
+            }
 
             _shapeLevelId = nextLevelId;
             return nextLevel;
@@ -493,9 +484,8 @@ namespace FitMe.Scene
             var saveData = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
             if (saveData == null) return false;
 
-            var levelScore = Math.Max(0, Score.Value - _scoreLastLevel);
             if (!_shapeLevelProgressService.TryRecordPass(
-                    _shapeLevelId, _shapeLevelDefinition, saveData, levelScore, out var progressChanged))
+                    _shapeLevelId, _shapeWorldKey, _shapeLevelDefinition, saveData, out var progressChanged))
                 return false;
 
             if (progressChanged)

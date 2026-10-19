@@ -13,7 +13,7 @@ namespace FitMe.Scene
     {
         [ShowInInspector] private InspectorPlaceholder _title;
         [SerializeField] private LevelManagerConfig levelManagerConfig;
-            
+
         public void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(levelManagerConfig);

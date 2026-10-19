@@ -1,7 +1,5 @@
+using System;
 using FitMe.GameData;
-using FitMe.Grid;
-using FMODUnity;
-using PrimeTween;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -16,21 +14,19 @@ namespace FitMe.Scene
         [field: SerializeField] public int ScorePerChain { get; private set; } = 100;
         [field: SerializeField] public int ScorePerFitMe { get; private set; } = 1000;
         [field: SerializeField] public int OriginalLevelsPerCycle { get; private set; } = 24;
-        [field: SerializeField] public GridPreset OriginalLevel { get; private set; }
+        [field: SerializeField] public FitMe.Grid.GridPreset OriginalLevel { get; private set; }
         [field: SerializeField] public AnimationCurve OriginalLevelCurve { get; private set; }
         [field: SerializeField] public int ShapeLevelsPerCycle { get; private set; } = 24;
         [field: SerializeField] public LevelDatabase ShapeLevelDatabase { get; private set; }
-        [field: SerializeField] public ShapeLevelCatalog ShapeLevelCatalogAsset { get; private set; }
+
         [field: SerializeField] public LevelDatabase TutorialLevelDatabase { get; private set; }
         [field: SerializeField] public AnimationCurve ShapeLevelCurve { get; private set; }
-        
+
         [field: Title("Other Setting")]
         [field: SerializeField] public bool HasCountOff { get; private set; } = true;
-
-        [field: SerializeField] public EventReference GameplayBgm { get; private set; }
-        [field: SerializeField] public ShakeSettings CameraFitShakeSettings { get; private set; }
+        [field: SerializeField] public FMODUnity.EventReference GameplayBgm { get; private set; }
+        [field: SerializeField] public PrimeTween.ShakeSettings CameraFitShakeSettings { get; private set; }
         [field: SerializeField] public float CameraFitShakeStrengthFactor { get; private set; } = 1f;
-        
         [field: Title("Scene Key")]
         [field: SerializeField] public string GameOverPanelId { get; private set; } = "GameOver";
         [field: SerializeField] public string GameplayPanelId { get; private set; } = "Gameplay";

@@ -26,6 +26,7 @@ namespace FitMe.Shared
     public interface ILevelManager
     {
         int CurrentObstacleCount { get; }
+        GameMode CurrentGameMode { get; }
         UniTask NextTutorialPreset(bool playSound);
     }
     
@@ -61,6 +62,7 @@ namespace FitMe.Shared
         public Observable<Unit> OnScoreUpdated { get; } = new Subject<Unit>();
 
         public int CurrentObstacleCount => 0;
+        public GameMode CurrentGameMode { get; set; } = GameMode.Classic;
         public UniTask NextTutorialPreset(bool playSound) => UniTask.CompletedTask;
         
         private readonly ReactiveProperty<bool> _isPaused = new(false);

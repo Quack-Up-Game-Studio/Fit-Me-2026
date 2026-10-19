@@ -14,7 +14,8 @@ namespace FitMe.Panel
         [Title("References")]
         [SerializeField, Required] private ScrollRect levelListScrollRect;
         [SerializeField, Required] private ShapeLevelSelectItemView levelItemPrefab;
-        [SerializeField, Required] private Button returnToModeSelectButton;
+        [SerializeField, Required] private Button backToWorldsButton;
+        [SerializeField, Required] private TMP_Text worldNameText;
         [SerializeField] private TMP_Text emptyStateText;
 
         private ShapeLevelSelectViewModel _viewModel;
@@ -46,6 +47,8 @@ namespace FitMe.Panel
             }
 
             var content = levelListScrollRect.content;
+            foreach (Transform child in content)
+                Destroy(child.gameObject);
             foreach (var item in items)
             {
                 var itemView = Instantiate(levelItemPrefab, content);
@@ -61,16 +64,19 @@ namespace FitMe.Panel
 
         private void Bind()
         {
-            if (!returnToModeSelectButton)
+            if (!backToWorldsButton)
             {
-                DebugUtils.LogError("Shape Level Select requires a Return to Mode Select button reference.");
+                DebugUtils.LogError("Shape Level Select requires a Back to Worlds button reference.");
                 return;
             }
 
             var disposableBuilder = Disposable.CreateBuilder();
-            returnToModeSelectButton.OnClickAsObservable()
-                .Subscribe(_ => _viewModel.ReturnToModeSelectCommand.Execute(Unit.Default))
-                .AddTo(ref disposableBuilder);
+            if (worldNameText)
+                _viewModel.WorldDisplayName.Subscribe(value => worldNameText.text = value).AddTo(ref disposableBuilder);
+            else
+                DebugUtils.LogError("Shape Level Select requires a World Name text reference.");
+
+            backToWorldsButton.OnClickAsObservable().Subscribe(_ => _viewModel.BackToWorldsCommand.Execute(Unit.Default)).AddTo(ref disposableBuilder);
             _viewModel.ItemInitialized
                 .Subscribe(BuildLevelList)
                 .AddTo(ref disposableBuilder);

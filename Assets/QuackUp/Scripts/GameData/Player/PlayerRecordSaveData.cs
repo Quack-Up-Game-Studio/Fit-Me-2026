@@ -86,11 +86,8 @@ namespace FitMe.GameData
         [Key("CumulativeFitMe")]
         [field: SerializeField] public int cumulativeFitMe;
 
-        [Key("HighestUnlockedShapeOrder")]
-        [field: SerializeField] public int HighestUnlockedShapeOrder { get; private set; } = 1;
-
-        [Key("ShapeLevelHighScores")]
-        [field: SerializeField] public Dictionary<string, int> ShapeLevelHighScores { get; private set; } = new();
+        [Key("ShapeWorldProgress")]
+        [field: SerializeField] public Dictionary<string, ShapeWorldProgressData> ShapeWorldProgress { get; set; } = new();
         
         [IgnoreMember][NonSerialized]
         private int _maxRunDataCount = 3;
@@ -121,31 +118,6 @@ namespace FitMe.GameData
             }
         }
 
-        public bool RecordShapeLevelPass(int completedOrder, string levelId, int score)
-        {
-            if (completedOrder < 1 || completedOrder > HighestUnlockedShapeOrder ||
-                string.IsNullOrWhiteSpace(levelId) || score < 0)
-                return false;
-
-            var changed = false;
-            var nextOrder = completedOrder == int.MaxValue ? int.MaxValue : completedOrder + 1;
-            if (nextOrder > HighestUnlockedShapeOrder)
-            {
-                HighestUnlockedShapeOrder = nextOrder;
-                changed = true;
-            }
-
-            ShapeLevelHighScores ??= new Dictionary<string, int>();
-            if (!ShapeLevelHighScores.TryGetValue(levelId, out var previousScore) || score > previousScore)
-            {
-                ShapeLevelHighScores[levelId] = score;
-                changed = true;
-            }
-
-            return changed;
-        }
-
-        public bool IsShapeLevelUnlocked(int order) => order > 0 && order <= HighestUnlockedShapeOrder;
 
         public bool TryMarkPurchaseRecorded(string transactionId) =>
             TryAddTransaction(RecordedPurchaseTransactionIds, transactionId,
@@ -176,6 +148,26 @@ namespace FitMe.GameData
             transactions.Add(transactionId);
             setTransactions(transactions);
             return true;
+        }
+    }
+
+    [Serializable]
+    [MessagePackObject(AllowPrivate = true)]
+    public partial class ShapeWorldProgressData
+    {
+        [Key("WorldKey")][field: SerializeField] public string WorldKey { get; private set; }
+        [Key("IsUnlocked")][field: SerializeField] public bool IsUnlocked { get; private set; }
+        [Key("CompletedLevelIds")][field: SerializeField] public List<string> CompletedLevelIds { get; private set; } = new();
+        public ShapeWorldProgressData() { }
+        public ShapeWorldProgressData(string worldKey, bool isUnlocked) { WorldKey = worldKey; IsUnlocked = isUnlocked; }
+        public void Unlock() => IsUnlocked = true;
+        public bool RecordLevelPass(string levelId)
+        {
+            if (!IsUnlocked || string.IsNullOrWhiteSpace(levelId)) return false;
+            CompletedLevelIds ??= new List<string>();
+            var changed = !CompletedLevelIds.Contains(levelId);
+            if (changed) CompletedLevelIds.Add(levelId);
+            return changed;
         }
     }
 }

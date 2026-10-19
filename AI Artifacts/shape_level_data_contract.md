@@ -8,6 +8,14 @@ Entry keys must be non-empty and unique using ordinal, case-sensitive comparison
 
 When migrating an existing dictionary-backed catalog, preserve its prior enumeration order when populating the list. The Inspector list is draggable so authors can change progression order directly.
 
+## Shape world progression and service lifetime
+
+`ShapeLevelWorldCatalog` stores the ordered Shape Mode worlds. Its list order defines world progression, and each entry pairs a permanent, non-empty, unique, ordinal/case-sensitive `WorldKey` with a valid `ShapeLevelCatalog`. Keep world keys stable after progress can be saved. Each level catalog's entry order and stable IDs define progression only within that world.
+
+Persist completion and unlocks per world key. The first world starts unlocked; completing every current level ID in a valid world unlocks the next catalog world. A world's first level is available while that world is unlocked; passing a level unlocks only the next level in that same world, and completed levels remain replayable. Adding a level does not relock a world, but that world becomes incomplete until the new level ID is completed. The selected world is transient navigation/session context and is not save data. Shape Mode level scores are not part of this progression save model.
+
+At runtime, `ShapeLevelWorldCatalogService` is the shared catalog lookup/progression service for both gameplay and selection. Register one instance in the root `QuackUp.Core.ProjectLifetimeScope` through `FitMe.Scene.ShapeLevelWorldCatalogInstaller`, with the `ShapeLevelWorldCatalog` asset assigned there. Child scene scopes resolve the service from the project scope. Do not register another catalog service or keep duplicate catalog asset references on scene installers or `LevelManagerConfig`.
+
 ## Authoring model
 
 `ShapeLevelDefinition` stores its ordered player supply as `List<ShapePlayerBlockEntry>`. Each serializable entry has a `BlockPreset` reference and a positive `Count`, so repeated presets can be authored once with a quantity instead of one list element per block. The entry is an inline Unity-serializable class; do not replace it with a tuple, which is not a reliable Inspector-serialized field type.
