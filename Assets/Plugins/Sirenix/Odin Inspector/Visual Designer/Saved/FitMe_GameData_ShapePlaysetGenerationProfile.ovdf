@@ -1,0 +1,108 @@
+OVDF v1.1
+FitMe.GameData.ShapePlaysetGenerationProfile, FitMe.GameData
+MetaGuid:c52d3389a1ae4aed88f975890c6c65e4
+
+# $2xduJBps5Zitauk9ZRRWRn
+Position: $root:0
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Board Construction"
+
+# $45TkW7pKJcf6Mwj1iNzFKm
+Position: $root:2
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Iteration"
+
+# $A7QqV1i8AmZ11pyrFTFF3g
+Position: $root:1
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Block Generation"
+
+# _minBoardColumns
+Position: $2xduJBps5Zitauk9ZRRWRn:0
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Minimum number of columns in the generated board. The generator selects a value between the minimum and maximum, inclusive."
+
+# _maxBoardColumns
+Position: $2xduJBps5Zitauk9ZRRWRn:1
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum number of columns in the generated board. The generator selects a value between the minimum and maximum, inclusive."
+
+# _minBoardRows
+Position: $2xduJBps5Zitauk9ZRRWRn:2
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Minimum number of rows in the generated board. The generator selects a value between the minimum and maximum, inclusive."
+
+# _maxBoardRows
+Position: $2xduJBps5Zitauk9ZRRWRn:3
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum number of rows in the generated board. The generator selects a value between the minimum and maximum, inclusive."
+
+# _minObstacleCells
+Position: $2xduJBps5Zitauk9ZRRWRn:4
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Minimum number of board cells reserved as obstacles. Obstacles are unavailable to player blocks."
+
+# _maxObstacleCells
+Position: $2xduJBps5Zitauk9ZRRWRn:5
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum number of board cells reserved as obstacles. Obstacles are unavailable to player blocks."
+
+# _minVoidCells
+Position: $2xduJBps5Zitauk9ZRRWRn:6
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Minimum number of cells omitted from the board to create voids. Void cells are outside the board and are not playable."
+
+# _maxVoidCells
+Position: $2xduJBps5Zitauk9ZRRWRn:7
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum number of cells omitted from the board to create voids. Void cells are outside the board and are not playable."
+
+# _minPlayableRegionCells
+Position: $2xduJBps5Zitauk9ZRRWRn:8
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "When obstacles split playable cells into multiple connected regions, each region must contain at least this many cells. A single connected region is allowed regardless of its size."
+
+# _maxObstacleRepairNodes
+Position: $45TkW7pKJcf6Mwj1iNzFKm:0
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum search nodes used to repair the obstacle layout so the playable regions remain acceptable. Reaching this limit can make generation fail."
+
+# _maxTilingSearchNodes
+Position: $45TkW7pKJcf6Mwj1iNzFKm:1
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum search nodes used while choosing a preferred-block/fallback tiling during generation. This is separate from the Project Settings solution-analysis budget."
+
+# _maxCandidateAttempts
+Position: $45TkW7pKJcf6Mwj1iNzFKm:2
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum candidate board layouts the generator attempts before reporting that generation failed."
+
+# _minGeneratedBlockColumns
+Position: $A7QqV1i8AmZ11pyrFTFF3g:0
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Minimum width, in cells, of fallback blocks generated when preferred presets do not cover the playable board."
+
+# _maxGeneratedBlockColumns
+Position: $A7QqV1i8AmZ11pyrFTFF3g:1
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum width, in cells, of fallback blocks generated when preferred presets do not cover the playable board."
+
+# _minGeneratedBlockRows
+Position: $A7QqV1i8AmZ11pyrFTFF3g:2
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Minimum height, in cells, of fallback blocks generated when preferred presets do not cover the playable board."
+
+# _maxGeneratedBlockRows
+Position: $A7QqV1i8AmZ11pyrFTFF3g:3
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum height, in cells, of fallback blocks generated when preferred presets do not cover the playable board."
+
+# _maxSingletonFallbackBlocks
+Position: $A7QqV1i8AmZ11pyrFTFF3g:4
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Maximum number of one-cell fallback blocks allowed when generated fallback shapes are used. Zero disallows singleton fallback blocks."
+
+# _preferredPlayerBlocks
+Position: $A7QqV1i8AmZ11pyrFTFF3g:5
++ [Sirenix.OdinInspector.PropertyTooltipAttribute]
+	Tooltip = "Preferred block presets the generator tries to use before creating fallback shapes. Presets may be reused without limit; each entry's Count is ignored. Fallback shapes use the generated block dimension settings."
