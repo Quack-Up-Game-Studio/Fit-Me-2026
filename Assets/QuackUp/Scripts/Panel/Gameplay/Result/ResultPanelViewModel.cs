@@ -31,11 +31,12 @@ namespace FitMe.Panel
     {
         public ReactiveCommand ToMainMenuCommand { get; } = new();
         public ReactiveCommand ToRetryCommand { get; } = new();
-        public ReactiveCommand ToNextShapeLevelCommand { get; } = new();
+        public ReactiveCommand ToNextShapeWorldCommand { get; } = new();
         public ReactiveCommand ToShapeLevelSelectCommand { get; } = new();
         public ReactiveCommand<DisplayResultCommandData> DisplayResultCommand { get; } = new();
         public ReactiveProperty<bool> IsShapeLevelResult { get; } = new(false);
-        public ReactiveProperty<bool> CanGoToNextShapeLevel { get; } = new(false);
+        public ReactiveProperty<bool> ShowNextShapeWorldButton { get; } = new(false);
+        public ReactiveProperty<bool> CanGoToNextShapeWorld { get; } = new(false);
         public Observable<Unit> OnResultVisible => _onResultVisible;
         private readonly Subject<Unit> _onResultVisible = new();
         
@@ -118,6 +119,9 @@ namespace FitMe.Panel
             _adSubscription.Dispose();
             ScoreText?.Dispose();
             FitText?.Dispose();
+            IsShapeLevelResult.Dispose();
+            ShowNextShapeWorldButton.Dispose();
+            CanGoToNextShapeWorld.Dispose();
         }
 
         public void CacheScoreAndFit(int score, int fitMe)
@@ -126,10 +130,14 @@ namespace FitMe.Panel
             _fitMeBeforeSave = fitMe;
         }
 
-        public void ConfigureShapeLevelResult(bool isShapeLevelResult, bool canGoToNextShapeLevel)
+        public void ConfigureShapeLevelResult(
+            bool isShapeLevelResult,
+            bool showNextShapeWorldButton,
+            bool canGoToNextShapeWorld)
         {
             IsShapeLevelResult.Value = isShapeLevelResult;
-            CanGoToNextShapeLevel.Value = isShapeLevelResult && canGoToNextShapeLevel;
+            ShowNextShapeWorldButton.Value = isShapeLevelResult && showNextShapeWorldButton;
+            CanGoToNextShapeWorld.Value = isShapeLevelResult && showNextShapeWorldButton && canGoToNextShapeWorld;
         }
 
         protected override void OnVisible()

@@ -7,6 +7,7 @@ using Redcode.Extensions;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using QuackUp.Utils;
 
@@ -21,7 +22,8 @@ namespace FitMe.Panel
         [SerializeField] private GameObject notEnoughEnergyBlock;
         [SerializeField] private UIButton3D mainMenuButton;
         [SerializeField] private UIButton3D retryButton;
-        [SerializeField] private UIButton3D nextLevelButton;
+        [FormerlySerializedAs("nextLevelButton")]
+        [SerializeField] private UIButton3D nextWorldButton;
         [SerializeField] private UIButton3D returnToLevelSelectButton;
         [SerializeField] private TMP_Text scoreText;
         [SerializeField] private TMP_Text fitText;
@@ -62,9 +64,9 @@ namespace FitMe.Panel
                 .Subscribe(_ => OnRetry())
                 .AddTo(ref disposableBuilder);
             
-            if (nextLevelButton)
-                nextLevelButton.Button.OnClickAsObservable()
-                    .Subscribe(_ => ViewModel.ToNextShapeLevelCommand.Execute(Unit.Default))
+            if (nextWorldButton)
+                nextWorldButton.Button.OnClickAsObservable()
+                    .Subscribe(_ => ViewModel.ToNextShapeWorldCommand.Execute(Unit.Default))
                     .AddTo(ref disposableBuilder);
 
             if (returnToLevelSelectButton)
@@ -76,18 +78,23 @@ namespace FitMe.Panel
                 .Subscribe(isShapeLevel =>
                 {
                     mainMenuButton.gameObject.SetActive(!isShapeLevel);
-                    if (nextLevelButton) nextLevelButton.gameObject.SetActive(isShapeLevel);
                     if (returnToLevelSelectButton) returnToLevelSelectButton.gameObject.SetActive(isShapeLevel);
                 })
                 .AddTo(ref disposableBuilder);
 
-            ViewModel.CanGoToNextShapeLevel
+            ViewModel.ShowNextShapeWorldButton
+                .Subscribe(show =>
+                {
+                    if (nextWorldButton) nextWorldButton.gameObject.SetActive(show);
+                })
+                .AddTo(ref disposableBuilder);
+
+            ViewModel.CanGoToNextShapeWorld
                 .Subscribe(canGoNext =>
                 {
-                    if (!nextLevelButton) return;
-                    nextLevelButton.gameObject.SetActive(ViewModel.IsShapeLevelResult.Value && canGoNext);
-                    nextLevelButton.Button.interactable = canGoNext;
-                    nextLevelButton.ApplyTint(canGoNext ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
+                    if (!nextWorldButton) return;
+                    nextWorldButton.Button.interactable = canGoNext;
+                    nextWorldButton.ApplyTint(canGoNext ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
                 })
                 .AddTo(ref disposableBuilder);
 
@@ -162,10 +169,10 @@ namespace FitMe.Panel
             retryButton.ApplyTint(ButtonSelectionState.Disabled);
             mainMenuButton.Button.interactable = false;
             mainMenuButton.ApplyTint(ButtonSelectionState.Disabled);
-            if (nextLevelButton)
+            if (nextWorldButton)
             {
-                nextLevelButton.Button.interactable = false;
-                nextLevelButton.ApplyTint(ButtonSelectionState.Disabled);
+                nextWorldButton.Button.interactable = false;
+                nextWorldButton.ApplyTint(ButtonSelectionState.Disabled);
             }
             if (returnToLevelSelectButton)
             {
@@ -187,11 +194,11 @@ namespace FitMe.Panel
             OnEnergyUpdated();
             mainMenuButton.Button.interactable = true;
             mainMenuButton.ApplyTint(ButtonSelectionState.Normal);
-            if (nextLevelButton)
+            if (nextWorldButton)
             {
-                var canGoNext = ViewModel.IsShapeLevelResult.Value && ViewModel.CanGoToNextShapeLevel.Value;
-                nextLevelButton.Button.interactable = canGoNext;
-                nextLevelButton.ApplyTint(canGoNext ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
+                var canGoNext = ViewModel.IsShapeLevelResult.Value && ViewModel.CanGoToNextShapeWorld.Value;
+                nextWorldButton.Button.interactable = canGoNext;
+                nextWorldButton.ApplyTint(canGoNext ? ButtonSelectionState.Normal : ButtonSelectionState.Disabled);
             }
             if (returnToLevelSelectButton)
             {

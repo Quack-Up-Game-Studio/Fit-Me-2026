@@ -56,6 +56,7 @@ namespace FitMe.Scene
         private readonly LevelManagerConfig _config;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
+        private readonly IMessageHub _notificationMessageHub;
         private readonly GridManager _gridManager;
         private readonly MessagePackSaveManager _saveManager;
         private readonly PopUpScoreFactory _popUpScoreFactory;
@@ -94,6 +95,7 @@ namespace FitMe.Scene
             ShapeLevelWorldCatalogService shapeLevelCatalogService,
             IAudioManager audioManager,
             [Key(LevelManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
+            [Key(NotificationMessageHub.MessageHubKey)] IMessageHub notificationMessageHub,
             GridManager gridManager,
             MessagePackSaveManager saveManager,
             PopUpScoreFactory popUpScoreFactory,
@@ -109,6 +111,7 @@ namespace FitMe.Scene
             _config = config;
             _audioManager = audioManager;
             _messageHub = messageHub;
+            _notificationMessageHub = notificationMessageHub;
             _gridManager = gridManager;
             _popUpScoreFactory = popUpScoreFactory;
             _saveManager = saveManager;
@@ -236,8 +239,8 @@ namespace FitMe.Scene
             resultPanel.OnResultVisible
                 .Subscribe(_ => OnResult())
                 .AddTo(ref resultSubscriptions);
-            resultPanel.ToNextShapeLevelCommand
-                .Subscribe(_ => OnNextShapeLevel())
+            resultPanel.ToNextShapeWorldCommand
+                .Subscribe(_ => OnNextShapeWorld())
                 .AddTo(ref resultSubscriptions);
             resultPanel.ToShapeLevelSelectCommand
                 .Subscribe(_ => OnReturnToShapeLevelSelect())
@@ -412,16 +415,39 @@ namespace FitMe.Scene
             _fitMeLastLevel = FitMe.Value;
 
             if (IsTutorial) return;
-            if (completedShapeLevel && progressRecorded)
+            if (completedShapeLevel)
             {
-                _shapeLevelPassed = true;
-                _panelManager.Crossfade(null, _config.ResultPanelId, new CrossfadeSettings
+                if (!progressRecorded)
                 {
-                    crossFadeType = CrossfadeType.InOnly,
-                    customOffset = 0f
-                }).Forget();
+                    _shapeLevelPassed = false;
+                    ShowResultPanel();
+                    return;
+                }
+
+                var progress = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+                var currentRequest = LevelSessionRequest.ForShapeLevel(
+                    _shapeWorldKey, _shapeLevelId, _shapeLevelDefinition);
+                PublishShapeLevelCompletionNotification();
+
+                if (_shapeLevelResultService.IsCompletedFinalLevel(currentRequest, progress))
+                {
+                    _shapeLevelPassed = true;
+                    ShowResultPanel();
+                    return;
+                }
+
+                if (_shapeLevelResultService.TryResolve(
+                        ShapeLevelResultAction.NextLevel, currentRequest, wasPassed: true, progress, out var outcome) &&
+                    outcome.SessionRequest.ShapeWorldKey == _shapeWorldKey &&
+                    TryApplyShapeLevelRequest(outcome.SessionRequest))
+                    return;
+
+                DebugUtils.LogError($"Could not resolve the next Shape Level after completing '{_shapeLevelId}'.");
+                _shapeLevelPassed = false;
+                ShowResultPanel();
                 return;
             }
+
             ChangeDifficultyLevel();
             if (_shapeLevelDefinition)
             {
@@ -461,6 +487,59 @@ namespace FitMe.Scene
             ReportStart();
         }
 
+        private bool TryApplyShapeLevelRequest(LevelSessionRequest request)
+        {
+            if (request.GameMode != GameMode.LevelShape || !request.ShapeLevel) return false;
+
+            ShapeLevelRuntimeData shapeRuntimeData;
+            try
+            {
+                shapeRuntimeData = request.CreateShapeRuntimeData();
+            }
+            catch (InvalidOperationException exception)
+            {
+                DebugUtils.LogError(exception.Message);
+                return false;
+            }
+
+            _gameMode = request.GameMode;
+            _shapeWorldKey = request.ShapeWorldKey;
+            _shapeLevelId = request.ShapeLevelId;
+            _shapeLevelDefinition = request.ShapeLevel;
+            _gridPreset = request.GridPreset;
+            _shapeLevelPassed = false;
+            _pendingScenePayload.SetActive(request);
+
+            // BlockManager replaces the authored finite supply before the board is rebuilt.
+            _messageHub.Publish(new SpawnWithShapeLevelEvent(shapeRuntimeData));
+            if (_gridPreset)
+                _messageHub.Publish(new SpawnWithGridPresetEvent(_gridPreset));
+            else
+                _messageHub.Publish(new StartCreateGridEvent());
+
+            _levelNumber++;
+            ReportStart();
+            return true;
+        }
+
+        private void ShowResultPanel()
+        {
+            _panelManager.Crossfade(null, _config.ResultPanelId, new CrossfadeSettings
+            {
+                crossFadeType = CrossfadeType.InOnly,
+                customOffset = 0f
+            }).Forget();
+        }
+
+        private void PublishShapeLevelCompletionNotification()
+        {
+            var levelOrder = _shapeLevelCatalogService.GetLevelOrder(_shapeWorldKey, _shapeLevelId);
+            var levelName = levelOrder > 0 ? $"Level {levelOrder}" : _shapeLevelDefinition.name;
+            _notificationMessageHub.Publish(new NotificationDisplayEvent(
+                NotificationType.General,
+                new GeneralNotificationData { message = $"{levelName} completed!" }));
+        }
+
         private ShapeLevelDefinition GetNextShapeLevel(ShapeLevelDefinition current)
         {
             if (_shapeLevelCatalogService == null || string.IsNullOrWhiteSpace(_shapeLevelId) ||
@@ -485,11 +564,20 @@ namespace FitMe.Scene
             if (saveData == null) return false;
 
             if (!_shapeLevelProgressService.TryRecordPass(
-                    _shapeLevelId, _shapeWorldKey, _shapeLevelDefinition, saveData, out var progressChanged))
+                    _shapeLevelId, _shapeWorldKey, _shapeLevelDefinition, saveData, out _))
                 return false;
 
-            if (progressChanged)
-                _saveManager.Save(_playerRecordSaveObject);
+            try
+            {
+                _saveManager.SaveRequired(_playerRecordSaveObject);
+            }
+            catch (Exception exception)
+            {
+                DebugUtils.LogError($"Shape Level progress could not be saved locally: {exception.Message}");
+                return false;
+            }
+
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
             return true;
         }
 
@@ -601,9 +689,12 @@ namespace FitMe.Scene
             var saveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
             var isShapeLevelResult = _gameMode == GameMode.LevelShape && _shapeLevelDefinition;
-            var canGoToNextShapeLevel = isShapeLevelResult &&
-                TryResolveShapeLevelResult(ShapeLevelResultAction.NextLevel, out _);
-            resultPanel.ConfigureShapeLevelResult(isShapeLevelResult, canGoToNextShapeLevel);
+            var nextWorldAvailability = isShapeLevelResult &&
+                                       _pendingScenePayload.TryGetActive<LevelSessionRequest>(out var activeRequest)
+                ? _shapeLevelResultService.GetNextWorldAvailability(activeRequest, _shapeLevelPassed, saveData)
+                : default;
+            resultPanel.ConfigureShapeLevelResult(
+                isShapeLevelResult, nextWorldAvailability.IsVisible, nextWorldAvailability.IsEnabled);
             resultPanel.CacheScoreAndFit((int)saveData.highScore.score, saveData.highScore.fitMe);
             saveData.AddRunData(new PlayerRecordSaveData.RunData
             {
@@ -612,7 +703,7 @@ namespace FitMe.Scene
                 fitMe = FitMe.Value
             });
             _saveManager.Save(saveObject);
-            _cloudSaveService.SaveToService(SaveToServiceParameters.Default); 
+            _cloudSaveService.SaveToService(SaveToServiceParameters.Default).Forget();
             ReportToLeaderboard().Forget();
             
             /* Analytics */
@@ -621,11 +712,11 @@ namespace FitMe.Scene
             
         }
 
-        private void OnNextShapeLevel()
+        private void OnNextShapeWorld()
         {
-            if (!TryResolveShapeLevelResult(ShapeLevelResultAction.NextLevel, out var outcome))
+            if (!TryResolveShapeLevelResult(ShapeLevelResultAction.NextWorld, out var outcome))
             {
-                DebugUtils.LogError("Cannot advance to the next Shape Level from the current result.");
+                DebugUtils.LogError("Cannot advance to the next Shape World from the current result.");
                 return;
             }
 

@@ -157,6 +157,95 @@ namespace QuackUp.SceneManagement.Tests
         }
 
         [Test]
+        public void NextProgressionAction_AfterFinalLevelPassResolvesNextWorldFirstLevel()
+        {
+            var finalLevel = CreateLevel();
+            var nextWorldFirstLevel = CreateLevel();
+            var worlds = CreateWorldCatalog(
+                (FirstWorldKey, CreateCatalog(("shape-final", finalLevel))),
+                (SecondWorldKey, CreateCatalog(("next-world-first", nextWorldFirstLevel))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-final", finalLevel);
+            var progress = CreateProgress((FirstWorldKey, true), (SecondWorldKey, true));
+            progress.ShapeWorldProgress[FirstWorldKey].RecordLevelPass("shape-final");
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
+
+            var resolved = service.TryResolve(
+                ShapeLevelResultAction.NextWorld, active, wasPassed: true, progress, out var outcome);
+            var nextLevelResolved = service.TryResolve(
+                ShapeLevelResultAction.NextLevel, active, wasPassed: true, progress, out _);
+            var availability = service.GetNextWorldAvailability(active, wasPassed: true, progress);
+
+            Assert.That(availability.IsVisible, Is.True);
+            Assert.That(availability.IsEnabled, Is.True);
+            Assert.That(nextLevelResolved, Is.False,
+                "The Next Level result action must not cross a world boundary; that route is exclusively Next World.");
+            Assert.That(resolved, Is.True,
+                "A passed final level should route the result progression action to the next world's first level.");
+            Assert.That(outcome.SessionRequest.ShapeWorldKey, Is.EqualTo(SecondWorldKey));
+            Assert.That(outcome.SessionRequest.ShapeLevelId, Is.EqualTo("next-world-first"));
+            Assert.That(outcome.SessionRequest.ShapeLevel, Is.SameAs(nextWorldFirstLevel));
+        }
+
+        [Test]
+        public void NextWorldAvailability_IsHiddenForFailedRun()
+        {
+            var finalLevel = CreateLevel();
+            var nextWorldLevel = CreateLevel();
+            var worlds = CreateWorldCatalog(
+                (FirstWorldKey, CreateCatalog(("shape-final", finalLevel))),
+                (SecondWorldKey, CreateCatalog(("next-world-first", nextWorldLevel))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-final", finalLevel);
+            var progress = CreateProgress((FirstWorldKey, true), (SecondWorldKey, true));
+            progress.ShapeWorldProgress[FirstWorldKey].RecordLevelPass("shape-final");
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
+
+            var availability = service.GetNextWorldAvailability(active, wasPassed: false, progress);
+
+            Assert.That(availability.IsVisible, Is.False);
+            Assert.That(availability.IsEnabled, Is.False);
+        }
+
+        [Test]
+        public void NextWorldAvailability_IsHiddenWhenNoFollowingWorldExists()
+        {
+            var finalLevel = CreateLevel();
+            var worlds = CreateWorldCatalog(
+                (FirstWorldKey, CreateCatalog(("shape-final", finalLevel))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-final", finalLevel);
+            var progress = CreateProgress((FirstWorldKey, true));
+            progress.ShapeWorldProgress[FirstWorldKey].RecordLevelPass("shape-final");
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
+
+            var availability = service.GetNextWorldAvailability(active, wasPassed: true, progress);
+
+            Assert.That(availability.IsVisible, Is.False);
+            Assert.That(availability.IsEnabled, Is.False);
+        }
+
+        [Test]
+        public void NextWorldAvailability_IsVisibleButDisabledWhenFollowingWorldIsLocked()
+        {
+            var finalLevel = CreateLevel();
+            var nextWorldLevel = CreateLevel();
+            var worlds = CreateWorldCatalog(
+                (FirstWorldKey, CreateCatalog(("shape-final", finalLevel))),
+                (SecondWorldKey, CreateCatalog(("next-world-first", nextWorldLevel))));
+            var active = LevelSessionRequest.ForShapeLevel(FirstWorldKey, "shape-final", finalLevel);
+            var progress = CreateProgress((FirstWorldKey, true), (SecondWorldKey, false));
+            progress.ShapeWorldProgress[FirstWorldKey].RecordLevelPass("shape-final");
+            var service = new ShapeLevelResultService(new ShapeLevelWorldCatalogService(worlds));
+
+            var availability = service.GetNextWorldAvailability(active, wasPassed: true, progress);
+            var resolved = service.TryResolve(
+                ShapeLevelResultAction.NextWorld, active, wasPassed: true, progress, out var outcome);
+
+            Assert.That(availability.IsVisible, Is.True);
+            Assert.That(availability.IsEnabled, Is.False);
+            Assert.That(resolved, Is.False);
+            Assert.That(outcome.Action, Is.EqualTo(ShapeLevelResultAction.None));
+        }
+
+        [Test]
         public void ReturnToLevelSelect_ProducesSelectionNavigationOutcomeWithoutLosingWorldKey()
         {
             var first = CreateLevel();
