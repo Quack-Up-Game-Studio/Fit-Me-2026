@@ -574,8 +574,9 @@ namespace FitMe.Grid
                 var atom = blockInstance.Model.Atoms[i];
                 cells[i].Model.CurrentAtom.Value = atom;
             }
+            // Atom outlines stay in GenerateAtom's block-local schema, independent of board occupancy.
             blockInstance.Model.BlockCells = cells;
-            RefreshGridOutlines();
+
             var firstCellPosition = cells[0].GameObject.transform.position;
             var firstAtomPosition = blockInstance.Model.Atoms[0].GameObject.transform.position;
             var blockPositionRelativeToAtom = firstCellPosition - firstAtomPosition;
@@ -685,7 +686,7 @@ namespace FitMe.Grid
                 }
                 cell.Model.CurrentAtom.Value = null;
             }
-            RefreshGridOutlines();
+
             gridBlockData.Subscription.Dispose();
         }
 
@@ -763,36 +764,6 @@ namespace FitMe.Grid
             }
             bool Exists(int row, int column) => row >= 0 && row < rows && column >= 0 &&
                 column < columns && _cellArray[row, column] != null;
-        }
-
-        private void RefreshGridOutlines()
-        {
-            if (_cellArray == null) return;
-
-            var rows = _cellArray.GetLength(0);
-            var columns = _cellArray.GetLength(1);
-            for (var x = 0; x < rows; x++)
-            for (var y = 0; y < columns; y++)
-            {
-                var cell = _cellArray[x, y];
-                var atom = cell?.Model.CurrentAtom.Value;
-                if (atom == null || atom.ViewModel == null) continue;
-
-                var settings = new SpriteOutlineSettings
-                {
-                    OutlineTop = !IsOccupied(x - 1, y),
-                    OutlineBottom = !IsOccupied(x + 1, y),
-                    OutlineLeft = !IsOccupied(x, y - 1),
-                    OutlineRight = !IsOccupied(x, y + 1)
-                };
-                atom.ViewModel.SetOutlineCommand.Execute(settings);
-            }
-
-            bool IsOccupied(int x, int y)
-            {
-                if (x < 0 || x >= rows || y < 0 || y >= columns) return false;
-                return _cellArray[x, y]?.Model.CurrentAtom.Value != null;
-            }
         }
 
         /// <summary>

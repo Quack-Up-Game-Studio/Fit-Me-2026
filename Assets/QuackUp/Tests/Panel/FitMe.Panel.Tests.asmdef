@@ -4,6 +4,8 @@
   "references": [
     "FitMe.Panel",
     "FitMe.Shared",
+    "FitMe.Grid",
+    "Unity.ugui",
     "QuackUp.Audio",
     "QuackUp.Utils",
     "R3",

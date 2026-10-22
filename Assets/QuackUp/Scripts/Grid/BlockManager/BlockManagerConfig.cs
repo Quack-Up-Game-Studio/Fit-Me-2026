@@ -12,6 +12,12 @@ namespace FitMe.Grid
     [CreateAssetMenu(fileName = "BlockManagerConfig", menuName = "FitMe/Grid/Block/BlockManagerConfig")]
     public class BlockManagerConfig : SerializedScriptableObject
     {
+        [Title("Shape Tray")]
+        [field: SerializeField] public float TrayTiltMin { get; private set; } = -15f;
+        [field: SerializeField] public float TrayTiltMax { get; private set; } = 15f;
+        [field: SerializeField, Tooltip("Normalized padding inside Tray_Panel artwork, excluding rounded rim and bottom shadow.")]
+        public Vector2 TrayInset { get; private set; } = new(.1f, .15f);
+
         [Title("Random Settings")]
         [field: SerializeField] public int MaxRandomAmount { get; private set; } = 3;
         [field: SerializeField] public int MinRandomAmount { get; private set; } = 1;

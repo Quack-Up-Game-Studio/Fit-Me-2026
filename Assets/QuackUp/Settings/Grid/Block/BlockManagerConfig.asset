@@ -582,6 +582,9 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  <TrayTiltMin>k__BackingField: -15
+  <TrayTiltMax>k__BackingField: 15
+  <TrayInset>k__BackingField: {x: 0.1, y: 0.15}
   <MaxRandomAmount>k__BackingField: 1
   <MinRandomAmount>k__BackingField: 1
   <UseSmartRandom>k__BackingField: 1

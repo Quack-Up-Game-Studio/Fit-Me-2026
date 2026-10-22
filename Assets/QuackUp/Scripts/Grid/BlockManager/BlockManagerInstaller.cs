@@ -30,6 +30,7 @@ namespace FitMe.Grid
         [SerializeField] private BlockManager.SpawnPointData[] previewsPoint;
         [SerializeField] private AtomView atomViewPrefab;
         [SerializeField] private BlockView blockViewPrefab;
+        [SerializeField] private RectTransform shapeTrayPanel;
         
         public override void Install(IContainerBuilder builder)
         {
@@ -50,6 +51,9 @@ namespace FitMe.Grid
             builder.RegisterInstance(previewSpawnPoint).Keyed(BlockManager.PreviewTransformKey);
             builder.RegisterInstance(spawnPoints);
             builder.RegisterInstance(previewsPoint).Keyed(BlockManager.PreviewTransformKey);
+            // Keyed optional parameters still need a binding in VContainer. Legacy
+            // MainMenu/Tutorial scenes deliberately resolve a null tray.
+            builder.Register<RectTransform>(_ => shapeTrayPanel, Lifetime.Scoped).Keyed(BlockManager.ShapeTrayKey);
             builder.RegisterEntryPoint<BlockManager>(Lifetime.Singleton).As<BlockManager>();
             builder.Register<IMessageHub, BlockManagerMessageHub>(Lifetime.Singleton)
                 .Keyed(BlockManagerMessageHub.MessageHubKey);

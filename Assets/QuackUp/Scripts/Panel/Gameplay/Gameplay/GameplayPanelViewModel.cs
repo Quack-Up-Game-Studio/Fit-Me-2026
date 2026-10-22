@@ -1,4 +1,5 @@
 using System;
+using FitMe.Grid;
 using FitMe.Shared;
 using QuackUp.Utils;
 using R3;
@@ -9,16 +10,26 @@ namespace FitMe.Panel
     public class GameplayPanelViewModel : PanelViewModel
     {
         public ReactiveCommand PauseCommand { get; } = new();
+        public ReadOnlyReactiveProperty<GameMode> CurrentGameMode => _currentGameMode;
+        private readonly ReactiveProperty<GameMode> _currentGameMode;
         
         private readonly IGameStateManager _gameStateManager;
         private IDisposable _bindings;
+        private readonly IDisposable _modeBinding;
         
         [Inject]
         public GameplayPanelViewModel(
             PanelManager panelManager,
-            IGameStateManager gameStateManager) : base(panelManager)
+            IGameStateManager gameStateManager,
+            ILevelManager levelManager,
+            [Key(GridManagerMessageHub.GridManagerMessageHubKey)] IMessageHub messageHub) : base(panelManager)
         {
             _gameStateManager = gameStateManager;
+            _currentGameMode = new ReactiveProperty<GameMode>(levelManager.CurrentGameMode);
+            // LevelManager assigns its mode before publishing this session event,
+            // including Classic (null runtime data), retry and seamless Shape levels.
+            _modeBinding = messageHub.Subscribe<SpawnWithShapeLevelEvent>(
+                _ => _currentGameMode.Value = levelManager.CurrentGameMode);
             Bind();
         }
 
@@ -35,6 +46,8 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
+            _modeBinding?.Dispose();
+            _currentGameMode.Dispose();
         }
 
         private void OnPause()

@@ -62,6 +62,7 @@ namespace FitMe.Grid
         public ReactiveCommand<Unit> DestroyCommand { get; private set; } = new();
         
         private readonly BlockModel _model;
+        public ShapeTrayPiece TrayPiece => _model.TrayPiece;
         private IDisposable _bindings;
 
         [Inject]

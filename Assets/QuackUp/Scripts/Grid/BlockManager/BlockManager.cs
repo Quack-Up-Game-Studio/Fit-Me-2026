@@ -151,7 +151,9 @@ namespace FitMe.Grid
         #region Fields
         public const string PreviewTransformKey = "PreviewTransform";
         [ShowInInspector, Sirenix.OdinInspector.ReadOnly]
-        public IReadOnlyList<BlockInstance> BlockOnHand => _spawnPoints
+        public IReadOnlyList<BlockInstance> BlockOnHand => _shapeLevelRuntimeData != null
+            ? _trayBlocks.Where(x => x.GameObject && !x.Model.TrayPiece.IsPlaced).ToList()
+            : _spawnPoints
             .Where(x => !x.IsFree)
             .Select(x => x.CurrentBlock)
             .ToList();
@@ -180,6 +182,10 @@ namespace FitMe.Grid
         private readonly ReadOnlyReactiveProperty<bool> _readOnlyCanSwap;
         private Queue<SpawnBlockData> _spawnBag = new();
         private readonly ShapeBlockSupplyQueue _shapeBlockQueue = new();
+        public const string ShapeTrayKey = "ShapeTray";
+        private readonly RectTransform _trayPanel;
+        private readonly List<BlockInstance> _trayBlocks = new();
+        private bool _traySpawned;
         private readonly Dictionary<int, ShapeBlockSupplyQueue.Item> _activeShapeSupplyBySpawnIndex = new();
         private ShapeLevelRuntimeData _shapeLevelRuntimeData;
         private readonly List<SpawnBlockData> _blockPool = new();
@@ -210,7 +216,8 @@ namespace FitMe.Grid
             SpawnPointData[] spawnPoints,
             BlockFactory blockFactory,
             [Key(PreviewTransformKey)] SpawnPointData[] spawnPreviews,
-            [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub)
+            [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
+            [Key(ShapeTrayKey)] RectTransform trayPanel = null)
         {
             _gridManager = gridManager;
             _config = config;
@@ -219,6 +226,8 @@ namespace FitMe.Grid
             _blockFactory = blockFactory;
             _spawnPreviews = spawnPreviews;
             _messageHub = messageHub;
+            _trayPanel = trayPanel;
+            if (_trayPanel) _trayPanel.gameObject.SetActive(false);
             _readOnlyCanSwap = _canSwap.ToReadOnlyReactiveProperty();
             Subscribe();
         }
@@ -269,6 +278,7 @@ namespace FitMe.Grid
         {
             ResetBlockInSlot();
             _shapeLevelRuntimeData = eventData.RuntimeData;
+            if (_trayPanel) _trayPanel.gameObject.SetActive(_shapeLevelRuntimeData != null);
             _shapeBlockQueue.Reset(CreateShapeBlockSupplyItems(_shapeLevelRuntimeData));
             RefreshSwapAvailability();
         }
@@ -285,7 +295,10 @@ namespace FitMe.Grid
         private void OnFitCheck(FitTypeEvent eventData)
         {
             if (!_gridManager.IsGameplay) return;
-            FreeSpawnPoint(eventData.Block.Model.SpawnIndex);
+            if (eventData.Block.Model.TrayPiece != null)
+                eventData.Block.Model.TrayPiece.MarkPlaced();
+            else
+                FreeSpawnPoint(eventData.Block.Model.SpawnIndex);
             //ResetSpawnPoint();
             if (_shapeLevelRuntimeData != null)
                 SpawnShapeBlocks();
@@ -376,6 +389,11 @@ namespace FitMe.Grid
 
         private void ResetBlockInSlot()
         {
+            foreach (var block in _trayBlocks)
+                if (block.GameObject && !block.Model.TrayPiece.IsPlaced)
+                    block.ViewModel.DestroyCommand.Execute(Unit.Default);
+            _trayBlocks.Clear();
+            _traySpawned = false;
             Debug.LogWarning("BlockManager: Resetting blocks in spawn points and previews.");
             foreach (var spawnPoint in _spawnPoints)
             {
@@ -454,43 +472,55 @@ namespace FitMe.Grid
 
         private void SpawnShapeBlocks()
         {
-            var spawnedBlocks = new List<BlockInstance>();
-            var spawnCount = Math.Min(_config.MaxRandomAmount, _spawnPoints.Length);
-            for (var i = 0; i < spawnCount; i++)
+            if (_traySpawned || _blockFactory == null) return;
+            if (!_trayPanel)
+                throw new InvalidOperationException("Shape Mode requires the Gameplay Tray Panel bounds in BlockManagerInstaller.");
+            _traySpawned = true;
+            var count = _shapeBlockQueue.Count;
+            var corners = new Vector3[4];
+            _trayPanel.GetWorldCorners(corners);
+            var panelBounds = Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
+            var inset = _config.TrayInset;
+            var bounds = new Rect(panelBounds.x + panelBounds.width * inset.x,
+                panelBounds.y + panelBounds.height * inset.y,
+                panelBounds.width * (1f - 2f * inset.x), panelBounds.height * (1f - 2f * inset.y));
+            // Randomized, jittered packing also keeps identical pieces individually hittable.
+            var columns = Mathf.Max(1, Mathf.CeilToInt(Mathf.Sqrt(count * bounds.width / bounds.height)));
+            var rows = Mathf.Max(1, Mathf.CeilToInt((float)count / columns));
+            var cellSize = new Vector2(bounds.width / columns, bounds.height / rows);
+            var cells = Enumerable.Range(0, columns * rows).ToList();
+            for (var k = cells.Count - 1; k > 0; k--)
             {
-                if (!_spawnPoints[i].IsFree || !_shapeBlockQueue.TryTakeNext(out var playerBlock)) continue;
-
-                var spawnPoint = _spawnPoints[i];
-                if (playerBlock.PlayerBlock == null) continue;
-
-                var schema = playerBlock.PlayerBlock.Schema;
-                if (schema == null || schema.GetLength(0) == 0 || schema.GetLength(1) == 0)
-                {
-                    DebugUtils.LogWarning("Shape Mode skipped a player block with an empty schema.");
-                    continue;
-                }
-
-                var block = InstantiateBlock(
-                    spawnPoint.Transform,
-                    playerBlock.Rotation,
-                    BlockShape.OneByOne,
-                    playerBlock.Color,
-                    _config.ObjectScale,
-                    schema,
-                    true,
-                    playerBlock.PlayerBlock.Preset,
-                    _config.ShapeModeBlockConfig);
-                block.Model.SpawnIndex = i;
-                spawnPoint.IsFree = false;
-                spawnPoint.CurrentBlock = block;
-                _activeShapeSupplyBySpawnIndex[i] = playerBlock;
+                var j = Random.Range(0, k + 1);
+                (cells[k], cells[j]) = (cells[j], cells[k]);
+            }
+            var spawnedBlocks = new List<BlockInstance>();
+            for (var i = 0; i < count; i++)
+            {
+                if (!_shapeBlockQueue.TryTakeNext(out var item)) continue;
+                var schema = item.PlayerBlock.Schema;
+                var cell = cells[i];
+                var center = bounds.min + new Vector2((cell % columns + .5f) * cellSize.x, (cell / columns + .5f) * cellSize.y);
+                center += new Vector2(Random.Range(-.07f, .07f) * cellSize.x, Random.Range(-.07f, .07f) * cellSize.y);
+                var diagonal = new Vector2(schema.GetLength(0), schema.GetLength(1)).magnitude;
+                var scale = Mathf.Min(_config.ObjectScale, Mathf.Min(cellSize.x, cellSize.y) * .78f / diagonal);
+                var piece = new ShapeTrayPiece(i, schema, bounds, scale,
+                    Random.Range(Mathf.Min(_config.TrayTiltMin, _config.TrayTiltMax), Mathf.Max(_config.TrayTiltMin, _config.TrayTiltMax)),
+                    item.Rotation, center);
+                piece.DropBounds = panelBounds;
+                var block = InstantiateBlock(_trayPanel, item.Rotation, BlockShape.OneByOne, item.Color,
+                    piece.Scale, schema, true, item.PlayerBlock.Preset, _config.ShapeModeBlockConfig);
+                block.Model.SpawnIndex = -1;
+                block.Model.TrayPiece = piece;
+                block.GameObject.transform.position = piece.Position;
+                block.GameObject.transform.rotation = piece.TrayRotation;
+                block.ViewModel.SetSortingOrderCommand.Execute(i);
+                _trayBlocks.Add(block);
                 spawnedBlocks.Add(block);
             }
-
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
-
-            PreviewShapeQueue();
+            ClearPreviewSlots();
             RefreshSwapAvailability();
         }
 
@@ -549,12 +579,7 @@ namespace FitMe.Grid
         
         public void Swap()
         {
-            if (!AllowSwapping) return;
-            if (_shapeLevelRuntimeData != null)
-            {
-                SwapShapeBlock();
-                return;
-            }
+            if (!AllowSwapping || _shapeLevelRuntimeData != null) return;
             if (_spawnBag.Count == 0) return;
             var blockToSwap = BlockOnHand.FirstOrDefault();
             if (blockToSwap == null) return;
@@ -814,6 +839,12 @@ namespace FitMe.Grid
 
         private void RefreshSwapAvailability()
         {
+            if (_shapeLevelRuntimeData != null)
+            {
+                TrackSwapTargetRotation(null);
+                _canSwap.Value = false;
+                return;
+            }
             var activeBlock = _spawnPoints == null ? null : BlockOnHand.FirstOrDefault();
             TrackSwapTargetRotation(activeBlock);
 

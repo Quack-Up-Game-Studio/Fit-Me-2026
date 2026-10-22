@@ -392,4 +392,4 @@ Having a consistent style is critical for debugging and readability:
 
 ## Shape Mode Level Data
 
-Shape Mode player supply uses ordered Unity-serializable preset/count entries. Keep grouped counts in `ShapeLevelDefinition` authoring data, validate positive counts and exact atom capacity, and expand entries to individual presets at the runtime-data boundary. See [`shape_level_data_contract.md`](shape_level_data_contract.md) for the serialization, validation, migration, and runtime rules.
+Shape Mode player supply uses ordered Unity-serializable preset/count entries. Keep grouped counts in `ShapeLevelDefinition` authoring data, validate positive counts and exact atom capacity, and expand entries to individual presets at the runtime-data boundary. See [`shape_level_data_contract.md`](shape_level_data_contract.md) for the serialization, validation, migration, and runtime rules. The runtime now presents every `PlayerBlockEntries` piece in a Shape-only freeform tray; see [`shape_tray_runtime.md`](shape_tray_runtime.md) for inventory, input, artwork bounds, DI, and verification contracts.

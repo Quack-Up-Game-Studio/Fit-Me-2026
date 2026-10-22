@@ -2,6 +2,8 @@
   "name": "FitMe.Grid.Tests",
   "rootNamespace": "FitMe.Grid.Tests",
   "references": [
+    "Unity.ugui",
+    "VContainer",
     "FitMe.Grid",
     "FitMe.GameData",
     "FitMe.GameData.Editor",

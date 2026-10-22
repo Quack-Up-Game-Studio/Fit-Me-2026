@@ -69,6 +69,7 @@ namespace FitMe.Grid
         public ReactiveProperty<BlockState> BlockState { get; set; } = new(Grid.BlockState.Normal);
         public List<CellInstance> BlockCells { get; set; }
         public int SpawnIndex { get; set; }
+        public ShapeTrayPiece TrayPiece { get; set; }
         public int RotationalIndex { get; set; }
         
         public ReactiveCommand UpdateGridCommand { get; } = new();
