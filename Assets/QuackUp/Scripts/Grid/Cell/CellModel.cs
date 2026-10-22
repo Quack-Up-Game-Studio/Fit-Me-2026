@@ -21,6 +21,8 @@ namespace FitMe.Grid
         public ReactiveProperty<Vector2Int> ArrayIndex { get; set; } = new();
         public ReactiveProperty<Vector2Int> GridIndex { get; set; } = new();
         public ReactiveProperty<CellState> State { get; set; } = new(CellState.None);
+        public ReactiveProperty<bool> HintHighlighted { get; set; } = new(false);
+        public ReactiveProperty<bool> HintFlashVisible { get; set; } = new(false);
 
         [Inject]
         public CellModel()
@@ -33,6 +35,8 @@ namespace FitMe.Grid
             ArrayIndex?.Dispose();
             GridIndex?.Dispose();
             State?.Dispose();
+            HintHighlighted?.Dispose();
+            HintFlashVisible?.Dispose();
         }
     }
 }

@@ -399,6 +399,7 @@ namespace FitMe.Grid
         
         public void DestroyGrid()
         {
+            ClearHintFlash();
             DebugUtils.Log("Destroying grid...");
             ResetPreviousValidationCells();
             foreach (var cell in _cellArray)
@@ -697,6 +698,7 @@ namespace FitMe.Grid
 
         public async UniTask ClearGrid(bool destroyObstacle = true, bool playSound = true)
         {
+            ClearHintFlash();
             _onAboutToClearGrid?.OnNext(Unit.Default);
             if (playSound) _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
             if (destroyObstacle)
@@ -790,6 +792,87 @@ namespace FitMe.Grid
             //Remove contact with this block
             _allContacts.RemoveAll(x => x.Contains(blockInstance));
             _allContacts.Add(contact);
+        }
+
+        public bool TryCreateHintBoardMasks(
+            out int[,] playableMask, out int[,] occupiedMask, out int[,] obstacleMask)
+        {
+            playableMask = null;
+            occupiedMask = null;
+            obstacleMask = null;
+            if (CurrentShapeLevelRuntimeData == null || _cellArray == null || _cellArray.Length == 0)
+                return false;
+
+            var playableMaskSource = GetCurrentPlayableMask();
+            var rows = _cellArray.GetLength(0);
+            var columns = _cellArray.GetLength(1);
+            if (playableMaskSource == null || playableMaskSource.GetLength(0) != rows ||
+                playableMaskSource.GetLength(1) != columns)
+                return false;
+
+            playableMask = (int[,])playableMaskSource.Clone();
+            occupiedMask = new int[rows, columns];
+            obstacleMask = new int[rows, columns];
+            var freeCellCount = 0;
+            for (var row = 0; row < rows; row++)
+            for (var column = 0; column < columns; column++)
+            {
+                var cell = _cellArray[row, column];
+                if (cell == null || cell.Model == null)
+                {
+                    if (playableMask[row, column] == 1) return false;
+                    continue;
+                }
+
+                var atom = cell.Model.CurrentAtom.Value;
+                if (atom == null)
+                {
+                    if (playableMask[row, column] == 1) freeCellCount++;
+                    continue;
+                }
+
+                occupiedMask[row, column] = 1;
+                var block = atom.Model.ParentBlock.Value;
+                if (block == null) return false;
+                if (block.Model.BlockState.CurrentValue == BlockState.Obstacle)
+                    obstacleMask[row, column] = 1;
+            }
+            return freeCellCount > 0;
+        }
+
+        public void SetHintHighlights(IReadOnlyList<TilingCell> cells)
+        {
+            ClearHintFlash();
+            if (cells == null) return;
+            for (var index = 0; index < cells.Count; index++)
+            {
+                var coordinate = cells[index];
+                var cell = GetCellByArrayIndex(coordinate.Row, coordinate.Column);
+                if (cell == null) continue;
+                cell.Model.HintHighlighted.Value = true;
+                cell.Model.HintFlashVisible.Value = true;
+            }
+        }
+
+        public void SetHintFlashVisible(bool visible)
+        {
+            if (_cellArray == null) return;
+            foreach (var cell in _cellArray)
+            {
+                if (cell?.Model.HintHighlighted.Value == true)
+                    cell.Model.HintFlashVisible.Value = visible;
+            }
+        }
+
+        public void ClearHintFlash()
+        {
+            if (_cellArray == null) return;
+            foreach (var cell in _cellArray)
+            {
+                if (cell?.Model == null) continue;
+                cell.Model.HintHighlighted.Value = false;
+                cell.Model.HintFlashVisible.Value = false;
+            }
         }
 
         /// <summary>

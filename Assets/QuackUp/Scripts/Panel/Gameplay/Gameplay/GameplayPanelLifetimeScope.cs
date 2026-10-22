@@ -12,6 +12,7 @@ namespace FitMe.Panel
         {
             base.Configure(builder);
             builder.RegisterComponent(panelView).AsSelf().As<IPanelView>();
+            builder.RegisterEntryPoint<ShapeHintController>(Lifetime.Singleton).AsSelf();
             builder.Register<GameplayPanelViewModel>(Lifetime.Singleton).AsSelf().As<IPanelViewModel>();
         }
 

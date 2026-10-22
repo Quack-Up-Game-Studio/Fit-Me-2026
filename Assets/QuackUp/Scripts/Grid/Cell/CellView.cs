@@ -1,5 +1,6 @@
 using System;
 using QuackUp.Utils;
+using PrimeTween;
 using R3;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -16,6 +17,9 @@ namespace FitMe.Grid
         private CellViewModel _viewModel;
         private CellConfig _config;
         private Color _originalColor;
+        private CellState _currentState = CellState.None;
+        private bool _hintHighlighted;
+        private bool _hintFlashVisible;
         private IDisposable _bindings;
         #endregion
         
@@ -35,6 +39,7 @@ namespace FitMe.Grid
         public void Dispose()
         {
             _bindings?.Dispose();
+            if (spriteRenderer != null) Tween.StopAll(spriteRenderer);
         }
 
         private void OnDestroy()
@@ -50,6 +55,20 @@ namespace FitMe.Grid
                 .AddTo(ref disposableBuilder);
             _viewModel.State
                 .Subscribe(OnCellStateChanged)
+                .AddTo(ref disposableBuilder);
+            _viewModel.HintHighlighted
+                .Subscribe(value =>
+                {
+                    _hintHighlighted = value;
+                    UpdateVisualColor(true);
+                })
+                .AddTo(ref disposableBuilder);
+            _viewModel.HintFlashVisible
+                .Subscribe(value =>
+                {
+                    _hintFlashVisible = value;
+                    UpdateVisualColor(true);
+                })
                 .AddTo(ref disposableBuilder);
             _viewModel.DestroyCommand
                 .Subscribe(_ => Destroy())
@@ -83,37 +102,42 @@ namespace FitMe.Grid
                 //white first
                 if (row % 2 == 0)
                 {
-                    spriteRenderer.color = column % 2 == 0
+                    _originalColor = column % 2 == 0
                         ? _config.WhiteColor
                         : _config.BlackColor;
                 }
                 //black first
                 else
                 {
-                    spriteRenderer.color = column % 2 == 0
+                    _originalColor = column % 2 == 0
                         ? _config.BlackColor
                         : _config.WhiteColor;
                 }
-                _originalColor = spriteRenderer.color;
             }
+            UpdateVisualColor(false);
         }
 
         private void OnCellStateChanged(CellState state)
         {
-            switch (state)
-            {
-                case CellState.None:
-                    spriteRenderer.color = _originalColor;
-                    break;
-                case CellState.CanBePlaced:
-                    spriteRenderer.color = _config.CanBePlacedColor;
-                    break;
-                case CellState.CannotBePlaced:
-                    spriteRenderer.color = _config.CannotBePlacedColor;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
-            }
+            _currentState = state;
+            UpdateVisualColor(true);
+        }
+
+        private void UpdateVisualColor(bool smooth)
+        {
+            var targetColor = CellVisualColorPolicy.Resolve(
+                _originalColor,
+                _currentState,
+                _hintHighlighted,
+                _hintFlashVisible,
+                _config.CanBePlacedColor,
+                _config.CannotBePlacedColor,
+                _config.HintFlashColor);
+            Tween.StopAll(spriteRenderer);
+            if (smooth)
+                Tween.Color(spriteRenderer, targetColor, 0.15f);
+            else
+                spriteRenderer.color = targetColor;
         }
 
         private void Destroy()

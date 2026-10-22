@@ -174,6 +174,34 @@ namespace FitMe.Grid
 
         public ReadOnlyReactiveProperty<bool> CanSwap => _readOnlyCanSwap;
 
+        public bool TryGetShapeHintSupply(out List<int[,]> schemas, out int activeHandCount)
+        {
+            schemas = new List<int[,]>();
+            activeHandCount = 0;
+            if (_shapeLevelRuntimeData == null || _spawnPoints == null) return false;
+
+            for (var spawnIndex = 0; spawnIndex < _spawnPoints.Length; spawnIndex++)
+            {
+                var spawnPoint = _spawnPoints[spawnIndex];
+                if (spawnPoint == null || spawnPoint.IsFree) continue;
+                if (!_activeShapeSupplyBySpawnIndex.TryGetValue(spawnIndex, out var activeSupply) ||
+                    activeSupply.PlayerBlock?.Schema == null)
+                    return false;
+                schemas.Add((int[,])activeSupply.PlayerBlock.Schema.Clone());
+            }
+
+            activeHandCount = schemas.Count;
+            if (activeHandCount == 0) return false;
+
+            foreach (var queuedSupply in _shapeBlockQueue.PeekNext(_shapeBlockQueue.Count))
+            {
+                var schema = queuedSupply.PlayerBlock?.Schema;
+                if (schema == null) return false;
+                schemas.Add((int[,])schema.Clone());
+            }
+            return true;
+        }
+
         public Observable<Unit> OnSwap => _onSwap;
         private readonly Subject<Unit> _onSwap = new();
         private readonly ReactiveProperty<bool> _canSwap = new(false);

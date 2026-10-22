@@ -13,5 +13,6 @@ namespace FitMe.Grid
         [field: SerializeField] public Color BlackColor { get; private set; } = Color.black;
         [field: SerializeField] public Color CanBePlacedColor { get; private set; } = Color.green;
         [field: SerializeField] public Color CannotBePlacedColor { get; private set; } = Color.red;
+        [field: SerializeField] public Color HintFlashColor { get; private set; } = Color.yellow;
     }
 }

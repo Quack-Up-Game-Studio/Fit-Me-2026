@@ -3,6 +3,7 @@
   "rootNamespace": "FitMe.Panel.Tests",
   "references": [
     "FitMe.Panel",
+    "FitMe.Grid",
     "FitMe.Shared",
     "QuackUp.Audio",
     "QuackUp.Utils",

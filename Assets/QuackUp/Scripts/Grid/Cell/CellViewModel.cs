@@ -9,6 +9,8 @@ namespace FitMe.Grid
     {
         public ReadOnlyReactiveProperty<Vector2Int> ArrayIndex { get; private set; }
         public ReadOnlyReactiveProperty<CellState> State { get; private set; }
+        public ReadOnlyReactiveProperty<bool> HintHighlighted { get; private set; }
+        public ReadOnlyReactiveProperty<bool> HintFlashVisible { get; private set; }
         public ReactiveCommand DestroyCommand { get; } = new();
 
         private readonly CellModel _model;
@@ -27,6 +29,12 @@ namespace FitMe.Grid
                 .ToReadOnlyReactiveProperty()
                 .AddTo(ref disposableBuilder);
             State = _model.State
+                .ToReadOnlyReactiveProperty()
+                .AddTo(ref disposableBuilder);
+            HintHighlighted = _model.HintHighlighted
+                .ToReadOnlyReactiveProperty()
+                .AddTo(ref disposableBuilder);
+            HintFlashVisible = _model.HintFlashVisible
                 .ToReadOnlyReactiveProperty()
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();

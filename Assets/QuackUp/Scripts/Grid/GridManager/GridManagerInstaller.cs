@@ -23,6 +23,7 @@ namespace FitMe.Grid
     {
         [SerializeField] private UnityEngine.Grid grid;
         [SerializeField] private GridManagerConfig gridManagerConfig;
+        [SerializeField] private HintSearchConfig hintSearchConfig;
         
         [SerializeField] private CellConfig cellConfig;
         [SerializeField] private CellView cellViewPrefab;
@@ -34,6 +35,7 @@ namespace FitMe.Grid
             //Shared
             builder.RegisterComponent(grid);
             builder.RegisterInstance(gridManagerConfig);
+            if (hintSearchConfig != null) builder.RegisterInstance(hintSearchConfig);
             
             //Cell
             builder.RegisterInstance(cellConfig);

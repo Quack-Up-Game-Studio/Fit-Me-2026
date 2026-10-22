@@ -10,6 +10,7 @@
     "QuackUp.Utils",
     "QuackUp.Audio",
     "QuackUp.Input",
+    "QuackUp.Save",
     "UniTask",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"

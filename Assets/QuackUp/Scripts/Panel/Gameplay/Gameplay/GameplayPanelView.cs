@@ -9,10 +9,13 @@ namespace FitMe.Panel
     public class GameplayPanelView : PanelView
     {
         [SerializeField] private Button pauseButton;
+        [SerializeField] private Button hintButton;
+        [SerializeField] private Button retryButton;
         [SerializeField] private string pausePanelId = "Pause";
 
         private GameplayPanelViewModel ViewModel => (GameplayPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
+        private Color _retryNormalColor;
 
         [Inject]
         public override void Construct(IPanelViewModel viewModel)
@@ -27,6 +30,39 @@ namespace FitMe.Panel
             pauseButton.onClick.AsObservable()
                 .Subscribe(_ => OnPauseButtonClicked())
                 .AddTo(ref disposableBuilder);
+            if (hintButton != null)
+            {
+                hintButton.onClick.AsObservable()
+                    .Subscribe(_ => ViewModel.HintCommand.Execute(Unit.Default))
+                    .AddTo(ref disposableBuilder);
+                ViewModel.IsHintVisible
+                    .Subscribe(isVisible => hintButton.gameObject.SetActive(isVisible))
+                    .AddTo(ref disposableBuilder);
+                ViewModel.CanUseHint
+                    .Subscribe(canUse => hintButton.interactable = canUse)
+                    .AddTo(ref disposableBuilder);
+            }
+            if (retryButton != null)
+            {
+                retryButton.gameObject.SetActive(false);
+                var retryGraphic = retryButton.targetGraphic;
+                _retryNormalColor = retryGraphic != null ? retryGraphic.color : Color.white;
+                retryButton.onClick.AsObservable()
+                    .Subscribe(_ => ViewModel.RetryCommand.Execute(Unit.Default))
+                    .AddTo(ref disposableBuilder);
+                ViewModel.IsRetryVisible
+                    .Subscribe(isVisible => retryButton.gameObject.SetActive(isVisible))
+                    .AddTo(ref disposableBuilder);
+                ViewModel.RetryFlashVisible
+                    .Subscribe(isFlashing =>
+                    {
+                        if (retryGraphic != null)
+                            retryGraphic.color = isFlashing
+                                ? Color.Lerp(_retryNormalColor, Color.yellow, 0.7f)
+                                : _retryNormalColor;
+                    })
+                    .AddTo(ref disposableBuilder);
+            }
             _bindings = disposableBuilder.Build();
         }
 
@@ -34,6 +70,8 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
+            if (retryButton != null && retryButton.targetGraphic != null)
+                retryButton.targetGraphic.color = _retryNormalColor;
         }
 
         private void OnPauseButtonClicked()
