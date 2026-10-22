@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using QuackUp.Utils;
 
@@ -80,6 +81,10 @@ namespace FitMe.Grid
         {
             context.CancellationToken.ThrowIfCancellationRequested();
             if (remaining.Count == 0) return true;
+            // With no queued pieces, only the occupied cells and remaining shape multiset affect feasibility.
+            if (activeHandCount == remaining.Count &&
+                !context.UnorderedSearchStates.Add(CreateUnorderedStateKey(occupied, remaining)))
+                return false;
             if (context.NodesVisited >= context.MaxSearchNodes)
             {
                 context.SearchLimitReached = true;
@@ -137,6 +142,25 @@ namespace FitMe.Grid
                 }
             }
             return false;
+        }
+
+        private static string CreateUnorderedStateKey(bool[,] occupied, IReadOnlyList<Piece> remaining)
+        {
+            var builder = new StringBuilder();
+            builder.Append(occupied.GetLength(0)).Append('x').Append(occupied.GetLength(1)).Append(':');
+            for (var row = 0; row < occupied.GetLength(0); row++)
+            for (var column = 0; column < occupied.GetLength(1); column++)
+                builder.Append(occupied[row, column] ? '1' : '0');
+
+            var shapeKeys = new string[remaining.Count];
+            for (var index = 0; index < remaining.Count; index++)
+                shapeKeys[index] = remaining[index].RotationInvariantKey;
+            Array.Sort(shapeKeys, StringComparer.Ordinal);
+
+            builder.Append('|').Append(shapeKeys.Length).Append(':');
+            for (var index = 0; index < shapeKeys.Length; index++)
+                builder.Append(shapeKeys[index].Length).Append(':').Append(shapeKeys[index]);
+            return builder.ToString();
         }
 
         private static IEnumerable<TilingCell[]> EnumeratePlacements(Context context, bool[,] occupied, Piece piece)
@@ -204,7 +228,7 @@ namespace FitMe.Grid
             if (!HasSameDimensions(playableMask, occupiedMask) ||
                 !HasSameDimensions(playableMask, obstacleMask) ||
                 remainingBlockSchemas == null || activeHandCount < 1 ||
-                activeHandCount > 2 || activeHandCount > remainingBlockSchemas.Count || maxSearchNodes < 1)
+                activeHandCount > remainingBlockSchemas.Count || maxSearchNodes < 1)
                 return false;
 
             var rows = playableMask.GetLength(0);
@@ -345,6 +369,7 @@ namespace FitMe.Grid
             public readonly int MaxSearchNodes;
             public readonly CancellationToken CancellationToken;
             public readonly List<HintSolutionMove> Path = new();
+            public readonly HashSet<string> UnorderedSearchStates = new(StringComparer.Ordinal);
             public HintSolutionMove FirstMove;
             public int NodesVisited;
             public bool SearchLimitReached;

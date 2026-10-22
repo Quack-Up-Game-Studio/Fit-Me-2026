@@ -43,7 +43,8 @@ namespace FitMe.Panel.Tests
         {
             var gridHub = new RecordingHub();
             var blockHub = new RecordingHub();
-            using var viewModel = new GameplayPanelViewModel(null, null, null, gridHub, blockHub);
+            var levelManager = new LevelManagerMock(GameState.PlaceBlock);
+            using var viewModel = new GameplayPanelViewModel(null, levelManager, levelManager, null, gridHub, blockHub);
 
             viewModel.RetryCommand.Execute(Unit.Default);
 
@@ -62,8 +63,7 @@ namespace FitMe.Panel.Tests
 
             public void Publish<TMessage>(TMessage message) => Published.Add(message);
 
-            public IDisposable Subscribe<TMessage>(Action<TMessage> action) =>
-                throw new NotSupportedException("This fixture only records published messages.");
+            public IDisposable Subscribe<TMessage>(Action<TMessage> action) => Disposable.Create(() => { });
 
             public Observable<TMessage> GetObservable<TMessage>() =>
                 throw new NotSupportedException("This fixture only records published messages.");

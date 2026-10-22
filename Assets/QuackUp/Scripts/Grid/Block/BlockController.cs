@@ -110,6 +110,7 @@ namespace FitMe.Grid
         #region Interactions
         private void OnPointerDown(PointerEventData eventData)
         {
+            if (_blockInstance.Model.TrayPiece?.IsPlaced == true) return;
             if (_dragWhileRotating) return;
             if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock ||
                 _gameStateManager.IsPaused.CurrentValue) return;
@@ -157,6 +158,8 @@ namespace FitMe.Grid
             
             _audioManager.PlayAudioOneShot(_blockInstance.Model.BlockPreset.PickupSfx, _blockInstance.GameObject.transform.position);
             _blockInstance.ViewModel.SetSortingLayerCommand.Execute(_config.PickUpSortingLayer);
+            if (_blockInstance.Model.TrayPiece != null)
+                _blockInstance.ViewModel.SetSortingOrderCommand.Execute(30000);
             _dragSequencePlayed = false;
             _blockDragTimeStamp = TimeSpan.FromSeconds(Time.timeSinceLevelLoad);
 
@@ -190,6 +193,7 @@ namespace FitMe.Grid
 
         private void OnBeginDrag(PointerEventData eventData)
         {
+            if (_blockInstance.Model.TrayPiece?.IsPlaced == true) return;
             if (!AllowDrag) return;
             if (_dragWhileRotating) return;
             if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock ||
@@ -213,6 +217,7 @@ namespace FitMe.Grid
 
         private void OnDrag(PointerEventData eventData)
         {
+            if (_blockInstance.Model.TrayPiece?.IsPlaced == true) return;
             if (!AllowDrag) return;
             if (_dragWhileRotating) return;
             if (_gameStateManager.GameState.CurrentValue is not GameState.PlaceBlock ||
@@ -303,6 +308,8 @@ namespace FitMe.Grid
         private void UpdateDragOffset(PointerEventData eventData)
         {
             _dragOffset = Vector2.zero;
+            if (_blockInstance.Model.TrayPiece != null &&
+                _blockInstance.Model.TrayPiece.DropBounds.Contains(_pointerHandler.MouseWorldPosition)) return;
             if (_config.UseDynamicDragOffset)
             {
                 var normalizedY = Mathf.Clamp01(eventData.position.y / Mathf.Max(1f, Screen.height));
@@ -341,16 +348,21 @@ namespace FitMe.Grid
                 return;
             }
             _blockDragSequence.Stop();
-            var placed = _gridManager.TryPlaceBlock(_blockInstance);
+            var trayPiece = _blockInstance.Model.TrayPiece;
+            var inTray = trayPiece != null && trayPiece.DropBounds.Contains(_pointerHandler.MouseWorldPosition);
+            if (inTray)
+                trayPiece.DropInTray(_pointerHandler.MouseWorldPosition - _mousePositionDifference);
+            var placed = !inTray && _gridManager.TryPlaceBlock(_blockInstance);
             if (placed)
             {
+                trayPiece?.MarkPlaced();
                 //_model.BlockInteractionState.Value = BlockInteractionState.PlacedOnGrid;
                 _blockInstance.ViewModel.SetSortingLayerCommand.Execute(_config.GridSortingLayer);
                 _audioManager.PlayAudioOneShot(_config.PlaceSucceedSfx, Vector3.zero);
             }
             else
             {
-                _audioManager.PlayAudioOneShot(_config.PlaceFailSfx, Vector3.zero);
+                if (!inTray) _audioManager.PlayAudioOneShot(_config.PlaceFailSfx, Vector3.zero);
                 _blockInstance.ViewModel.BlockInteractionState.Value = BlockInteractionState.PlacedOnSpawn;
             }
             _mousePositionDifference = Vector3.zero;
@@ -380,6 +392,13 @@ namespace FitMe.Grid
                 var rotateClockwise = _config.RotateClockwise ? -1f : 1f;
                 var rotation = Quaternion.Euler(0f, 0f,
                     _blockInstance.GameObject.transform.rotation.eulerAngles.z + rotateClockwise * 90f);
+                var trayPiece = _blockInstance.Model.TrayPiece;
+                if (trayPiece != null)
+                {
+                    trayPiece.Rotate(rotateClockwise * 90f);
+                    rotation = _blockInstance.ViewModel.BlockInteractionState.Value == BlockInteractionState.PickUp
+                        ? trayPiece.GameplayRotation : trayPiece.TrayRotation;
+                }
                 SetRotationState(true);
                 var promise = new Promise<Unit>();
                 try

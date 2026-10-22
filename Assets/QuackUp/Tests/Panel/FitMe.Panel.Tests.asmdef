@@ -5,6 +5,7 @@
     "FitMe.Panel",
     "FitMe.Grid",
     "FitMe.Shared",
+    "Unity.ugui",
     "QuackUp.Audio",
     "QuackUp.Utils",
     "R3",

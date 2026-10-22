@@ -27,6 +27,7 @@ namespace QuackUp.SceneManagement.Tests
             try
             {
                 Observe(fade.TransitionIn(old.Token), () => completed = true, e => error = e).Forget();
+                yield return null; // Let PrimeTween register the sequence before forcing completion in a full-suite run.
                 SequenceOf(fade, "_transitionSequence").Complete();
                 for (var i = 0; i < 10 && !completed; i++) yield return null;
                 Assert.That(completed, Is.True, error?.ToString());

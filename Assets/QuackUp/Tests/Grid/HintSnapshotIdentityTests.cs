@@ -59,5 +59,29 @@ namespace FitMe.Grid.Tests
             Assert.That(changedObstacles, Is.Not.EqualTo(original));
             Assert.That(changedQueue, Is.Not.EqualTo(original));
         }
+
+        [Test]
+        public void TryCreate_TreatsFullTrayInventoryAsUnorderedAndAllowsMoreThanTwoPieces()
+        {
+            var playable = new[,] { { 1, 1, 1 } };
+            var occupied = new[,] { { 0, 0, 0 } };
+            var obstacles = new[,] { { 0, 0, 0 } };
+            var supply = new[]
+            {
+                new[,] { { 1, 1 } },
+                new[,] { { 1 } },
+                new[,] { { 1 } }
+            };
+            var reorderedSupply = new[]
+            {
+                new[,] { { 1 } },
+                new[,] { { 1, 1 } },
+                new[,] { { 1 } }
+            };
+
+            Assert.That(HintSnapshotIdentity.TryCreate(playable, occupied, obstacles, supply, 3, out var original), Is.True);
+            Assert.That(HintSnapshotIdentity.TryCreate(playable, occupied, obstacles, reorderedSupply, 3, out var reordered), Is.True);
+            Assert.That(reordered, Is.EqualTo(original));
+        }
     }
 }

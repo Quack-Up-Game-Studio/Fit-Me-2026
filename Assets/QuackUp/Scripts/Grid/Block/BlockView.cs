@@ -226,6 +226,8 @@ namespace FitMe.Grid
             DebugUtils.Log("Block picked up");
             Tween.StopAll(transform);
             transform.SetParent(null);
+            if (_viewModel.TrayPiece != null)
+                transform.rotation = _viewModel.TrayPiece.GameplayRotation;
             var gridSize = new Vector3(_gridConfig.CellSize.x, _gridConfig.CellSize.y, _originalScale.z);
             if (_blockManagerConfig.UseBlockScaleTween)
             {
@@ -317,6 +319,20 @@ namespace FitMe.Grid
         private void ReturnToSpawn()
         {
             Tween.StopAll(transform);
+            var trayPiece = _viewModel.TrayPiece;
+            if (trayPiece != null)
+            {
+                trayPiece.DropInTray(trayPiece.Position);
+                transform.SetParent(_originalParent, true);
+                transform.position = trayPiece.Position;
+                transform.rotation = trayPiece.TrayRotation;
+                _originalScale = new Vector3(trayPiece.Scale, trayPiece.Scale, 1f);
+                transform.localScale = _originalScale;
+                Place(_originalScale);
+                _viewModel.SetSortingLayerCommand.Execute(_blockManagerConfig.SpawnSortingLayer);
+                _viewModel.SetSortingOrderCommand.Execute(trayPiece.PieceId);
+                return;
+            }
             var returnTarget = _viewModel.SpawnReturnTarget.CurrentValue;
             var returnParent = returnTarget ? returnTarget : _originalParent;
             var returnPosition = returnTarget ? returnTarget.position : _originalPosition;
@@ -357,6 +373,14 @@ namespace FitMe.Grid
             }
             finally
             {
+                if (_viewModel.TrayPiece != null && _viewModel.BlockInteractionState.Value == BlockInteractionState.PlacedOnSpawn)
+                {
+                    var piece = _viewModel.TrayPiece;
+                    piece.DropInTray(piece.Position);
+                    transform.position = piece.Position;
+                    transform.rotation = piece.TrayRotation;
+                    transform.localScale = new Vector3(piece.Scale, piece.Scale, 1f);
+                }
                 data.Promise.TrySetResult(Unit.Default);
             }
         }

@@ -120,8 +120,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ded59fcc37b1c1a1a5df3b234e0d0a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.SpriteOutlineController
-  outlineColor: {r: 0, g: 0, b: 0, a: 1}
-  outlineWidth: 0.05
+  outlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 0.1
   outlineSettings:
     OutlineTop: 1
     OutlineBottom: 1

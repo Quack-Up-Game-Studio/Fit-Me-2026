@@ -1,0 +1,31 @@
+# Shape Mode freeform tray runtime
+
+## Supply and ownership
+
+- `ShapeLevelDefinition.ToRuntimeData()` expands authored counts into `PlayerBlockEntries`, including inline footprints. `BlockManager` consumes that complete initial buffer once after grid cells are created. It does not use the preset-only compatibility `PlayerBlocks` projection.
+- Every entry is constructed through the existing `BlockFactory`, `BlockController`, `BlockModel`, and `BlockViewModel` path. `_trayBlocks` is the current run's inventory; `BlockOnHand` projects its live, unplaced pieces for availability/game-over checks. Shape Mode has no preview or swap and never refills a hand slot.
+- `ShapeTrayPiece.PieceId` identifies an authored runtime entry for the run; tray blocks have `SpawnIndex = -1`. `IsPlaced` is permanent. A successful grid drop retains existing occupancy/placement behavior and cannot be picked up, regardless of the legacy pickup configuration.
+- Retry/new shape-level events discard old tray inventory and rebuild the authored supply. Successful placement never changes the remaining pieces' positions or presentation sizes.
+
+## Presentation and input
+
+- `Gameplay.unity` serializes the actual `ShapeTrayPanel.prefab` RectTransform into `BlockManagerInstaller.shapeTrayPanel`. The reusable prefab uses the supplied `Tray_Panel.png` sprite, preserving its 909:541 aspect ratio. Prefab defaults are world `(0, -3.25)`, width `4.6`, and height approximately `2.738`; the Gameplay instance may override these values. Runtime packing and clamping use the instance's actual world bounds and configured inset, not those prefab defaults.
+- `BlockManagerConfig` exposes `TrayTiltMin = -15`, `TrayTiltMax = 15`, and normalized symmetric `TrayInset = (0.1, 0.15)`. Insets exclude the orange rounded frame, blue bottom shadow, and rounded corner cutouts; they define a conservative rectangular playable interior.
+- Initial quarter-turn gameplay rotation and uniform visual tilt are independent. Layout shuffles and jitters packing cells, scaling each presentation conservatively by its schema diagonal. All counts are packed without overlap (a stronger guarantee than the permitted overlap at seven or more pieces), so repeated identical shapes always have visible, hittable portions. There is no post-placement re-layout.
+- Pickup removes only the visual tilt, uses existing grid-size presentation, and raises sorting order. Quarter-turn gameplay rotation persists independently of visual tilt, including repeated tap rotation.
+- Dropping the pointer inside the full panel (including artwork padding) stores the new piece center, clamped into the inset playable interior using complete rotated presentation bounds. `DropBounds` is the full drop target and `TrayBounds` is the smaller usable interior. Tray return restores that piece's saved tilt, tray scale, sorting, and latest location. Invalid grid/outside drops restore the latest tray location without altering occupancy. Valid grid drops use the existing grid validator and commit path.
+- The tray GameObject is hidden outside Shape Mode. `BlockManagerInstaller` always provides the keyed tray binding through a factory; legacy scenes resolve null. VContainer does not fall back to a constructor's default value when a keyed registration is absent.
+
+## Legacy Gameplay UI visibility
+
+- In `Gameplay.unity`, select `OverlayCanvas/GameplayPanel` → `GameplayPanelView` → **Shape Mode / Hide In Shape Mode**. This Unity-serialized GameObject array is editable in the Inspector and hides only its configured objects, not their siblings or the whole `Back` group.
+- The saved scene assigns exactly `Back/NextQueue`, `Back/Hands`, `Back/Swap Icon`, `Back/Next Queue` (the separate label with a space), and `SwapButton` (a direct child of `GameplayPanel`). `Fit BG`, both Score objects, `BG`, and `Banner` are not targets.
+- `GameplayPanelViewModel.CurrentGameMode` is an R3 read-only state seeded from `ILevelManager.CurrentGameMode` and refreshed on the existing keyed `GridManagerMessageHub` session-spawn event. LevelManager assigns its authoritative mode before publishing, including Classic/null runtime data, retry, and seamless Shape sessions. The View binds that state and owns only visibility presentation; subscriptions are disposed with their owners.
+- Entering Shape Mode snapshots each unique non-null target's `activeSelf` before hiding it. Repeated notifications never overwrite that snapshot. Leaving Shape Mode restores those states rather than blindly enabling previously inactive objects; null, empty, duplicate, and destroyed target references are safe. Unlisted UI is untouched.
+- `Tests/Panel/GameplayShapeVisibilityTests.cs` exercises initial/live MVVM binding, repeated transitions, authored inactive targets, null/empty/duplicate entries, subscription disposal, and actual saved-scene identities and hide/restore behavior. Run `FitMe.Panel.Tests` alongside tray tests; scene loading acknowledges only the same known stale reference errors as the existing tray fixture, never unrelated new errors.
+
+## Verification
+
+`ShapeTrayTests.cs` covers Inspector-configurable tilt defaults and persistent identity/rotation/clamping. The partial `GridManagerLifecycleTests` in `ShapeTrayIntegrationTests.cs` exercises real block/atom prefabs and factories, all-piece spawning for counts 1/6/7/20, live colliders, placement locks, valid/invalid/tray drops, repeated gameplay rotation, game-over availability beyond hand capacity, mode visibility, DI with and without a tray, and saved Gameplay scene/artwork/config wiring. Its GPU render writes `../shape-tray-six-pieces.png` relative to the test project; spawn presentation is frozen at target scale for deterministic EditMode rendering.
+
+Run Unity EditMode tests with `-batchmode -runTests -testPlatform EditMode -assemblyNames FitMe.Grid.Tests -testResults <absolute.xml>` and omit `-quit`. Use a separate project and independent Library when the user's editor holds the live project lock. Check XML counts and failures, not only process exit codes. Compare unrelated failures against an actual baseline run rather than changing unrelated artwork/config to make the suite green.

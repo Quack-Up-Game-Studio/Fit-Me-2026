@@ -14,7 +14,7 @@ using Object = UnityEngine.Object;
 
 namespace FitMe.Grid.Tests
 {
-    public class GridManagerLifecycleTests
+    public partial class GridManagerLifecycleTests
     {
         private readonly List<Object> _objects = new();
         private GridManager _manager;
@@ -970,7 +970,7 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void BlockManager_ShapeModeSwapUsesNextBlockAndRequeuesDisplacedBlockAtFront()
+        public void BlockManager_ShapeModeDisablesSwapEvenIfLegacyHandAndPreviewArePopulated()
         {
             SetUpOneCellPlacement();
             var activePreset = SetBlockPreset(new[,] { { 1 } }).BlockPreset;
@@ -1023,28 +1023,23 @@ namespace FitMe.Grid.Tests
             previewPoint.CurrentBlock = nextBlock;
             previewPoint.IsFree = false;
             RefreshBlockManagerSwapAvailability(blockManager);
-            Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.False);
 
             blockManager.Swap();
 
-            Assert.That(handPoint.CurrentBlock, Is.SameAs(nextBlock));
-            Assert.That(previewPoint.CurrentBlock, Is.SameAs(handBlock));
-            Assert.That(nextBlock.GameObject.transform.parent, Is.SameAs(handTransform));
-            Assert.That(handBlock.GameObject.transform.parent, Is.SameAs(previewTransform));
-            Assert.That(nextBlock.ViewModel.SpawnReturnTarget.Value, Is.SameAs(handTransform),
-                "a swapped-in block must return to its new hand slot after a rejected placement");
-            Assert.That(handBlock.ViewModel.SpawnReturnTarget.Value, Is.SameAs(previewTransform),
-                "the displaced block must return to its new preview slot");
+            Assert.That(handPoint.CurrentBlock, Is.SameAs(handBlock));
+            Assert.That(previewPoint.CurrentBlock, Is.SameAs(nextBlock));
+            Assert.That(nextBlock.GameObject.transform.parent, Is.SameAs(previewTransform));
+            Assert.That(handBlock.GameObject.transform.parent, Is.SameAs(handTransform));
             Assert.That(queue.Count, Is.EqualTo(2));
             var remainingSupply = queue.PeekNext(2);
-            Assert.That(remainingSupply[0].PlayerBlock.Preset, Is.Null);
-            Assert.That(remainingSupply[0].PlayerBlock.Schema, Is.EqualTo(activeSchema));
+            Assert.That(remainingSupply[0].PlayerBlock.Preset, Is.SameAs(nextPreset));
             Assert.That(remainingSupply[1].PlayerBlock.Preset, Is.SameAs(remainingPreset));
-            Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.False);
         }
 
         [Test]
-        public void BlockManager_ShapeModeSwapTargetsFirstOccupiedSlotWhenMultipleAreActive()
+        public void BlockManager_ShapeModeSwapStaysDisabledAcrossRotationStateChanges()
         {
             SetUpOneCellPlacement();
             var presets = new[]
@@ -1102,24 +1097,24 @@ namespace FitMe.Grid.Tests
             previewPoint.CurrentBlock = previewBlock;
             previewPoint.IsFree = false;
             RefreshBlockManagerSwapAvailability(blockManager);
-            Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.False);
             var setRotationState = typeof(BlockController).GetMethod("SetRotationState",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(setRotationState, Is.Not.Null);
             setRotationState.Invoke(firstActiveBlock.Controller, new object[] { true });
             Assert.That(blockManager.CanSwap.CurrentValue, Is.False);
             setRotationState.Invoke(firstActiveBlock.Controller, new object[] { false });
-            Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.False);
 
             blockManager.Swap();
 
-            Assert.That(firstHandPoint.CurrentBlock, Is.SameAs(previewBlock));
+            Assert.That(firstHandPoint.CurrentBlock, Is.SameAs(firstActiveBlock));
             Assert.That(secondHandPoint.CurrentBlock, Is.SameAs(secondActiveBlock));
-            Assert.That(previewPoint.CurrentBlock, Is.SameAs(firstActiveBlock));
-            Assert.That(activeSupplies[0].PlayerBlock.Preset, Is.SameAs(presets[2]));
+            Assert.That(previewPoint.CurrentBlock, Is.SameAs(previewBlock));
+            Assert.That(activeSupplies[0].PlayerBlock.Preset, Is.SameAs(presets[0]));
             Assert.That(activeSupplies[1].PlayerBlock.Preset, Is.SameAs(presets[1]));
             Assert.That(queue.Count, Is.EqualTo(2));
-            Assert.That(queue.PeekNext(2)[0].PlayerBlock.Preset, Is.SameAs(presets[0]));
+            Assert.That(queue.PeekNext(2)[0].PlayerBlock.Preset, Is.SameAs(presets[2]));
             Assert.That(queue.PeekNext(2)[1].PlayerBlock.Preset, Is.SameAs(presets[3]));
         }
 

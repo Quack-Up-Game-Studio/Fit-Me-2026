@@ -462,6 +462,7 @@ namespace FitMe.Grid
                 cell.Model.GridIndex.Value = GridUtils.ArrayToGridIndex(new Vector2Int(x, y), CurrentOffset);
                 _cellArray[x, y] = cell;
             }
+            RefreshCellOutlines();
             _onCellsCreated.OnNext(Unit.Default);
         }
 
@@ -569,14 +570,18 @@ namespace FitMe.Grid
             {
                 return false;
             }
+            for (var i = 0; i < blockInstance.Model.Atoms.Count; i++) 
+            {
+                var atom = blockInstance.Model.Atoms[i];
+                cells[i].Model.CurrentAtom.Value = atom;
+            }
+            // Atom outlines stay in GenerateAtom's block-local schema, independent of board occupancy.
+            blockInstance.Model.BlockCells = cells;
 
-            for (var i = 0; i < blockInstance.Model.Atoms.Count; i++)
-                cells[i].Model.CurrentAtom.Value = blockInstance.Model.Atoms[i];
             var firstCellPosition = cells[0].GameObject.transform.position;
             var firstAtomPosition = blockInstance.Model.Atoms[0].GameObject.transform.position;
             var blockPositionRelativeToAtom = firstCellPosition - firstAtomPosition;
             blockViewTransform.position += blockPositionRelativeToAtom;
-            blockInstance.Model.BlockCells = cells;
             var subscription = blockInstance.Model.UpdateGridCommand
                 .Subscribe(_ => UpdateBlockOnGrid(blockInstance));
             _blockOnGrid.Add(new(blockInstance, subscription));
@@ -682,6 +687,7 @@ namespace FitMe.Grid
                 }
                 cell.Model.CurrentAtom.Value = null;
             }
+
             gridBlockData.Subscription.Dispose();
         }
 
@@ -735,6 +741,33 @@ namespace FitMe.Grid
             _previousValidationCells.Clear();
         }
         
+        // Board silhouette follows existing floor cells, never CurrentAtom occupancy.
+        // Row increases downward. These flags are distinct from placed/preview atom outlines.
+        private void RefreshCellOutlines()
+        {
+            if (_cellArray == null) return;
+            var rows = _cellArray.GetLength(0);
+            var columns = _cellArray.GetLength(1);
+            for (var row = 0; row < rows; row++)
+            for (var column = 0; column < columns; column++)
+            {
+                var cell = _cellArray[row, column];
+                if (cell == null) continue;
+                cell.Model.BaseOutlineDiagonals.Value = new Vector4(
+                    Exists(row - 1, column - 1) ? 1 : 0,
+                    Exists(row - 1, column + 1) ? 1 : 0,
+                    Exists(row + 1, column - 1) ? 1 : 0,
+                    Exists(row + 1, column + 1) ? 1 : 0);
+                cell.Model.BaseOutlineEdges.Value = new Vector4(
+                    Exists(row, column - 1) ? 0 : 1,
+                    Exists(row, column + 1) ? 0 : 1,
+                    Exists(row - 1, column) ? 0 : 1,
+                    Exists(row + 1, column) ? 0 : 1);
+            }
+            bool Exists(int row, int column) => row >= 0 && row < rows && column >= 0 &&
+                column < columns && _cellArray[row, column] != null;
+        }
+
         /// <summary>
         /// Reorder the rendering order of the blocks on the grid
         /// </summary>

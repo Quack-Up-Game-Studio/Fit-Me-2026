@@ -7,6 +7,8 @@ namespace FitMe.Grid
 {
     public class CellViewModel : IDisposable
     {
+        public ReadOnlyReactiveProperty<Vector4> BaseOutlineDiagonals => _model.BaseOutlineDiagonals;
+        public ReadOnlyReactiveProperty<Vector4> BaseOutlineEdges => _model.BaseOutlineEdges;
         public ReadOnlyReactiveProperty<Vector2Int> ArrayIndex { get; private set; }
         public ReadOnlyReactiveProperty<CellState> State { get; private set; }
         public ReadOnlyReactiveProperty<bool> HintHighlighted { get; private set; }

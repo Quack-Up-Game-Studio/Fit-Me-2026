@@ -13,19 +13,25 @@ namespace FitMe.GameAnalytics
         public void SubscribeAdMobImpressions(string unitId, BannerView banner)
         {
             if (banner == null) throw new ArgumentNullException(nameof(banner));
+#if gameanalytics_admob_enabled
             GameAnalyticsILRD.SubscribeAdMobImpressions(unitId, banner);
+#endif
         }
 
         public void SubscribeAdMobImpressions(string unitId, InterstitialAd interstitial)
         {
             if (interstitial == null) throw new ArgumentNullException(nameof(interstitial));
+#if gameanalytics_admob_enabled
             GameAnalyticsILRD.SubscribeAdMobImpressions(unitId, interstitial);
+#endif
         }
 
         public void SubscribeAdMobImpressions(string unitId, RewardedAd rewarded)
         {
             if (rewarded == null) throw new ArgumentNullException(nameof(rewarded));
+#if gameanalytics_admob_enabled
             GameAnalyticsILRD.SubscribeAdMobImpressions(unitId, rewarded);
+#endif
         }
     }
 }

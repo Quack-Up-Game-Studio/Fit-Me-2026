@@ -58,6 +58,59 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void FindFirstMove_FindsTheSixByEightSupplyWhenAllTrayPiecesAreSelectable()
+        {
+            var result = HintSolutionFinder.FindFirstMove(
+                playableMask: new[,]
+                {
+                    { 1, 1, 1, 1, 1, 1, 1, 1 },
+                    { 1, 1, 1, 1, 1, 1, 1, 1 },
+                    { 0, 1, 1, 1, 1, 1, 1, 1 },
+                    { 1, 1, 1, 1, 1, 1, 1, 1 },
+                    { 1, 1, 1, 1, 1, 1, 1, 0 },
+                    { 1, 1, 1, 1, 1, 1, 1, 1 }
+                },
+                occupiedMask: new[,]
+                {
+                    { 0, 1, 0, 0, 1, 0, 0, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 1, 0, 0, 0 },
+                    { 0, 0, 0, 0, 0, 1, 0, 0 }
+                },
+                obstacleMask: new[,]
+                {
+                    { 0, 1, 0, 0, 1, 0, 0, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 1, 0, 0, 0 },
+                    { 0, 0, 0, 0, 0, 1, 0, 0 }
+                },
+                remainingBlockSchemas: new[]
+                {
+                    new[,] { { 1, 0 }, { 1, 1 }, { 0, 1 } },
+                    new[,] { { 1, 1 }, { 1, 1 } },
+                    new[,] { { 1, 1 }, { 1, 1 } },
+                    new[,] { { 0, 1, 0 }, { 1, 1, 1 } },
+                    new[,] { { 1, 1 }, { 1, 1 } },
+                    new[,] { { 1, 1 }, { 0, 1 }, { 0, 1 } },
+                    new[,] { { 1, 1 }, { 0, 1 }, { 0, 1 } },
+                    new[,] { { 1, 1 }, { 1, 0 }, { 1, 0 } },
+                    new[,] { { 0, 1 }, { 1, 1 }, { 1, 0 } },
+                    new[,] { { 0, 1 }, { 1, 1 }, { 1, 0 } }
+                },
+                activeHandCount: 10,
+                maxSearchNodes: 1_000_000);
+
+            Assert.That(result.Status, Is.EqualTo(HintSolutionStatus.Feasible));
+            Assert.That(result.FirstMove, Is.Not.Null);
+            Assert.That(result.FirstMove.RequiresSwap, Is.False);
+            Assert.That(result.NodesVisited, Is.LessThan(1_800), $"Visited {result.NodesVisited} nodes.");
+        }
+
+        [Test]
         public void FindFirstMove_RejectsPrematureBoardClearBeforeTheWholeSupplyIsPlaced()
         {
             var result = HintSolutionFinder.FindFirstMove(
@@ -126,6 +179,48 @@ namespace FitMe.Grid.Tests
             Assert.That(result.Status, Is.EqualTo(HintSolutionStatus.Feasible));
             Assert.That(result.FirstMove.Cells.Count, Is.EqualTo(1));
             Assert.That(result.FirstMove.Cells[0], Is.EqualTo(new QuackUp.Utils.TilingCell(0, 1)));
+        }
+
+        [Test]
+        public void FindFirstMove_TreatsEveryTrayPieceAsSelectableBeyondTheLegacyHandLimit()
+        {
+            var result = HintSolutionFinder.FindFirstMove(
+                playableMask: new[,] { { 1, 1, 1 } },
+                occupiedMask: new[,] { { 0, 0, 0 } },
+                obstacleMask: new[,] { { 0, 0, 0 } },
+                remainingBlockSchemas: new[]
+                {
+                    new[,] { { 1 } },
+                    new[,] { { 1 } },
+                    new[,] { { 1 } }
+                },
+                activeHandCount: 3,
+                maxSearchNodes: 100);
+
+            Assert.That(result.Status, Is.EqualTo(HintSolutionStatus.Feasible));
+            Assert.That(result.FirstMove, Is.Not.Null);
+            Assert.That(result.FirstMove.RequiresSwap, Is.False);
+        }
+
+        [Test]
+        public void FindFirstMove_DeduplicatesEquivalentTrayStatesWhenProvingInfeasible()
+        {
+            var result = HintSolutionFinder.FindFirstMove(
+                playableMask: new[,] { { 1, 1, 1 } },
+                occupiedMask: new[,] { { 0, 0, 0 } },
+                obstacleMask: new[,] { { 0, 0, 0 } },
+                remainingBlockSchemas: new[]
+                {
+                    new[,] { { 1 } },
+                    new[,] { { 1 } },
+                    new[,] { { 1 } },
+                    new[,] { { 1 } }
+                },
+                activeHandCount: 4,
+                maxSearchNodes: 1_000);
+
+            Assert.That(result.Status, Is.EqualTo(HintSolutionStatus.Infeasible));
+            Assert.That(result.NodesVisited, Is.LessThanOrEqualTo(10), $"Visited {result.NodesVisited} equivalent supply states.");
         }
 
         [Test]

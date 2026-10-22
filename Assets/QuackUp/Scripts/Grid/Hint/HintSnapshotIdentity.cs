@@ -18,7 +18,7 @@ namespace FitMe.Grid
             identity = null;
             if (!HasSameDimensions(playableMask, occupiedMask) ||
                 !HasSameDimensions(playableMask, obstacleMask) || remainingBlockSchemas == null ||
-                activeHandCount < 1 || activeHandCount > 2 || activeHandCount > remainingBlockSchemas.Count)
+                activeHandCount < 1 || activeHandCount > remainingBlockSchemas.Count)
                 return false;
 
             var builder = new StringBuilder();
@@ -31,6 +31,9 @@ namespace FitMe.Grid
             for (var index = 0; index < shapes.Length; index++)
                 if (!TryGetRotationInvariantShapeKey(remainingBlockSchemas[index], out shapes[index]))
                     return false;
+
+            if (activeHandCount == shapes.Length)
+                Array.Sort(shapes, StringComparer.Ordinal);
 
             builder.Append("|HC:").Append(activeHandCount).Append("|H:");
             if (activeHandCount < shapes.Length)
