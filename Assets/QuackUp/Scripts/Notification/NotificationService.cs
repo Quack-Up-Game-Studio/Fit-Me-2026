@@ -155,7 +155,7 @@ namespace FitMe.Notification
         public void CancelAllNotifications()
         {
 #if UNITY_ANDROID
-            AndroidNotificationCenter.CancelAllScheduledNotifications();
+            AndroidNotificationCenter.RemoveAllScheduledNotifications();
 #elif UNITY_IOS
             iOSNotificationCenter.RemoveAllScheduledNotifications();
 #endif

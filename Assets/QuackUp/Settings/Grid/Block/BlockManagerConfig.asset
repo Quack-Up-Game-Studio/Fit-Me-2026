@@ -587,7 +587,7 @@ MonoBehaviour:
   <UseSmartRandom>k__BackingField: 1
   <SmartRandomThreshold>k__BackingField: 9
   <SmartRandomDepth>k__BackingField: 3
-  <PreviewScale>k__BackingField: 0.2
+  <PreviewScale>k__BackingField: 0.17
   <ObjectScale>k__BackingField: 0.35
   <ShapeModeBlockConfig>k__BackingField: {fileID: 11400000, guid: 9c3ab7eb54d1b8cf19077125bd79ea34, type: 2}
   <CanRefill>k__BackingField: 0

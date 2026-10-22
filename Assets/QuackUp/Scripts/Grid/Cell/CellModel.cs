@@ -17,6 +17,8 @@ namespace FitMe.Grid
     public class CellModel : IDisposable
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public ReactiveProperty<Vector4> BaseOutlineDiagonals { get; } = new(Vector4.zero);
+        public ReactiveProperty<Vector4> BaseOutlineEdges { get; } = new(Vector4.one);
         public ReactiveProperty<AtomInstance> CurrentAtom { get; set; } = new();
         public ReactiveProperty<Vector2Int> ArrayIndex { get; set; } = new();
         public ReactiveProperty<Vector2Int> GridIndex { get; set; } = new();
@@ -29,6 +31,8 @@ namespace FitMe.Grid
 
         public void Dispose()
         {
+            BaseOutlineDiagonals.Dispose();
+            BaseOutlineEdges.Dispose();
             CurrentAtom?.Dispose();
             ArrayIndex?.Dispose();
             GridIndex?.Dispose();
