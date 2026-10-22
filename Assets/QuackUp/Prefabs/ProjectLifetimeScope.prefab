@@ -3244,9 +3244,9 @@ MonoBehaviour:
     - {fileID: 11400000, guid: d0abbb28b780bdd968d943ed878c4027, type: 2}
     - {fileID: 8658512612834695708}
     - {fileID: 11400000, guid: bf0d7c0f0580479ab43e74f17ce71bb4, type: 2}
-    - {fileID: 11400000, guid: 1cd3a71d685b66f498696f78fe6e3a41, type: 2}
     - {fileID: 11400000, guid: 5cbae03cbf7cc1145b8c227100061b6c, type: 2}
     - {fileID: 3989526417426172819}
+    - {fileID: 11400000, guid: 1cd3a71d685b66f498696f78fe6e3a41, type: 2}
     - {fileID: 11400000, guid: dbb40b9186271f97daac3e929c22b08e, type: 2}
     - {fileID: 11400000, guid: a989f0e4e4634b244babfb412b5ebfbc, type: 2}
     SerializedBytesString: 
@@ -3392,20 +3392,20 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 15|FitMe.Scene.ShapeLevelWorldCatalogInstaller, FitMe.Scene
-    - Name: worldCatalog
+      Data: 15|FitMe.Panel.NotificationManagerInstaller, FitMe.Panel
+    - Name: config
       Entry: 10
       Data: 10
+    - Name: notificationParentTransform
+      Entry: 10
+      Data: 11
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 16|FitMe.Panel.NotificationManagerInstaller, FitMe.Panel
-    - Name: config
-      Entry: 10
-      Data: 11
-    - Name: notificationParentTransform
+      Data: 16|FitMe.Scene.ShapeLevelWorldCatalogInstaller, FitMe.Scene
+    - Name: worldCatalog
       Entry: 10
       Data: 12
     - Name: 
