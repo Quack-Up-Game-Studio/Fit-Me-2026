@@ -1,4 +1,5 @@
 using System;
+using Coffee.UIExtensions;
 using QuackUp.Utils;
 using PrimeTween;
 using R3;
@@ -14,6 +15,7 @@ namespace FitMe.Grid
         [Title("References")]
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private SpriteRenderer baseRenderer;
+        [SerializeField] private RendererMaterialPropertyInjector hintMaterialInjector;
         
         private CellViewModel _viewModel;
         private CellConfig _config;
@@ -212,7 +214,8 @@ namespace FitMe.Grid
 
         private void UpdateVisualColor(bool smooth)
         {
-            var targetColor = CellVisualColorPolicy.Resolve(
+            var overlayActive = _currentState != CellState.None || (_hintHighlighted && _hintFlashVisible);
+            var overlayColor = CellVisualColorPolicy.Resolve(
                 _originalColor,
                 _currentState,
                 _hintHighlighted,
@@ -220,11 +223,18 @@ namespace FitMe.Grid
                 _config.CanBePlacedColor,
                 _config.CannotBePlacedColor,
                 _config.HintFlashColor);
+            if (hintMaterialInjector)
+            {
+                hintMaterialInjector.SetColor("_OverlayColor", overlayColor);
+                hintMaterialInjector.SetFloat("_OverlayAmount", overlayActive ? Mathf.Clamp01(_config.OverlayAmount) : 0f);
+            }
+
+            // Keep the sprite's base color intact; state/hint colors are applied by the cell-only shader.
             Tween.StopAll(spriteRenderer);
             if (smooth)
-                Tween.Color(spriteRenderer, targetColor, 0.15f);
+                Tween.Color(spriteRenderer, _originalColor, 0.15f);
             else
-                spriteRenderer.color = targetColor;
+                spriteRenderer.color = _originalColor;
         }
 
         public void SetBaseColor(Color color)

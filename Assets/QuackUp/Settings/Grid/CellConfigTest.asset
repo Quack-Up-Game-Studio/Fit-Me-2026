@@ -32,6 +32,8 @@ MonoBehaviour:
   <BlackColor>k__BackingField: {r: 0, g: 0, b: 0, a: 1}
   <CanBePlacedColor>k__BackingField: {r: 0, g: 1, b: 0, a: 1}
   <CannotBePlacedColor>k__BackingField: {r: 1, g: 0, b: 0, a: 1}
+  <HintFlashColor>k__BackingField: {r: 1, g: 1, b: 0, a: 1}
+  <OverlayAmount>k__BackingField: 0.5
   <EnableBaseOutline>k__BackingField: 1
   <CheckAdjacentCellsForOutline>k__BackingField: 0
   <BaseColor>k__BackingField: {r: 0.5764706, g: 0.30980393, b: 0.09019608, a: 1}

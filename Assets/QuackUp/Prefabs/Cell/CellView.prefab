@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2051222447731843229}
   - component: {fileID: 1115837378082549791}
+  - component: {fileID: 8422018121151831717}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -58,7 +59,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 711f47ca19d049c080851b38e27f9e75, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -91,6 +92,38 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &8422018121151831717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2187385642974584713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f2df7ab1df9745d8b395222f80f4c09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Coffee.UIMaterialPropertyInjector::Coffee.UIExtensions.RendererMaterialPropertyInjector
+  m_ResetValuesOnEnable: 0
+  m_Animatable: 0
+  m_SharingGroupId: 0
+  m_Properties:
+  - m_PropertyName: _OverlayColor
+    m_Type: 0
+    m_Int: 0
+    m_Float: 0
+    m_Color: {r: 0.72156864, g: 1, b: 0, a: 1}
+    m_Vector: {x: 0, y: 0, z: 0, w: 0}
+    m_Texture: {fileID: 0}
+    m_Injector: {fileID: 0}
+  - m_PropertyName: _OverlayAmount
+    m_Type: 3
+    m_Int: 0
+    m_Float: 0
+    m_Color: {r: 0, g: 0, b: 0, a: 0}
+    m_Vector: {x: 0, y: 0, z: 0, w: 0}
+    m_Texture: {fileID: 0}
+    m_Injector: {fileID: 0}
 --- !u!1 &5026468154316912917
 GameObject:
   m_ObjectHideFlags: 0
@@ -102,7 +135,7 @@ GameObject:
   - component: {fileID: 7151744267047568362}
   - component: {fileID: 4077780038044876416}
   m_Layer: 0
-  m_Name: Sprite (1)
+  m_Name: Outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -230,3 +263,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: FitMe.Grid::FitMe.Grid.CellView
   spriteRenderer: {fileID: 1115837378082549791}
   baseRenderer: {fileID: 4077780038044876416}
+  hintMaterialInjector: {fileID: 8422018121151831717}

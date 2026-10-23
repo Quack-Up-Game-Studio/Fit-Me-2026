@@ -14,6 +14,8 @@ namespace FitMe.Grid
         [field: SerializeField] public Color CanBePlacedColor { get; private set; } = Color.green;
         [field: SerializeField] public Color CannotBePlacedColor { get; private set; } = Color.red;
         [field: SerializeField] public Color HintFlashColor { get; private set; } = Color.yellow;
+        [field: SerializeField, Range(0f, 1f), Tooltip("Strength of the screen-blend overlay for hints and placement previews.")]
+        public float OverlayAmount { get; private set; } = 0.5f;
         
         [field: Title("Outline / Base (Layer 3)")]
         [field: SerializeField] public bool EnableBaseOutline { get; private set; } = true;
