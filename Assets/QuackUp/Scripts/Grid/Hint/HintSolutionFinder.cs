@@ -92,6 +92,8 @@ namespace FitMe.Grid
             }
             context.NodesVisited++;
 
+            var hasExactCoverAnchor = TryGetExactCoverAnchor(
+                context, occupied, remaining, activeHandCount, out var exactCoverAnchor);
             var activeCount = Math.Min(activeHandCount, remaining.Count);
             var variants = new List<SupplyVariant>(2)
             {
@@ -114,7 +116,9 @@ namespace FitMe.Grid
                 for (var handIndex = 0; handIndex < handCount; handIndex++)
                 {
                     var piece = variant.Pieces[handIndex];
-                    foreach (var placement in EnumeratePlacements(context, occupied, piece))
+                    foreach (var placement in EnumeratePlacements(
+                                 context, occupied, piece,
+                                 hasExactCoverAnchor ? exactCoverAnchor : (TilingCell?)null))
                     {
                         var nextOccupied = Clone(occupied);
                         ApplyPlacement(nextOccupied, placement);
@@ -144,6 +148,39 @@ namespace FitMe.Grid
             return false;
         }
 
+        private static bool TryGetExactCoverAnchor(
+            Context context, bool[,] occupied, IReadOnlyList<Piece> remaining,
+            int activeHandCount, out TilingCell anchor)
+        {
+            anchor = default;
+            // Anchoring is complete only when every remaining piece is selectable and all free cells must be covered.
+            if (activeHandCount != remaining.Count) return false;
+
+            var remainingCellCount = 0;
+            for (var index = 0; index < remaining.Count; index++)
+                remainingCellCount += remaining[index].CellCount;
+
+            var freeCellCount = 0;
+            for (var row = 0; row < context.PlayableMask.GetLength(0); row++)
+            for (var column = 0; column < context.PlayableMask.GetLength(1); column++)
+            {
+                if (!context.PlayableMask[row, column] || context.ObstacleMask[row, column] || occupied[row, column])
+                    continue;
+                freeCellCount++;
+            }
+            if (remainingCellCount != freeCellCount) return false;
+
+            for (var row = 0; row < context.PlayableMask.GetLength(0); row++)
+            for (var column = 0; column < context.PlayableMask.GetLength(1); column++)
+            {
+                if (!context.PlayableMask[row, column] || context.ObstacleMask[row, column] || occupied[row, column])
+                    continue;
+                anchor = new TilingCell(row, column);
+                return true;
+            }
+            return false;
+        }
+
         private static string CreateUnorderedStateKey(bool[,] occupied, IReadOnlyList<Piece> remaining)
         {
             var builder = new StringBuilder();
@@ -163,7 +200,8 @@ namespace FitMe.Grid
             return builder.ToString();
         }
 
-        private static IEnumerable<TilingCell[]> EnumeratePlacements(Context context, bool[,] occupied, Piece piece)
+        private static IEnumerable<TilingCell[]> EnumeratePlacements(
+            Context context, bool[,] occupied, Piece piece, TilingCell? requiredCell)
         {
             var rows = context.PlayableMask.GetLength(0);
             var columns = context.PlayableMask.GetLength(1);
@@ -174,6 +212,7 @@ namespace FitMe.Grid
                 context.CancellationToken.ThrowIfCancellationRequested();
                 var placement = new TilingCell[rotation.Length];
                 var valid = true;
+                var coversRequiredCell = !requiredCell.HasValue;
                 for (var cellIndex = 0; cellIndex < rotation.Length; cellIndex++)
                 {
                     var row = originRow + rotation[cellIndex].Row;
@@ -185,8 +224,11 @@ namespace FitMe.Grid
                         break;
                     }
                     placement[cellIndex] = new TilingCell(row, column);
+                    if (requiredCell.HasValue && row == requiredCell.Value.Row &&
+                        column == requiredCell.Value.Column)
+                        coversRequiredCell = true;
                 }
-                if (valid) yield return placement;
+                if (valid && coversRequiredCell) yield return placement;
             }
         }
 
@@ -294,7 +336,7 @@ namespace FitMe.Grid
             }
             var invariantKeys = new List<string>(rotationKeys);
             invariantKeys.Sort(StringComparer.Ordinal);
-            piece = new Piece(rotations.ToArray(), string.Join("|", invariantKeys));
+            piece = new Piece(cells.Count, rotations.ToArray(), string.Join("|", invariantKeys));
             return true;
         }
 
@@ -337,11 +379,13 @@ namespace FitMe.Grid
 
         private sealed class Piece
         {
+            public readonly int CellCount;
             public readonly TilingCell[][] Rotations;
             public readonly string RotationInvariantKey;
 
-            public Piece(TilingCell[][] rotations, string rotationInvariantKey)
+            public Piece(int cellCount, TilingCell[][] rotations, string rotationInvariantKey)
             {
+                CellCount = cellCount;
                 Rotations = rotations;
                 RotationInvariantKey = rotationInvariantKey;
             }

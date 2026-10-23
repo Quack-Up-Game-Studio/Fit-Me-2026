@@ -256,5 +256,60 @@ namespace FitMe.Grid.Tests
             Assert.That(result.Status, Is.EqualTo(HintSolutionStatus.SearchLimitReached));
             Assert.That(result.FirstMove, Is.Null);
         }
+
+        [Test]
+        public void FindFirstMove_FindsTheUntouchedSeededPlaysetWithinBudget()
+        {
+            // Mirrors Shape Playset Generation Profile_Seed_-1029988589.asset.
+            var playableMask = new int[7, 9];
+            for (var row = 0; row < playableMask.GetLength(0); row++)
+            for (var column = 0; column < playableMask.GetLength(1); column++)
+                playableMask[row, column] = 1;
+
+            var obstacleMask = new int[7, 9];
+            obstacleMask[2, 6] = 1;
+            obstacleMask[3, 1] = 1;
+            obstacleMask[5, 6] = 1;
+
+            var schemas = new System.Collections.Generic.List<int[,]>(16);
+            for (var index = 0; index < 12; index++)
+                schemas.Add(new[,] { { 0, 1, 0 }, { 1, 1, 1 } });
+            for (var index = 0; index < 2; index++)
+                schemas.Add(new[,] { { 1 }, { 1 }, { 1 } });
+            schemas.Add(new[,] { { 1 }, { 1 } });
+            schemas.Add(new[,] { { 0, 1 }, { 1, 1 }, { 1, 0 } });
+
+            var result = HintSolutionFinder.FindFirstMove(
+                playableMask,
+                (int[,])obstacleMask.Clone(),
+                obstacleMask,
+                schemas,
+                activeHandCount: schemas.Count,
+                maxSearchNodes: 100_000);
+
+            Assert.That(result.Status, Is.EqualTo(HintSolutionStatus.Feasible));
+            Assert.That(result.FirstMove, Is.Not.Null);
+            Assert.That(result.NodesVisited, Is.LessThan(10_000),
+                $"The untouched seeded playset should solve well below its 100,000-node budget; visited {result.NodesVisited}.");
+        }
+
+        [Test]
+        public void FindFirstMove_DoesNotAnchorWhenTheSupplyDoesNotCoverEveryFreeCell()
+        {
+            var result = HintSolutionFinder.FindFirstMove(
+                playableMask: new[,] { { 1, 0, 1, 1 } },
+                occupiedMask: new[,] { { 0, 0, 0, 0 } },
+                obstacleMask: new[,] { { 0, 0, 0, 0 } },
+                remainingBlockSchemas: new[] { new[,] { { 1, 1 } } },
+                activeHandCount: 1,
+                maxSearchNodes: 100);
+
+            Assert.That(result.Status, Is.EqualTo(HintSolutionStatus.Feasible));
+            Assert.That(result.FirstMove.Cells, Is.EquivalentTo(new[]
+            {
+                new QuackUp.Utils.TilingCell(0, 2),
+                new QuackUp.Utils.TilingCell(0, 3)
+            }));
+        }
     }
 }

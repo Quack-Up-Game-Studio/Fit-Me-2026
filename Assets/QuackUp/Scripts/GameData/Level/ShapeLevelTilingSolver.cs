@@ -50,7 +50,10 @@ namespace FitMe.GameData
         }
     }
 
-    /// <summary>Bounded exact-cover solver for a fixed set of rotatable level blocks.</summary>
+    /// <summary>
+    /// Bounded exact-cover solver for a fixed set of rotatable level blocks. It precomputes unique placements
+    /// and branches only on placements covering the first uncovered playable cell.
+    /// </summary>
     public static class ShapeLevelTilingSolver
     {
         public static ShapeLevelTilingResult Solve(
@@ -77,7 +80,7 @@ namespace FitMe.GameData
 
             var rows = playableMask.GetLength(0);
             var columns = playableMask.GetLength(1);
-            var playable = new bool[rows, columns];
+            var playable = new bool[rows * columns];
             var playableCellCount = 0;
             for (var row = 0; row < rows; row++)
             for (var column = 0; column < columns; column++)
@@ -86,29 +89,47 @@ namespace FitMe.GameData
                 if (value != 0 && value != 1)
                     return CreateResult(ShapeLevelTilingStatus.InvalidInput, 0, 0,
                         Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: false);
-                playable[row, column] = value == 1;
-                if (playable[row, column]) playableCellCount++;
+                if (value != 1) continue;
+                playable[row * columns + column] = true;
+                playableCellCount++;
             }
             if (playableCellCount == 0)
                 return CreateResult(ShapeLevelTilingStatus.InvalidInput, 0, 0,
                     Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: false);
 
-            var pieces = new Piece[blockSchemas.Count];
+            var groups = new List<ShapeGroup>();
+            var groupsByKey = new Dictionary<string, ShapeGroup>(StringComparer.Ordinal);
             long totalBlockCells = 0;
             for (var index = 0; index < blockSchemas.Count; index++)
             {
-                if (!TryCreatePiece(blockSchemas[index], out pieces[index]))
+                if (!TryCreatePiece(blockSchemas[index], out var piece))
                     return CreateResult(ShapeLevelTilingStatus.InvalidInput, 0, 0,
                         Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: false);
-                totalBlockCells += pieces[index].CellCount;
+                totalBlockCells += piece.CellCount;
+                if (!groupsByKey.TryGetValue(piece.RotationInvariantKey, out var group))
+                {
+                    group = new ShapeGroup(piece.CellCount, piece.Rotations);
+                    groupsByKey.Add(piece.RotationInvariantKey, group);
+                    groups.Add(group);
+                }
+                group.BlockIndices.Add(index);
             }
             if (totalBlockCells != playableCellCount)
                 return CreateResult(ShapeLevelTilingStatus.Infeasible, 0, 0,
                     Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: true);
 
+            foreach (var group in groups)
+            {
+                BuildPlacements(group, playable, rows, columns);
+                if (group.Placements.Count == 0)
+                    return CreateResult(ShapeLevelTilingStatus.Infeasible, 0, 0,
+                        Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: true);
+            }
+
             var context = new SearchContext(
-                playable, pieces, playableCellCount, maxSearchNodes, maxStoredSolutions, columns, stopAfterFirst);
-            Search(context, 0, 0);
+                playable, groups.ToArray(), playableCellCount,
+                maxSearchNodes, maxStoredSolutions, columns, stopAfterFirst);
+            Search(context, 0, 0, 0);
             var isSearchComplete = !context.SearchLimitReached &&
                                    (!stopAfterFirst || context.SolutionCount == 0);
             var status = context.SearchLimitReached
@@ -127,13 +148,14 @@ namespace FitMe.GameData
             IReadOnlyList<IReadOnlyList<ShapeLevelTilingPlacement>> solutions, bool isSearchComplete) =>
             new(status, nodesVisited, solutionCount, solutions, isSearchComplete);
 
-        private static bool Search(SearchContext context, int placedCount, int coveredCount)
+        private static bool Search(
+            SearchContext context, int anchorStartIndex, int placedCount, int coveredCount)
         {
             if (coveredCount == context.PlayableCellCount)
             {
-                if (placedCount != context.Pieces.Length) return false;
+                if (placedCount != context.TotalPieceCount) return false;
                 context.SolutionCount++;
-                var solution = CreatePlacements(context.CurrentPlacements, context.Columns);
+                var solution = CreatePlacements(context);
                 context.FirstSolution ??= solution;
                 if (context.Solutions.Count < context.MaxStoredSolutions)
                     context.Solutions.Add(solution);
@@ -147,101 +169,113 @@ namespace FitMe.GameData
             }
             context.NodesVisited++;
 
-            var anchor = FindFirstUncoveredCell(context);
-            if (anchor.x < 0) return false;
-
-            var seenPlacements = new HashSet<string>();
-            for (var pieceIndex = 0; pieceIndex < context.Pieces.Length; pieceIndex++)
+            var anchor = FindFirstUncoveredCell(context, anchorStartIndex);
+            if (anchor < 0) return false;
+            // Every exact tiling must cover this cell; anchoring here avoids exploring block-order permutations.
+            for (var shapeIndex = 0; shapeIndex < context.Groups.Length; shapeIndex++)
             {
-                if (context.Placed[pieceIndex] || HasEarlierEquivalentUnplacedPiece(context, pieceIndex))
-                    continue;
-
-                var piece = context.Pieces[pieceIndex];
-                foreach (var rotation in piece.Rotations)
-                for (var anchorCellIndex = 0; anchorCellIndex < rotation.Length; anchorCellIndex++)
+                if (context.RemainingCounts[shapeIndex] == 0) continue;
+                var group = context.Groups[shapeIndex];
+                foreach (var placement in group.ByCell[anchor])
                 {
-                    var originRow = anchor.x - rotation[anchorCellIndex].x;
-                    var originColumn = anchor.y - rotation[anchorCellIndex].y;
-                    if (!TryGetPlacement(context, rotation, originRow, originColumn,
-                            out var cellIndices, out var placementKey) || !seenPlacements.Add(placementKey))
-                        continue;
+                    var canPlace = true;
+                    for (var cellIndex = 0; cellIndex < placement.CellIndices.Length; cellIndex++)
+                    {
+                        if (!context.Occupied[placement.CellIndices[cellIndex]]) continue;
+                        canPlace = false;
+                        break;
+                    }
+                    if (!canPlace) continue;
 
-                    context.Placed[pieceIndex] = true;
-                    SetCovered(context, cellIndices, true);
-                    context.CurrentPlacements.Add(new PendingPlacement(pieceIndex, cellIndices));
-                    if (Search(context, placedCount + 1, coveredCount + cellIndices.Length)) return true;
+                    context.RemainingCounts[shapeIndex]--;
+                    context.CurrentPlacements.Add(new PendingPlacement(shapeIndex, placement));
+                    for (var cellIndex = 0; cellIndex < placement.CellIndices.Length; cellIndex++)
+                        context.Occupied[placement.CellIndices[cellIndex]] = true;
+                    if (Search(context, anchor + 1, placedCount + 1,
+                            coveredCount + group.CellCount)) return true;
                     context.CurrentPlacements.RemoveAt(context.CurrentPlacements.Count - 1);
-                    SetCovered(context, cellIndices, false);
-                    context.Placed[pieceIndex] = false;
+                    for (var cellIndex = 0; cellIndex < placement.CellIndices.Length; cellIndex++)
+                        context.Occupied[placement.CellIndices[cellIndex]] = false;
+                    context.RemainingCounts[shapeIndex]++;
                     if (context.SearchLimitReached || context.StopAfterFirst && context.SolutionCount > 0) return false;
                 }
             }
             return false;
         }
 
-        private static IReadOnlyList<ShapeLevelTilingPlacement> CreatePlacements(
-            IReadOnlyList<PendingPlacement> pendingPlacements, int columns)
+        private static void BuildPlacements(
+            ShapeGroup group, bool[] playable, int rows, int columns)
         {
-            var placements = new ShapeLevelTilingPlacement[pendingPlacements.Count];
-            for (var index = 0; index < pendingPlacements.Count; index++)
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            group.ByCell = new List<Placement>[rows * columns];
+            for (var index = 0; index < group.ByCell.Length; index++)
+                group.ByCell[index] = new List<Placement>();
+
+            foreach (var rotation in group.Rotations)
             {
-                var pending = pendingPlacements[index];
-                var cells = new Vector2Int[pending.CellIndices.Length];
-                for (var cellIndex = 0; cellIndex < pending.CellIndices.Length; cellIndex++)
+                var maxRow = 0;
+                var maxColumn = 0;
+                for (var index = 0; index < rotation.Length; index++)
+                {
+                    maxRow = Math.Max(maxRow, rotation[index].x);
+                    maxColumn = Math.Max(maxColumn, rotation[index].y);
+                }
+
+                for (var originRow = 0; originRow < rows - maxRow; originRow++)
+                for (var originColumn = 0; originColumn < columns - maxColumn; originColumn++)
+                {
+                    var cellIndices = new int[rotation.Length];
+                    var isPlayable = true;
+                    for (var cellIndex = 0; cellIndex < rotation.Length; cellIndex++)
+                    {
+                        var row = originRow + rotation[cellIndex].x;
+                        var column = originColumn + rotation[cellIndex].y;
+                        var boardCellIndex = row * columns + column;
+                        if (!playable[boardCellIndex])
+                        {
+                            isPlayable = false;
+                            break;
+                        }
+                        cellIndices[cellIndex] = boardCellIndex;
+                    }
+                    if (!isPlayable) continue;
+
+                    Array.Sort(cellIndices);
+                    if (!seen.Add(string.Join(",", cellIndices))) continue;
+                    var placement = new Placement(cellIndices);
+                    group.Placements.Add(placement);
+                    for (var cellIndex = 0; cellIndex < cellIndices.Length; cellIndex++)
+                        group.ByCell[cellIndices[cellIndex]].Add(placement);
+                }
+            }
+        }
+
+        private static IReadOnlyList<ShapeLevelTilingPlacement> CreatePlacements(SearchContext context)
+        {
+            var nextBlockIndex = new int[context.Groups.Length];
+            var placements = new ShapeLevelTilingPlacement[context.CurrentPlacements.Count];
+            for (var index = 0; index < context.CurrentPlacements.Count; index++)
+            {
+                var pending = context.CurrentPlacements[index];
+                var group = context.Groups[pending.ShapeIndex];
+                var blockIndex = group.BlockIndices[nextBlockIndex[pending.ShapeIndex]++];
+                var cellIndices = pending.Placement.CellIndices;
+                var cells = new Vector2Int[cellIndices.Length];
+                for (var cellIndex = 0; cellIndex < cellIndices.Length; cellIndex++)
+                {
                     cells[cellIndex] = new Vector2Int(
-                        pending.CellIndices[cellIndex] / columns,
-                        pending.CellIndices[cellIndex] % columns);
-                placements[index] = new ShapeLevelTilingPlacement(pending.BlockIndex, cells);
+                        cellIndices[cellIndex] / context.Columns, cellIndices[cellIndex] % context.Columns);
+                }
+                placements[index] = new ShapeLevelTilingPlacement(blockIndex, cells);
             }
             return Array.AsReadOnly(placements);
         }
 
-        private static bool HasEarlierEquivalentUnplacedPiece(SearchContext context, int pieceIndex)
+        private static int FindFirstUncoveredCell(SearchContext context, int startIndex)
         {
-            var key = context.Pieces[pieceIndex].RotationInvariantKey;
-            for (var earlier = 0; earlier < pieceIndex; earlier++)
-                if (!context.Placed[earlier] &&
-                    string.Equals(context.Pieces[earlier].RotationInvariantKey, key, StringComparison.Ordinal))
-                    return true;
-            return false;
-        }
-
-        private static Vector2Int FindFirstUncoveredCell(SearchContext context)
-        {
-            for (var row = 0; row < context.Playable.GetLength(0); row++)
-            for (var column = 0; column < context.Playable.GetLength(1); column++)
-                if (context.Playable[row, column] && !context.Covered[row, column])
-                    return new Vector2Int(row, column);
-            return new Vector2Int(-1, -1);
-        }
-
-        private static bool TryGetPlacement(
-            SearchContext context, CellOffset[] rotation, int originRow, int originColumn,
-            out int[] cellIndices, out string placementKey)
-        {
-            cellIndices = new int[rotation.Length];
-            placementKey = null;
-            var columns = context.Playable.GetLength(1);
-            for (var index = 0; index < rotation.Length; index++)
-            {
-                var row = originRow + rotation[index].x;
-                var column = originColumn + rotation[index].y;
-                if (row < 0 || row >= context.Playable.GetLength(0) ||
-                    column < 0 || column >= columns || !context.Playable[row, column] ||
-                    context.Covered[row, column])
-                    return false;
-                cellIndices[index] = row * columns + column;
-            }
-            Array.Sort(cellIndices);
-            placementKey = string.Join(",", cellIndices);
-            return true;
-        }
-
-        private static void SetCovered(SearchContext context, IReadOnlyList<int> cellIndices, bool covered)
-        {
-            var columns = context.Playable.GetLength(1);
-            for (var index = 0; index < cellIndices.Count; index++)
-                context.Covered[cellIndices[index] / columns, cellIndices[index] % columns] = covered;
+            for (var index = startIndex; index < context.Playable.Length; index++)
+                if (context.Playable[index] && !context.Occupied[index]) return index;
+            return -1;
         }
 
         private static bool TryCreatePiece(int[,] schema, out Piece piece)
@@ -331,16 +365,32 @@ namespace FitMe.GameData
             }
         }
 
+        private sealed class ShapeGroup
+        {
+            public readonly int CellCount;
+            public readonly CellOffset[][] Rotations;
+            public readonly List<int> BlockIndices = new List<int>();
+            public readonly List<Placement> Placements = new List<Placement>();
+            public List<Placement>[] ByCell = Array.Empty<List<Placement>>();
+
+            public ShapeGroup(int cellCount, CellOffset[][] rotations)
+            {
+                CellCount = cellCount;
+                Rotations = rotations;
+            }
+        }
+
         private sealed class SearchContext
         {
-            public readonly bool[,] Playable;
-            public readonly bool[,] Covered;
-            public readonly Piece[] Pieces;
-            public readonly bool[] Placed;
+            public readonly bool[] Playable;
+            public readonly bool[] Occupied;
+            public readonly ShapeGroup[] Groups;
+            public readonly int[] RemainingCounts;
             public readonly List<PendingPlacement> CurrentPlacements = new List<PendingPlacement>();
             public readonly List<IReadOnlyList<ShapeLevelTilingPlacement>> Solutions =
                 new List<IReadOnlyList<ShapeLevelTilingPlacement>>();
             public readonly int PlayableCellCount;
+            public readonly int TotalPieceCount;
             public readonly int MaxSearchNodes;
             public readonly int MaxStoredSolutions;
             public readonly int Columns;
@@ -351,13 +401,18 @@ namespace FitMe.GameData
             public bool SearchLimitReached;
 
             public SearchContext(
-                bool[,] playable, Piece[] pieces, int playableCellCount,
+                bool[] playable, ShapeGroup[] groups, int playableCellCount,
                 int maxSearchNodes, int maxStoredSolutions, int columns, bool stopAfterFirst)
             {
                 Playable = playable;
-                Covered = new bool[playable.GetLength(0), playable.GetLength(1)];
-                Pieces = pieces;
-                Placed = new bool[pieces.Length];
+                Occupied = new bool[playable.Length];
+                Groups = groups;
+                RemainingCounts = new int[groups.Length];
+                for (var index = 0; index < groups.Length; index++)
+                {
+                    RemainingCounts[index] = groups[index].BlockIndices.Count;
+                    TotalPieceCount += RemainingCounts[index];
+                }
                 PlayableCellCount = playableCellCount;
                 MaxSearchNodes = maxSearchNodes;
                 MaxStoredSolutions = maxStoredSolutions;
@@ -366,15 +421,25 @@ namespace FitMe.GameData
             }
         }
 
-        private readonly struct PendingPlacement
+        private sealed class Placement
         {
-            public readonly int BlockIndex;
             public readonly int[] CellIndices;
 
-            public PendingPlacement(int blockIndex, int[] cellIndices)
+            public Placement(int[] cellIndices)
             {
-                BlockIndex = blockIndex;
                 CellIndices = cellIndices;
+            }
+        }
+
+        private readonly struct PendingPlacement
+        {
+            public readonly int ShapeIndex;
+            public readonly Placement Placement;
+
+            public PendingPlacement(int shapeIndex, Placement placement)
+            {
+                ShapeIndex = shapeIndex;
+                Placement = placement;
             }
         }
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FitMe.GameData;
 using NUnit.Framework;
 
@@ -5,6 +6,52 @@ namespace FitMe.Grid.Tests
 {
     public sealed class ShapeLevelTilingSolverTests
     {
+        [Test]
+        public void Solve_UsesPrecomputedFixedAnchorCandidatesWithinBenchmarkNodeBudget()
+        {
+            var playableMask = new int[10, 10];
+            for (var row = 0; row < 10; row++)
+            for (var column = 0; column < 10; column++)
+                playableMask[row, column] = 1;
+            playableMask[1, 8] = 0;
+            playableMask[2, 7] = 0;
+            playableMask[3, 6] = 0;
+            playableMask[5, 2] = 0;
+            playableMask[5, 4] = 0;
+            playableMask[7, 7] = 0;
+
+            var rectangle = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var fiveCellA = new[,] { { 1, 1, 1 }, { 0, 1, 1 } };
+            var fiveCellARotated = new[,] { { 1, 1, 0 }, { 1, 1, 1 } };
+            var fiveCellB = new[,] { { 1, 0, 1 }, { 1, 1, 1 } };
+            var fiveCellC = new[,] { { 1, 1, 1 }, { 1, 1, 0 } };
+            var fourCell = new[,] { { 1, 0, 0 }, { 1, 1, 1 } };
+            var domino = new[,] { { 1, 1 } };
+            var blockSchemas = new List<int[,]>
+            {
+                rectangle, rectangle, rectangle,
+                fiveCellA, fiveCellB,
+                rectangle, rectangle, rectangle,
+                fiveCellARotated, rectangle, fiveCellARotated, rectangle,
+                fiveCellC, fiveCellB, fourCell, rectangle, fourCell, domino
+            };
+
+            var result = ShapeLevelTilingSolver.Solve(playableMask, blockSchemas, maxSearchNodes: 1_000_000);
+
+            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Feasible));
+            Assert.That(result.Placements, Has.Count.EqualTo(blockSchemas.Count));
+            var blockIndices = new HashSet<int>();
+            foreach (var placement in result.Placements)
+            {
+                Assert.That(placement.BlockIndex, Is.InRange(0, blockSchemas.Count - 1));
+                Assert.That(blockIndices.Add(placement.BlockIndex), Is.True,
+                    "Equivalent shape instances must still map to distinct input block indices.");
+            }
+            Assert.That(result.NodesVisited, Is.LessThan(317),
+                "The benchmark's fixed-anchor implementation solved this exact playset in 298 nodes; " +
+                "keep the production solver below its prior 317-node baseline.");
+        }
+
         [Test]
         public void Solve_FindsTilingWhenOnlyRotatedBlockFits()
         {
