@@ -5,6 +5,8 @@ using FitMe.Shared;
 using NUnit.Framework;
 using QuackUp.Utils;
 using R3;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace FitMe.Panel.Tests
 {
@@ -36,6 +38,26 @@ namespace FitMe.Panel.Tests
                 () => false);
 
             Assert.That(spendSucceeded, Is.False);
+        }
+
+        [TestCase(true, false, true)]
+        [TestCase(true, true, false)]
+        [TestCase(false, false, false)]
+        [TestCase(false, true, false)]
+        public void HintButtonVisibility_IsSuppressedOnlyDuringRetryGuidance(
+            bool isShapeMode, bool retryGuidanceVisible, bool expectedVisible)
+        {
+            Assert.That(
+                GameplayHintButtonPolicy.ShouldShowHintButton(isShapeMode, retryGuidanceVisible),
+                Is.EqualTo(expectedVisible));
+        }
+
+        [Test]
+        public void HintButtonUnavailableTint_IsGray()
+        {
+            var colors = GameplayHintButtonPolicy.WithUnavailableTint(ColorBlock.defaultColorBlock);
+
+            Assert.That(colors.disabledColor, Is.EqualTo(Color.gray));
         }
 
         [Test]

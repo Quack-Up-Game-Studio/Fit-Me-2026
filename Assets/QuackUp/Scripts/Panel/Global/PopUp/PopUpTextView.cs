@@ -6,6 +6,7 @@ using QuackUp.Utils;
 using R3;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using VContainer;
 
 namespace FitMe.Panel
@@ -14,6 +15,7 @@ namespace FitMe.Panel
     {
         [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private TMP_Text popUpText;
+        [SerializeField] private Image fitSpriteImage;
         [SerializeField] private ParticleSystem particlesPrefab;
         [SerializeField] private TweenSettings<Vector3> scaleTweenSettings;
         [SerializeField] private TweenSettings<float> fadeTweenSettings;
@@ -56,6 +58,12 @@ namespace FitMe.Panel
         private async UniTask OnShow(string text, Promise<Unit> promise, CancellationToken cancellationToken)
         {
             using var registration = cancellationToken.Register(() => promise.TrySetResult(Unit.Default));
+            if (fitSpriteImage)
+            {
+                var showFitSprite = string.Equals(text, "Fit!", StringComparison.Ordinal);
+                fitSpriteImage.enabled = showFitSprite;
+                popUpText.enabled = !showFitSprite;
+            }
             popUpText.text = text;
             await TransitionIn(cancellationToken);
             await UniTask.WaitForSeconds(stayDuration, cancellationToken: cancellationToken);

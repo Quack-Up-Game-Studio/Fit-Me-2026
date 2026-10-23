@@ -60,6 +60,7 @@ namespace FitMe.Panel
                 .AddTo(ref disposableBuilder);
             if (hintButton != null)
             {
+                hintButton.colors = GameplayHintButtonPolicy.WithUnavailableTint(hintButton.colors);
                 hintButton.onClick.AsObservable()
                     .Subscribe(_ => ViewModel.HintCommand.Execute(Unit.Default))
                     .AddTo(ref disposableBuilder);

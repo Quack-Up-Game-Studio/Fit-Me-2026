@@ -7,11 +7,25 @@ using FitMe.Grid;
 using FitMe.Shared;
 using QuackUp.Utils;
 using R3;
+using UnityEngine;
+using UnityEngine.UI;
 using VContainer;
 using VContainer.Unity;
 
 namespace FitMe.Panel
 {
+    public static class GameplayHintButtonPolicy
+    {
+        public static bool ShouldShowHintButton(bool isShapeMode, bool retryGuidanceVisible) =>
+            isShapeMode && !retryGuidanceVisible;
+
+        public static ColorBlock WithUnavailableTint(ColorBlock colors)
+        {
+            colors.disabledColor = Color.gray;
+            return colors;
+        }
+    }
+
     public static class HintConsumptionPolicy
     {
         public static bool TrySpendIfRequired(HintSolutionStatus status, Func<bool> trySpend)
@@ -50,6 +64,7 @@ namespace FitMe.Panel
         private bool _isBusy;
         private bool _flashVisible;
         private bool _isGameOver;
+        private bool _isRetryResetInProgress;
         private bool _disposed;
 
         public ReadOnlyReactiveProperty<bool> IsVisible => _readOnlyIsVisible;
@@ -88,7 +103,15 @@ namespace FitMe.Panel
             _gridManager.OnBlockPlaced.Subscribe(_ => RefreshSolverState()).AddTo(ref disposableBuilder);
             _gridManager.OnAboutToClearGrid.Subscribe(_ => ClearHint()).AddTo(ref disposableBuilder);
             _gridManager.OnCellsCreated.Subscribe(_ => RefreshSolverState()).AddTo(ref disposableBuilder);
-            _gridManager.OnClearGrid.Subscribe(_ => RefreshSolverState()).AddTo(ref disposableBuilder);
+            _gridManager.OnClearGrid.Subscribe(_ =>
+            {
+                if (_isRetryResetInProgress)
+                {
+                    _isRetryResetInProgress = false;
+                    ClearRetryGuidance();
+                }
+                RefreshSolverState();
+            }).AddTo(ref disposableBuilder);
             _blockManager.OnSwap.Subscribe(_ => RefreshSolverState()).AddTo(ref disposableBuilder);
             _blockManagerMessageHub.GetObservable<BlockSpawnedEvent>()
                 .Subscribe(_ => RefreshSolverState())
@@ -103,6 +126,7 @@ namespace FitMe.Panel
                     {
                         _activeSearchCancellation?.Cancel();
                         ClearHint();
+                        ClearRetryGuidance();
                     }
                     UpdateAvailability();
                 })
@@ -179,7 +203,7 @@ namespace FitMe.Panel
                 else if (result.Status == HintSolutionStatus.Infeasible)
                 {
                     _lockedIdentity = snapshot.Identity;
-                    StartRetryGuidance(snapshot.Identity);
+                    StartRetryGuidance();
                     ShowNotification("No solution found. Tap Retry to clear the board.");
                 }
                 else
@@ -221,7 +245,7 @@ namespace FitMe.Panel
                 });
         }
 
-        private void StartRetryGuidance(string identity)
+        private void StartRetryGuidance()
         {
             _retryGuidanceTimer?.Dispose();
             _retryVisible.Value = true;
@@ -229,19 +253,14 @@ namespace FitMe.Panel
             _retryGuidanceTimer = Observable.Interval(TimeSpan.FromSeconds(0.35))
                 .Subscribe(_ =>
                 {
-                    if (_disposed || !string.Equals(_observedIdentity, identity, StringComparison.Ordinal))
-                    {
-                        ClearRetryGuidance();
-                        return;
-                    }
-
+                    if (_disposed || _isGameOver) return;
                     _retryFlashVisible.Value = !_retryFlashVisible.CurrentValue;
                 });
         }
 
         public void DismissRetryGuidance()
         {
-            ClearRetryGuidance();
+            _isRetryResetInProgress = true;
         }
 
         private void RefreshSolverState()
@@ -254,7 +273,7 @@ namespace FitMe.Panel
                 _lockedIdentity = null;
                 _activeSearchCancellation?.Cancel();
                 ClearHint();
-                ClearRetryGuidance();
+                if (!_retryVisible.CurrentValue) ClearRetryGuidance();
             }
             UpdateAvailability();
         }
@@ -262,10 +281,12 @@ namespace FitMe.Panel
         private void UpdateAvailability()
         {
             var isShapeMode = _levelManager.CurrentGameMode == GameMode.LevelShape;
-            _isVisible.Value = isShapeMode;
+            _isVisible.Value = GameplayHintButtonPolicy.ShouldShowHintButton(
+                isShapeMode, _retryVisible.CurrentValue);
             var hasSnapshot = TryCreateSnapshot(out var snapshot);
             _canUseHint.Value = isShapeMode && !_isGameOver && _hintManager.IsReady &&
                                 _hintManager.CurrentHints.CurrentValue > 0 && !_isBusy &&
+                                !_retryVisible.CurrentValue &&
                                 hasSnapshot && !string.Equals(snapshot.Identity, _lockedIdentity,
                                     StringComparison.Ordinal);
         }
@@ -300,7 +321,6 @@ namespace FitMe.Panel
             _flashTimer = null;
             _flashVisible = false;
             _gridManager.ClearHintFlash();
-            ClearRetryGuidance();
         }
 
         private void ClearRetryGuidance()
@@ -318,6 +338,7 @@ namespace FitMe.Panel
             _activeSearchCancellation?.Cancel();
             _subscriptions?.Dispose();
             ClearHint();
+            ClearRetryGuidance();
             _readOnlyIsVisible.Dispose();
             _readOnlyCanUseHint.Dispose();
             _readOnlyRetryVisible.Dispose();
