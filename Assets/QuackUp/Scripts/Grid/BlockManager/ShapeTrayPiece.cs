@@ -23,10 +23,16 @@ namespace FitMe.Grid
             TrayBounds = trayBounds;
             DropBounds = trayBounds;
             _size = new Vector2(schema.GetLength(1), schema.GetLength(0));
-            // Fit even after any future quarter turn, including visual tilt.
-            Scale = Mathf.Min(scale, Mathf.Min(trayBounds.width, trayBounds.height) / _size.magnitude * .98f);
             Tilt = tilt;
             GameplayRotation = gameplayRotation;
+            // Fit full rotated bounds after any quarter turn, without imposing a
+            // diagonal-based cap on a requested scale that already fits.
+            var radians = tilt * Mathf.Deg2Rad;
+            var c = Mathf.Abs(Mathf.Cos(radians));
+            var s = Mathf.Abs(Mathf.Sin(radians));
+            var longestSide = Mathf.Max(c * _size.x + s * _size.y, s * _size.x + c * _size.y);
+            if (float.IsNaN(scale) || float.IsInfinity(scale) || scale <= 0f) scale = .5f;
+            Scale = Mathf.Min(scale, Mathf.Min(trayBounds.width, trayBounds.height) / longestSide);
             DropInTray(position);
         }
 

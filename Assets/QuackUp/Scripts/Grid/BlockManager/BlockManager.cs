@@ -528,29 +528,15 @@ namespace FitMe.Grid
             var bounds = new Rect(panelBounds.x + panelBounds.width * inset.x,
                 panelBounds.y + panelBounds.height * inset.y,
                 panelBounds.width * (1f - 2f * inset.x), panelBounds.height * (1f - 2f * inset.y));
-            // Randomized, jittered packing also keeps identical pieces individually hittable.
-            var columns = Mathf.Max(1, Mathf.CeilToInt(Mathf.Sqrt(count * bounds.width / bounds.height)));
-            var rows = Mathf.Max(1, Mathf.CeilToInt((float)count / columns));
-            var cellSize = new Vector2(bounds.width / columns, bounds.height / rows);
-            var cells = Enumerable.Range(0, columns * rows).ToList();
-            for (var k = cells.Count - 1; k > 0; k--)
-            {
-                var j = Random.Range(0, k + 1);
-                (cells[k], cells[j]) = (cells[j], cells[k]);
-            }
+            var items = _shapeBlockQueue.PeekNext(count);
+            var pieces = ShapeTrayLayout.Create(items, bounds, _config.TrayBlockScale,
+                _config.TrayTiltMin, _config.TrayTiltMax);
             var spawnedBlocks = new List<BlockInstance>();
             for (var i = 0; i < count; i++)
             {
                 if (!_shapeBlockQueue.TryTakeNext(out var item)) continue;
                 var schema = item.PlayerBlock.Schema;
-                var cell = cells[i];
-                var center = bounds.min + new Vector2((cell % columns + .5f) * cellSize.x, (cell / columns + .5f) * cellSize.y);
-                center += new Vector2(Random.Range(-.07f, .07f) * cellSize.x, Random.Range(-.07f, .07f) * cellSize.y);
-                var diagonal = new Vector2(schema.GetLength(0), schema.GetLength(1)).magnitude;
-                var scale = Mathf.Min(_config.ObjectScale, Mathf.Min(cellSize.x, cellSize.y) * .78f / diagonal);
-                var piece = new ShapeTrayPiece(i, schema, bounds, scale,
-                    Random.Range(Mathf.Min(_config.TrayTiltMin, _config.TrayTiltMax), Mathf.Max(_config.TrayTiltMin, _config.TrayTiltMax)),
-                    item.Rotation, center);
+                var piece = pieces[i];
                 piece.DropBounds = panelBounds;
                 var block = InstantiateBlock(_trayPanel, item.Rotation, BlockShape.OneByOne, item.Color,
                     piece.Scale, schema, true, item.PlayerBlock.Preset, _config.ShapeModeBlockConfig);

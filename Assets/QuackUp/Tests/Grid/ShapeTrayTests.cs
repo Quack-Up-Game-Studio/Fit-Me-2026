@@ -8,6 +8,24 @@ namespace FitMe.Grid.Tests
     public class ShapeTrayTests
     {
         [Test]
+        public void TrayBlockScaleHasIndependentSerializedPositiveInspectorDefault()
+        {
+            var config = ScriptableObject.CreateInstance<BlockManagerConfig>();
+            try
+            {
+                var property = typeof(BlockManagerConfig).GetProperty("TrayBlockScale");
+                Assert.That(property, Is.Not.Null);
+                Assert.That(property.GetValue(config), Is.EqualTo(.5f));
+                var field = typeof(BlockManagerConfig).GetField("<TrayBlockScale>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(field.GetCustomAttribute<SerializeField>(), Is.Not.Null);
+                Assert.That(field.GetCustomAttribute<MinAttribute>().min, Is.GreaterThan(0));
+                property.SetValue(config, .8f);
+                Assert.That(config.ObjectScale, Is.EqualTo(.5f));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(config); }
+        }
+
+        [Test]
         public void PieceKeepsLatestClampedTrayPositionAndGameplayRotationUntilPermanentlyPlaced()
         {
             var bounds = new Rect(-2f, -4.5f, 4f, 2f);

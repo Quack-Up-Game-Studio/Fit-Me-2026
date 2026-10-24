@@ -13,6 +13,8 @@ namespace FitMe.Grid
     public class BlockManagerConfig : SerializedScriptableObject
     {
         [Title("Shape Tray")]
+        [field: SerializeField, Min(.01f), Tooltip("Resting Shape Mode tray scale only. Small supplies shrink to avoid overlap; dense supplies may overlap.")]
+        public float TrayBlockScale { get; private set; } = .5f;
         [field: SerializeField] public float TrayTiltMin { get; private set; } = -15f;
         [field: SerializeField] public float TrayTiltMax { get; private set; } = 15f;
         [field: SerializeField, Tooltip("Normalized padding inside Tray_Panel artwork, excluding rounded rim and bottom shadow.")]

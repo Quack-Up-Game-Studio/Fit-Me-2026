@@ -54,10 +54,11 @@ namespace FitMe.Grid.Tests
             public Vector2 WorldToWorldCanvasPosition(Vector3 position) => position;
         }
 
-        private BlockInstance CreateTrayDragBlock(out TrayPointer pointer, out BlockManagerConfig config)
+        private BlockInstance CreateTrayDragBlock(out TrayPointer pointer, out BlockManagerConfig config, float trayScale = .35f)
         {
             SetUpOneCellPlacement();
             config = Keep(UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<BlockManagerConfig>(ArtRoot + "Settings/Grid/Block/BlockManagerConfig.asset")));
+            typeof(BlockManagerConfig).GetProperty("TrayBlockScale").SetValue(config, trayScale);
             foreach (var name in new[] { "UseBlockScaleTween", "UseBlockDragTween", "UseDynamicDragOffset" })
                 typeof(BlockManagerConfig).GetProperty(name).SetValue(config, false);
             typeof(BlockManagerConfig).GetProperty("BlockDragInertia").SetValue(config, 0f);
@@ -75,21 +76,24 @@ namespace FitMe.Grid.Tests
             _additionalBlockModels.Add(block.Model);
             _additionalBlockControllers.Add(block.Controller);
             _additionalBlockViewModels.Add(block.ViewModel);
-            block.Model.TrayPiece = new ShapeTrayPiece(31, new[,] { { 1 } }, new Rect(-2, -4, 4, 2), .35f, 13f, Quaternion.Euler(0, 0, 90), pointer.MouseWorldPosition);
+            block.Model.TrayPiece = new ShapeTrayPiece(31, new[,] { { 1 } }, new Rect(-2, -4, 4, 2), config.TrayBlockScale, 13f, Quaternion.Euler(0, 0, 90), pointer.MouseWorldPosition);
             block.GameObject.transform.rotation = block.Model.TrayPiece.TrayRotation;
-            block.GameObject.transform.localScale = Vector3.one * .35f;
+            block.GameObject.transform.localScale = new Vector3(block.Model.TrayPiece.Scale, block.Model.TrayPiece.Scale, 1);
             return block;
         }
 
-        [Test]
-        public void ShapeTray_DragUsesGridScaleWithoutTiltAndTrayDropPersistsLatestReturnPoint()
+        [TestCase(.2f)]
+        [TestCase(.7f)]
+        public void ShapeTray_DragUsesGridScaleWithoutTiltAndTrayDropPersistsLatestReturnPoint(float trayScale)
         {
-            var block = CreateTrayDragBlock(out var pointer, out var config);
+            var block = CreateTrayDragBlock(out var pointer, out var config, trayScale);
             var piece = block.Model.TrayPiece;
             var eventData = new UnityEngine.EventSystems.PointerEventData(null);
             block.Controller.BeingDragCommand.Execute(eventData);
             Assert.That(Quaternion.Angle(block.GameObject.transform.rotation, piece.GameplayRotation), Is.LessThan(.01f), "Pickup removes only visual tilt");
-            Assert.That(block.GameObject.transform.localScale.x, Is.GreaterThan(piece.Scale));
+            var gridSize = Keep(ScriptableObject.CreateInstance<GridManagerConfig>()).CellSize;
+            Assert.That(block.GameObject.transform.localScale.x, Is.EqualTo(gridSize.x).Within(.001f), "Pickup uses grid cell size, not either tray or ObjectScale");
+            Assert.That(block.GameObject.transform.localScale.y, Is.EqualTo(gridSize.y).Within(.001f));
             pointer.MouseWorldPosition = new Vector2(1.9f, -2.1f);
             block.Controller.DragCommand.Execute(eventData);
             block.Controller.EndDragCommand.Execute(eventData);
@@ -392,15 +396,18 @@ namespace FitMe.Grid.Tests
                         .Any(hit => hit.transform.IsChildOf(block.GameObject.transform)), Is.True, "Each authored piece must have a live hittable collider");
                 if (count == 6) RenderShapeTrayEvidence(rect);
                 Assert.That(pieces.Select(p => p.PieceId).Distinct().Count(), Is.EqualTo(count));
-                for (int i = 0; i < pieces.Count; i++)
-                for (int j = i + 1; j < pieces.Count; j++)
-                    Assert.That(pieces[i].PresentationBounds.Overlaps(pieces[j].PresentationBounds), Is.False, "Initial pieces must expose a hittable area");
+                if (count <= 6)
+                    for (int i = 0; i < pieces.Count; i++)
+                    for (int j = i + 1; j < pieces.Count; j++)
+                        Assert.That(pieces[i].PresentationBounds.Overlaps(pieces[j].PresentationBounds), Is.False, "Sparse initial supply must not overlap");
                 var survivorPositions = pieces.Skip(1).Select(p => p.Position).ToArray();
+                var survivorScales = pieces.Skip(1).Select(p => p.Scale).ToArray();
                 pieces[0].MarkPlaced();
                 Assert.That(manager.BlockOnHand.Count, Is.EqualTo(count - 1));
                 cellsCreated.OnNext(Unit.Default);
                 Assert.That(manager.BlockOnHand.Count, Is.EqualTo(count - 1), "Placement must not refill or duplicate");
                 Assert.That(pieces.Skip(1).Select(p => p.Position).ToArray(), Is.EqualTo(survivorPositions));
+                Assert.That(pieces.Skip(1).Select(p => p.Scale).ToArray(), Is.EqualTo(survivorScales));
             }
             finally
             {
