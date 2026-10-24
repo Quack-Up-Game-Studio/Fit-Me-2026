@@ -16,6 +16,7 @@ namespace FitMe.Panel
         public ReadOnlyReactiveProperty<bool> CanUseHint => _shapeHintController.CanUseHint;
         public ReadOnlyReactiveProperty<bool> IsRetryVisible => _shapeHintController.RetryVisible;
         public ReadOnlyReactiveProperty<bool> RetryFlashVisible => _shapeHintController.RetryFlashVisible;
+        public ReadOnlyReactiveProperty<int> RemainingHints => _shapeHintController.RemainingHints;
         public ReadOnlyReactiveProperty<GameMode> CurrentGameMode => _currentGameMode;
         private readonly ReactiveProperty<GameMode> _currentGameMode;
         
@@ -77,7 +78,6 @@ namespace FitMe.Panel
 
         private void OnRetry()
         {
-            _shapeHintController?.DismissRetryGuidance();
             _blockManagerMessageHub.Publish(new ContinueEvent());
             _gridManagerMessageHub.Publish(new ClearGridEvent(true, false));
         }

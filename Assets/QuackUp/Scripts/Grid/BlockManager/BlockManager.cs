@@ -348,7 +348,7 @@ namespace FitMe.Grid
                 SpawnShapeBlocks();
             else
                 SpawnBlocksFromBag(_config.CanRefill);
-            if (eventData.FitType is FitType.None or FitType.Combo) 
+            if (_shapeLevelRuntimeData == null && (eventData.FitType is FitType.None or FitType.Combo))
                 GameOverCheck().Forget();
         }
 
@@ -1078,6 +1078,9 @@ namespace FitMe.Grid
         
         public UniTask GameOverCheck()
         {
+            if (_shapeLevelRuntimeData != null)
+                return UniTask.CompletedTask;
+
             var blocksToCheck = BlockOnHand.Select(x => x.Model).ToList();
             
             var blockOnSwap = BlockOnPreview.FirstOrDefault();

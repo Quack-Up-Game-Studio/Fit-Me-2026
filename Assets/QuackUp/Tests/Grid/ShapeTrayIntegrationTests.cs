@@ -191,7 +191,7 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void ShapeTray_GameOverChecksFittingPieceBeyondLegacyHandCapacityAndIgnoresPlacedPieces()
+        public void ShapeTray_GameOverCheckIsDisabledForShapeLevels()
         {
             SetUpOneCellPlacement();
             var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
@@ -210,10 +210,10 @@ namespace FitMe.Grid.Tests
             var gameOvers = 0;
             using var sub = _hub.Subscribe<GameOverEvent>(evt => { if (evt.IsOver) gameOvers++; });
             manager.GameOverCheck().GetAwaiter().GetResult();
-            Assert.That(gameOvers, Is.Zero, "The fourth selectable tray piece fits even though legacy hand capacity is three");
+            Assert.That(gameOvers, Is.Zero, "Shape Mode must not publish game over when a tray piece fits");
             blocks[3].Model.TrayPiece.MarkPlaced();
             manager.GameOverCheck().GetAwaiter().GetResult();
-            Assert.That(gameOvers, Is.EqualTo(1), "Placed pieces are no longer selectable inventory");
+            Assert.That(gameOvers, Is.Zero, "Shape Mode must not publish game over even when no tray piece fits");
         }
 
         [Test]

@@ -40,16 +40,37 @@ namespace FitMe.Panel.Tests
             Assert.That(spendSucceeded, Is.False);
         }
 
-        [TestCase(true, false, true)]
-        [TestCase(true, true, false)]
-        [TestCase(false, false, false)]
-        [TestCase(false, true, false)]
-        public void HintButtonVisibility_IsSuppressedOnlyDuringRetryGuidance(
-            bool isShapeMode, bool retryGuidanceVisible, bool expectedVisible)
+        [Test]
+        public void ShapeHintAllowance_AllowsFourSpendsAndCanResetForNewLevel()
+        {
+            var remainingHints = ShapeHintAllowancePolicy.Reset();
+            Assert.That(remainingHints, Is.EqualTo(4));
+
+            for (var expectedRemaining = 3; expectedRemaining >= 0; expectedRemaining--)
+            {
+                Assert.That(ShapeHintAllowancePolicy.TrySpend(ref remainingHints), Is.True);
+                Assert.That(remainingHints, Is.EqualTo(expectedRemaining));
+            }
+
+            Assert.That(ShapeHintAllowancePolicy.TrySpend(ref remainingHints), Is.False);
+            Assert.That(remainingHints, Is.Zero);
+            Assert.That(ShapeHintAllowancePolicy.Reset(), Is.EqualTo(4));
+        }
+
+        [TestCase(true, true)]
+        [TestCase(false, false)]
+        public void HintButtonVisibility_DependsOnlyOnShapeMode(bool isShapeMode, bool expectedVisible)
         {
             Assert.That(
-                GameplayHintButtonPolicy.ShouldShowHintButton(isShapeMode, retryGuidanceVisible),
+                GameplayHintButtonPolicy.ShouldShowHintButton(isShapeMode),
                 Is.EqualTo(expectedVisible));
+        }
+
+        [TestCase(true, true)]
+        [TestCase(false, false)]
+        public void RetryButtonVisibility_DependsOnlyOnShapeMode(bool isShapeMode, bool expectedVisible)
+        {
+            Assert.That(GameplayHintButtonPolicy.ShouldShowRetryButton(isShapeMode), Is.EqualTo(expectedVisible));
         }
 
         [Test]

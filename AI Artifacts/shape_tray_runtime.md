@@ -3,7 +3,7 @@
 ## Supply and ownership
 
 - `ShapeLevelDefinition.ToRuntimeData()` expands authored counts into `PlayerBlockEntries`, including inline footprints. `BlockManager` consumes that complete initial buffer once after grid cells are created. It does not use the preset-only compatibility `PlayerBlocks` projection.
-- Every entry is constructed through the existing `BlockFactory`, `BlockController`, `BlockModel`, and `BlockViewModel` path. `_trayBlocks` is the current run's inventory; `BlockOnHand` projects its live, unplaced pieces for availability/game-over checks. Shape Mode has no preview or swap and never refills a hand slot.
+- Every entry is constructed through the existing `BlockFactory`, `BlockController`, `BlockModel`, and `BlockViewModel` path. `_trayBlocks` is the current run's inventory; `BlockOnHand` projects its live, unplaced pieces for availability checks. Shape Mode has no preview or swap and never refills a hand slot. The legacy game-over check remains for non-Shape modes only; Shape Mode never publishes `GameOverEvent` when no block fits.
 - `ShapeTrayPiece.PieceId` identifies an authored runtime entry for the run; tray blocks have `SpawnIndex = -1`. `IsPlaced` is permanent. A successful grid drop retains existing occupancy/placement behavior and cannot be picked up, regardless of the legacy pickup configuration.
 - Retry/new shape-level events discard old tray inventory and rebuild the authored supply. Successful placement never changes the remaining pieces' positions or presentation sizes.
 
@@ -23,6 +23,14 @@
 - `GameplayPanelViewModel.CurrentGameMode` is an R3 read-only state seeded from `ILevelManager.CurrentGameMode` and refreshed on the existing keyed `GridManagerMessageHub` session-spawn event. LevelManager assigns its authoritative mode before publishing, including Classic/null runtime data, retry, and seamless Shape sessions. The View binds that state and owns only visibility presentation; subscriptions are disposed with their owners.
 - Entering Shape Mode snapshots each unique non-null target's `activeSelf` before hiding it. Repeated notifications never overwrite that snapshot. Leaving Shape Mode restores those states rather than blindly enabling previously inactive objects; null, empty, duplicate, and destroyed target references are safe. Unlisted UI is untouched.
 - `Tests/Panel/GameplayShapeVisibilityTests.cs` exercises initial/live MVVM binding, repeated transitions, authored inactive targets, null/empty/duplicate entries, subscription disposal, and actual saved-scene identities and hide/restore behavior. Run `FitMe.Panel.Tests` alongside tray tests; scene loading acknowledges only the same known stale reference errors as the existing tray fixture, never unrelated new errors.
+
+## Shape Mode exhibition controls
+
+- The Shape `Hint` button and free `Retry` button remain visible for the whole level. Hint has a four-use local allowance, shown by the `HintButton/Label` TMP field explicitly wired in `Gameplay.unity`; each `SpawnWithShapeLevelEvent` starts that level entry with four again. Shape hints do not spend the project-wide hint resource.
+- A hint consumes one local use only after a definitive solver result (`Feasible` or `Infeasible`). Search-limit and invalid-input outcomes do not consume a hint. The count is reactive UI state owned by `ShapeHintController` and exposed through `GameplayPanelViewModel`.
+- Feasibility is checked after a successful board placement and after Shape supply blocks spawn. A proven-infeasible state disables/tints Hint and starts persistent flashing guidance on Retry. Ordinary board changes do not dismiss this guidance; the `ClearGridEvent` retry path clears it after publishing `ContinueEvent` first, preserving the existing supply reset order.
+- Shape Mode does not enter the global game-over flow. `BlockManager.GameOverCheck()` returns without publishing no-placeable/game-over events while Shape runtime data is active; Classic game-over behavior is unchanged.
+- Focused verification: `GameplayRetryBehaviorTests` covers the local four-use cap, retry event order, button visibility and definitive-result spending; `GameplayShapeVisibilityTests` verifies the saved Hint-count binding. `GridManagerLifecycleTests.ShapeTray_GameOverCheckIsDisabledForShapeLevels` verifies the Shape game-over guard. This EditMode evidence does not claim a PlayMode/device presentation smoke test.
 
 ## Verification
 

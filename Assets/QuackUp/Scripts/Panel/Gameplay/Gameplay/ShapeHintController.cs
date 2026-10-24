@@ -16,8 +16,9 @@ namespace FitMe.Panel
 {
     public static class GameplayHintButtonPolicy
     {
-        public static bool ShouldShowHintButton(bool isShapeMode, bool retryGuidanceVisible) =>
-            isShapeMode && !retryGuidanceVisible;
+        public static bool ShouldShowHintButton(bool isShapeMode) => isShapeMode;
+
+        public static bool ShouldShowRetryButton(bool isShapeMode) => isShapeMode;
 
         public static ColorBlock WithUnavailableTint(ColorBlock colors)
         {
@@ -37,16 +38,32 @@ namespace FitMe.Panel
         }
     }
 
+    public static class ShapeHintAllowancePolicy
+    {
+        public const int HintsPerLevel = 4;
+
+        public static int Reset() => HintsPerLevel;
+
+        public static bool TrySpend(ref int remainingHints)
+        {
+            if (remainingHints <= 0) return false;
+            remainingHints--;
+            return true;
+        }
+    }
+
     public sealed class ShapeHintController : IPostInitializable, IDisposable
     {
+        public const int ShapeLevelHintCap = ShapeHintAllowancePolicy.HintsPerLevel;
         private readonly GridManager _gridManager;
         private readonly BlockManager _blockManager;
-        private readonly HintManager _hintManager;
         private readonly HintSearchConfig _searchConfig;
         private readonly ILevelManager _levelManager;
         private readonly IGameStateManager _gameStateManager;
         private readonly IMessageHub _notificationMessageHub;
         private readonly IMessageHub _blockManagerMessageHub;
+        private readonly IMessageHub _gridManagerMessageHub;
+        private readonly ReactiveProperty<int> _remainingHints = new(ShapeLevelHintCap);
         private readonly ReactiveProperty<bool> _isVisible = new(false);
         private readonly ReactiveProperty<bool> _canUseHint = new(false);
         private readonly ReactiveProperty<bool> _retryVisible = new(false);
@@ -55,6 +72,7 @@ namespace FitMe.Panel
         private readonly ReadOnlyReactiveProperty<bool> _readOnlyCanUseHint;
         private readonly ReadOnlyReactiveProperty<bool> _readOnlyRetryVisible;
         private readonly ReadOnlyReactiveProperty<bool> _readOnlyRetryFlashVisible;
+        private readonly ReadOnlyReactiveProperty<int> _readOnlyRemainingHints;
         private IDisposable _subscriptions;
         private IDisposable _flashTimer;
         private IDisposable _retryGuidanceTimer;
@@ -64,60 +82,75 @@ namespace FitMe.Panel
         private bool _isBusy;
         private bool _flashVisible;
         private bool _isGameOver;
-        private bool _isRetryResetInProgress;
+        private bool _retryGuidanceActive;
         private bool _disposed;
 
         public ReadOnlyReactiveProperty<bool> IsVisible => _readOnlyIsVisible;
         public ReadOnlyReactiveProperty<bool> CanUseHint => _readOnlyCanUseHint;
         public ReadOnlyReactiveProperty<bool> RetryVisible => _readOnlyRetryVisible;
         public ReadOnlyReactiveProperty<bool> RetryFlashVisible => _readOnlyRetryFlashVisible;
+        public ReadOnlyReactiveProperty<int> RemainingHints => _readOnlyRemainingHints;
 
         [Inject]
         public ShapeHintController(
             GridManager gridManager,
             BlockManager blockManager,
-            HintManager hintManager,
             HintSearchConfig searchConfig,
             ILevelManager levelManager,
             IGameStateManager gameStateManager,
             [Key(NotificationMessageHub.MessageHubKey)] IMessageHub notificationMessageHub,
-            [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub blockManagerMessageHub)
+            [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub blockManagerMessageHub,
+            [Key(GridManagerMessageHub.GridManagerMessageHubKey)] IMessageHub gridManagerMessageHub)
         {
             _gridManager = gridManager;
             _blockManager = blockManager;
-            _hintManager = hintManager;
             _searchConfig = searchConfig;
             _levelManager = levelManager;
             _gameStateManager = gameStateManager;
             _notificationMessageHub = notificationMessageHub;
             _blockManagerMessageHub = blockManagerMessageHub;
+            _gridManagerMessageHub = gridManagerMessageHub;
             _readOnlyIsVisible = _isVisible.ToReadOnlyReactiveProperty();
             _readOnlyCanUseHint = _canUseHint.ToReadOnlyReactiveProperty();
             _readOnlyRetryVisible = _retryVisible.ToReadOnlyReactiveProperty();
             _readOnlyRetryFlashVisible = _retryFlashVisible.ToReadOnlyReactiveProperty();
+            _readOnlyRemainingHints = _remainingHints.ToReadOnlyReactiveProperty();
         }
 
         public void PostInitialize()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            _gridManager.OnBlockPlaced.Subscribe(_ => RefreshSolverState()).AddTo(ref disposableBuilder);
+            _gridManager.OnBlockPlaced
+                .Subscribe(_ =>
+                {
+                    RefreshSolverState();
+                    CheckBoardFeasibility();
+                })
+                .AddTo(ref disposableBuilder);
             _gridManager.OnAboutToClearGrid.Subscribe(_ => ClearHint()).AddTo(ref disposableBuilder);
             _gridManager.OnCellsCreated.Subscribe(_ => RefreshSolverState()).AddTo(ref disposableBuilder);
             _gridManager.OnClearGrid.Subscribe(_ =>
             {
-                if (_isRetryResetInProgress)
-                {
-                    _isRetryResetInProgress = false;
-                    ClearRetryGuidance();
-                }
+                ClearRetryGuidance();
                 RefreshSolverState();
             }).AddTo(ref disposableBuilder);
             _blockManager.OnSwap.Subscribe(_ => RefreshSolverState()).AddTo(ref disposableBuilder);
             _blockManagerMessageHub.GetObservable<BlockSpawnedEvent>()
-                .Subscribe(_ => RefreshSolverState())
+                .Subscribe(_ =>
+                {
+                    RefreshSolverState();
+                    CheckBoardFeasibility();
+                })
                 .AddTo(ref disposableBuilder);
-            _hintManager.CurrentHints.Subscribe(_ => UpdateAvailability()).AddTo(ref disposableBuilder);
-            _hintManager.Readiness.Subscribe(_ => UpdateAvailability()).AddTo(ref disposableBuilder);
+            _gridManagerMessageHub.GetObservable<SpawnWithShapeLevelEvent>()
+                .Subscribe(_ =>
+                {
+                    if (_levelManager.CurrentGameMode != GameMode.LevelShape) return;
+                    _remainingHints.Value = ShapeHintAllowancePolicy.Reset();
+                    UpdateAvailability();
+                })
+                .AddTo(ref disposableBuilder);
+            _remainingHints.Subscribe(_ => UpdateAvailability()).AddTo(ref disposableBuilder);
             _gameStateManager.GameState
                 .Subscribe(state =>
                 {
@@ -139,16 +172,29 @@ namespace FitMe.Panel
         {
             if (_disposed || !_canUseHint.CurrentValue || !TryCreateSnapshot(out var snapshot)) return;
 
-            var maxSearchNodes = _searchConfig.MaxSearchNodes;
+            StartSearch(snapshot, _searchConfig.MaxSearchNodes, isHintRequest: true);
+        }
+
+        private void CheckBoardFeasibility()
+        {
+            if (_disposed || _isGameOver || _retryGuidanceActive || _isBusy ||
+                _levelManager.CurrentGameMode != GameMode.LevelShape || !TryCreateSnapshot(out var snapshot))
+                return;
+
+            StartSearch(snapshot, _searchConfig.MaxSearchNodes, isHintRequest: false);
+        }
+
+        private void StartSearch(SearchSnapshot snapshot, int maxSearchNodes, bool isHintRequest)
+        {
             _isBusy = true;
             UpdateAvailability();
             var cancellation = new CancellationTokenSource();
             _activeSearchCancellation = cancellation;
-            SearchAsync(snapshot, cancellation, maxSearchNodes).Forget();
+            SearchAsync(snapshot, cancellation, maxSearchNodes, isHintRequest).Forget();
         }
 
         private async UniTaskVoid SearchAsync(
-            SearchSnapshot snapshot, CancellationTokenSource cancellation, int maxSearchNodes)
+            SearchSnapshot snapshot, CancellationTokenSource cancellation, int maxSearchNodes, bool isHintRequest)
         {
             try
             {
@@ -171,8 +217,8 @@ namespace FitMe.Panel
 
                 _isBusy = false;
                 _activeSearchCancellation = null;
-                if (!HintConsumptionPolicy.TrySpendIfRequired(
-                        result.Status, () => _hintManager.TrySpendHints(1)))
+                if (isHintRequest && !HintConsumptionPolicy.TrySpendIfRequired(
+                        result.Status, TrySpendLocalHint))
                 {
                     UpdateAvailability();
                     return;
@@ -180,31 +226,38 @@ namespace FitMe.Panel
 
                 if (result.Status == HintSolutionStatus.Feasible)
                 {
-                    _lockedIdentity = snapshot.Identity;
-                    _gridManager.SetHintHighlights(result.FirstMove.Cells);
-                    if (result.FirstMove.RequiresSwap)
+                    if (isHintRequest)
                     {
-                        var placementInstruction = result.FirstMove.BlockIndex == 1
-                            ? "Swap the first hand block with the preview, then place the second hand block on the highlighted cells."
-                            : "Swap the first hand block with the preview before placing the highlighted move.";
-                        ShowNotification(placementInstruction);
+                        _lockedIdentity = snapshot.Identity;
+                        _gridManager.SetHintHighlights(result.FirstMove.Cells);
+                        if (result.FirstMove.RequiresSwap)
+                        {
+                            var placementInstruction = result.FirstMove.BlockIndex == 1
+                                ? "Swap the first hand block with the preview, then place the second hand block on the highlighted cells."
+                                : "Swap the first hand block with the preview before placing the highlighted move.";
+                            ShowNotification(placementInstruction);
+                        }
+                        else if (result.FirstMove.BlockIndex == 1)
+                        {
+                            ShowNotification("Place the second hand block on the highlighted cells.");
+                        }
+                        StartFlash(snapshot.Identity);
                     }
-                    else if (result.FirstMove.BlockIndex == 1)
-                    {
-                        ShowNotification("Place the second hand block on the highlighted cells.");
-                    }
-                    StartFlash(snapshot.Identity);
                 }
                 else if (result.Status == HintSolutionStatus.SearchLimitReached)
                 {
-                    _lockedIdentity = snapshot.Identity;
-                    ShowNotification("Hint search reached its limit. Change the board to try again.");
+                    if (isHintRequest)
+                    {
+                        _lockedIdentity = snapshot.Identity;
+                        ShowNotification("Hint search reached its limit. Change the board to try again.");
+                    }
                 }
                 else if (result.Status == HintSolutionStatus.Infeasible)
                 {
                     _lockedIdentity = snapshot.Identity;
                     StartRetryGuidance();
-                    ShowNotification("No solution found. Tap Retry to clear the board.");
+                    if (isHintRequest)
+                        ShowNotification("No solution found. Tap Retry to clear the board.");
                 }
                 else
                 {
@@ -248,6 +301,7 @@ namespace FitMe.Panel
         private void StartRetryGuidance()
         {
             _retryGuidanceTimer?.Dispose();
+            _retryGuidanceActive = true;
             _retryVisible.Value = true;
             _retryFlashVisible.Value = true;
             _retryGuidanceTimer = Observable.Interval(TimeSpan.FromSeconds(0.35))
@@ -256,11 +310,6 @@ namespace FitMe.Panel
                     if (_disposed || _isGameOver) return;
                     _retryFlashVisible.Value = !_retryFlashVisible.CurrentValue;
                 });
-        }
-
-        public void DismissRetryGuidance()
-        {
-            _isRetryResetInProgress = true;
         }
 
         private void RefreshSolverState()
@@ -272,8 +321,8 @@ namespace FitMe.Panel
                 _observedIdentity = identity;
                 _lockedIdentity = null;
                 _activeSearchCancellation?.Cancel();
+                _isBusy = false;
                 ClearHint();
-                if (!_retryVisible.CurrentValue) ClearRetryGuidance();
             }
             UpdateAvailability();
         }
@@ -281,12 +330,12 @@ namespace FitMe.Panel
         private void UpdateAvailability()
         {
             var isShapeMode = _levelManager.CurrentGameMode == GameMode.LevelShape;
-            _isVisible.Value = GameplayHintButtonPolicy.ShouldShowHintButton(
-                isShapeMode, _retryVisible.CurrentValue);
+            _isVisible.Value = GameplayHintButtonPolicy.ShouldShowHintButton(isShapeMode);
+            _retryVisible.Value = GameplayHintButtonPolicy.ShouldShowRetryButton(isShapeMode);
             var hasSnapshot = TryCreateSnapshot(out var snapshot);
-            _canUseHint.Value = isShapeMode && !_isGameOver && _hintManager.IsReady &&
-                                _hintManager.CurrentHints.CurrentValue > 0 && !_isBusy &&
-                                !_retryVisible.CurrentValue &&
+            _canUseHint.Value = isShapeMode && !_isGameOver &&
+                                _remainingHints.CurrentValue > 0 && !_isBusy &&
+                                !_retryGuidanceActive &&
                                 hasSnapshot && !string.Equals(snapshot.Identity, _lockedIdentity,
                                     StringComparison.Ordinal);
         }
@@ -327,8 +376,16 @@ namespace FitMe.Panel
         {
             _retryGuidanceTimer?.Dispose();
             _retryGuidanceTimer = null;
-            _retryVisible.Value = false;
+            _retryGuidanceActive = false;
             _retryFlashVisible.Value = false;
+        }
+
+        private bool TrySpendLocalHint()
+        {
+            var remainingHints = _remainingHints.CurrentValue;
+            if (!ShapeHintAllowancePolicy.TrySpend(ref remainingHints)) return false;
+            _remainingHints.Value = remainingHints;
+            return true;
         }
 
         public void Dispose()
@@ -343,10 +400,12 @@ namespace FitMe.Panel
             _readOnlyCanUseHint.Dispose();
             _readOnlyRetryVisible.Dispose();
             _readOnlyRetryFlashVisible.Dispose();
+            _readOnlyRemainingHints.Dispose();
             _isVisible.Dispose();
             _canUseHint.Dispose();
             _retryVisible.Dispose();
             _retryFlashVisible.Dispose();
+            _remainingHints.Dispose();
         }
 
         private readonly struct SearchSnapshot

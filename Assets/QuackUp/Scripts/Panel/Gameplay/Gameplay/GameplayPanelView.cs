@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FitMe.Shared;
+using TMPro;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,7 @@ namespace FitMe.Panel
         [SerializeField] private Button pauseButton;
         [SerializeField] private Button hintButton;
         [SerializeField] private Button retryButton;
+        [SerializeField] private TMP_Text hintCountText;
         [SerializeField] private string pausePanelId = "Pause";
 
         [Header("Shape Mode")]
@@ -23,15 +25,20 @@ namespace FitMe.Panel
 
         private void OnGameModeChanged(GameMode mode)
         {
+            if (hintCountText != null)
+                hintCountText.gameObject.SetActive(mode == GameMode.LevelShape);
+
             if (mode == GameMode.LevelShape)
             {
-                if (hideInShapeMode == null) return;
-                foreach (var target in hideInShapeMode)
+                if (hideInShapeMode != null)
                 {
-                    if (!target) continue;
-                    if (!_activeStatesBeforeShapeMode.ContainsKey(target))
-                        _activeStatesBeforeShapeMode.Add(target, target.activeSelf);
-                    target.SetActive(false);
+                    foreach (var target in hideInShapeMode)
+                    {
+                        if (!target) continue;
+                        if (!_activeStatesBeforeShapeMode.ContainsKey(target))
+                            _activeStatesBeforeShapeMode.Add(target, target.activeSelf);
+                        target.SetActive(false);
+                    }
                 }
                 return;
             }
@@ -60,6 +67,22 @@ namespace FitMe.Panel
                 .AddTo(ref disposableBuilder);
             if (hintButton != null)
             {
+                if (hintCountText == null)
+                    hintCountText = hintButton.GetComponentInChildren<TMP_Text>(true);
+                if (hintCountText != null)
+                {
+                    var countRect = hintCountText.rectTransform;
+                    countRect.anchorMin = Vector2.one;
+                    countRect.anchorMax = Vector2.one;
+                    countRect.pivot = Vector2.one;
+                    countRect.sizeDelta = new Vector2(36f, 36f);
+                    countRect.anchoredPosition = new Vector2(-4f, -4f);
+                    hintCountText.alignment = TextAlignmentOptions.Center;
+                    hintCountText.fontSize = 28f;
+                    ViewModel.RemainingHints
+                        .Subscribe(count => hintCountText.text = count.ToString())
+                        .AddTo(ref disposableBuilder);
+                }
                 hintButton.colors = GameplayHintButtonPolicy.WithUnavailableTint(hintButton.colors);
                 hintButton.onClick.AsObservable()
                     .Subscribe(_ => ViewModel.HintCommand.Execute(Unit.Default))

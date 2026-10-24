@@ -126,6 +126,11 @@ namespace FitMe.Panel.Tests
                 var canvas = scene.GetRootGameObjects().Single(go => go.name == "OverlayCanvas");
                 var panel = canvas.transform.Find("GameplayPanel");
                 var view = panel.GetComponent<GameplayPanelView>();
+                var hintCount = panel.Find("HintAndRetry/HintButton/Label").GetComponent("TextMeshProUGUI");
+                Assert.That(hintCount, Is.Not.Null, "The Hint button must contain its TMP count label");
+                var hintCountField = typeof(GameplayPanelView).GetField("hintCountText", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(hintCountField.GetValue(view), Is.SameAs(hintCount),
+                    "The saved scene must explicitly bind the Shape hint count to the Hint button label");
                 var targets = (GameObject[])typeof(GameplayPanelView).GetField("hideInShapeMode", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(view);
                 var paths = new[] { "Back/NextQueue", "Back/Hands", "Back/Swap Icon", "Back/Next Queue", "SwapButton" };
                 var expected = paths.Select(path => panel.Find(path).gameObject).ToArray();
