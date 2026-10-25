@@ -1,0 +1,168 @@
+D4.png
+	size: 675, 142
+	filter: Linear, Linear
+Design_4/Blue_Design_4/Body
+	bounds: 2, 10, 130, 130
+Design_4/Blue_Design_4/L_Eye_1
+	bounds: 262, 2, 6, 12
+	rotate: 90
+Design_4/Blue_Design_4/L_Eye_2
+	bounds: 397, 3, 5, 9
+	rotate: 90
+Design_4/Blue_Design_4/L_Eye_3
+	bounds: 460, 3, 5, 7
+	rotate: 90
+Design_4/Blue_Design_4/L_Eye_Base_1
+	bounds: 662, 129, 11, 11
+Design_4/Blue_Design_4/R_Eye_Base
+	bounds: 662, 129, 11, 11
+Design_4/Green_Design_4/L_Eye_Base_1
+	bounds: 662, 129, 11, 11
+Design_4/Green_Design_4/R_Eye_Base
+	bounds: 662, 129, 11, 11
+Design_4/Purple_Design_4/L_Eye_Base_1
+	bounds: 662, 129, 11, 11
+Design_4/Purple_Design_4/R_Eye_Base
+	bounds: 662, 129, 11, 11
+Design_4/Red_Design_4/L_Eye_Base_1
+	bounds: 662, 129, 11, 11
+Design_4/Red_Design_4/R_Eye_Base
+	bounds: 662, 129, 11, 11
+Design_4/Yellow_Design_4/L_Eye_Base_1
+	bounds: 662, 129, 11, 11
+Design_4/Yellow_Design_4/R_Eye_Base
+	bounds: 662, 129, 11, 11
+Design_4/Blue_Design_4/L_Eye_Base_2
+	bounds: 662, 119, 8, 8
+Design_4/Green_Design_4/L_Eye_Base_2
+	bounds: 662, 119, 8, 8
+Design_4/Purple_Design_4/L_Eye_Base_2
+	bounds: 662, 119, 8, 8
+Design_4/Red_Design_4/L_Eye_Base_2
+	bounds: 662, 119, 8, 8
+Design_4/Yellow_Design_4/L_Eye_Base_2
+	bounds: 662, 119, 8, 8
+Design_4/Blue_Design_4/L_Eye_Base_3
+	bounds: 452, 2, 6, 6
+Design_4/Green_Design_4/L_Eye_Base_3
+	bounds: 452, 2, 6, 6
+Design_4/Purple_Design_4/L_Eye_Base_3
+	bounds: 452, 2, 6, 6
+Design_4/Red_Design_4/L_Eye_Base_3
+	bounds: 452, 2, 6, 6
+Design_4/Yellow_Design_4/L_Eye_Base_3
+	bounds: 452, 2, 6, 6
+Design_4/Blue_Design_4/L_Eye_Default_1
+	bounds: 662, 110, 7, 7
+Design_4/Blue_Design_4/R_Eye_Default
+	bounds: 662, 110, 7, 7
+Design_4/Blue_Design_4/L_Eye_Default_2
+	bounds: 505, 3, 5, 5
+Design_4/Blue_Design_4/L_Eye_Default_3
+	bounds: 540, 4, 4, 4
+Design_4/Blue_Design_4/Mouth_Default
+	bounds: 2, 4, 4, 50
+	rotate: 90
+Design_4/Blue_Design_4/R_Eye
+	bounds: 332, 2, 6, 11
+	rotate: 90
+Design_4/Green_Design_4/Body
+	bounds: 134, 10, 130, 130
+Design_4/Green_Design_4/L_Eye_1
+	bounds: 276, 2, 6, 12
+	rotate: 90
+Design_4/Green_Design_4/L_Eye_2
+	bounds: 408, 3, 5, 9
+	rotate: 90
+Design_4/Green_Design_4/L_Eye_3
+	bounds: 469, 3, 5, 7
+	rotate: 90
+Design_4/Green_Design_4/L_Eye_Default_1
+	bounds: 662, 101, 7, 7
+Design_4/Green_Design_4/R_Eye_Default
+	bounds: 662, 101, 7, 7
+Design_4/Green_Design_4/L_Eye_Default_2
+	bounds: 512, 3, 5, 5
+Design_4/Green_Design_4/L_Eye_Default_3
+	bounds: 546, 4, 4, 4
+Design_4/Green_Design_4/Mouth_Default
+	bounds: 54, 4, 4, 50
+	rotate: 90
+Design_4/Green_Design_4/R_Eye
+	bounds: 345, 2, 6, 11
+	rotate: 90
+Design_4/Purple_Design_4/Body
+	bounds: 266, 10, 130, 130
+Design_4/Purple_Design_4/L_Eye_1
+	bounds: 290, 2, 6, 12
+	rotate: 90
+Design_4/Purple_Design_4/L_Eye_2
+	bounds: 419, 3, 5, 9
+	rotate: 90
+Design_4/Purple_Design_4/L_Eye_3
+	bounds: 478, 3, 5, 7
+	rotate: 90
+Design_4/Purple_Design_4/L_Eye_Default_1
+	bounds: 662, 92, 7, 7
+Design_4/Purple_Design_4/R_Eye_Default
+	bounds: 662, 92, 7, 7
+Design_4/Purple_Design_4/L_Eye_Default_2
+	bounds: 519, 3, 5, 5
+Design_4/Purple_Design_4/L_Eye_Default_3
+	bounds: 552, 4, 4, 4
+Design_4/Purple_Design_4/Mouth_Default
+	bounds: 106, 4, 4, 50
+	rotate: 90
+Design_4/Purple_Design_4/R_Eye
+	bounds: 358, 2, 6, 11
+	rotate: 90
+Design_4/Red_Design_4/Body
+	bounds: 398, 10, 130, 130
+Design_4/Red_Design_4/L_Eye_1
+	bounds: 304, 2, 6, 12
+	rotate: 90
+Design_4/Red_Design_4/L_Eye_2
+	bounds: 430, 3, 5, 9
+	rotate: 90
+Design_4/Red_Design_4/L_Eye_3
+	bounds: 487, 3, 5, 7
+	rotate: 90
+Design_4/Red_Design_4/L_Eye_Default_1
+	bounds: 662, 83, 7, 7
+Design_4/Red_Design_4/R_Eye_Default
+	bounds: 662, 83, 7, 7
+Design_4/Red_Design_4/L_Eye_Default_2
+	bounds: 526, 3, 5, 5
+Design_4/Red_Design_4/L_Eye_Default_3
+	bounds: 558, 4, 4, 4
+Design_4/Red_Design_4/Mouth_Default
+	bounds: 158, 4, 4, 50
+	rotate: 90
+Design_4/Red_Design_4/R_Eye
+	bounds: 371, 2, 6, 11
+	rotate: 90
+Design_4/Yellow_Design_4/Body
+	bounds: 530, 10, 130, 130
+Design_4/Yellow_Design_4/L_Eye_1
+	bounds: 318, 2, 6, 12
+	rotate: 90
+Design_4/Yellow_Design_4/L_Eye_2
+	bounds: 441, 3, 5, 9
+	rotate: 90
+Design_4/Yellow_Design_4/L_Eye_3
+	bounds: 496, 3, 5, 7
+	rotate: 90
+Design_4/Yellow_Design_4/L_Eye_Default_1
+	bounds: 662, 74, 7, 7
+Design_4/Yellow_Design_4/R_Eye_Default
+	bounds: 662, 74, 7, 7
+Design_4/Yellow_Design_4/L_Eye_Default_2
+	bounds: 533, 3, 5, 5
+Design_4/Yellow_Design_4/L_Eye_Default_3
+	bounds: 564, 4, 4, 4
+Design_4/Yellow_Design_4/Mouth_Default
+	bounds: 210, 4, 4, 50
+	rotate: 90
+Design_4/Yellow_Design_4/R_Eye
+	bounds: 384, 2, 6, 11
+	rotate: 90
