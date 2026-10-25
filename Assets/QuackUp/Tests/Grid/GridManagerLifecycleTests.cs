@@ -970,6 +970,49 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void BlockManager_ClassicSwapExchangesActiveAndPreviewBlocks()
+        {
+            SetUpOneCellPlacement();
+            var activePreset = CreateBlockPreset(new[,] { { 1 } });
+            var nextPreset = CreateBlockPreset(new[,] { { 1, 1 } });
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var handTransform = Keep(new GameObject("Classic hand slot")).transform;
+            var previewTransform = Keep(new GameObject("Classic preview slot")).transform;
+            var handPoint = CreateSpawnPoint(handTransform, null, true);
+            var previewPoint = CreateSpawnPoint(previewTransform, null, true);
+            using var blockManager = new BlockManager(
+                _manager, config, null, new[] { handPoint }, null, new[] { previewPoint }, _hub);
+
+            var activeItem = new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(activePreset, activePreset.BlockSchema.schema),
+                Quaternion.identity, BlockColor.Red);
+            var nextItem = new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(nextPreset, nextPreset.BlockSchema.schema),
+                Quaternion.identity, BlockColor.Blue);
+            var activeBlock = CreateShapeTestBlock(config, activeItem, handTransform, 0, true);
+            var previewBlock = CreateShapeTestBlock(config, nextItem, previewTransform, -1, false);
+            handPoint.CurrentBlock = activeBlock;
+            handPoint.IsFree = false;
+            previewPoint.CurrentBlock = previewBlock;
+            previewPoint.IsFree = false;
+            typeof(BlockManager).GetField("_spawnBag", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(blockManager, new Queue<SpawnBlockData>(new[]
+                {
+                    new SpawnBlockData(BlockShape.OneByOne, Quaternion.identity, nextPreset.BlockSchema, BlockColor.Blue),
+                    new SpawnBlockData(BlockShape.OneByOne, Quaternion.identity, activePreset.BlockSchema, BlockColor.Red)
+                }));
+
+            blockManager.Swap();
+
+            Assert.That(handPoint.CurrentBlock, Is.SameAs(previewBlock));
+            Assert.That(previewPoint.CurrentBlock, Is.SameAs(activeBlock));
+            Assert.That(previewBlock.GameObject.transform.parent, Is.SameAs(handTransform));
+            Assert.That(activeBlock.GameObject.transform.parent, Is.SameAs(previewTransform));
+            Assert.That(previewBlock.Model.SpawnIndex, Is.Zero);
+            Assert.That(activeBlock.Model.SpawnIndex, Is.EqualTo(-1));
+        }
+
+        [Test]
         public void BlockManager_ShapeModeDisablesSwapEvenIfLegacyHandAndPreviewArePopulated()
         {
             SetUpOneCellPlacement();

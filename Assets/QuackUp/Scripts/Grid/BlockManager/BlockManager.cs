@@ -616,28 +616,33 @@ namespace FitMe.Grid
             if (blockToSwap.Controller.IsRotating) return;
             var previewBlock = BlockOnPreview.FirstOrDefault();
             if (previewBlock == null) return;
+            var spawnIndex = blockToSwap.Model.SpawnIndex;
+            if (spawnIndex < 0 || spawnIndex >= _spawnPoints.Length || _spawnPreviews == null || _spawnPreviews.Length == 0)
+                return;
+            var spawnPoint = _spawnPoints[spawnIndex];
+            var previewPoint = _spawnPreviews[0];
+            if (spawnPoint == null || previewPoint == null || spawnPoint.Transform == null || previewPoint.Transform == null)
+                return;
+
             var swapBlockData = new SpawnBlockData(blockToSwap.Model.BlockShape, 
                 blockToSwap.GameObject.transform.rotation, 
                 blockToSwap.Model.BlockPreset.BlockSchema,
                 blockToSwap.Model.BlockColor.CurrentValue);
-            var nextQueue = _spawnBag.Dequeue();
+            _spawnBag.Dequeue();
             var tempBag = _spawnBag.ToList();
             tempBag.Insert(0, swapBlockData);
             _spawnBag = new Queue<SpawnBlockData>(tempBag);
-            blockToSwap.ViewModel.DestroyCommand.Execute(Unit.Default);
-            var spawnIndex = blockToSwap.Model.SpawnIndex;
-            var spawnPoint = _spawnPoints[spawnIndex];
-            FreeSpawnPoint(spawnIndex);
-            var newBlock = InstantiateBlock(spawnPoint.Transform, nextQueue.rotation, nextQueue.blockShape, nextQueue.blockColor, _config.ObjectScale);
-            newBlock.Model.SpawnIndex = spawnIndex;
+
+            MoveBlockToSpawnPoint(previewBlock, spawnPoint, _config.ObjectScale, true);
+            previewBlock.Model.SpawnIndex = spawnIndex;
             spawnPoint.IsFree = false;
-            spawnPoint.CurrentBlock = newBlock;
-            _messageHub.Publish(new BlockSpawnedEvent(new List<BlockInstance>{newBlock}));
-            previewBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
-            var newPreviewBlock = InstantiateBlock(_spawnPreviews[0].Transform, swapBlockData.rotation, swapBlockData.blockShape, swapBlockData.blockColor, _config.PreviewScale);
-            newPreviewBlock.Controller.SetActive(false);
-            _spawnPreviews[0].IsFree = false;
-            _spawnPreviews[0].CurrentBlock = newPreviewBlock;
+            spawnPoint.CurrentBlock = previewBlock;
+
+            MoveBlockToSpawnPoint(blockToSwap, previewPoint, _config.PreviewScale, false);
+            blockToSwap.Model.SpawnIndex = -1;
+            previewPoint.IsFree = false;
+            previewPoint.CurrentBlock = blockToSwap;
+            _messageHub.Publish(new BlockSpawnedEvent(new List<BlockInstance> { previewBlock }));
             //_previewBlocks[0] = newPreviewBlock;
             _onSwap?.OnNext(Unit.Default);
             //PreviewMultiNextQueue(_config.PreviewCount);
