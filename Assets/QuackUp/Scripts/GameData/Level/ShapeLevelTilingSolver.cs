@@ -51,8 +51,8 @@ namespace FitMe.GameData
     }
 
     /// <summary>
-    /// Bounded exact-cover solver for a fixed set of rotatable level blocks. It precomputes unique placements
-    /// and branches only on placements covering the first uncovered playable cell.
+    /// Bounded exact-cover solver for a fixed set of level blocks in their authored orientations.
+    /// It precomputes unique placements and branches only on placements covering the first uncovered playable cell.
     /// </summary>
     public static class ShapeLevelTilingSolver
     {
@@ -106,10 +106,10 @@ namespace FitMe.GameData
                     return CreateResult(ShapeLevelTilingStatus.InvalidInput, 0, 0,
                         Array.Empty<IReadOnlyList<ShapeLevelTilingPlacement>>(), isSearchComplete: false);
                 totalBlockCells += piece.CellCount;
-                if (!groupsByKey.TryGetValue(piece.RotationInvariantKey, out var group))
+                if (!groupsByKey.TryGetValue(piece.ShapeKey, out var group))
                 {
-                    group = new ShapeGroup(piece.CellCount, piece.Rotations);
-                    groupsByKey.Add(piece.RotationInvariantKey, group);
+                    group = new ShapeGroup(piece.CellCount, piece.Orientations);
+                    groupsByKey.Add(piece.ShapeKey, group);
                     groups.Add(group);
                 }
                 group.BlockIndices.Add(index);
@@ -211,25 +211,25 @@ namespace FitMe.GameData
             for (var index = 0; index < group.ByCell.Length; index++)
                 group.ByCell[index] = new List<Placement>();
 
-            foreach (var rotation in group.Rotations)
+            foreach (var orientation in group.Orientations)
             {
                 var maxRow = 0;
                 var maxColumn = 0;
-                for (var index = 0; index < rotation.Length; index++)
+                for (var index = 0; index < orientation.Length; index++)
                 {
-                    maxRow = Math.Max(maxRow, rotation[index].x);
-                    maxColumn = Math.Max(maxColumn, rotation[index].y);
+                    maxRow = Math.Max(maxRow, orientation[index].x);
+                    maxColumn = Math.Max(maxColumn, orientation[index].y);
                 }
 
                 for (var originRow = 0; originRow < rows - maxRow; originRow++)
                 for (var originColumn = 0; originColumn < columns - maxColumn; originColumn++)
                 {
-                    var cellIndices = new int[rotation.Length];
+                    var cellIndices = new int[orientation.Length];
                     var isPlayable = true;
-                    for (var cellIndex = 0; cellIndex < rotation.Length; cellIndex++)
+                    for (var cellIndex = 0; cellIndex < orientation.Length; cellIndex++)
                     {
-                        var row = originRow + rotation[cellIndex].x;
-                        var column = originColumn + rotation[cellIndex].y;
+                        var row = originRow + orientation[cellIndex].x;
+                        var column = originColumn + orientation[cellIndex].y;
                         var boardCellIndex = row * columns + column;
                         if (!playable[boardCellIndex])
                         {
@@ -302,45 +302,8 @@ namespace FitMe.GameData
                 cells[index] = new CellOffset(cells[index].x - minRow, cells[index].y - minColumn);
             cells.Sort(CellOffset.Compare);
 
-            var rotations = new List<CellOffset[]>(4);
-            var rotationKeys = new HashSet<string>(StringComparer.Ordinal);
-            var current = cells.ToArray();
-            for (var turn = 0; turn < 4; turn++)
-            {
-                var normalized = NormalizeRotation(current);
-                var key = CreateShapeKey(normalized);
-                if (rotationKeys.Add(key)) rotations.Add(normalized);
-                current = RotateClockwise(current);
-            }
-
-            var sortedKeys = new List<string>(rotationKeys);
-            sortedKeys.Sort(StringComparer.Ordinal);
-            piece = new Piece(cells.Count, rotations.ToArray(), string.Join("|", sortedKeys));
+            piece = new Piece(cells.Count, new[] { cells.ToArray() }, CreateShapeKey(cells));
             return true;
-        }
-
-        private static CellOffset[] RotateClockwise(IReadOnlyList<CellOffset> cells)
-        {
-            var rotated = new CellOffset[cells.Count];
-            for (var index = 0; index < cells.Count; index++)
-                rotated[index] = new CellOffset(cells[index].y, -cells[index].x);
-            return rotated;
-        }
-
-        private static CellOffset[] NormalizeRotation(IReadOnlyList<CellOffset> cells)
-        {
-            var minRow = int.MaxValue;
-            var minColumn = int.MaxValue;
-            for (var index = 0; index < cells.Count; index++)
-            {
-                minRow = Math.Min(minRow, cells[index].x);
-                minColumn = Math.Min(minColumn, cells[index].y);
-            }
-            var normalized = new CellOffset[cells.Count];
-            for (var index = 0; index < cells.Count; index++)
-                normalized[index] = new CellOffset(cells[index].x - minRow, cells[index].y - minColumn);
-            Array.Sort(normalized, CellOffset.Compare);
-            return normalized;
         }
 
         private static string CreateShapeKey(IReadOnlyList<CellOffset> cells)
@@ -354,29 +317,29 @@ namespace FitMe.GameData
         private sealed class Piece
         {
             public readonly int CellCount;
-            public readonly CellOffset[][] Rotations;
-            public readonly string RotationInvariantKey;
+            public readonly CellOffset[][] Orientations;
+            public readonly string ShapeKey;
 
-            public Piece(int cellCount, CellOffset[][] rotations, string rotationInvariantKey)
+            public Piece(int cellCount, CellOffset[][] orientations, string shapeKey)
             {
                 CellCount = cellCount;
-                Rotations = rotations;
-                RotationInvariantKey = rotationInvariantKey;
+                Orientations = orientations;
+                ShapeKey = shapeKey;
             }
         }
 
         private sealed class ShapeGroup
         {
             public readonly int CellCount;
-            public readonly CellOffset[][] Rotations;
+            public readonly CellOffset[][] Orientations;
             public readonly List<int> BlockIndices = new List<int>();
             public readonly List<Placement> Placements = new List<Placement>();
             public List<Placement>[] ByCell = Array.Empty<List<Placement>>();
 
-            public ShapeGroup(int cellCount, CellOffset[][] rotations)
+            public ShapeGroup(int cellCount, CellOffset[][] orientations)
             {
                 CellCount = cellCount;
-                Rotations = rotations;
+                Orientations = orientations;
             }
         }
 

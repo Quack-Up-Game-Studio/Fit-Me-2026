@@ -152,7 +152,7 @@ MonoBehaviour:
       Data: 0
     - Name: 
       Entry: 3
-      Data: 1
+      Data: 0
     - Name: 
       Entry: 3
       Data: 1
@@ -342,51 +342,65 @@ MonoBehaviour:
   _board: {fileID: 0}
   _playerBlocks:
   - _preset: {fileID: 11400000, guid: 461f81137a62444b9a8570ca0ed7dc10, type: 2}
+    _appearancePreset: {fileID: 0}
     _count: 1
     _source: 0
     <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
     <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
     _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
   - _preset: {fileID: 11400000, guid: 8edd71504576c2160adb0a55e4472f6f, type: 2}
+    _appearancePreset: {fileID: 0}
     _count: 2
     _source: 0
     <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
     <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
     _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
   - _preset: {fileID: 11400000, guid: 32df15948dfc3162683ab971b3c26bcf, type: 2}
+    _appearancePreset: {fileID: 0}
     _count: 1
     _source: 0
     <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
     <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
     _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
   - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
     _count: 1
     _source: 1
     <InlineFootprintSize>k__BackingField: {x: 2, y: 2}
     <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 2}
-    _inlineFootprintCells: 01000000010000000100000001000000
-  - _preset: {fileID: 11400000, guid: b5f0668630651a723a91fa0f69354292, type: 2}
-    _count: 2
-    _source: 0
-    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
-    <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
-    _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+    _inlineFootprintCells: 01000000010000000000000001000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 11400000, guid: b5f0668630651a723a91fa0f69354292, type: 2}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 2}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 3, y: 2}
+    _inlineFootprintCells: 000000000000000001000000010000000100000001000000
   - _preset: {fileID: 11400000, guid: f0dbc01624a6fd6df86e358361605615, type: 2}
+    _appearancePreset: {fileID: 0}
     _count: 1
     _source: 0
     <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
     <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
     _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
-  - _preset: {fileID: 11400000, guid: 07b7d8e40a544eb18a305180c581cd43, type: 2}
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 11400000, guid: b5f0668630651a723a91fa0f69354292, type: 2}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 2, y: 3}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 3}
+    _inlineFootprintCells: 010000000000000001000000000000000100000001000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 11400000, guid: 07b7d8e40a544eb18a305180c581cd43, type: 2}
     _count: 2
-    _source: 0
-    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
-    <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
-    _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 2}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 3, y: 2}
+    _inlineFootprintCells: 010000000100000000000000000000000100000001000000
   _generationProvenance:
     _seed: 162953893
     _attemptIndex: 0
-    _generatorVersion: 4
+    _generatorVersion: 5
     _optimizationStatus: 2
     _configuration:
       _minBoardColumns: 6
@@ -442,7 +456,9 @@ MonoBehaviour:
       _minimumLegalPlacementsPerBlock: 19
       _maximumLegalPlacementsPerBlock: 86
       _obstacleRatio: 0.13333334
+      _solutionCount: 0
+      _isSolutionCountExact: 0
       _provisionalDifficultyScore: 30
-      _scoreModelVersion: 1
+      _scoreModelVersion: 2
   _boardSource: 1
   <GeneratedBoardSize>k__BackingField: {x: 8, y: 6}

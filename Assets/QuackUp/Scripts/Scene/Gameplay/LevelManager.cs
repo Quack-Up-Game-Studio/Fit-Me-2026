@@ -24,6 +24,11 @@ using VContainer.Unity;
 
 namespace FitMe.Scene
 {
+    public static class ShapeModeScorePolicy
+    {
+        public static bool ShouldCalculateScore(GameMode gameMode) => gameMode != GameMode.LevelShape;
+    }
+
     public class LevelManager : ILevelManager, IGameStateManager, IScoreManager, IStartable, IDisposable
     {
         public ReactiveProperty<int> Score { get; } = new(0);
@@ -271,6 +276,15 @@ namespace FitMe.Scene
         
         private void OnScoreAdded(ScoreEvent scoreEvent)
         {
+            if (_gameMode == GameMode.LevelShape && scoreEvent.ScoreType is ScoreTypes.FitMe)
+            {
+                ChangeFitMe(1);
+                _popUpScoreFactory.Create(1, scoreEvent.WorldPosition, "Fitme");
+                return;
+            }
+
+            if (!ShapeModeScorePolicy.ShouldCalculateScore(_gameMode)) return;
+
             int finalScore = 0;
             switch (scoreEvent.ScoreType)
             {
@@ -432,7 +446,9 @@ namespace FitMe.Scene
                 if (_shapeLevelResultService.IsCompletedFinalLevel(currentRequest, progress))
                 {
                     _shapeLevelPassed = true;
-                    ShowResultPanel();
+                    _loadSceneManager.LoadScene(
+                        SceneType.ShapeLevelSelect, UnityEngine.SceneManagement.LoadSceneMode.Single, false)
+                        .Forget();
                     return;
                 }
 

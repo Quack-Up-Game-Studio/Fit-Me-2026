@@ -175,6 +175,29 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ShapeTray_DisabledRotationIgnoresTapAndKeepsGameplayOrientation()
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var entry = new ShapePlayerBlockRuntimeEntry(null, new[,] { { 1, 1 } });
+            var block = CreateShapeTestBlock(config, new ShapeBlockSupplyQueue.Item(entry, Quaternion.identity, BlockColor.Red), _grid.transform, -1, false);
+            var piece = new ShapeTrayPiece(7, entry.Schema, new Rect(-2, -4, 4, 2), .3f, 13f, Quaternion.identity, new Vector2(0, -3));
+            block.Model.TrayPiece = piece;
+            using var controller = new BlockController(config, _manager, new LevelManagerMock(GameState.PlaceBlock),
+                new QuackUp.Audio.AudioManagerMock(), null);
+            controller.Initialize(block);
+            controller.AllowRotation = false;
+            var rotateEvents = 0;
+            using var sub = block.ViewModel.RotateCommand.Subscribe(_ => rotateEvents++);
+            var evt = new UnityEngine.EventSystems.PointerEventData(null);
+            controller.PointerDownCommand.Execute(evt);
+            controller.PointerUpCommand.Execute(evt);
+
+            Assert.That(rotateEvents, Is.Zero);
+            Assert.That(Quaternion.Angle(piece.GameplayRotation, Quaternion.identity), Is.LessThan(.01f));
+            Assert.That(piece.Tilt, Is.EqualTo(13f));
+        }
+
+        [Test]
         public void ShapeTray_RejectedOccupiedGridDropReturnsWithoutChangingOccupancy()
         {
             var block = CreateTrayDragBlock(out var pointer, out _);
@@ -195,7 +218,7 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void ShapeTray_GameOverChecksFittingPieceBeyondLegacyHandCapacityAndIgnoresPlacedPieces()
+        public void ShapeTray_GameOverCheckIsDisabledForShapeLevels()
         {
             SetUpOneCellPlacement();
             var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
@@ -214,10 +237,10 @@ namespace FitMe.Grid.Tests
             var gameOvers = 0;
             using var sub = _hub.Subscribe<GameOverEvent>(evt => { if (evt.IsOver) gameOvers++; });
             manager.GameOverCheck().GetAwaiter().GetResult();
-            Assert.That(gameOvers, Is.Zero, "The fourth selectable tray piece fits even though legacy hand capacity is three");
+            Assert.That(gameOvers, Is.Zero, "Shape Mode must not publish game over when a tray piece fits");
             blocks[3].Model.TrayPiece.MarkPlaced();
             manager.GameOverCheck().GetAwaiter().GetResult();
-            Assert.That(gameOvers, Is.EqualTo(1), "Placed pieces are no longer selectable inventory");
+            Assert.That(gameOvers, Is.Zero, "Shape Mode must not publish game over even when no tray piece fits");
         }
 
         [Test]
@@ -384,6 +407,8 @@ namespace FitMe.Grid.Tests
                     Assert.That(piece, Is.Not.Null);
                     Assert.That(block.Model.SpawnIndex, Is.EqualTo(-1));
                     Assert.That(piece.Tilt, Is.InRange(config.TrayTiltMin, config.TrayTiltMax));
+                    Assert.That(Quaternion.Angle(piece.GameplayRotation, Quaternion.identity), Is.LessThan(.01f));
+                    Assert.That(block.Controller.AllowRotation, Is.False);
                     Assert.That(Quaternion.Angle(block.GameObject.transform.rotation, piece.TrayRotation), Is.LessThan(.01f));
                     pieces.Add(piece);
                     // Freeze spawn animation at its target for deterministic EditMode

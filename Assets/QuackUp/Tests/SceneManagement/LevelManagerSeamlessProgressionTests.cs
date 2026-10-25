@@ -134,6 +134,85 @@ namespace QuackUp.SceneManagement.Tests
             }
         }
 
+        [UnityTest]
+        public IEnumerator FinalShapePass_LoadsShapeLevelSelectWithoutShowingResult()
+        {
+            var finalLevel = CreateLevel();
+            var levelCatalog = CreateCatalog(("final-level", finalLevel));
+            var worldCatalog = CreateWorldCatalog((WorldKey, levelCatalog));
+            var catalogService = new ShapeLevelWorldCatalogService(worldCatalog);
+            var saveObject = Keep(ScriptableObject.CreateInstance<PlayerRecordSaveObject>());
+            saveObject.Reset();
+            saveObject.OnInitialize();
+            var saveData = saveObject.GetSaveData<PlayerRecordSaveData>();
+            var progressService = new ShapeLevelProgressService(catalogService);
+            Assert.That(progressService.TryRecordPass(
+                "final-level", WorldKey, finalLevel, saveData, out _), Is.True);
+            var saveConfig = Keep(MessagePackSaveConfig.CreateForTests(new SaveSettings
+            {
+                saveLocation = SaveLocation.Custom,
+                saveDirectory = Path.GetTempPath(),
+                saveFileName = $"fitme-final-seamless-{Guid.NewGuid():N}"
+            }));
+            var saveFile = Path.ChangeExtension(saveConfig.CurrentSaveSettings.GetFullSavePath(), ".sav");
+            _saveFiles.Add(saveFile);
+            SetPrivateField(saveConfig, "initialSaveObjects",
+                new Dictionary<string, MessagePackSaveObject> { ["PlayerRecord"] = saveObject });
+            var saveManager = new MessagePackSaveManager(saveConfig);
+
+            using var levelHub = new TestMessageHub();
+            using var gridHub = new TestMessageHub();
+            var gridObject = Keep(new GameObject("Final progression test grid"));
+            var gridConfig = Keep(ScriptableObject.CreateInstance<GridManagerConfig>());
+            var gridManager = new GridManager(gridObject.AddComponent<UnityEngine.Grid>(), gridConfig, null, null, gridHub);
+            var panelManager = new PanelManager(new Dictionary<string, PanelLifetimeScope>(), string.Empty);
+            var resultPanel = new TransitionProbe(panelManager) { PanelId = "Result" };
+            var panels = (Dictionary<string, IPanelViewModel>)typeof(PanelManager)
+                .GetField("_panels", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(panelManager);
+            panels.Add(resultPanel.PanelId, resultPanel);
+            var cameraObject = Keep(new GameObject("Final progression test camera"));
+            var cameraManager = new OrthographicCameraManager(cameraObject.AddComponent<Camera>());
+            var config = Keep(ScriptableObject.CreateInstance<LevelManagerConfig>());
+            SetPrivateField(config, "<CameraFitShakeSettings>k__BackingField",
+                new PrimeTween.ShakeSettings(Vector3.one, 0.1f, 10f));
+            var pendingPayload = new PendingScenePayload();
+            pendingPayload.SetActive(LevelSessionRequest.ForShapeLevel(WorldKey, "final-level", finalLevel));
+            var cloudSaveService = new MockCloudSaveService();
+            var sceneLoader = new RecordingSceneLoader();
+            var manager = new LevelManager(
+                config, catalogService, new AudioManagerMock(), levelHub, levelHub, gridManager,
+                saveManager, null, panelManager, null, cameraManager, null,
+                cloudSaveService, new NoOpAnalyticsService(), pendingPayload, sceneLoader);
+            SetPrivateField(manager, "_gameMode", GameMode.LevelShape);
+            SetPrivateField(manager, "_shapeWorldKey", WorldKey);
+            SetPrivateField(manager, "_shapeLevelId", "final-level");
+            SetPrivateField(manager, "_shapeLevelDefinition", finalLevel);
+            SetPrivateField(manager, "_playerRecordSaveObject", saveObject);
+
+            try
+            {
+                typeof(LevelManager).GetMethod("OnFit", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(manager, null);
+                for (var frame = 0; frame < 3; frame++) yield return null;
+
+                Assert.That(sceneLoader.RequestedScene, Is.EqualTo(SceneType.ShapeLevelSelect));
+                Assert.That(sceneLoader.RequestedMode, Is.EqualTo(UnityEngine.SceneManagement.LoadSceneMode.Single));
+                Assert.That(resultPanel.VisibilityState.Value, Is.EqualTo(VisibilityState.Hidden));
+                Assert.That(cloudSaveService.SaveCalls, Is.EqualTo(1));
+                Assert.That(saveManager.GetZipBytes(), Is.Not.Empty);
+            }
+            finally
+            {
+                manager.Dispose();
+                resultPanel.Dispose();
+                gridManager.Dispose();
+                cameraManager.Dispose();
+                saveManager.Dispose();
+            }
+        }
+
+
         private ShapeLevelDefinition CreateLevel()
         {
             var board = Keep(ScriptableObject.CreateInstance<GridPreset>());
@@ -233,6 +312,22 @@ namespace QuackUp.SceneManagement.Tests
             public void TrackBusinessEvent(string currency, int amount, string itemType, string itemId, string cartType) { }
             public void SetPlayerTier(string tier) { }
             public void TrackAdEvent(AdAction action, AdType type, string unitId, string placement) { }
+        }
+
+        private sealed class RecordingSceneLoader : QuackUp.SceneManagement.LoadSceneManager
+        {
+            public SceneType RequestedScene { get; private set; }
+            public UnityEngine.SceneManagement.LoadSceneMode RequestedMode { get; private set; }
+
+            public RecordingSceneLoader() : base(null, null, null, null, null) { }
+
+            public override UniTask LoadScene(
+                SceneType sceneType, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, bool useLoadingScene)
+            {
+                RequestedScene = sceneType;
+                RequestedMode = loadSceneMode;
+                return UniTask.CompletedTask;
+            }
         }
 
         private sealed class MockCloudSaveService : ICloudSaveService

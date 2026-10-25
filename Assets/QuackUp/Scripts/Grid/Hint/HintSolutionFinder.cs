@@ -47,7 +47,7 @@ namespace FitMe.Grid
     }
 
     /// <summary>
-    /// Finds a complete legal placement sequence for the finite Shape Mode supply.
+    /// Finds a complete legal placement sequence for the finite Shape Mode supply without player rotation.
     /// Search follows the active hand and permits swapping only its first occupied slot with the next queued block.
     /// </summary>
     public static class HintSolutionFinder
@@ -104,7 +104,7 @@ namespace FitMe.Grid
             {
                 var swapped = new List<Piece>(remaining);
                 (swapped[0], swapped[activeCount]) = (swapped[activeCount], swapped[0]);
-                if (!string.Equals(remaining[0].RotationInvariantKey, remaining[activeCount].RotationInvariantKey,
+                if (!string.Equals(remaining[0].ShapeKey, remaining[activeCount].ShapeKey,
                         StringComparison.Ordinal))
                     variants.Add(new SupplyVariant(swapped, requiresSwap: true));
             }
@@ -191,7 +191,7 @@ namespace FitMe.Grid
 
             var shapeKeys = new string[remaining.Count];
             for (var index = 0; index < remaining.Count; index++)
-                shapeKeys[index] = remaining[index].RotationInvariantKey;
+                shapeKeys[index] = remaining[index].ShapeKey;
             Array.Sort(shapeKeys, StringComparer.Ordinal);
 
             builder.Append('|').Append(shapeKeys.Length).Append(':');
@@ -205,18 +205,18 @@ namespace FitMe.Grid
         {
             var rows = context.PlayableMask.GetLength(0);
             var columns = context.PlayableMask.GetLength(1);
-            foreach (var rotation in piece.Rotations)
+            foreach (var orientation in piece.Orientations)
             for (var originRow = 0; originRow < rows; originRow++)
             for (var originColumn = 0; originColumn < columns; originColumn++)
             {
                 context.CancellationToken.ThrowIfCancellationRequested();
-                var placement = new TilingCell[rotation.Length];
+                var placement = new TilingCell[orientation.Length];
                 var valid = true;
                 var coversRequiredCell = !requiredCell.HasValue;
-                for (var cellIndex = 0; cellIndex < rotation.Length; cellIndex++)
+                for (var cellIndex = 0; cellIndex < orientation.Length; cellIndex++)
                 {
-                    var row = originRow + rotation[cellIndex].Row;
-                    var column = originColumn + rotation[cellIndex].Column;
+                    var row = originRow + orientation[cellIndex].Row;
+                    var column = originColumn + orientation[cellIndex].Column;
                     if (row < 0 || row >= rows || column < 0 || column >= columns ||
                         context.PlayableMask[row, column] == false || occupied[row, column])
                     {
@@ -324,28 +324,9 @@ namespace FitMe.Grid
             }
             if (cells.Count == 0) return false;
 
-            var rotations = new List<TilingCell[]>(4);
-            var rotationKeys = new HashSet<string>(StringComparer.Ordinal);
-            var current = cells.ToArray();
-            for (var turn = 0; turn < 4; turn++)
-            {
-                var normalized = Normalize(current);
-                var key = ShapeKey(normalized);
-                if (rotationKeys.Add(key)) rotations.Add(normalized);
-                current = RotateClockwise(current);
-            }
-            var invariantKeys = new List<string>(rotationKeys);
-            invariantKeys.Sort(StringComparer.Ordinal);
-            piece = new Piece(cells.Count, rotations.ToArray(), string.Join("|", invariantKeys));
+            var orientation = Normalize(cells);
+            piece = new Piece(cells.Count, new[] { orientation }, ShapeKey(orientation));
             return true;
-        }
-
-        private static TilingCell[] RotateClockwise(IReadOnlyList<TilingCell> cells)
-        {
-            var result = new TilingCell[cells.Count];
-            for (var index = 0; index < cells.Count; index++)
-                result[index] = new TilingCell(cells[index].Column, -cells[index].Row);
-            return result;
         }
 
         private static TilingCell[] Normalize(IReadOnlyList<TilingCell> cells)
@@ -380,14 +361,14 @@ namespace FitMe.Grid
         private sealed class Piece
         {
             public readonly int CellCount;
-            public readonly TilingCell[][] Rotations;
-            public readonly string RotationInvariantKey;
+            public readonly TilingCell[][] Orientations;
+            public readonly string ShapeKey;
 
-            public Piece(int cellCount, TilingCell[][] rotations, string rotationInvariantKey)
+            public Piece(int cellCount, TilingCell[][] orientations, string shapeKey)
             {
                 CellCount = cellCount;
-                Rotations = rotations;
-                RotationInvariantKey = rotationInvariantKey;
+                Orientations = orientations;
+                ShapeKey = shapeKey;
             }
         }
 

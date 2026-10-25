@@ -5,6 +5,20 @@ namespace FitMe.Grid.Tests
     public sealed class HintSnapshotIdentityTests
     {
         [Test]
+        public void TryCreate_DistinguishesBlockOrientationsWhenRotationIsDisabled()
+        {
+            var playable = new[,] { { 1, 1 }, { 1, 1 } };
+            var occupied = new[,] { { 0, 0 }, { 0, 0 } };
+            var obstacles = new[,] { { 0, 0 }, { 0, 0 } };
+            var horizontal = new[] { new[,] { { 1, 1 } } };
+            var vertical = new[] { new[,] { { 1 }, { 1 } } };
+
+            Assert.That(HintSnapshotIdentity.TryCreate(playable, occupied, obstacles, horizontal, 1, out var horizontalIdentity), Is.True);
+            Assert.That(HintSnapshotIdentity.TryCreate(playable, occupied, obstacles, vertical, 1, out var verticalIdentity), Is.True);
+            Assert.That(verticalIdentity, Is.Not.EqualTo(horizontalIdentity));
+        }
+
+        [Test]
         public void TryCreate_TreatsActiveBlockAndPreviewAsAnEquivalentSwapPair()
         {
             var playable = new[,] { { 1, 1 }, { 1, 1 } };

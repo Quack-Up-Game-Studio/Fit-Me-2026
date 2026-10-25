@@ -18,6 +18,14 @@ namespace QuackUp.SceneManagement.Tests
 {
     public sealed class SourceSceneRecoveryTests
     {
+        [TestCase(GameMode.Classic, true)]
+        [TestCase(GameMode.LevelShape, false)]
+        public void ShapeModeScorePolicy_DisablesScoreCalculationOnlyForShapeMode(
+            GameMode gameMode, bool shouldCalculateScore)
+        {
+            Assert.That(ShapeModeScorePolicy.ShouldCalculateScore(gameMode), Is.EqualTo(shouldCalculateScore));
+        }
+
         [TestCase(false, SceneType.MainMenu)]
         [TestCase(true, SceneType.Gameplay)]
         [TestCase(true, SceneType.Tutorial)]

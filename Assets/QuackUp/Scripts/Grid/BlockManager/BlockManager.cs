@@ -348,7 +348,7 @@ namespace FitMe.Grid
                 SpawnShapeBlocks();
             else
                 SpawnBlocksFromBag(_config.CanRefill);
-            if (eventData.FitType is FitType.None or FitType.Combo) 
+            if (_shapeLevelRuntimeData == null && (eventData.FitType is FitType.None or FitType.Combo))
                 GameOverCheck().Forget();
         }
 
@@ -539,7 +539,7 @@ namespace FitMe.Grid
                 var piece = pieces[i];
                 piece.DropBounds = panelBounds;
                 var block = InstantiateBlock(_trayPanel, item.Rotation, BlockShape.OneByOne, item.Color,
-                    piece.Scale, schema, true, item.PlayerBlock.Preset, _config.ShapeModeBlockConfig);
+                    piece.Scale, schema, false, item.PlayerBlock.Preset, _config.ShapeModeBlockConfig);
                 block.Model.SpawnIndex = -1;
                 block.Model.TrayPiece = piece;
                 block.GameObject.transform.position = piece.Position;
@@ -814,7 +814,7 @@ namespace FitMe.Grid
                     item.Color,
                     _config.PreviewScale,
                     schema,
-                    true,
+                    false,
                     entry.Preset,
                     _config.ShapeModeBlockConfig);
 
@@ -860,7 +860,7 @@ namespace FitMe.Grid
 
                 items.Add(new ShapeBlockSupplyQueue.Item(
                     entry,
-                    Quaternion.Euler(0f, 0f, UnityEngine.Random.Range(0, 4) * 90f),
+                    Quaternion.identity,
                     EnumUtils.RandomValue<BlockColor>()));
             }
 
@@ -1064,6 +1064,9 @@ namespace FitMe.Grid
         
         public UniTask GameOverCheck()
         {
+            if (_shapeLevelRuntimeData != null)
+                return UniTask.CompletedTask;
+
             var blocksToCheck = BlockOnHand.Select(x => x.Model).ToList();
             
             var blockOnSwap = BlockOnPreview.FirstOrDefault();

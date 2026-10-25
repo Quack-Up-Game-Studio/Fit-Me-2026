@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using FitMe.Grid;
 using FitMe.Shared;
 using QuackUp.Utils;
@@ -16,6 +18,7 @@ namespace FitMe.Panel
         public ReadOnlyReactiveProperty<bool> CanUseHint => _shapeHintController.CanUseHint;
         public ReadOnlyReactiveProperty<bool> IsRetryVisible => _shapeHintController.RetryVisible;
         public ReadOnlyReactiveProperty<bool> RetryFlashVisible => _shapeHintController.RetryFlashVisible;
+        public ReadOnlyReactiveProperty<int> RemainingHints => _shapeHintController.RemainingHints;
         public ReadOnlyReactiveProperty<GameMode> CurrentGameMode => _currentGameMode;
         private readonly ReactiveProperty<GameMode> _currentGameMode;
         
@@ -54,7 +57,8 @@ namespace FitMe.Panel
                 .Subscribe(_ => OnPause())
                 .AddTo(ref disposableBuilder);
             HintCommand
-                .Subscribe(_ => _shapeHintController.RequestHint())
+                .SubscribeAwait((_, cancellationToken) =>
+                    _shapeHintController.RequestHint(cancellationToken), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
             RetryCommand
                 .Subscribe(_ => OnRetry())
@@ -77,7 +81,6 @@ namespace FitMe.Panel
 
         private void OnRetry()
         {
-            _shapeHintController?.DismissRetryGuidance();
             _blockManagerMessageHub.Publish(new ContinueEvent());
             _gridManagerMessageHub.Publish(new ClearGridEvent(true, false));
         }

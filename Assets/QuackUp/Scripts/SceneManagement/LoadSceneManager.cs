@@ -193,7 +193,7 @@ namespace QuackUp.SceneManagement
             await LoadScene(sceneEntry.Key, loadSceneMode, useLoadingScene);
         }
         
-        public async UniTask LoadScene(SceneType sceneType, LoadSceneMode loadSceneMode, bool useLoadingScene)
+        public virtual async UniTask LoadScene(SceneType sceneType, LoadSceneMode loadSceneMode, bool useLoadingScene)
         {
             if (_disposed || _request != null) return;
             if (!_config.SceneReferences.TryGetValue(sceneType, out var reference))

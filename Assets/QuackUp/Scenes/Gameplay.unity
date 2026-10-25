@@ -4941,6 +4941,7 @@ MonoBehaviour:
   pauseButton: {fileID: 447709205}
   hintButton: {fileID: 1025573891}
   retryButton: {fileID: 1335643479}
+  hintCountText: {fileID: 594869571}
   pausePanelId: Pause
   hideInShapeMode:
   - {fileID: 380715888}
@@ -4948,6 +4949,7 @@ MonoBehaviour:
   - {fileID: 43576949}
   - {fileID: 1825874654}
   - {fileID: 1750993760}
+  - {fileID: 1149360083}
 --- !u!114 &463976295
 MonoBehaviour:
   m_ObjectHideFlags: 0

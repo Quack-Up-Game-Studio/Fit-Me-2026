@@ -60,9 +60,13 @@ namespace FitMe.Grid.Tests
         {
             _level = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
             _level.SetGeneratedContent(
-                new[,] { { 1, 1 }, { 1, 1 } },
-                new[,] { { 0, 0 }, { 0, 0 } },
-                new[] { new ShapePlayerBlockEntry(new[,] { { 1, 1 } }, 2) });
+                new[,] { { 1, 1, 1 }, { 1, 1, 1 } },
+                new[,] { { 0, 0, 0 }, { 0, 0, 0 } },
+                new[]
+                {
+                    new ShapePlayerBlockEntry(new[,] { { 1, 1 }, { 1, 0 } }, 1),
+                    new ShapePlayerBlockEntry(new[,] { { 1 } }, 3)
+                });
             _editor = Editor.CreateEditor(_level);
 
             InvokePrivate(_editor, "ValidateTiling");
