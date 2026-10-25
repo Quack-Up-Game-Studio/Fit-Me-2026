@@ -707,10 +707,7 @@ namespace FitMe.Grid
             blockTransform.SetParent(spawnPoint.Transform, true);
             blockTransform.position = spawnPoint.Transform.position;
             block.ViewModel?.SetSpawnReturnTarget(spawnPoint.Transform);
-            blockTransform.localScale = Vector3.zero;
-            block.ViewModel.ScaleInCommand.Execute(new ScaleInCommandData(
-                new Promise<Unit>(),
-                new Vector3(scale, scale, 1f)));
+            blockTransform.localScale = new Vector3(scale, scale, 1f);
             block.Controller.SetActive(isActive);
         }
 

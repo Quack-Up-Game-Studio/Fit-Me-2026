@@ -1010,6 +1010,18 @@ namespace FitMe.Grid.Tests
             Assert.That(activeBlock.GameObject.transform.parent, Is.SameAs(previewTransform));
             Assert.That(previewBlock.Model.SpawnIndex, Is.Zero);
             Assert.That(activeBlock.Model.SpawnIndex, Is.EqualTo(-1));
+            Assert.That(previewBlock.GameObject.transform.localScale.x, Is.EqualTo(config.ObjectScale));
+            Assert.That(activeBlock.GameObject.transform.localScale.x, Is.EqualTo(config.PreviewScale));
+            Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+
+            blockManager.Swap();
+
+            Assert.That(handPoint.CurrentBlock, Is.SameAs(activeBlock), "Second swap must exchange the blocks back");
+            Assert.That(previewPoint.CurrentBlock, Is.SameAs(previewBlock));
+            Assert.That(activeBlock.Model.SpawnIndex, Is.Zero);
+            Assert.That(previewBlock.Model.SpawnIndex, Is.EqualTo(-1));
+            Assert.That(activeBlock.GameObject.transform.localScale.x, Is.EqualTo(config.ObjectScale));
+            Assert.That(previewBlock.GameObject.transform.localScale.x, Is.EqualTo(config.PreviewScale));
         }
 
         [Test]
