@@ -25,6 +25,10 @@ namespace FitMe.Panel
             colors.disabledColor = Color.gray;
             return colors;
         }
+
+        public static bool CanUseHintDuringSearch(
+            bool canRequestHint, bool isBusy, bool activeSearchIsHint, bool hintQueued) =>
+            canRequestHint && (!isBusy || (!activeSearchIsHint && !hintQueued));
     }
 
     public static class HintConsumptionPolicy
@@ -36,6 +40,12 @@ namespace FitMe.Panel
                 ? trySpend()
                 : true;
         }
+    }
+
+    public static class HintRequestCompletionPolicy
+    {
+        public static bool ShouldComplete(bool isHintRequest, bool ownsActiveSearch) =>
+            isHintRequest || ownsActiveSearch;
     }
 
     public static class ShapeHintAllowancePolicy
@@ -55,6 +65,8 @@ namespace FitMe.Panel
     public sealed class ShapeHintController : IPostInitializable, IDisposable
     {
         public const int ShapeLevelHintCap = ShapeHintAllowancePolicy.HintsPerLevel;
+        public static bool ShouldShowNoSolutionNotification(HintSolutionStatus status) =>
+            status == HintSolutionStatus.Infeasible;
         private readonly GridManager _gridManager;
         private readonly BlockManager _blockManager;
         private readonly HintSearchConfig _searchConfig;
@@ -77,9 +89,12 @@ namespace FitMe.Panel
         private IDisposable _flashTimer;
         private IDisposable _retryGuidanceTimer;
         private CancellationTokenSource _activeSearchCancellation;
+        private UniTaskCompletionSource _hintRequestCompletion;
         private string _observedIdentity;
         private string _lockedIdentity;
         private bool _isBusy;
+        private bool _activeSearchIsHint;
+        private bool _hintQueued;
         private bool _flashVisible;
         private bool _isGameOver;
         private bool _retryGuidanceActive;
@@ -168,11 +183,26 @@ namespace FitMe.Panel
             RefreshSolverState();
         }
 
-        public void RequestHint()
+        public UniTask RequestHint(CancellationToken cancellationToken)
         {
-            if (_disposed || !_canUseHint.CurrentValue || !TryCreateSnapshot(out var snapshot)) return;
+            if (_disposed || !CanRequestHint() || !TryCreateSnapshot(out var snapshot))
+                return UniTask.CompletedTask;
 
+            if (_isBusy)
+            {
+                if (!_activeSearchIsHint)
+                {
+                    _hintQueued = true;
+                    _hintRequestCompletion ??= new UniTaskCompletionSource();
+                    UpdateAvailability();
+                    return _hintRequestCompletion.Task.AttachExternalCancellation(cancellationToken);
+                }
+                return UniTask.CompletedTask;
+            }
+
+            _hintRequestCompletion = new UniTaskCompletionSource();
             StartSearch(snapshot, _searchConfig.MaxSearchNodes, isHintRequest: true);
+            return _hintRequestCompletion.Task.AttachExternalCancellation(cancellationToken);
         }
 
         private void CheckBoardFeasibility()
@@ -187,6 +217,7 @@ namespace FitMe.Panel
         private void StartSearch(SearchSnapshot snapshot, int maxSearchNodes, bool isHintRequest)
         {
             _isBusy = true;
+            _activeSearchIsHint = isHintRequest;
             UpdateAvailability();
             var cancellation = new CancellationTokenSource();
             _activeSearchCancellation = cancellation;
@@ -230,38 +261,24 @@ namespace FitMe.Panel
                     {
                         _lockedIdentity = snapshot.Identity;
                         _gridManager.SetHintHighlights(result.FirstMove.Cells);
-                        if (result.FirstMove.RequiresSwap)
-                        {
-                            var placementInstruction = result.FirstMove.BlockIndex == 1
-                                ? "Swap the first hand block with the preview, then place the second hand block on the highlighted cells."
-                                : "Swap the first hand block with the preview before placing the highlighted move.";
-                            ShowNotification(placementInstruction);
-                        }
-                        else if (result.FirstMove.BlockIndex == 1)
-                        {
-                            ShowNotification("Place the second hand block on the highlighted cells.");
-                        }
                         StartFlash(snapshot.Identity);
                     }
                 }
                 else if (result.Status == HintSolutionStatus.SearchLimitReached)
                 {
-                    if (isHintRequest)
-                    {
-                        _lockedIdentity = snapshot.Identity;
-                        ShowNotification("Hint search reached its limit. Change the board to try again.");
-                    }
+                    if (isHintRequest) _lockedIdentity = snapshot.Identity;
                 }
                 else if (result.Status == HintSolutionStatus.Infeasible)
                 {
                     _lockedIdentity = snapshot.Identity;
                     StartRetryGuidance();
-                    if (isHintRequest)
+                    if (isHintRequest && ShouldShowNoSolutionNotification(result.Status))
                         ShowNotification("No solution found. Tap Retry to clear the board.");
                 }
                 else
                 {
-                    ShowNotification("Hint is temporarily unavailable.");
+                    if (isHintRequest)
+                        _lockedIdentity = snapshot.Identity;
                 }
                 UpdateAvailability();
             }
@@ -271,14 +288,32 @@ namespace FitMe.Panel
             }
             finally
             {
-                if (ReferenceEquals(_activeSearchCancellation, cancellation))
+                var ownsActiveSearch = ReferenceEquals(_activeSearchCancellation, cancellation);
+                if (ownsActiveSearch)
                 {
                     _activeSearchCancellation = null;
                     _isBusy = false;
+                    _activeSearchIsHint = false;
+                    if (!_disposed && _hintQueued)
+                    {
+                        _hintQueued = false;
+                        if (CanRunQueuedHint() && TryCreateSnapshot(out var queuedSnapshot))
+                            StartSearch(queuedSnapshot, _searchConfig.MaxSearchNodes, isHintRequest: true);
+                        else
+                            _hintRequestCompletion?.TrySetResult();
+                    }
                     if (!_disposed) UpdateAvailability();
                 }
+                if (HintRequestCompletionPolicy.ShouldComplete(isHintRequest, ownsActiveSearch))
+                    CompleteHintRequest();
                 cancellation.Dispose();
             }
+        }
+
+        private void CompleteHintRequest()
+        {
+            _hintRequestCompletion?.TrySetResult();
+            _hintRequestCompletion = null;
         }
 
         private void StartFlash(string identity)
@@ -322,7 +357,18 @@ namespace FitMe.Panel
                 _lockedIdentity = null;
                 _activeSearchCancellation?.Cancel();
                 _isBusy = false;
+                _activeSearchIsHint = false;
                 ClearHint();
+                if (_hintQueued && CanRunQueuedHint() && TryCreateSnapshot(out var queuedSnapshot))
+                {
+                    _hintQueued = false;
+                    StartSearch(queuedSnapshot, _searchConfig.MaxSearchNodes, isHintRequest: true);
+                }
+                else if (_hintQueued)
+                {
+                    _hintQueued = false;
+                    CompleteHintRequest();
+                }
             }
             UpdateAvailability();
         }
@@ -333,12 +379,17 @@ namespace FitMe.Panel
             _isVisible.Value = GameplayHintButtonPolicy.ShouldShowHintButton(isShapeMode);
             _retryVisible.Value = GameplayHintButtonPolicy.ShouldShowRetryButton(isShapeMode);
             var hasSnapshot = TryCreateSnapshot(out var snapshot);
-            _canUseHint.Value = isShapeMode && !_isGameOver &&
-                                _remainingHints.CurrentValue > 0 && !_isBusy &&
-                                !_retryGuidanceActive &&
+            _canUseHint.Value = GameplayHintButtonPolicy.CanUseHintDuringSearch(
+                                    CanRequestHint(), _isBusy, _activeSearchIsHint, _hintQueued) &&
                                 hasSnapshot && !string.Equals(snapshot.Identity, _lockedIdentity,
                                     StringComparison.Ordinal);
         }
+
+        private bool CanRequestHint() => CanRunQueuedHint() && !_retryGuidanceActive;
+
+        private bool CanRunQueuedHint() =>
+            _levelManager.CurrentGameMode == GameMode.LevelShape && !_isGameOver &&
+            _remainingHints.CurrentValue > 0;
 
         private bool TryCreateSnapshot(out SearchSnapshot snapshot)
         {
@@ -393,6 +444,7 @@ namespace FitMe.Panel
             if (_disposed) return;
             _disposed = true;
             _activeSearchCancellation?.Cancel();
+            CompleteHintRequest();
             _subscriptions?.Dispose();
             ClearHint();
             ClearRetryGuidance();

@@ -29,7 +29,7 @@ namespace FitMe.Grid
 
             var shapes = new string[remainingBlockSchemas.Count];
             for (var index = 0; index < shapes.Length; index++)
-                if (!TryGetRotationInvariantShapeKey(remainingBlockSchemas[index], out shapes[index]))
+                if (!TryGetOrientationShapeKey(remainingBlockSchemas[index], out shapes[index]))
                     return false;
 
             if (activeHandCount == shapes.Length)
@@ -82,7 +82,7 @@ namespace FitMe.Grid
             return true;
         }
 
-        private static bool TryGetRotationInvariantShapeKey(int[,] schema, out string key)
+        private static bool TryGetOrientationShapeKey(int[,] schema, out string key)
         {
             key = null;
             if (schema == null || schema.Length == 0) return false;
@@ -96,18 +96,10 @@ namespace FitMe.Grid
             }
             if (cells.Count == 0) return false;
 
-            var rotations = new List<string>(4);
-            var current = cells.ToArray();
-            for (var turn = 0; turn < 4; turn++)
-            {
-                Normalize(current);
-                Array.Sort(current);
-                rotations.Add(ShapeKey(current));
-                for (var index = 0; index < current.Length; index++)
-                    current[index] = new TilingCell(current[index].Column, -current[index].Row);
-            }
-            rotations.Sort(StringComparer.Ordinal);
-            key = rotations[0];
+            var orientation = cells.ToArray();
+            Normalize(orientation);
+            Array.Sort(orientation);
+            key = ShapeKey(orientation);
             return true;
         }
 

@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using FitMe.Grid;
 using FitMe.Shared;
 using QuackUp.Utils;
@@ -55,7 +57,8 @@ namespace FitMe.Panel
                 .Subscribe(_ => OnPause())
                 .AddTo(ref disposableBuilder);
             HintCommand
-                .Subscribe(_ => _shapeHintController.RequestHint())
+                .SubscribeAwait((_, cancellationToken) =>
+                    _shapeHintController.RequestHint(cancellationToken), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
             RetryCommand
                 .Subscribe(_ => OnRetry())

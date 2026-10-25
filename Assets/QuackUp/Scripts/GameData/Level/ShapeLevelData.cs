@@ -55,6 +55,7 @@ namespace FitMe.GameData
     public sealed class ShapePlayerBlockEntry
     {
         [SerializeField, ShowIf(nameof(Source), ShapePlayerBlockSource.Preset)] private BlockPreset _preset;
+        [SerializeField, ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)] private BlockPreset _appearancePreset;
         [SerializeField, Min(1)] private int _count = 1;
         [SerializeField] private ShapePlayerBlockSource _source;
         [field: SerializeField, MinValue(1), ReadOnly, ShowIf(nameof(Source), ShapePlayerBlockSource.InlineFootprint)]
@@ -64,6 +65,7 @@ namespace FitMe.GameData
         [SerializeField, HideInInspector] private int[] _inlineFootprintCells = new int[9];
 
         public BlockPreset Preset => _preset;
+        public BlockPreset AppearancePreset => _appearancePreset;
         public int Count => _count;
         public ShapePlayerBlockSource Source => _source;
 
@@ -86,7 +88,13 @@ namespace FitMe.GameData
         }
 
         public ShapePlayerBlockEntry(int[,] inlineFootprint, int count)
+            : this(null, inlineFootprint, count)
         {
+        }
+
+        public ShapePlayerBlockEntry(BlockPreset appearancePreset, int[,] inlineFootprint, int count)
+        {
+            _appearancePreset = appearancePreset;
             _count = count;
             _source = ShapePlayerBlockSource.InlineFootprint;
             SetInlineFootprint(inlineFootprint);

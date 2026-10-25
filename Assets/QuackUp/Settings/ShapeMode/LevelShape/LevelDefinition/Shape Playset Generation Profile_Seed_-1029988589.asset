@@ -431,34 +431,94 @@ MonoBehaviour:
       Data: 
   _board: {fileID: 0}
   _playerBlocks:
-  - _preset: {fileID: 11400000, guid: 32df15948dfc3162683ab971b3c26bcf, type: 2}
-    _count: 12
-    _source: 0
-    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
-    <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
-    _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 11400000, guid: 48813fd71b19fbf9b992b37d71b3cd58, type: 2}
+    _count: 5
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 2, y: 1}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 1}
+    _inlineFootprintCells: 0100000001000000
   - _preset: {fileID: 11400000, guid: fafdd8fbbccc2e8ee95af805d0c8e58b, type: 2}
-    _count: 2
+    _appearancePreset: {fileID: 0}
+    _count: 3
     _source: 0
     <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
     <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
     _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
   - _preset: {fileID: 11400000, guid: 48813fd71b19fbf9b992b37d71b3cd58, type: 2}
+    _appearancePreset: {fileID: 0}
     _count: 1
     _source: 0
     <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
     <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
     _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+  - _preset: {fileID: 11400000, guid: 461f81137a62444b9a8570ca0ed7dc10, type: 2}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 0
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
+    _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 11400000, guid: 32df15948dfc3162683ab971b3c26bcf, type: 2}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 2}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 3, y: 2}
+    _inlineFootprintCells: 010000000100000001000000000000000100000000000000
   - _preset: {fileID: 11400000, guid: 07b7d8e40a544eb18a305180c581cd43, type: 2}
+    _appearancePreset: {fileID: 0}
     _count: 1
     _source: 0
     <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
     <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
     _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+  - _preset: {fileID: 11400000, guid: f0dbc01624a6fd6df86e358361605615, type: 2}
+    _appearancePreset: {fileID: 0}
+    _count: 2
+    _source: 0
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
+    _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+  - _preset: {fileID: 11400000, guid: b5f0668630651a723a91fa0f69354292, type: 2}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 0
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
+    _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 11400000, guid: 461f81137a62444b9a8570ca0ed7dc10, type: 2}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 2}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 3, y: 2}
+    _inlineFootprintCells: 000000000100000001000000010000000100000000000000
+  - _preset: {fileID: 11400000, guid: 32df15948dfc3162683ab971b3c26bcf, type: 2}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 0
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 3}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 0, y: 0}
+    _inlineFootprintCells: 000000000000000000000000000000000000000000000000000000000000000000000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 11400000, guid: b5f0668630651a723a91fa0f69354292, type: 2}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 2}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 3, y: 2}
+    _inlineFootprintCells: 000000000000000001000000010000000100000001000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 11400000, guid: fafdd8fbbccc2e8ee95af805d0c8e58b, type: 2}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 1}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 3, y: 1}
+    _inlineFootprintCells: 010000000100000001000000
   _generationProvenance:
     _seed: -1029988589
     _attemptIndex: 0
-    _generatorVersion: 3
+    _generatorVersion: 5
     _optimizationStatus: 2
     _configuration:
       _minBoardColumns: 6
@@ -512,15 +572,15 @@ MonoBehaviour:
       _obstacleCellCount: 3
       _voidCellCount: 0
       _playerCellCount: 60
-      _blockCount: 16
-      _totalLegalPlacements: 1692
-      _averageLegalPlacementsPerBlock: 105.75
-      _minimumLegalPlacementsPerBlock: 58
-      _maximumLegalPlacementsPerBlock: 115
+      _blockCount: 19
+      _totalLegalPlacements: 1780
+      _averageLegalPlacementsPerBlock: 93.68421
+      _minimumLegalPlacementsPerBlock: 57
+      _maximumLegalPlacementsPerBlock: 120
       _obstacleRatio: 0.04761905
       _solutionCount: 0
       _isSolutionCountExact: 0
-      _provisionalDifficultyScore: 52
-      _scoreModelVersion: 1
+      _provisionalDifficultyScore: 36
+      _scoreModelVersion: 2
   _boardSource: 1
   <GeneratedBoardSize>k__BackingField: {x: 9, y: 7}

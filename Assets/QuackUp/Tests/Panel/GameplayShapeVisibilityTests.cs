@@ -100,7 +100,7 @@ namespace FitMe.Panel.Tests
         }
 
         [Test]
-        public void SavedGameplayScene_WiresOnlyTheFiveHighlightedLegacyObjects()
+        public void SavedGameplayScene_HidesShapeLegacyObjectsAndScoreButPreservesFitCount()
         {
             const string scenePath = "Assets/QuackUp/Scenes/Gameplay.unity";
             // Scope expectations to the known pre-existing stale legacy references.
@@ -132,17 +132,21 @@ namespace FitMe.Panel.Tests
                 Assert.That(hintCountField.GetValue(view), Is.SameAs(hintCount),
                     "The saved scene must explicitly bind the Shape hint count to the Hint button label");
                 var targets = (GameObject[])typeof(GameplayPanelView).GetField("hideInShapeMode", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(view);
-                var paths = new[] { "Back/NextQueue", "Back/Hands", "Back/Swap Icon", "Back/Next Queue", "SwapButton" };
+                var paths = new[] { "Back/NextQueue", "Back/Hands", "Back/Swap Icon", "Back/Next Queue", "SwapButton", "Back/Score" };
                 var expected = paths.Select(path => panel.Find(path).gameObject).ToArray();
-                Assert.That(targets, Is.EquivalentTo(expected), "Saved list must contain exactly the five selected identities, including both queue objects");
-                var untouched = new[] { "Back/Fit BG", "Back/Score", "Back/BG", "Back/Banner", "Score" }
+                Assert.That(targets, Is.EquivalentTo(expected),
+                    "Saved list must include the Shape legacy targets and score UI");
+                var fitCount = panel.GetComponentsInChildren<Transform>(true)
+                    .Single(transform => transform.name == "FitCount").gameObject;
+                var untouched = new[] { "Back/Fit BG", "Back/BG", "Back/Banner" }
                     .Select(path => panel.Find(path).gameObject).ToArray();
-                var authored = expected.Concat(untouched).ToDictionary(go => go, go => go.activeSelf);
+                var fitCountWasActive = fitCount.activeSelf;
+                var authoredUntouched = untouched.ToDictionary(go => go, go => go.activeSelf);
                 Apply(view, GameMode.LevelShape);
                 Assert.That(targets.All(go => !go.activeSelf), Is.True);
-                foreach (var go in untouched) Assert.That(go.activeSelf, Is.EqualTo(authored[go]), go.name);
-                Apply(view, GameMode.Classic);
-                foreach (var go in expected.Concat(untouched)) Assert.That(go.activeSelf, Is.EqualTo(authored[go]), go.name);
+                Assert.That(fitCount.activeSelf, Is.EqualTo(fitCountWasActive),
+                    "Shape Mode must not change the Fit Count object's authored active state");
+                foreach (var go in untouched) Assert.That(go.activeSelf, Is.EqualTo(authoredUntouched[go]), go.name);
             }
             finally { UnityEditor.SceneManagement.EditorSceneManager.CloseScene(scene, true); }
         }

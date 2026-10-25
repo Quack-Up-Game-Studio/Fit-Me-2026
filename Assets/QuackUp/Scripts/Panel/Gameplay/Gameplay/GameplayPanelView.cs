@@ -18,7 +18,7 @@ namespace FitMe.Panel
         [SerializeField] private string pausePanelId = "Pause";
 
         [Header("Shape Mode")]
-        [Tooltip("Legacy UI to hide only in Shape Mode. Leaving Shape Mode restores each target's previous active state; unlisted objects are untouched.")]
+        [Tooltip("UI to hide only in Shape Mode. Leaving Shape Mode restores each target's previous active state; unlisted objects are untouched.")]
         [SerializeField] private GameObject[] hideInShapeMode = Array.Empty<GameObject>();
 
         private readonly Dictionary<GameObject, bool> _activeStatesBeforeShapeMode = new();

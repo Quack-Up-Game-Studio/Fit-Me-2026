@@ -40,6 +40,17 @@ namespace FitMe.Panel.Tests
             Assert.That(spendSucceeded, Is.False);
         }
 
+        [TestCase(true, false, true)]
+        [TestCase(false, true, true)]
+        [TestCase(false, false, false)]
+        public void HintRequestCompletion_CleansUpHintAwaitEvenWhenSearchOwnershipChanged(
+            bool isHintRequest, bool ownsActiveSearch, bool shouldComplete)
+        {
+            Assert.That(
+                HintRequestCompletionPolicy.ShouldComplete(isHintRequest, ownsActiveSearch),
+                Is.EqualTo(shouldComplete));
+        }
+
         [Test]
         public void ShapeHintAllowance_AllowsFourSpendsAndCanResetForNewLevel()
         {
@@ -79,6 +90,28 @@ namespace FitMe.Panel.Tests
             var colors = GameplayHintButtonPolicy.WithUnavailableTint(ColorBlock.defaultColorBlock);
 
             Assert.That(colors.disabledColor, Is.EqualTo(Color.gray));
+        }
+
+        [TestCase(false, false, true, true)]
+        [TestCase(true, false, true, false)]
+        [TestCase(false, true, true, false)]
+        public void HintButton_RemainsAvailableOnlyDuringAutomaticFeasibilitySearch(
+            bool isHintSearch, bool hintQueued, bool canRequestHint, bool expected)
+        {
+            var canUse = GameplayHintButtonPolicy.CanUseHintDuringSearch(
+                canRequestHint, true, isHintSearch, hintQueued);
+
+            Assert.That(canUse, Is.EqualTo(expected));
+        }
+
+        [TestCase(HintSolutionStatus.Feasible, false)]
+        [TestCase(HintSolutionStatus.Infeasible, true)]
+        [TestCase(HintSolutionStatus.SearchLimitReached, false)]
+        [TestCase(HintSolutionStatus.InvalidInput, false)]
+        public void HintNotification_IsShownOnlyWhenHintSearchFindsNoSolution(
+            HintSolutionStatus status, bool expected)
+        {
+            Assert.That(ShapeHintController.ShouldShowNoSolutionNotification(status), Is.EqualTo(expected));
         }
 
         [Test]

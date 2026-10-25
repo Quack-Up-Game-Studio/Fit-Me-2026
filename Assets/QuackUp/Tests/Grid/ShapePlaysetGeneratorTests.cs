@@ -719,6 +719,50 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void SetGeneratedContent_StoresSolvedRotationInAuthoredFootprint()
+        {
+            var preset = CreatePreset(new[,] { { 1, 1 } });
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 1, maxBoardColumns: 1,
+                minBoardRows: 2, maxBoardRows: 2,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 2, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
+                preferredPlayerBlocks: new[] { new ShapePlayerBlockEntry(preset, 1) });
+            var level = ScriptableObject.CreateInstance<ShapeLevelDefinition>();
+
+            try
+            {
+                var generated = ShapePlaysetGenerator.Generate(config, seed: 19);
+                Assert.That(generated.IsSuccess, Is.True, generated.Error.ToString());
+                Assert.That(generated.Playset.PlayerBlocks[0].PlacementRotationQuarterTurns, Is.EqualTo(1));
+
+                level.SetGeneratedContent(generated.Playset);
+
+                Assert.That(level.PlayerBlocks, Has.Count.EqualTo(1));
+                var entry = level.PlayerBlocks[0];
+                Assert.That(entry.Source, Is.EqualTo(ShapePlayerBlockSource.InlineFootprint));
+                Assert.That(entry.AppearancePreset, Is.SameAs(preset), "Keep preset appearance for rotated inline geometry.");
+                Assert.That(entry.InlineFootprint, Is.EqualTo(new[,] { { 1 }, { 1 } }));
+
+                var runtimeEntry = level.ToRuntimeData().PlayerBlockEntries[0];
+                Assert.That(runtimeEntry.Preset, Is.SameAs(preset));
+                Assert.That(runtimeEntry.Schema, Is.EqualTo(new[,] { { 1 }, { 1 } }));
+                var tiling = ShapeLevelTilingSolver.Solve(
+                    generated.Playset.BoardMask,
+                    new[] { runtimeEntry.Schema },
+                    maxSearchNodes: 100);
+                Assert.That(tiling.IsFeasible, Is.True,
+                    "The authored runtime footprint must tile without player rotation.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(level);
+                Object.DestroyImmediate(preset);
+            }
+        }
+
+        [Test]
         public void Generate_RespectsNonzeroObstacleMinimumWithConstructiveFallback()
         {
             var config = new ShapePlaysetGenerationConfig(

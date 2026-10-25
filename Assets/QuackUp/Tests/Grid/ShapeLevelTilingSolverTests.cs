@@ -1,13 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 using FitMe.GameData;
 using NUnit.Framework;
+using UnityEditor;
 
 namespace FitMe.Grid.Tests
 {
     public sealed class ShapeLevelTilingSolverTests
     {
         [Test]
-        public void Solve_UsesPrecomputedFixedAnchorCandidatesWithinBenchmarkNodeBudget()
+        public void Solve_RejectsThePriorRotatableBenchmarkPlaysetWhenRotationIsDisabled()
         {
             var playableMask = new int[10, 10];
             for (var row = 0; row < 10; row++)
@@ -38,30 +40,56 @@ namespace FitMe.Grid.Tests
 
             var result = ShapeLevelTilingSolver.Solve(playableMask, blockSchemas, maxSearchNodes: 1_000_000);
 
-            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Feasible));
-            Assert.That(result.Placements, Has.Count.EqualTo(blockSchemas.Count));
-            var blockIndices = new HashSet<int>();
-            foreach (var placement in result.Placements)
-            {
-                Assert.That(placement.BlockIndex, Is.InRange(0, blockSchemas.Count - 1));
-                Assert.That(blockIndices.Add(placement.BlockIndex), Is.True,
-                    "Equivalent shape instances must still map to distinct input block indices.");
-            }
-            Assert.That(result.NodesVisited, Is.LessThan(317),
-                "The benchmark's fixed-anchor implementation solved this exact playset in 298 nodes; " +
-                "keep the production solver below its prior 317-node baseline.");
+            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Infeasible));
+            Assert.That(result.Placements, Is.Empty);
         }
 
         [Test]
-        public void Solve_FindsTilingWhenOnlyRotatedBlockFits()
+        public void ActiveShapeCatalogLevels_AreTilingFeasibleInAuthoredOrientations()
+        {
+            const string worldCatalogPath =
+                "Assets/QuackUp/Settings/ShapeMode/LevelShape/WorldCatalog/WorldCatalog.asset";
+            var worldCatalog = AssetDatabase.LoadAssetAtPath<ShapeLevelWorldCatalog>(worldCatalogPath);
+            Assert.That(worldCatalog, Is.Not.Null, $"Expected active world catalog at {worldCatalogPath}.");
+            var infeasibleLevels = new List<string>();
+
+            foreach (var world in worldCatalog.Entries)
+            foreach (var levelEntry in world.LevelCatalog.Entries)
+            {
+                var definition = levelEntry.LevelDefinition;
+                var runtimeData = definition.ToRuntimeData();
+                var schemas = runtimeData.PlayerBlockEntries.Select(entry => entry.Schema).ToArray();
+                var playableMask = runtimeData.PlayableMask;
+                foreach (var obstacle in runtimeData.Obstacles)
+                {
+                    var obstacleSchema = obstacle.Schema?.schema;
+                    if (obstacleSchema == null) continue;
+                    for (var row = 0; row < obstacleSchema.GetLength(0); row++)
+                    for (var column = 0; column < obstacleSchema.GetLength(1); column++)
+                        if (obstacleSchema[row, column] != 0)
+                            playableMask[obstacle.Anchor.x + row, obstacle.Anchor.y + column] = 0;
+                }
+                var result = ShapeLevelTilingSolver.Solve(
+                    playableMask, schemas, maxSearchNodes: 1_000_000);
+
+                if (result.Status != ShapeLevelTilingStatus.Feasible)
+                    infeasibleLevels.Add($"{world.WorldKey}/{levelEntry.Key}: {result.Status}");
+            }
+
+            Assert.That(infeasibleLevels, Is.Empty,
+                $"Active Shape levels are not feasible in authored orientations: {string.Join(", ", infeasibleLevels)}");
+        }
+
+        [Test]
+        public void Solve_RejectsTilingWhenOnlyRotatedBlockFits()
         {
             var result = ShapeLevelTilingSolver.Solve(
                 new[,] { { 1 }, { 1 } },
                 new[] { new[,] { { 1, 1 } } },
                 maxSearchNodes: 100);
 
-            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Feasible));
-            Assert.That(result.NodesVisited, Is.GreaterThan(0));
+            Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Infeasible));
+            Assert.That(result.NodesVisited, Is.Zero);
         }
 
         [Test]
@@ -70,7 +98,7 @@ namespace FitMe.Grid.Tests
             var playableMask = new[,] { { 1 }, { 1 }, { 1 } };
             var result = ShapeLevelTilingSolver.Solve(
                 playableMask,
-                new[] { new[,] { { 1, 1 } }, new[,] { { 1 } } },
+                new[] { new[,] { { 1 }, { 1 } }, new[,] { { 1 } } },
                 maxSearchNodes: 100);
 
             Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.Feasible));
@@ -91,7 +119,7 @@ namespace FitMe.Grid.Tests
                     sawDomino = true;
                     Assert.That(cells, Has.Count.EqualTo(2));
                     Assert.That(cells[0].y, Is.EqualTo(cells[1].y),
-                        "The horizontal input domino must be reported in its solved vertical orientation.");
+                        "Fixed-orientation placements must retain the schema's vertical orientation.");
                 }
                 else
                 {
@@ -119,8 +147,12 @@ namespace FitMe.Grid.Tests
         public void EnumerateSolutions_CountsDistinctTilingsForEquivalentBlocks()
         {
             var result = ShapeLevelTilingSolver.EnumerateSolutions(
-                new[,] { { 1, 1 }, { 1, 1 } },
-                new[] { new[,] { { 1, 1 } }, new[,] { { 1, 1 } } },
+                new[,] { { 1, 1, 1 }, { 1, 1, 1 } },
+                new[]
+                {
+                    new[,] { { 1, 1 }, { 1, 0 } },
+                    new[,] { { 1 } }, new[,] { { 1 } }, new[,] { { 1 } }
+                },
                 maxSearchNodes: 100,
                 maxStoredSolutions: 10);
 
@@ -134,8 +166,12 @@ namespace FitMe.Grid.Tests
         public void EnumerateSolutions_ContinuesCountingAfterPreviewStorageLimit()
         {
             var result = ShapeLevelTilingSolver.EnumerateSolutions(
-                new[,] { { 1, 1 }, { 1, 1 } },
-                new[] { new[,] { { 1, 1 } }, new[,] { { 1, 1 } } },
+                new[,] { { 1, 1, 1 }, { 1, 1, 1 } },
+                new[]
+                {
+                    new[,] { { 1, 1 }, { 1, 0 } },
+                    new[,] { { 1 } }, new[,] { { 1 } }, new[,] { { 1 } }
+                },
                 maxSearchNodes: 100,
                 maxStoredSolutions: 1);
 
@@ -148,9 +184,13 @@ namespace FitMe.Grid.Tests
         public void EnumerateSolutions_ReportsAtLeastCountWhenSearchBudgetRunsOut()
         {
             var result = ShapeLevelTilingSolver.EnumerateSolutions(
-                new[,] { { 1, 1 }, { 1, 1 } },
-                new[] { new[,] { { 1, 1 } }, new[,] { { 1, 1 } } },
-                maxSearchNodes: 2,
+                new[,] { { 1, 1, 1 }, { 1, 1, 1 } },
+                new[]
+                {
+                    new[,] { { 1, 1 }, { 1, 0 } },
+                    new[,] { { 1 } }, new[,] { { 1 } }, new[,] { { 1 } }
+                },
+                maxSearchNodes: 5,
                 maxStoredSolutions: 1);
 
             Assert.That(result.Status, Is.EqualTo(ShapeLevelTilingStatus.SearchLimitReached));

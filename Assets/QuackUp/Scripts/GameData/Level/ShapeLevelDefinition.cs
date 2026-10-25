@@ -60,22 +60,30 @@ namespace FitMe.GameData
             for (var index = 0; index < playset.PlayerBlocks.Count; index++)
             {
                 var generatedBlock = playset.PlayerBlocks[index];
-                var groupKey = generatedBlock.IsPredefined
+                var orientedFootprint = RotateFootprint(
+                    generatedBlock.Footprint, generatedBlock.PlacementRotationQuarterTurns);
+                var remainsPreset = generatedBlock.IsPredefined &&
+                                    generatedBlock.PlacementRotationQuarterTurns % 4 == 0;
+                var groupKey = remainsPreset
                     ? "preset:" + generatedBlock.PreferredPreset.GetInstanceID()
-                    : "inline:" + CreateNormalizedFootprintKey(generatedBlock.Footprint);
+                    : "inline:" + (generatedBlock.PreferredPreset
+                        ? generatedBlock.PreferredPreset.GetInstanceID().ToString()
+                        : string.Empty) + ":" + CreateNormalizedFootprintKey(orientedFootprint);
                 if (groupsByKey.TryGetValue(groupKey, out var groupIndex))
                 {
                     var existing = playerBlocks[groupIndex];
                     playerBlocks[groupIndex] = existing.Source == ShapePlayerBlockSource.Preset
                         ? new ShapePlayerBlockEntry(existing.Preset, existing.Count + 1)
-                        : new ShapePlayerBlockEntry(existing.InlineFootprint, existing.Count + 1);
+                        : new ShapePlayerBlockEntry(
+                            existing.AppearancePreset, existing.InlineFootprint, existing.Count + 1);
                     continue;
                 }
 
                 groupsByKey.Add(groupKey, playerBlocks.Count);
-                playerBlocks.Add(generatedBlock.IsPredefined
+                playerBlocks.Add(remainsPreset
                     ? new ShapePlayerBlockEntry(generatedBlock.PreferredPreset, 1)
-                    : new ShapePlayerBlockEntry(generatedBlock.Footprint, 1));
+                    : new ShapePlayerBlockEntry(
+                        generatedBlock.PreferredPreset, orientedFootprint, 1));
             }
 
             SetGeneratedContent(playset.BoardMask, playset.ObstacleMask, playerBlocks);
@@ -109,6 +117,24 @@ namespace FitMe.GameData
             for (var column = minColumn; column <= maxColumn; column++)
                 key.Append(footprint[row, column] == 0 ? '0' : '1');
             return key.ToString();
+        }
+
+        private static int[,] RotateFootprint(int[,] footprint, int clockwiseQuarterTurns)
+        {
+            if (footprint == null || footprint.Length == 0) return new int[0, 0];
+            var rotated = Clone(footprint);
+            var turns = ((clockwiseQuarterTurns % 4) + 4) % 4;
+            for (var turn = 0; turn < turns; turn++)
+            {
+                var rows = rotated.GetLength(0);
+                var columns = rotated.GetLength(1);
+                var next = new int[columns, rows];
+                for (var row = 0; row < rows; row++)
+                for (var column = 0; column < columns; column++)
+                    next[column, rows - row - 1] = rotated[row, column];
+                rotated = next;
+            }
+            return rotated;
         }
 
         public void SetGeneratedContent(
@@ -157,7 +183,7 @@ namespace FitMe.GameData
                     ? entry.Preset.BlockSchema?.schema
                     : entry.InlineFootprint;
                 runtimePlayerBlocks.Add(new ShapePlayerBlockRuntimeEntry(
-                    entry.Source == ShapePlayerBlockSource.Preset ? entry.Preset : null,
+                    entry.Source == ShapePlayerBlockSource.Preset ? entry.Preset : entry.AppearancePreset,
                     schema));
             }
 

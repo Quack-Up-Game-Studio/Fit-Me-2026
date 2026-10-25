@@ -258,7 +258,7 @@ namespace FitMe.GameData
 
     public sealed class GeneratedShapePlayset
     {
-        public const int CurrentGeneratorVersion = 4;
+        public const int CurrentGeneratorVersion = 5;
 
         public int Seed { get; }
         public int AttemptIndex { get; }
