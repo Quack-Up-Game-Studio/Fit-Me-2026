@@ -1,0 +1,33 @@
+{
+  "name": "FitMe.Grid.PlayModeTests",
+  "rootNamespace": "FitMe.Grid.PlayModeTests",
+  "references": [
+    "Unity.ugui",
+    "VContainer",
+    "FitMe.Grid",
+    "FitMe.Panel",
+    "FitMe.Scene",
+    "FitMe.Shared",
+    "QuackUp.Utils",
+    "QuackUp.SceneManagement",
+    "QuackUp.Core",
+    "UniTask",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll",
+    "R3.dll",
+    "Sirenix.Serialization.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
