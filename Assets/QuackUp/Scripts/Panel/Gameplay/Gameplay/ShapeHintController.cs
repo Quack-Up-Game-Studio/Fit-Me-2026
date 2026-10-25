@@ -44,8 +44,8 @@ namespace FitMe.Panel
 
     public static class HintRequestCompletionPolicy
     {
-        public static bool ShouldComplete(bool isHintRequest, bool ownsActiveSearch) =>
-            isHintRequest || ownsActiveSearch;
+        public static bool ShouldComplete(bool isHintRequest, bool ownsActiveSearch, bool queuedHintStarted) =>
+            isHintRequest || (ownsActiveSearch && !queuedHintStarted);
     }
 
     public static class ShapeHintAllowancePolicy
@@ -246,8 +246,6 @@ namespace FitMe.Panel
                     !string.Equals(currentSnapshot.Identity, snapshot.Identity, StringComparison.Ordinal))
                     return;
 
-                _isBusy = false;
-                _activeSearchCancellation = null;
                 if (isHintRequest && !HintConsumptionPolicy.TrySpendIfRequired(
                         result.Status, TrySpendLocalHint))
                 {
@@ -289,6 +287,7 @@ namespace FitMe.Panel
             finally
             {
                 var ownsActiveSearch = ReferenceEquals(_activeSearchCancellation, cancellation);
+                var queuedHintStarted = false;
                 if (ownsActiveSearch)
                 {
                     _activeSearchCancellation = null;
@@ -298,13 +297,17 @@ namespace FitMe.Panel
                     {
                         _hintQueued = false;
                         if (CanRunQueuedHint() && TryCreateSnapshot(out var queuedSnapshot))
+                        {
+                            queuedHintStarted = true;
                             StartSearch(queuedSnapshot, _searchConfig.MaxSearchNodes, isHintRequest: true);
+                        }
                         else
                             _hintRequestCompletion?.TrySetResult();
                     }
                     if (!_disposed) UpdateAvailability();
                 }
-                if (HintRequestCompletionPolicy.ShouldComplete(isHintRequest, ownsActiveSearch))
+                if (HintRequestCompletionPolicy.ShouldComplete(
+                        isHintRequest, ownsActiveSearch, queuedHintStarted))
                     CompleteHintRequest();
                 cancellation.Dispose();
             }
