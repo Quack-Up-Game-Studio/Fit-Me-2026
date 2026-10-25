@@ -499,7 +499,13 @@ namespace FitMe.Grid
                 }
                 Transform spawnTransform = _spawnPoints[i].Transform;
                 var randomSchema = _spawnBag.Dequeue();
-                var block = InstantiateBlock(spawnTransform, randomSchema.rotation, randomSchema.blockShape, randomSchema.blockColor, _config.ObjectScale);
+                var block = InstantiateBlock(
+                    spawnTransform,
+                    randomSchema.rotation,
+                    randomSchema.blockShape,
+                    randomSchema.blockColor,
+                    _config.ObjectScale,
+                    randomSchema.blockSchema?.schema);
                 block.Model.SpawnIndex = i;
                 _spawnPoints[i].IsFree = false;
                 _spawnPoints[i].CurrentBlock = block;
@@ -624,28 +630,45 @@ namespace FitMe.Grid
             if (spawnPoint == null || previewPoint == null || spawnPoint.Transform == null || previewPoint.Transform == null)
                 return;
 
+            var activeSchema = blockToSwap.Model.BlockSchemas.FirstOrDefault();
+            var displacedSchema = activeSchema?.schema != null
+                ? new BlockSchema((int[,])activeSchema.schema.Clone(), activeSchema.Index)
+                : blockToSwap.Model.BlockPreset.BlockSchema;
             var swapBlockData = new SpawnBlockData(blockToSwap.Model.BlockShape, 
                 blockToSwap.GameObject.transform.rotation, 
-                blockToSwap.Model.BlockPreset.BlockSchema,
+                displacedSchema,
                 blockToSwap.Model.BlockColor.CurrentValue);
-            _spawnBag.Dequeue();
+            var nextQueue = _spawnBag.Dequeue();
             var tempBag = _spawnBag.ToList();
             tempBag.Insert(0, swapBlockData);
             _spawnBag = new Queue<SpawnBlockData>(tempBag);
 
-            MoveBlockToSpawnPoint(previewBlock, spawnPoint, _config.ObjectScale, true);
-            previewBlock.Model.SpawnIndex = spawnIndex;
+            blockToSwap.ViewModel.DestroyCommand.Execute(Unit.Default);
+            FreeSpawnPoint(spawnIndex);
+            var newBlock = InstantiateBlock(
+                spawnPoint.Transform,
+                nextQueue.rotation,
+                nextQueue.blockShape,
+                nextQueue.blockColor,
+                _config.ObjectScale,
+                nextQueue.blockSchema?.schema);
+            newBlock.Model.SpawnIndex = spawnIndex;
             spawnPoint.IsFree = false;
-            spawnPoint.CurrentBlock = previewBlock;
+            spawnPoint.CurrentBlock = newBlock;
+            _messageHub.Publish(new BlockSpawnedEvent(new List<BlockInstance> { newBlock }));
 
-            MoveBlockToSpawnPoint(blockToSwap, previewPoint, _config.PreviewScale, false);
-            blockToSwap.Model.SpawnIndex = -1;
+            previewBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
+            var newPreviewBlock = InstantiateBlock(
+                previewPoint.Transform,
+                swapBlockData.rotation,
+                swapBlockData.blockShape,
+                swapBlockData.blockColor,
+                _config.PreviewScale,
+                swapBlockData.blockSchema?.schema);
+            newPreviewBlock.Controller.SetActive(false);
             previewPoint.IsFree = false;
-            previewPoint.CurrentBlock = blockToSwap;
-            _messageHub.Publish(new BlockSpawnedEvent(new List<BlockInstance> { previewBlock }));
-            //_previewBlocks[0] = newPreviewBlock;
+            previewPoint.CurrentBlock = newPreviewBlock;
             _onSwap?.OnNext(Unit.Default);
-            //PreviewMultiNextQueue(_config.PreviewCount);
             RefreshSwapAvailability();
         }
 
@@ -707,7 +730,10 @@ namespace FitMe.Grid
             blockTransform.SetParent(spawnPoint.Transform, true);
             blockTransform.position = spawnPoint.Transform.position;
             block.ViewModel?.SetSpawnReturnTarget(spawnPoint.Transform);
-            blockTransform.localScale = new Vector3(scale, scale, 1f);
+            blockTransform.localScale = Vector3.zero;
+            block.ViewModel.ScaleInCommand.Execute(new ScaleInCommandData(
+                new Promise<Unit>(),
+                new Vector3(scale, scale, 1f)));
             block.Controller.SetActive(isActive);
         }
 
@@ -779,7 +805,8 @@ namespace FitMe.Grid
                     nextBlocks.rotation,
                     nextBlocks.blockShape,
                     nextBlocks.blockColor,
-                    _config.PreviewScale);
+                    _config.PreviewScale,
+                    nextBlocks.blockSchema?.schema);
 
                 block.Controller.SetActive(false);
                 _spawnPreviews[i].CurrentBlock = block;

@@ -9,6 +9,8 @@ using ObservableCollections;
 using QuackUp.Utils;
 using R3;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEditor;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
@@ -970,58 +972,116 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void BlockManager_ClassicSwapExchangesActiveAndPreviewBlocks()
+        public void BlockManager_ClassicSwapReinstantiatesBothSlotsAndCanRepeat()
         {
             SetUpOneCellPlacement();
-            var activePreset = CreateBlockPreset(new[,] { { 1 } });
-            var nextPreset = CreateBlockPreset(new[,] { { 1, 1 } });
-            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var config = Keep(Object.Instantiate(AssetDatabase.LoadAssetAtPath<BlockManagerConfig>(
+                "Assets/QuackUp/Settings/Grid/Block/BlockManagerConfig.asset")));
+            var gridConfig = Keep(ScriptableObject.CreateInstance<GridManagerConfig>());
+            var atomPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/QuackUp/Prefabs/Atom/AtomView.prefab").GetComponent<AtomView>();
+            var blockPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/QuackUp/Prefabs/Block/BlockView.prefab").GetComponent<BlockView>();
+            var factory = new BlockFactory(blockPrefab, config, gridConfig,
+                new AtomFactory(config, atomPrefab),
+                new BlockControllerFactory(config, _manager, null, null, null));
+            var presets = new List<KeyValuePair<BlockShape, BlockPreset>>(config.BlockPresetDictionary);
+            Assert.That(presets, Has.Count.GreaterThanOrEqualTo(2));
             var handTransform = Keep(new GameObject("Classic hand slot")).transform;
             var previewTransform = Keep(new GameObject("Classic preview slot")).transform;
             var handPoint = CreateSpawnPoint(handTransform, null, true);
             var previewPoint = CreateSpawnPoint(previewTransform, null, true);
             using var blockManager = new BlockManager(
-                _manager, config, null, new[] { handPoint }, null, new[] { previewPoint }, _hub);
+                _manager, config, null, new[] { handPoint }, factory, new[] { previewPoint }, _hub);
 
-            var activeItem = new ShapeBlockSupplyQueue.Item(
-                new ShapePlayerBlockRuntimeEntry(activePreset, activePreset.BlockSchema.schema),
-                Quaternion.identity, BlockColor.Red);
-            var nextItem = new ShapeBlockSupplyQueue.Item(
-                new ShapePlayerBlockRuntimeEntry(nextPreset, nextPreset.BlockSchema.schema),
-                Quaternion.identity, BlockColor.Blue);
-            var activeBlock = CreateShapeTestBlock(config, activeItem, handTransform, 0, true);
-            var previewBlock = CreateShapeTestBlock(config, nextItem, previewTransform, -1, false);
-            handPoint.CurrentBlock = activeBlock;
-            handPoint.IsFree = false;
-            previewPoint.CurrentBlock = previewBlock;
-            previewPoint.IsFree = false;
+            void TrackBlock(BlockInstance block)
+            {
+                _objects.Add(block.GameObject);
+                _additionalBlockModels.Add(block.Model);
+                _additionalBlockViewModels.Add(block.ViewModel);
+                _additionalBlockControllers.Add(block.Controller);
+            }
+
+            var activePreset = presets[0];
+            var nextPreset = presets[1];
+            var activeSchema = activePreset.Value.BlockSchemas.Count > 1
+                ? activePreset.Value.BlockSchemas[1]
+                : activePreset.Value.BlockSchema;
+            var nextSchema = nextPreset.Value.BlockSchemas.Count > 1
+                ? nextPreset.Value.BlockSchemas[1]
+                : nextPreset.Value.BlockSchema;
+            typeof(BlockManagerConfig).GetProperty(nameof(BlockManagerConfig.MaxRandomAmount))
+                .SetValue(config, 1);
             typeof(BlockManager).GetField("_spawnBag", BindingFlags.Instance | BindingFlags.NonPublic)
                 .SetValue(blockManager, new Queue<SpawnBlockData>(new[]
                 {
-                    new SpawnBlockData(BlockShape.OneByOne, Quaternion.identity, nextPreset.BlockSchema, BlockColor.Blue),
-                    new SpawnBlockData(BlockShape.OneByOne, Quaternion.identity, activePreset.BlockSchema, BlockColor.Red)
+                    new SpawnBlockData(activePreset.Key, Quaternion.identity, activeSchema, BlockColor.Red),
+                    new SpawnBlockData(nextPreset.Key, Quaternion.identity, nextSchema, BlockColor.Blue),
+                    new SpawnBlockData(activePreset.Key, Quaternion.identity, activeSchema, BlockColor.Red)
                 }));
 
-            blockManager.Swap();
+            blockManager.SpawnBlocksFromBag(refill: false);
+            var activeBlock = handPoint.CurrentBlock;
+            var previewBlock = previewPoint.CurrentBlock;
+            TrackBlock(activeBlock);
+            TrackBlock(previewBlock);
+            Assert.That(activeBlock.Model.BlockShape, Is.EqualTo(activePreset.Key));
+            Assert.That(activeBlock.Model.BlockSchemas[0].schema, Is.SameAs(activeSchema.schema));
+            Assert.That(previewBlock.Model.BlockShape, Is.EqualTo(nextPreset.Key));
+            Assert.That(previewBlock.Model.BlockSchemas[0].schema, Is.SameAs(nextSchema.schema));
 
-            Assert.That(handPoint.CurrentBlock, Is.SameAs(previewBlock));
-            Assert.That(previewPoint.CurrentBlock, Is.SameAs(activeBlock));
-            Assert.That(previewBlock.GameObject.transform.parent, Is.SameAs(handTransform));
-            Assert.That(activeBlock.GameObject.transform.parent, Is.SameAs(previewTransform));
-            Assert.That(previewBlock.Model.SpawnIndex, Is.Zero);
-            Assert.That(activeBlock.Model.SpawnIndex, Is.EqualTo(-1));
-            Assert.That(previewBlock.GameObject.transform.localScale.x, Is.EqualTo(config.ObjectScale));
-            Assert.That(activeBlock.GameObject.transform.localScale.x, Is.EqualTo(config.PreviewScale));
+            RefreshBlockManagerSwapAvailability(blockManager);
+            var swapButtonObject = Keep(new GameObject("Classic swap button"));
+            var swapButton = swapButtonObject.AddComponent<Button>();
+            var swapAssembly = Array.Find(AppDomain.CurrentDomain.GetAssemblies(),
+                assembly => assembly.GetName().Name == "FitMe.Panel");
+            Assert.That(swapAssembly, Is.Not.Null);
+            var swapViewType = swapAssembly.GetType("FitMe.Panel.SwapBlockView");
+            var swapViewModelType = swapAssembly.GetType("FitMe.Panel.SwapBlockViewModel");
+            var swapView = swapButtonObject.AddComponent(swapViewType);
+            swapViewType.GetField("swapButton", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(swapView, swapButton);
+            var swapViewModel = Activator.CreateInstance(swapViewModelType, blockManager);
+            swapViewType.GetMethod("Construct").Invoke(swapView, new[] { swapViewModel });
+            Assert.That(swapButton.interactable, Is.True);
+
+            LogAssert.Expect(LogType.Error,
+                "Destroy may not be called from edit mode! Use DestroyImmediate instead.\nDestroying an object in edit mode destroys it permanently.");
+            LogAssert.Expect(LogType.Error,
+                "Destroy may not be called from edit mode! Use DestroyImmediate instead.\nDestroying an object in edit mode destroys it permanently.");
+            swapButton.onClick.Invoke();
+            var firstSwapHand = handPoint.CurrentBlock;
+            var firstSwapPreview = previewPoint.CurrentBlock;
+            TrackBlock(firstSwapHand);
+            TrackBlock(firstSwapPreview);
+            Assert.That(firstSwapHand, Is.Not.SameAs(activeBlock));
+            Assert.That(firstSwapHand, Is.Not.SameAs(previewBlock));
+            Assert.That(firstSwapHand.Model.BlockShape, Is.EqualTo(nextPreset.Key));
+            Assert.That(firstSwapHand.Model.BlockSchemas[0].schema, Is.SameAs(nextSchema.schema));
+            Assert.That(firstSwapPreview, Is.Not.SameAs(activeBlock));
+            Assert.That(firstSwapPreview, Is.Not.SameAs(previewBlock));
+            Assert.That(firstSwapPreview.Model.BlockShape, Is.EqualTo(activePreset.Key));
+            Assert.That(firstSwapHand.GameObject.transform.parent, Is.SameAs(handTransform));
+            Assert.That(firstSwapPreview.GameObject.transform.parent, Is.SameAs(previewTransform));
             Assert.That(blockManager.CanSwap.CurrentValue, Is.True);
+            Assert.That(swapButton.interactable, Is.True);
 
-            blockManager.Swap();
+            LogAssert.Expect(LogType.Error,
+                "Destroy may not be called from edit mode! Use DestroyImmediate instead.\nDestroying an object in edit mode destroys it permanently.");
+            LogAssert.Expect(LogType.Error,
+                "Destroy may not be called from edit mode! Use DestroyImmediate instead.\nDestroying an object in edit mode destroys it permanently.");
+            swapButton.onClick.Invoke();
+            var secondSwapHand = handPoint.CurrentBlock;
+            var secondSwapPreview = previewPoint.CurrentBlock;
+            TrackBlock(secondSwapHand);
+            TrackBlock(secondSwapPreview);
 
-            Assert.That(handPoint.CurrentBlock, Is.SameAs(activeBlock), "Second swap must exchange the blocks back");
-            Assert.That(previewPoint.CurrentBlock, Is.SameAs(previewBlock));
-            Assert.That(activeBlock.Model.SpawnIndex, Is.Zero);
-            Assert.That(previewBlock.Model.SpawnIndex, Is.EqualTo(-1));
-            Assert.That(activeBlock.GameObject.transform.localScale.x, Is.EqualTo(config.ObjectScale));
-            Assert.That(previewBlock.GameObject.transform.localScale.x, Is.EqualTo(config.PreviewScale));
+            Assert.That(secondSwapHand, Is.Not.SameAs(firstSwapHand));
+            Assert.That(secondSwapPreview, Is.Not.SameAs(firstSwapPreview));
+            Assert.That(secondSwapHand.Model.BlockShape, Is.EqualTo(activePreset.Key));
+            Assert.That(secondSwapPreview.Model.BlockShape, Is.EqualTo(nextPreset.Key));
+            swapViewType.GetMethod("Dispose").Invoke(swapView, null);
+            swapViewModelType.GetMethod("Dispose").Invoke(swapViewModel, null);
         }
 
         [Test]
