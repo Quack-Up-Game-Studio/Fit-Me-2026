@@ -29,7 +29,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _OutlineWidth: 0.234
+    - _InnerOutlineWidth: 0.577
+    - _OutlineWidth: 0.577
     - _UnderlayDilate: 0
     - _UnderlayOffsetY: -0.8
     - _UseUnderlay: 0
