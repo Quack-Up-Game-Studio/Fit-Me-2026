@@ -34,7 +34,7 @@ namespace FitMe.Grid.Tests
                     new AtomFactory(config, AssetDatabase.LoadAssetAtPath<GameObject>(root + "Prefabs/Atom/AtomView.prefab").GetComponent<AtomView>()),
                     new BlockControllerFactory(config, null, null, null, null));
                 block = factory.Create(BlockShape.OneByOne, Vector3.zero, Quaternion.identity,
-                    new InstantiateParameters { parent = parent.transform, worldSpace = true }, new[,] { { 1, 1 }, { 1, 0 } }, blockConfigOverride: config.ShapeModeBlockConfig);
+                    new InstantiateParameters { parent = parent.transform, worldSpace = true }, new[,] { { 1, 1 }, { 1, 0 } }, blockConfigOverride: config.ArbitraryBlockConfig);
                 block.Model.ChangeColor(color, false);
                 foreach (var atom in block.Model.Atoms)
                 {

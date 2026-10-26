@@ -32,7 +32,7 @@ namespace FitMe.Grid
         public IReadOnlyDictionary<BlockShape, BlockPreset> BlockPresetDictionary => _blockPresetDictionary;
         [field: OdinSerialize] private Dictionary<BlockShape, BlockConfig> _blockConfigDictionary = new();
         public IReadOnlyDictionary<BlockShape, BlockConfig> BlockConfigDictionary => _blockConfigDictionary;
-        [field: SerializeField] public BlockConfig ShapeModeBlockConfig { get; private set; }
+        [field: SerializeField] public ArbitraryBlockConfig ArbitraryBlockConfig { get; private set; }
         [field: SerializeField] public ExplosionVfxPoolConfig ExplosionVfxPoolConfig { get; private set; }
         [field: SerializeField] public bool CanRefill { get; private set; } = true;
         [field: OdinSerialize] private Dictionary<BlockShape, int> _bagSettings = new();
@@ -65,9 +65,9 @@ namespace FitMe.Grid
         [field: SerializeField] public EventReference PlaceSucceedSfx { get; private set; }
         [field: SerializeField] public EventReference PlaceFailSfx { get; private set; }
 
-        public BlockConfig GetBlockConfig(BlockShape shape, BlockConfig configOverride = null)
+        public IBlockPresentationConfig GetBlockConfig(BlockShape shape, IBlockPresentationConfig configOverride = null)
         {
-            if (configOverride)
+            if (configOverride != null)
                 return configOverride;
 
             if (_blockConfigDictionary.TryGetValue(shape, out var blockConfig))

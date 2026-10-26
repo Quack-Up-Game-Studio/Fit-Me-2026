@@ -34,13 +34,13 @@ namespace FitMe.Grid
     [Serializable]
     public class BlockModel
     {
-        private readonly BlockConfig _config;
+        private readonly IBlockPresentationConfig _config;
         private readonly AtomFactory _atomFactory;
         private readonly List<BlockSchema> _blockSchemas = new();
         
         [Inject]
         public BlockModel(
-            BlockConfig config,
+            IBlockPresentationConfig config,
             AtomFactory atomFactory)
         {
             _config = config;
@@ -54,7 +54,7 @@ namespace FitMe.Grid
         /// Use <see cref="ChangeColor"/> to change the block type.
         /// </remarks>
         public ReadOnlyReactiveProperty<BlockColor> BlockColor => _blockColor.ToReadOnlyReactiveProperty();
-        public BlockConfig Config => _config;
+        public IBlockPresentationConfig Config => _config;
         public BlockShape BlockShape { get; private set; }
         public List<AtomInstance> Atoms { get; private set; } = new(); 
         public BlockPreset BlockPreset { get; private set; }

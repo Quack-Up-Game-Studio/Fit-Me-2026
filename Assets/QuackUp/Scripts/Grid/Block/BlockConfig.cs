@@ -11,12 +11,28 @@ using UnityEngine.Serialization;
 
 namespace FitMe.Grid
 {
+    public interface IBlockPresentationConfig
+    {
+        bool UseAtomSprite { get; }
+        bool UsesAtomRenderer { get; }
+        Sprite ObstacleSprite { get; }
+        Color ObstacleAtomSpriteColor { get; }
+        IReadOnlyList<string> IdleAnimations { get; }
+        string PickUpAnimation { get; }
+        string ExplodeAnimation { get; }
+        IReadOnlyDictionary<BlockColor, ParticleSystem> ExplodeVfx { get; }
+        IReadOnlyDictionary<BlockColor, ParticleSystem> PlaceVFX { get; }
+        SkeletonDataAsset SkeletonDataAsset { get; }
+        IReadOnlyDictionary<BlockColor, string> SkinDictionary { get; }
+    }
+
     [CreateAssetMenu(fileName = "BlockConfig", menuName = "FitMe/Grid/Block/BlockConfig")]
     [ShowOdinSerializedPropertiesInInspector]
-    public class BlockConfig : SerializedScriptableObject, IHasSkeletonDataAsset
+    public class BlockConfig : SerializedScriptableObject, IHasSkeletonDataAsset, IBlockPresentationConfig
     {
         [Title("Block Settings")]
         [field: SerializeField] public bool UseAtomSprite { get; private set; }
+        public bool UsesAtomRenderer => UseAtomSprite;
         [field: SerializeField] public Sprite ObstacleSprite { get; private set; }
         [field: SerializeField] public Color ObstacleAtomSpriteColor { get; private set; } = Color.gray;
         

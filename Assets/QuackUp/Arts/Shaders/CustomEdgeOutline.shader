@@ -5,6 +5,7 @@ Shader "Sprites/CustomOutlinePerObject_Fixed"
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         [PerRendererData] _SpriteUVRect ("Sprite UV Rect", Vector) = (0,0,1,1)
         _Color ("Tint", Color) = (1,1,1,1)
+        [PerRendererData] _RendererColor ("Renderer Color", Color) = (1,1,1,1)
         [MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
         
         _OutlineColor ("Outline Color", Color) = (1,1,1,1)
@@ -57,6 +58,9 @@ Shader "Sprites/CustomOutlinePerObject_Fixed"
 
             sampler2D _MainTex;
             fixed4 _Color;
+            CBUFFER_START(UnityPerDrawSprite)
+            fixed4 _RendererColor;
+            CBUFFER_END
             float4 _SpriteUVRect;
             fixed4 _OutlineColor;
             float _OutlineWidth;
@@ -70,7 +74,7 @@ Shader "Sprites/CustomOutlinePerObject_Fixed"
                 v2f OUT;
                 OUT.vertex = UnityObjectToClipPos(IN.vertex);
                 OUT.texcoord = IN.texcoord;
-                OUT.color = IN.color * _Color;
+                OUT.color = IN.color * _Color * _RendererColor;
                 #ifdef PIXELSNAP_ON
                 OUT.vertex = UnityPixelSnap(OUT.vertex);
                 #endif
@@ -80,6 +84,7 @@ Shader "Sprites/CustomOutlinePerObject_Fixed"
             fixed4 frag(v2f IN) : SV_Target
             {
                 fixed4 c = tex2D(_MainTex, IN.texcoord) * IN.color;
+                c.rgb *= c.a;
                 
                 // Sliced sprites occupy only part of the texture UV range.
                 float2 localUV = (IN.texcoord - _SpriteUVRect.xy)

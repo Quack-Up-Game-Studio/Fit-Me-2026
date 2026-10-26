@@ -45,7 +45,7 @@
 		"bone": "bone",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.5,
 		"damping": 0.85
 	},
@@ -55,7 +55,7 @@
 		"bone": "bone2",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.5,
 		"strength": 93.6,
 		"damping": 0.85
@@ -66,7 +66,7 @@
 		"bone": "bone3",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.5,
 		"damping": 0.85
 	},
@@ -76,7 +76,7 @@
 		"bone": "bone4",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.5,
 		"strength": 93.6,
 		"damping": 0.85
@@ -87,7 +87,7 @@
 		"bone": "bone5",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.5,
 		"damping": 0.85
 	},
@@ -97,7 +97,7 @@
 		"bone": "bone6",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.5,
 		"strength": 93.6,
 		"damping": 0.85
@@ -108,7 +108,7 @@
 		"bone": "bone7",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.5,
 		"damping": 0.85
 	},
@@ -118,7 +118,7 @@
 		"bone": "bone8",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.5,
 		"strength": 93.6,
 		"damping": 0.85
@@ -128,7 +128,7 @@
 		"bone": "bone9",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.0741,
 		"strength": 50.5,
 		"damping": 0.85
@@ -139,7 +139,7 @@
 		"bone": "bone10",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.0741,
 		"strength": 50.5,
 		"damping": 0.85
@@ -150,7 +150,7 @@
 		"bone": "bone11",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.0741,
 		"strength": 50.5,
 		"damping": 0.85
@@ -161,7 +161,7 @@
 		"bone": "bone12",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.0741,
 		"strength": 50.5,
 		"damping": 0.85
@@ -172,7 +172,7 @@
 		"bone": "bone13",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.0741,
 		"strength": 50.5,
 		"damping": 0.85
@@ -183,7 +183,7 @@
 		"bone": "bone14",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.0741,
 		"strength": 50.5,
 		"damping": 0.85
@@ -194,7 +194,7 @@
 		"bone": "bone15",
 		"x": 1,
 		"y": 1,
-		"fps": 20,
+		"fps": 60,
 		"inertia": 0.0741,
 		"strength": 50.5,
 		"damping": 0.85

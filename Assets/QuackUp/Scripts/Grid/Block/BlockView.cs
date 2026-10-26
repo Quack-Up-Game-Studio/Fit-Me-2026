@@ -49,7 +49,7 @@ namespace FitMe.Grid
         private ParticleSystem _placingVfxInstance;
         //private Sequence _rotationSequence;
         
-        private BlockConfig _blockConfig;
+        private IBlockPresentationConfig _blockConfig;
         private BlockManagerConfig _blockManagerConfig;
         private GridManagerConfig _gridConfig;
         private BlockController _blockController;
@@ -60,7 +60,7 @@ namespace FitMe.Grid
 
         [Inject]
         public void Construct(
-            BlockConfig blockConfig,
+            IBlockPresentationConfig blockConfig,
             BlockManagerConfig blockManagerConfig,
             GridManagerConfig gridConfig,
             BlockController blockController,
@@ -167,9 +167,9 @@ namespace FitMe.Grid
             }
             if (current is BlockState.Obstacle)
             {
-                var useAtomSprites = _blockConfig.UseAtomSprite;
-                obstacleSpriteRenderer.enabled = !useAtomSprites;
-                if (!useAtomSprites)
+                var usesAtomRenderer = _blockConfig.UsesAtomRenderer;
+                obstacleSpriteRenderer.enabled = !usesAtomRenderer;
+                if (!usesAtomRenderer)
                     obstacleSpriteRenderer.sprite = _blockConfig.ObstacleSprite;
                 SetSpineRendererVisible(false);
             }
@@ -182,7 +182,8 @@ namespace FitMe.Grid
 
         private void SetSpineRendererVisible(bool visible)
         {
-            meshRenderer.enabled = visible && !_blockConfig.UseAtomSprite;
+            meshRenderer.enabled = visible && !_blockConfig.UsesAtomRenderer;
+            if (_blockConfig.UsesAtomRenderer && skeletonAnimation) skeletonAnimation.enabled = false;
         }
 
         #region Initalization
@@ -190,14 +191,18 @@ namespace FitMe.Grid
         {
             skeletonAnimation.skeletonDataAsset = _blockConfig.SkeletonDataAsset;
             skeletonAnimation.Initialize(true);
-            skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
+            if (!_blockConfig.UsesAtomRenderer)
+            {
+                skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
+                StartIdleTimer();
+            }
             SetSpineRendererVisible(true);
-            StartIdleTimer();
         }
         #endregion
         
         private void StartIdleTimer()
         {
+            if (_blockConfig.UsesAtomRenderer) return;
             var randomSwitchTime = _blockManagerConfig.SwitchIdleTimeRange.RandomWithinRange();
             _switchIdleCts = new CancellationTokenSource();
             _switchIdleTimer = Observable.Timer(TimeSpan.FromSeconds(randomSwitchTime), _switchIdleCts.Token)
@@ -215,6 +220,7 @@ namespace FitMe.Grid
 
         private async UniTask SwitchIdle(CancellationToken cancellationToken)
         {
+            if (_blockConfig.UsesAtomRenderer) return;
             await skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[1], false)
                 .WaitUntilComplete(cancellationToken: cancellationToken);
             if (cancellationToken.IsCancellationRequested) return;
@@ -247,7 +253,8 @@ namespace FitMe.Grid
                 transform.localScale = gridSize;
             }
             CancelIdleTimer();
-            skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.PickUpAnimation, true);
+            if (!_blockConfig.UsesAtomRenderer)
+                skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.PickUpAnimation, true);
         }
         
         private void Place(Vector3 scale)
@@ -289,10 +296,14 @@ namespace FitMe.Grid
         {
             DebugUtils.Log($"Block {_blockColor} exploded at position {transform.position}");
             CancelIdleTimer();
+            var usesAtomRenderer = _blockConfig.UsesAtomRenderer;
+            if (usesAtomRenderer) skeletonAnimation.enabled = true;
             var speedMultiplier = data.FitType == FitType.FitMe ? 2f : 6.67f;
+            skeletonAnimation.AnimationState.ClearTrack(0);
             var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.ExplodeAnimation, false);
             explodeAnim.TimeScale *= speedMultiplier;
             await explodeAnim.WaitUntilComplete(); 
+            if (usesAtomRenderer) skeletonAnimation.enabled = false;
             if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
             {
                 _blockVfxPool?.Play(vfx, transform.position);
@@ -323,6 +334,7 @@ namespace FitMe.Grid
         private void OnBlockColorChanged(BlockColor color)
         {
             _blockColor = color;
+            if (_blockConfig.UsesAtomRenderer) return;
             if (!_blockConfig.SkinDictionary.TryGetValue(color, out var skin))
             {
                 DebugUtils.LogWarning($"No skin found for block type: {color}");

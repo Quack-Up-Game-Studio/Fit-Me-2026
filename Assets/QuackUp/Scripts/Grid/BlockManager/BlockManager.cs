@@ -539,7 +539,7 @@ namespace FitMe.Grid
                 var piece = pieces[i];
                 piece.DropBounds = panelBounds;
                 var block = InstantiateBlock(_trayPanel, item.Rotation, BlockShape.OneByOne, item.Color,
-                    piece.Scale, schema, false, item.PlayerBlock.Preset, _config.ShapeModeBlockConfig);
+                    piece.Scale, schema, false, item.PlayerBlock.Preset, _config.ArbitraryBlockConfig);
                 block.Model.SpawnIndex = -1;
                 block.Model.TrayPiece = piece;
                 block.GameObject.transform.position = piece.Position;
@@ -581,7 +581,7 @@ namespace FitMe.Grid
             int[,] schemaOverride = null,
             bool allowRotation = true,
             BlockPreset presetOverride = null,
-            BlockConfig blockConfigOverride = null)
+            IBlockPresentationConfig blockConfigOverride = null)
         {
             //block.BlockView.Transform.rotation = randomRotationQuaternion;
             BlockInstance block = _blockFactory.Create(
@@ -847,7 +847,7 @@ namespace FitMe.Grid
                     schema,
                     false,
                     entry.Preset,
-                    _config.ShapeModeBlockConfig);
+                    _config.ArbitraryBlockConfig);
 
                 block.Controller.SetActive(false);
                 spawnPoint.CurrentBlock = block;

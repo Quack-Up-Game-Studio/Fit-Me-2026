@@ -582,6 +582,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  <TrayBlockScale>k__BackingField: 0.5
   <TrayTiltMin>k__BackingField: -15
   <TrayTiltMax>k__BackingField: 15
   <TrayInset>k__BackingField: {x: 0.1, y: 0.15}
@@ -592,7 +593,7 @@ MonoBehaviour:
   <SmartRandomDepth>k__BackingField: 3
   <PreviewScale>k__BackingField: 0.17
   <ObjectScale>k__BackingField: 0.35
-  <ShapeModeBlockConfig>k__BackingField: {fileID: 11400000, guid: 9c3ab7eb54d1b8cf19077125bd79ea34, type: 2}
+  <ArbitraryBlockConfig>k__BackingField: {fileID: 11400000, guid: a75ccf048320636d685fcc1e95eca54a, type: 2}
   <ExplosionVfxPoolConfig>k__BackingField: {fileID: 11400000, guid: 846d4e4480af3d94088fe9efafdf8abb, type: 2}
   <CanRefill>k__BackingField: 0
   PreviewCount: 4

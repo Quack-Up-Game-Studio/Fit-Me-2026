@@ -71,7 +71,7 @@ namespace FitMe.Grid.Tests
                 new LevelManagerMock(GameState.PlaceBlock), new QuackUp.Audio.AudioManagerMock(), pointer));
             var parent = Keep(new GameObject("Tray parent")).transform;
             var block = factory.Create(BlockShape.OneByOne, pointer.MouseWorldPosition, Quaternion.Euler(0, 0, 90),
-                new InstantiateParameters { parent = parent, worldSpace = true }, new[,] { { 1 } }, blockConfigOverride: config.ShapeModeBlockConfig);
+                new InstantiateParameters { parent = parent, worldSpace = true }, new[,] { { 1 } }, blockConfigOverride: config.ArbitraryBlockConfig);
             _objects.Add(block.GameObject);
             _additionalBlockModels.Add(block.Model);
             _additionalBlockControllers.Add(block.Controller);

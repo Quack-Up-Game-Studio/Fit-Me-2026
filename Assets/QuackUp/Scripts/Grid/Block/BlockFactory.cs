@@ -56,7 +56,7 @@ namespace FitMe.Grid
 
         public BlockInstance Create(BlockShape blockShape, Vector3 position, Quaternion rotation,
             InstantiateParameters? instantiateParameters = null, int[,] schemaOverride = null,
-            BlockPreset presetOverride = null, BlockConfig blockConfigOverride = null)
+            BlockPreset presetOverride = null, IBlockPresentationConfig blockConfigOverride = null)
         {
             var blockConfig = _blockManagerConfig.GetBlockConfig(blockShape, blockConfigOverride);
             _explosionVfxPool?.Warmup(blockConfig);

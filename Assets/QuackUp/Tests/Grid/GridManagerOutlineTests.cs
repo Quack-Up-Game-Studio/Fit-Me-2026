@@ -155,7 +155,7 @@ namespace FitMe.Grid.Tests
         private BlockInstance CreateBlock(int[,] schema, Vector3 position, int angle)
         {
             var block = _factory.Create(BlockShape.OneByOne, position, Quaternion.Euler(0, 0, angle),
-                schemaOverride: schema, blockConfigOverride: _config.ShapeModeBlockConfig);
+                schemaOverride: schema, blockConfigOverride: _config.ArbitraryBlockConfig);
             _blocks.Add(block);
             Keep(block.GameObject);
             typeof(BlockView).GetField("_originalScale", BindingFlags.Instance | BindingFlags.NonPublic)

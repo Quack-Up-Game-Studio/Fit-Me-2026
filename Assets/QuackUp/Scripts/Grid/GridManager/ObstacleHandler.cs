@@ -99,7 +99,7 @@ namespace FitMe.Grid
                     obstacle.Color,
                     obstacle.Petrified,
                     obstacle.Schema.schema,
-                    _blockManagerConfig.ShapeModeBlockConfig);
+                    _blockManagerConfig.ArbitraryBlockConfig);
             }
         }
 
@@ -234,7 +234,7 @@ namespace FitMe.Grid
             BlockColor? color,
             bool petrified,
             int[,] schemaOverride = null,
-            BlockConfig blockConfigOverride = null)
+            IBlockPresentationConfig blockConfigOverride = null)
         {
             var destinationCell = _gridManager.GetCellByArrayIndex(topLeftCellArrayIndex);
             var rotation = Quaternion.Euler(0, 0, randomSchema.Index * 90f);

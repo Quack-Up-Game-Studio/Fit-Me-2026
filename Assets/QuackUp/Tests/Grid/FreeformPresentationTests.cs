@@ -160,24 +160,47 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void BlockView_ArbitrarySpineModeKeepsBlockLevelSpineHidden()
+        {
+            var blockConfig = Keep(ScriptableObject.CreateInstance<ArbitraryBlockConfig>());
+            var blockObject = Keep(new GameObject("Per-atom Spine block"));
+            blockObject.SetActive(false);
+            var meshRenderer = blockObject.AddComponent<MeshRenderer>();
+            var skeletonAnimation = blockObject.AddComponent<Spine.Unity.SkeletonAnimation>();
+            var blockView = blockObject.AddComponent<BlockView>();
+            SetField(blockView, "meshRenderer", meshRenderer);
+            SetField(blockView, "skeletonAnimation", skeletonAnimation);
+            SetField(blockView, "_blockConfig", blockConfig);
+            skeletonAnimation.enabled = true;
+
+            typeof(BlockView).GetMethod("SetSpineRendererVisible", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(blockView, new object[] { true });
+
+            Assert.That(meshRenderer.enabled, Is.False,
+                "ArbitraryBlockConfig renders through its child atoms regardless of the placeholder-sprite setting.");
+            Assert.That(skeletonAnimation.enabled, Is.False,
+                "The hidden block-level Spine rig must not continue animating alongside its child atoms.");
+        }
+
+        [Test]
         public void BlockManagerConfig_ExplicitShapeModeConfigOverridesOneByOneConfig()
         {
             var managerConfig = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
             var oneByOneConfig = Keep(ScriptableObject.CreateInstance<BlockConfig>());
-            var shapeModeConfig = Keep(ScriptableObject.CreateInstance<BlockConfig>());
+            var shapeModeConfig = Keep(ScriptableObject.CreateInstance<ArbitraryBlockConfig>());
             SetField(managerConfig, "_blockConfigDictionary", new Dictionary<BlockShape, BlockConfig>
             {
                 [BlockShape.OneByOne] = oneByOneConfig
             });
 
-            var shapeModeProperty = typeof(BlockManagerConfig).GetProperty("ShapeModeBlockConfig");
+            var shapeModeProperty = typeof(BlockManagerConfig).GetProperty("ArbitraryBlockConfig");
             Assert.That(shapeModeProperty, Is.Not.Null,
-                "BlockManagerConfig needs an explicit shared config reference for arbitrary Shape Mode blocks.");
+                "BlockManagerConfig needs a dedicated config reference for arbitrary Shape Mode blocks.");
             if (shapeModeProperty == null) return;
             shapeModeProperty.SetValue(managerConfig, shapeModeConfig);
 
             var resolveMethod = typeof(BlockManagerConfig).GetMethod("GetBlockConfig",
-                new[] { typeof(BlockShape), typeof(BlockConfig) });
+                new[] { typeof(BlockShape), typeof(IBlockPresentationConfig) });
             Assert.That(resolveMethod, Is.Not.Null,
                 "Config resolution must allow a mode-specific config to override the shape dictionary.");
             if (resolveMethod == null) return;

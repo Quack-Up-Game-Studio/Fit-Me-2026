@@ -40,7 +40,7 @@ namespace FitMe.Grid
             {
                 foreach (var configuredBlock in blockManagerConfig.BlockConfigDictionary.Values)
                     Warmup(configuredBlock);
-                Warmup(blockManagerConfig.ShapeModeBlockConfig);
+                Warmup(blockManagerConfig.ArbitraryBlockConfig);
             }
         }
 
@@ -91,9 +91,9 @@ namespace FitMe.Grid
             return instance;
         }
 
-        public void Warmup(BlockConfig blockConfig)
+        public void Warmup(IBlockPresentationConfig blockConfig)
         {
-            if (_disposed || !blockConfig) return;
+            if (_disposed || blockConfig == null) return;
 
             Warmup(blockConfig.ExplodeVfx.Values, _config.PrewarmCountPerPrefab);
             Warmup(blockConfig.PlaceVFX.Values, _config.PlacementPrewarmCountPerPrefab);

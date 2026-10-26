@@ -14,6 +14,8 @@
     "QuackUp.Input",
     "QuackUp.Save",
     "UniTask",
+    "spine-unity",
+    "spine-csharp",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],
