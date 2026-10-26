@@ -1,0 +1,81 @@
+D1.png
+	size: 729, 136
+	filter: Linear, Linear
+Design_1/Blue_Design_1/Body
+	bounds: 2, 4, 130, 130
+Design_1/Blue_Design_1/Eye_Base
+	bounds: 662, 2, 11, 11
+Design_1/Blue_Design_1/Eye_Blink
+	bounds: 695, 15, 12, 6
+Design_1/Blue_Design_1/Eye_Default
+	bounds: 684, 37, 7, 7
+Design_1/Blue_Design_1/Eye_Drop
+	bounds: 695, 23, 16, 9
+Design_1/Blue_Design_1/Mouth_Default
+	bounds: 688, 3, 31, 10
+Design_1/Blue_Design_1/Mouth_Drag
+	bounds: 662, 103, 31, 20
+	rotate: 90
+Design_1/Green_Design_1/Body
+	bounds: 134, 4, 130, 130
+Design_1/Green_Design_1/Eye_Base
+	bounds: 675, 2, 11, 11
+Design_1/Purple_Design_1/Eye_Base
+	bounds: 675, 2, 11, 11
+Design_1/Red_Design_1/Eye_Base
+	bounds: 675, 2, 11, 11
+Design_1/Yellow_Design_1/Eye_Base
+	bounds: 675, 2, 11, 11
+Design_1/Green_Design_1/Eye_Blink
+	bounds: 721, 2, 12, 6
+	rotate: 90
+Design_1/Green_Design_1/Eye_Default
+	bounds: 706, 127, 7, 7
+Design_1/Green_Design_1/Eye_Drop
+	bounds: 713, 16, 16, 9
+	rotate: 90
+Design_1/Green_Design_1/Mouth_Default
+	bounds: 684, 70, 31, 10
+	rotate: 90
+Design_1/Green_Design_1/Mouth_Drag
+	bounds: 662, 70, 31, 20
+	rotate: 90
+Design_1/Purple_Design_1/Body
+	bounds: 266, 4, 130, 130
+Design_1/Purple_Design_1/Eye_Blink
+	bounds: 706, 113, 12, 6
+	rotate: 90
+Design_1/Purple_Design_1/Eye_Default
+	bounds: 706, 104, 7, 7
+Design_1/Purple_Design_1/Eye_Drop
+	bounds: 696, 92, 16, 9
+Design_1/Purple_Design_1/Mouth_Default
+	bounds: 684, 58, 31, 10
+Design_1/Purple_Design_1/Mouth_Drag
+	bounds: 662, 37, 31, 20
+	rotate: 90
+Design_1/Red_Design_1/Body
+	bounds: 398, 4, 130, 130
+Design_1/Red_Design_1/Eye_Blink
+	bounds: 714, 119, 12, 6
+Design_1/Red_Design_1/Eye_Default
+	bounds: 714, 95, 7, 7
+Design_1/Red_Design_1/Eye_Drop
+	bounds: 696, 81, 16, 9
+Design_1/Red_Design_1/Mouth_Default
+	bounds: 684, 46, 31, 10
+Design_1/Red_Design_1/Mouth_Drag
+	bounds: 662, 15, 31, 20
+Design_1/Yellow_Design_1/Body
+	bounds: 530, 4, 130, 130
+Design_1/Yellow_Design_1/Eye_Blink
+	bounds: 715, 128, 12, 6
+Design_1/Yellow_Design_1/Eye_Default
+	bounds: 715, 110, 7, 7
+Design_1/Yellow_Design_1/Eye_Drop
+	bounds: 696, 70, 16, 9
+Design_1/Yellow_Design_1/Mouth_Default
+	bounds: 695, 34, 31, 10
+Design_1/Yellow_Design_1/Mouth_Drag
+	bounds: 684, 103, 31, 20
+	rotate: 90

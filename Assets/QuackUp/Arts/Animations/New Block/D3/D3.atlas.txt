@@ -1,0 +1,83 @@
+D3.png
+	size: 135, 717
+	filter: Linear, Linear
+Design_3/Blue_Design_3/Body
+	bounds: 2, 530, 130, 130
+Design_3/Blue_Design_3/Eye_Base_1
+	bounds: 78, 698, 11, 11
+Design_3/Blue_Design_3/Eye_Base_2
+	bounds: 78, 698, 11, 11
+Design_3/Green_Design_3/Eye_Base_1
+	bounds: 78, 698, 11, 11
+Design_3/Green_Design_3/Eye_Base_2
+	bounds: 78, 698, 11, 11
+Design_3/Purple_Design_3/Eye_Base_1
+	bounds: 78, 698, 11, 11
+Design_3/Purple_Design_3/Eye_Base_2
+	bounds: 78, 698, 11, 11
+Design_3/Red_Design_3/Eye_Base_1
+	bounds: 78, 698, 11, 11
+Design_3/Red_Design_3/Eye_Base_2
+	bounds: 78, 698, 11, 11
+Design_3/Yellow_Design_3/Eye_Base_1
+	bounds: 78, 698, 11, 11
+Design_3/Yellow_Design_3/Eye_Base_2
+	bounds: 78, 698, 11, 11
+Design_3/Blue_Design_3/Eye_Default_1
+	bounds: 33, 702, 7, 7
+Design_3/Blue_Design_3/Eye_Default_2
+	bounds: 33, 702, 7, 7
+Design_3/Blue_Design_3/Mouth_Default
+	bounds: 2, 711, 29, 4
+Design_3/Blue_Design_3/Mouth_Drag
+	bounds: 91, 689, 39, 18
+Design_3/Blue_Design_3/Tooth
+	bounds: 126, 709, 7, 6
+Design_3/Green_Design_3/Tooth
+	bounds: 126, 709, 7, 6
+Design_3/Purple_Design_3/Tooth
+	bounds: 126, 709, 7, 6
+Design_3/Red_Design_3/Tooth
+	bounds: 126, 709, 7, 6
+Design_3/Yellow_Design_3/Tooth
+	bounds: 126, 709, 7, 6
+Design_3/Green_Design_3/Body
+	bounds: 2, 398, 130, 130
+Design_3/Green_Design_3/Eye_Default_1
+	bounds: 42, 702, 7, 7
+Design_3/Green_Design_3/Eye_Default_2
+	bounds: 42, 702, 7, 7
+Design_3/Green_Design_3/Mouth_Default
+	bounds: 33, 711, 29, 4
+Design_3/Green_Design_3/Mouth_Drag
+	bounds: 2, 682, 39, 18
+Design_3/Purple_Design_3/Body
+	bounds: 2, 266, 130, 130
+Design_3/Purple_Design_3/Eye_Default_1
+	bounds: 51, 702, 7, 7
+Design_3/Purple_Design_3/Eye_Default_2
+	bounds: 51, 702, 7, 7
+Design_3/Purple_Design_3/Mouth_Default
+	bounds: 64, 711, 29, 4
+Design_3/Purple_Design_3/Mouth_Drag
+	bounds: 43, 678, 39, 18
+Design_3/Red_Design_3/Body
+	bounds: 2, 134, 130, 130
+Design_3/Red_Design_3/Eye_Default_1
+	bounds: 60, 702, 7, 7
+Design_3/Red_Design_3/Eye_Default_2
+	bounds: 60, 702, 7, 7
+Design_3/Red_Design_3/Mouth_Default
+	bounds: 95, 711, 29, 4
+Design_3/Red_Design_3/Mouth_Drag
+	bounds: 84, 669, 39, 18
+Design_3/Yellow_Design_3/Body
+	bounds: 2, 2, 130, 130
+Design_3/Yellow_Design_3/Eye_Default_1
+	bounds: 69, 702, 7, 7
+Design_3/Yellow_Design_3/Eye_Default_2
+	bounds: 69, 702, 7, 7
+Design_3/Yellow_Design_3/Mouth_Default
+	bounds: 2, 705, 29, 4
+Design_3/Yellow_Design_3/Mouth_Drag
+	bounds: 2, 662, 39, 18
