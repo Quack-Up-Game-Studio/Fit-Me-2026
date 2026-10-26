@@ -54,7 +54,7 @@ namespace FitMe.Grid
         private GridManagerConfig _gridConfig;
         private BlockController _blockController;
         private BlockViewModel _viewModel;
-        private ExplosionVfxPool _explosionVfxPool;
+        private ExplosionVfxPool _blockVfxPool;
         private IDisposable _bindings;
         #endregion
 
@@ -65,14 +65,14 @@ namespace FitMe.Grid
             GridManagerConfig gridConfig,
             BlockController blockController,
             BlockViewModel viewModel,
-            ExplosionVfxPool explosionVfxPool)
+            ExplosionVfxPool blockVfxPool)
         {
             _blockConfig = blockConfig;
             _blockManagerConfig = blockManagerConfig;
             _gridConfig = gridConfig;
             _blockController = blockController;
             _viewModel = viewModel;
-            _explosionVfxPool = explosionVfxPool;
+            _blockVfxPool = blockVfxPool;
             _originalParent = transform.parent;
             _originalPosition = transform.position;
             _originalEulerAngles = transform.eulerAngles;
@@ -124,6 +124,12 @@ namespace FitMe.Grid
 
         public void Dispose()
         {
+            if (_placingVfxInstance)
+            {
+                _blockVfxPool?.CancelReturnCallback(_placingVfxInstance, OnPlacementVfxReturned);
+                _placingVfxInstance = null;
+            }
+
             CancelIdleTimer();
             _bindings?.Dispose();
         }
@@ -263,8 +269,20 @@ namespace FitMe.Grid
         private void PlayPlaceVFX()
         {
             if (!_blockConfig.PlaceVFX.TryGetValue(_blockColor, out var vfx)) return;
-            _placingVfxInstance = Instantiate(vfx, transform.position, Quaternion.identity);
-            _placingVfxInstance.Play(true);
+
+            if (_blockVfxPool == null)
+            {
+                _placingVfxInstance = Instantiate(vfx, transform.position, Quaternion.identity);
+                _placingVfxInstance.Play(true);
+                return;
+            }
+
+            _placingVfxInstance = _blockVfxPool.PlayPlacement(vfx, transform.position, OnPlacementVfxReturned);
+        }
+
+        private void OnPlacementVfxReturned(ParticleSystem instance)
+        {
+            if (_placingVfxInstance == instance) _placingVfxInstance = null;
         }
         
         private async UniTask Explode(ExplodeCommandData data)
@@ -277,7 +295,7 @@ namespace FitMe.Grid
             await explodeAnim.WaitUntilComplete(); 
             if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
             {
-                _explosionVfxPool?.Play(vfx, transform.position);
+                _blockVfxPool?.Play(vfx, transform.position);
             }
             else
             {

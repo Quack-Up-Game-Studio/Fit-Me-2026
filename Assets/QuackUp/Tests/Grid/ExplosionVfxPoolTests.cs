@@ -32,6 +32,10 @@ namespace FitMe.Grid.Tests
 
             Assert.That(_config.CapacityPerPrefab, Is.EqualTo(10));
             Assert.That(_config.PrewarmCountPerPrefab, Is.EqualTo(10));
+            var placementPrewarmProperty = typeof(ExplosionVfxPoolConfig).GetProperty("PlacementPrewarmCountPerPrefab");
+            Assert.That(placementPrewarmProperty, Is.Not.Null,
+                "Placement VFX should have an independent prewarm setting in the shared config.");
+            Assert.That(placementPrewarmProperty.GetValue(_config), Is.EqualTo(2));
         }
 
         [Test]
@@ -82,14 +86,99 @@ namespace FitMe.Grid.Tests
                     [BlockColor.Red] = prefab
                 });
 
+            var placePrefab = AssetDatabase.LoadAssetAtPath<ParticleSystem>(
+                "Assets/QuackUp/Prefabs/VFX/Placing/Placing_Blue.prefab");
+            typeof(BlockConfig).GetField("_placeVfx", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(_dynamicBlockConfig, new Dictionary<BlockColor, ParticleSystem>
+                {
+                    [BlockColor.Blue] = placePrefab
+                });
+
             _pool = new ExplosionVfxPool(_config, null, null);
             _pool.Warmup(_dynamicBlockConfig);
 
             var pools = (System.Collections.IDictionary)typeof(ExplosionVfxPool)
                 .GetField("_pools", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_pool);
             Assert.That(pools.Contains(prefab), Is.True);
+            Assert.That(pools.Contains(placePrefab), Is.True,
+                "Warmup should also initialize placement VFX from the block config.");
             var prefabPool = pools[prefab];
+            var objectPool = prefabPool.GetType().GetField("Pool").GetValue(prefabPool);
+            Assert.That((int)objectPool.GetType().GetProperty("CountInactive").GetValue(objectPool), Is.EqualTo(10),
+                "Explosion VFX should retain the explosion prewarm count.");
             Assert.That(prefabPool.GetType().GetField("RetainedCount").GetValue(prefabPool), Is.EqualTo(10));
+
+            var placePool = pools[placePrefab];
+            var placeObjectPool = placePool.GetType().GetField("Pool").GetValue(placePool);
+            Assert.That((int)placeObjectPool.GetType().GetProperty("CountInactive").GetValue(placeObjectPool), Is.EqualTo(2),
+                "Placement VFX should use its separate prewarm count.");
+        }
+
+        [Test]
+        public void Warmup_ExpandsSharedPrefabToLargerPrewarmCount()
+        {
+            _config = ScriptableObject.CreateInstance<ExplosionVfxPoolConfig>();
+            _dynamicBlockConfig = ScriptableObject.CreateInstance<BlockConfig>();
+            var prefab = AssetDatabase.LoadAssetAtPath<ParticleSystem>(
+                "Assets/QuackUp/Prefabs/VFX/Placing/Placing_Blue.prefab");
+            typeof(BlockConfig).GetField("_placeVfx", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(_dynamicBlockConfig, new Dictionary<BlockColor, ParticleSystem>
+                {
+                    [BlockColor.Blue] = prefab
+                });
+
+            _pool = new ExplosionVfxPool(_config, null, null);
+            _pool.Warmup(_dynamicBlockConfig);
+
+            typeof(BlockConfig).GetField("_explodeVfx", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(_dynamicBlockConfig, new Dictionary<BlockColor, ParticleSystem>
+                {
+                    [BlockColor.Blue] = prefab
+                });
+            _pool.Warmup(_dynamicBlockConfig);
+
+            var pools = (System.Collections.IDictionary)typeof(ExplosionVfxPool)
+                .GetField("_pools", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_pool);
+            Assert.That(pools.Count, Is.EqualTo(1), "A prefab shared across effect categories should have one pool.");
+            var prefabPool = pools[prefab];
+            var objectPool = prefabPool.GetType().GetField("Pool").GetValue(prefabPool);
+            Assert.That((int)objectPool.GetType().GetProperty("CountInactive").GetValue(objectPool), Is.EqualTo(10),
+                "A later higher prewarm target should increase the shared pool to ten distinct instances.");
+        }
+
+        [Test]
+        public void Warmup_ExpandsSharedPrefabWithoutLosingActiveInstance()
+        {
+            _config = ScriptableObject.CreateInstance<ExplosionVfxPoolConfig>();
+            _dynamicBlockConfig = ScriptableObject.CreateInstance<BlockConfig>();
+            var prefab = AssetDatabase.LoadAssetAtPath<ParticleSystem>(
+                "Assets/QuackUp/Prefabs/VFX/Placing/Placing_Blue.prefab");
+            typeof(BlockConfig).GetField("_placeVfx", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(_dynamicBlockConfig, new Dictionary<BlockColor, ParticleSystem>
+                {
+                    [BlockColor.Blue] = prefab
+                });
+
+            _pool = new ExplosionVfxPool(_config, null, null);
+            _pool.Warmup(_dynamicBlockConfig);
+            _pool.PlayPlacement(prefab, Vector3.zero, null);
+
+            typeof(BlockConfig).GetField("_explodeVfx", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(_dynamicBlockConfig, new Dictionary<BlockColor, ParticleSystem>
+                {
+                    [BlockColor.Blue] = prefab
+                });
+            _pool.Warmup(_dynamicBlockConfig);
+
+            var pools = (System.Collections.IDictionary)typeof(ExplosionVfxPool)
+                .GetField("_pools", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_pool);
+            var prefabPool = pools[prefab];
+            var objectPool = prefabPool.GetType().GetField("Pool").GetValue(prefabPool);
+            var active = (System.Collections.Generic.HashSet<ParticleSystem>)
+                prefabPool.GetType().GetField("Active").GetValue(prefabPool);
+            Assert.That(objectPool.GetType().GetProperty("CountAll").GetValue(objectPool), Is.EqualTo(10));
+            Assert.That(objectPool.GetType().GetProperty("CountInactive").GetValue(objectPool), Is.EqualTo(9));
+            Assert.That(active.Count, Is.EqualTo(1));
         }
     }
 }

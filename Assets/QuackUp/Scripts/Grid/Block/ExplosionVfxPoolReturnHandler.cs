@@ -7,6 +7,7 @@ namespace FitMe.Grid
     internal sealed class ExplosionVfxPoolReturnHandler : MonoBehaviour
     {
         private Action<ParticleSystem> _onStopped;
+        private Action<ParticleSystem> _onReturned;
         private ParticleSystem _particleSystem;
         private bool _returned;
 
@@ -19,6 +20,24 @@ namespace FitMe.Grid
         public void BeginPlayback()
         {
             _returned = false;
+            _onReturned = null;
+        }
+
+        public void SetOnReturned(Action<ParticleSystem> onReturned)
+        {
+            _onReturned = onReturned;
+        }
+
+        public void NotifyReturned(ParticleSystem instance)
+        {
+            var onReturned = _onReturned;
+            _onReturned = null;
+            onReturned?.Invoke(instance);
+        }
+
+        public void ClearOnReturned(Action<ParticleSystem> onReturned)
+        {
+            if (_onReturned == onReturned) _onReturned = null;
         }
 
         private void OnParticleSystemStopped()
