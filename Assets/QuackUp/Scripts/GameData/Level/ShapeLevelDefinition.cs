@@ -194,6 +194,35 @@ namespace FitMe.GameData
                 runtimePlayerBlocks);
         }
 
+        public ShapeLevelRuntimeData ToRuntimeBoardData()
+        {
+            var validation = ShapeLevelDataValidator.ValidateBoard(this);
+            if (!validation.IsValid)
+                throw new InvalidOperationException(
+                    $"Shape level '{name}' has an invalid board: {string.Join(", ", validation.Errors)}");
+
+            var obstacles = BoardSource == ShapeBoardSource.Manual
+                ? ShapeLevelObstacleBuilder.Build(Board)
+                : ShapeLevelObstacleBuilder.Build(CreateGeneratedObstacleData());
+            return new ShapeLevelRuntimeData(
+                BoardSource == ShapeBoardSource.Manual ? Board : null,
+                BuildPlayableMask(),
+                obstacles,
+                Array.Empty<ShapePlayerBlockRuntimeEntry>());
+        }
+
+        public void ReplacePlayerBlocks(IReadOnlyList<ShapePlayerBlockEntry> playerBlocks)
+        {
+            if (playerBlocks == null) throw new ArgumentNullException(nameof(playerBlocks));
+            var previous = _playerBlocks;
+            _playerBlocks = new List<ShapePlayerBlockEntry>(playerBlocks);
+            var validation = ShapeLevelDataValidator.Validate(this);
+            if (validation.IsValid) return;
+            _playerBlocks = previous;
+            throw new InvalidOperationException(
+                $"Generated player blocks do not form a valid supply: {string.Join(", ", validation.Errors)}");
+        }
+
         internal int[,] GetGeneratedBoardMaskForValidation() => _generatedBoardMask;
         internal int[,] GetGeneratedObstacleMaskForValidation() => _generatedObstacleMask;
 

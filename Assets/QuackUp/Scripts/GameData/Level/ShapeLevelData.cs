@@ -267,7 +267,14 @@ namespace FitMe.GameData
 
     public static class ShapeLevelDataValidator
     {
-        public static ShapeLevelValidationResult Validate(ShapeLevelDefinition level)
+        public static ShapeLevelValidationResult Validate(ShapeLevelDefinition level) =>
+            Validate(level, validatePlayerBlocks: true);
+
+        public static ShapeLevelValidationResult ValidateBoard(ShapeLevelDefinition level) =>
+            Validate(level, validatePlayerBlocks: false);
+
+        private static ShapeLevelValidationResult Validate(
+            ShapeLevelDefinition level, bool validatePlayerBlocks)
         {
             var result = new ShapeLevelValidationResult();
             if (!level)
@@ -277,7 +284,7 @@ namespace FitMe.GameData
             }
 
             if (level.BoardSource == ShapeBoardSource.Generated)
-                return ValidateGeneratedLevel(level, result);
+                return ValidateGeneratedLevel(level, result, validatePlayerBlocks);
             if (level.BoardSource != ShapeBoardSource.Manual)
             {
                 result.Add(ShapeLevelValidationError.InvalidBoardSource);
@@ -366,16 +373,20 @@ namespace FitMe.GameData
                 }
             }
 
-            var playerAtomCount = CountPlayerAtoms(level, result);
-            if (playerAtomCount != playableCount - obstacleCellCount)
-                result.Add(ShapeLevelValidationError.BlockCapacityMismatch);
+            if (validatePlayerBlocks)
+            {
+                var playerAtomCount = CountPlayerAtoms(level, result);
+                if (playerAtomCount != playableCount - obstacleCellCount)
+                    result.Add(ShapeLevelValidationError.BlockCapacityMismatch);
+            }
 
             return result;
         }
 
         private static ShapeLevelValidationResult ValidateGeneratedLevel(
             ShapeLevelDefinition level,
-            ShapeLevelValidationResult result)
+            ShapeLevelValidationResult result,
+            bool validatePlayerBlocks)
         {
             var boardMask = level.GetGeneratedBoardMaskForValidation();
             var obstacleMask = level.GetGeneratedObstacleMaskForValidation();
@@ -422,9 +433,12 @@ namespace FitMe.GameData
             }
 
             if (playableCount == 0) result.Add(ShapeLevelValidationError.EmptyPlayableBoard);
-            var playerAtomCount = CountPlayerAtoms(level, result);
-            if (playerAtomCount != playableCount - obstacleCellCount)
-                result.Add(ShapeLevelValidationError.BlockCapacityMismatch);
+            if (validatePlayerBlocks)
+            {
+                var playerAtomCount = CountPlayerAtoms(level, result);
+                if (playerAtomCount != playableCount - obstacleCellCount)
+                    result.Add(ShapeLevelValidationError.BlockCapacityMismatch);
+            }
             return result;
         }
 

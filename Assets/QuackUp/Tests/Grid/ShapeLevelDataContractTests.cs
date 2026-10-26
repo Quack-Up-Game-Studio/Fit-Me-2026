@@ -32,6 +32,67 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ShapeLevelDefinition_ToRuntimeBoardDataNormalizesManualAndGeneratedBoardsWithoutPlayerBlocks()
+        {
+            var manual = CreateValidLevel();
+            SetPrivateField(manual, "_playerBlocks", new List<ShapePlayerBlockEntry>());
+            var generated = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            var boardMask = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var obstacleMask = new[,] { { 1, 0, 0 }, { 1, 0, 0 } };
+            generated.SetGeneratedContent(boardMask, obstacleMask, Array.Empty<ShapePlayerBlockEntry>());
+
+            var manualData = manual.ToRuntimeBoardData();
+            var generatedData = generated.ToRuntimeBoardData();
+
+            Assert.That(manualData.PlayableMask, Is.EqualTo(generatedData.PlayableMask));
+            Assert.That(manualData.Obstacles, Has.Count.EqualTo(1));
+            Assert.That(generatedData.Obstacles, Has.Count.EqualTo(1));
+            Assert.That(manualData.PlayerBlockEntries, Is.Empty);
+            Assert.That(generatedData.PlayerBlockEntries, Is.Empty);
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_ReplacePlayerBlocksPreservesBoardAndRollsBackInvalidSupply()
+        {
+            var level = Keep(ScriptableObject.CreateInstance<ShapeLevelDefinition>());
+            var boardMask = new[,] { { 1, 1 }, { 1, 1 } };
+            var obstacleMask = new[,] { { 0, 0 }, { 0, 0 } };
+            level.SetGeneratedContent(boardMask, obstacleMask, Array.Empty<ShapePlayerBlockEntry>());
+
+            Assert.Throws<InvalidOperationException>(() => level.ReplacePlayerBlocks(
+                new[] { new ShapePlayerBlockEntry(new[,] { { 1 } }, 1) }));
+            Assert.That(level.PlayerBlocks, Is.Empty);
+
+            level.ReplacePlayerBlocks(new[]
+            {
+                new ShapePlayerBlockEntry(new[,] { { 1, 1 } }, 2)
+            });
+
+            Assert.That(level.BoardSource, Is.EqualTo(ShapeBoardSource.Generated));
+            Assert.That(level.GeneratedBoardMask, Is.EqualTo(boardMask));
+            Assert.That(level.GeneratedObstacleMask, Is.EqualTo(obstacleMask));
+            Assert.That(level.PlayerBlocks, Has.Count.EqualTo(1));
+            Assert.That(level.ToRuntimeData().PlayerBlockEntries, Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public void ShapeLevelDefinition_ReplacePlayerBlocksPreservesManualBoardReference()
+        {
+            var level = CreateValidLevel();
+            SetPrivateField(level, "_playerBlocks", new List<ShapePlayerBlockEntry>());
+            var board = level.Board;
+
+            level.ReplacePlayerBlocks(new[]
+            {
+                new ShapePlayerBlockEntry(new[,] { { 1 } }, 4)
+            });
+
+            Assert.That(level.BoardSource, Is.EqualTo(ShapeBoardSource.Manual));
+            Assert.That(level.Board, Is.SameAs(board));
+            Assert.That(level.PlayerBlocks, Has.Count.EqualTo(1));
+        }
+
+        [Test]
         public void ShapeLevelDefinition_PlayerBlockEntriesSerializePresetAndCount()
         {
             var playerBlocksType = typeof(ShapeLevelDefinition).GetProperty("PlayerBlocks")?.PropertyType;

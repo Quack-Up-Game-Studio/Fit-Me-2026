@@ -9,6 +9,14 @@ namespace FitMe.GameData.Editor
 {
     public sealed class ShapePlaysetGenerationEditorWindow : EditorWindow
     {
+        private enum GenerationMode
+        {
+            Seed,
+            ExistingLevel
+        }
+
+        private static readonly string[] ModeLabels = { "Generate from Seed", "Solve Existing Level" };
+
         private static readonly Color[] BlockPalette =
         {
             new(0.20f, 0.56f, 0.86f),
@@ -25,6 +33,8 @@ namespace FitMe.GameData.Editor
         [SerializeField] private int _seed = 1;
         [SerializeField] private Vector2 _scrollPosition;
         [SerializeField] private bool _showTechnicalDiagnostics;
+        [SerializeField] private GenerationMode _mode;
+        [SerializeField] private ShapeLevelDefinition _targetLevel;
         private ShapePlaysetGenerationResult _generationResult;
         private ShapeLevelTilingResult _solutionResult;
         private IReadOnlyList<ShapeLevelTilingPlacement> _generatorVerifiedSolution;
@@ -46,29 +56,43 @@ namespace FitMe.GameData.Editor
         {
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
             EditorGUILayout.LabelField("Shape Playset Generator", EditorStyles.boldLabel);
+            var previousMode = _mode;
+            _mode = (GenerationMode)GUILayout.Toolbar((int)_mode, ModeLabels);
+            if (_mode != previousMode) ClearGeneratedResult();
             EditorGUILayout.HelpBox(
-                "Generate deterministic, solvable Shape Mode content. Generated boards and custom footprints are saved inline in a new ShapeLevelDefinition; existing level or preset assets are not overwritten.",
+                "Generate deterministic, solvable Shape Mode content. Seed mode creates a new level; existing-level mode preserves the selected board and replaces only its player blocks when saved.",
                 MessageType.Info);
 
             EditorGUI.BeginChangeCheck();
             _profile = (ShapePlaysetGenerationProfile)EditorGUILayout.ObjectField(
                 "Generation Profile", _profile, typeof(ShapePlaysetGenerationProfile), false);
-            EditorGUILayout.BeginHorizontal();
-            _seed = EditorGUILayout.IntField("Seed", _seed);
-            if (GUILayout.Button("◀", GUILayout.Width(32f))) StepSeed(-1);
-            if (GUILayout.Button("▶", GUILayout.Width(32f))) StepSeed(1);
-            if (GUILayout.Button("Randomize", GUILayout.Width(90f))) RandomizeSeed();
-            EditorGUILayout.EndHorizontal();
             if (EditorGUI.EndChangeCheck()) ClearGeneratedResult();
 
             if (!_profile)
             {
                 EditorGUILayout.HelpBox(
-                    "Assign a ShapePlaysetGenerationProfile asset. Create one from Assets → Create → FitMe → GameData → Level → Shape Playset Generation Profile.",
+                    "Assign a ShapePlaysetGenerationProfile asset to unlock both modes. Create one from Assets → Create → FitMe → GameData → Level → Shape Playset Generation Profile.",
                     MessageType.Warning);
                 EditorGUILayout.EndScrollView();
                 return;
             }
+
+            EditorGUI.BeginChangeCheck();
+            if (_mode == GenerationMode.Seed)
+            {
+                EditorGUILayout.BeginHorizontal();
+                _seed = EditorGUILayout.IntField("Seed", _seed);
+                if (GUILayout.Button("◀", GUILayout.Width(32f))) StepSeed(-1);
+                if (GUILayout.Button("▶", GUILayout.Width(32f))) StepSeed(1);
+                if (GUILayout.Button("Randomize", GUILayout.Width(90f))) RandomizeSeed();
+                EditorGUILayout.EndHorizontal();
+            }
+            else
+            {
+                _targetLevel = (ShapeLevelDefinition)EditorGUILayout.ObjectField(
+                    "Level Definition", _targetLevel, typeof(ShapeLevelDefinition), false);
+            }
+            if (EditorGUI.EndChangeCheck()) ClearGeneratedResult();
 
             var config = _profile.CreateConfig();
             var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
@@ -76,15 +100,32 @@ namespace FitMe.GameData.Editor
                 EditorGUILayout.HelpBox($"Profile configuration is invalid: {FormatConfigurationErrors(validation.Errors)}",
                     MessageType.Error);
 
+            var canGenerate = validation.IsValid &&
+                             (_mode == GenerationMode.Seed || _targetLevel);
             EditorGUILayout.BeginHorizontal();
-            EditorGUI.BeginDisabledGroup(!validation.IsValid);
-            if (GUILayout.Button("Generate / Refresh", GUILayout.Height(30f))) Generate(config);
+            EditorGUI.BeginDisabledGroup(!canGenerate);
+            if (GUILayout.Button(_mode == GenerationMode.Seed ? "Generate / Refresh" : "Solve Board / Refresh",
+                    GUILayout.Height(30f)))
+            {
+                if (_mode == GenerationMode.Seed) Generate(config);
+                else SolveExistingLevel(config);
+            }
             EditorGUI.EndDisabledGroup();
+
             var hasPlayset = _generationResult != null && _generationResult.IsSuccess &&
                              _generationResult.Playset != null;
-            EditorGUI.BeginDisabledGroup(!hasPlayset);
-            if (GUILayout.Button("Save as New Shape Level…", GUILayout.Height(30f))) SaveGeneratedLevel();
-            EditorGUI.EndDisabledGroup();
+            if (_mode == GenerationMode.Seed)
+            {
+                EditorGUI.BeginDisabledGroup(!hasPlayset);
+                if (GUILayout.Button("Save as New Shape Level…", GUILayout.Height(30f))) SaveGeneratedLevel();
+                EditorGUI.EndDisabledGroup();
+            }
+            else
+            {
+                EditorGUI.BeginDisabledGroup(!hasPlayset || !_targetLevel);
+                if (GUILayout.Button("Save Blocks to Level", GUILayout.Height(30f))) SaveBlocksToExistingLevel();
+                EditorGUI.EndDisabledGroup();
+            }
             EditorGUILayout.EndHorizontal();
 
             if (!string.IsNullOrEmpty(_generationMessage))
@@ -156,6 +197,113 @@ namespace FitMe.GameData.Editor
             }
         }
 
+        private void SolveExistingLevel(ShapePlaysetGenerationConfig config)
+        {
+            ClearGeneratedResult();
+            if (!_targetLevel) return;
+
+            try
+            {
+                var boardData = _targetLevel.ToRuntimeBoardData();
+                var boardMask = boardData.PlayableMask;
+                var obstacles = new int[boardMask.GetLength(0), boardMask.GetLength(1)];
+                foreach (var obstacle in boardData.Obstacles)
+                {
+                    var schema = obstacle.Schema?.schema;
+                    if (schema == null) continue;
+                    for (var row = 0; row < schema.GetLength(0); row++)
+                    for (var column = 0; column < schema.GetLength(1); column++)
+                    {
+                        if (schema[row, column] != 1) continue;
+                        obstacles[obstacle.Anchor.x + row, obstacle.Anchor.y + column] = 1;
+                    }
+                }
+
+                _generationResult = ShapePlaysetGenerator.GenerateForBoard(
+                    config, seed: 0, boardMask, obstacles);
+                if (!_generationResult.IsSuccess)
+                {
+                    _generationMessage = _generationResult.Error == ShapePlaysetGenerationError.TilingBudgetExceeded
+                        ? "The board partition search reached its budget before finding a complete block layout. Increase the profile's tiling search budget or allow smaller blocks."
+                        : _generationResult.Error == ShapePlaysetGenerationError.TilingFailed
+                            ? "The partition search completed without finding a valid block layout for this board and profile."
+                            : "The supplied board or generation profile is invalid. Review the board and profile settings.";
+                    return;
+                }
+
+                var playset = _generationResult.Playset;
+                _generatorVerifiedSolution = CreateVerifiedSolution(playset);
+                _solutionResult = AnalyzeSolutions(playset);
+                _difficultyMetrics = EvaluateDifficulty(playset, _solutionResult);
+                _generationMessage = playset.OptimizationStatus == ShapePlaysetOptimizationStatus.BudgetLimited
+                    ? "Found a valid block partition, but the profile optimization search reached its limit."
+                    : "Board partitioned successfully. Browse the retained valid tilings below.";
+            }
+            catch (Exception exception)
+            {
+                _generationResult = null;
+                _generationMessage = $"Couldn’t solve the supplied level: {exception.Message}";
+            }
+        }
+
+        private void SaveBlocksToExistingLevel()
+        {
+            if (!_targetLevel || _generationResult?.Playset == null) return;
+            var existingCount = _targetLevel.PlayerBlocks.Count;
+            if (existingCount > 0 &&
+                !EditorUtility.DisplayDialog(
+                    "Replace Existing Blocks?",
+                    $"This will replace {existingCount} existing player block{(existingCount == 1 ? string.Empty : "s")} in '{_targetLevel.name}'. The board and other level settings will remain unchanged.",
+                    "Replace Blocks", "Cancel")) return;
+
+            try
+            {
+                var entries = CreatePlayerBlockEntries(_generationResult.Playset);
+                Undo.RecordObject(_targetLevel, "Generate Shape Blocks");
+                _targetLevel.ReplacePlayerBlocks(entries);
+                EditorUtility.SetDirty(_targetLevel);
+                AssetDatabase.SaveAssets();
+                _saveMessage = $"Replaced player blocks in '{_targetLevel.name}'. The level board was preserved.";
+                _saveMessageType = MessageType.Info;
+                Selection.activeObject = _targetLevel;
+                EditorGUIUtility.PingObject(_targetLevel);
+            }
+            catch (Exception exception)
+            {
+                _saveMessage = exception.Message;
+                _saveMessageType = MessageType.Error;
+            }
+        }
+
+        private static List<ShapePlayerBlockEntry> CreatePlayerBlockEntries(GeneratedShapePlayset playset)
+        {
+            var entries = new List<ShapePlayerBlockEntry>(playset.PlayerBlocks.Count);
+            foreach (var block in playset.PlayerBlocks)
+            {
+                var orientation = ((block.PlacementRotationQuarterTurns % 4) + 4) % 4;
+                if (block.IsPredefined && orientation == 0)
+                    entries.Add(new ShapePlayerBlockEntry(block.PreferredPreset, 1));
+                else
+                    entries.Add(new ShapePlayerBlockEntry(
+                        block.PreferredPreset, RotateFootprint(block.Footprint, orientation), 1));
+            }
+            return entries;
+        }
+
+        private static int[,] RotateFootprint(int[,] footprint, int clockwiseQuarterTurns)
+        {
+            var rotated = (int[,])footprint.Clone();
+            for (var turn = 0; turn < clockwiseQuarterTurns; turn++)
+            {
+                var next = new int[rotated.GetLength(1), rotated.GetLength(0)];
+                for (var row = 0; row < rotated.GetLength(0); row++)
+                for (var column = 0; column < rotated.GetLength(1); column++)
+                    next[column, rotated.GetLength(0) - row - 1] = rotated[row, column];
+                rotated = next;
+            }
+            return rotated;
+        }
+
         private static string FormatDesignerFailure(ShapePlaysetGenerationResult result)
         {
             var attempts = result.AttemptsTried;
@@ -216,7 +364,10 @@ namespace FitMe.GameData.Editor
             DrawSolutionNavigation();
             EditorGUILayout.LabelField("Board dimensions",
                 $"{board.GetLength(1)} columns × {board.GetLength(0)} rows");
-            EditorGUILayout.LabelField("Attempt", $"{playset.AttemptIndex + 1} · generator v{playset.GeneratorVersion}");
+            if (_mode == GenerationMode.Seed)
+                EditorGUILayout.LabelField("Attempt", $"{playset.AttemptIndex + 1} · generator v{playset.GeneratorVersion}");
+            else
+                EditorGUILayout.LabelField("Supplied level", _targetLevel ? _targetLevel.name : "<missing>");
 
             if (position.width >= 900f)
             {
@@ -233,7 +384,9 @@ namespace FitMe.GameData.Editor
                 DrawDifficultyMetrics(difficulty, feasibilityStatus);
             }
             EditorGUILayout.HelpBox(
-                "Difficulty values are provisional generator heuristics. Saved provenance records the generation origin and does not claim the level remains unedited.",
+                _mode == GenerationMode.Seed
+                    ? "Difficulty values are provisional generator heuristics. Saved provenance records the generation origin and does not claim the level remains unedited."
+                    : "Difficulty values are provisional generator heuristics. Saving replaces only player blocks; the supplied board is preserved.",
                 MessageType.Info);
 
             EditorGUILayout.Space();
@@ -394,12 +547,19 @@ namespace FitMe.GameData.Editor
             for (var column = 0; column < board.GetLength(1); column++)
                 playableMask[row, column] = board[row, column] == 1 && obstacles[row, column] == 0 ? 1 : 0;
 
-            var footprints = new List<int[,]>(playset.PlayerBlocks.Count);
-            for (var index = 0; index < playset.PlayerBlocks.Count; index++)
-                footprints.Add(playset.PlayerBlocks[index].Footprint);
+            var footprints = GetStoredFootprints(playset);
             var settings = ShapeTilingValidationSettings.instance;
             return ShapeLevelTilingSolver.EnumerateSolutions(
                 playableMask, footprints, settings.MaxSearchNodes, settings.MaxStoredSolutions);
+        }
+
+        private static List<int[,]> GetStoredFootprints(GeneratedShapePlayset playset)
+        {
+            var footprints = new List<int[,]>(playset.PlayerBlocks.Count);
+            foreach (var block in playset.PlayerBlocks)
+                footprints.Add(RotateFootprint(
+                    block.Footprint, ((block.PlacementRotationQuarterTurns % 4) + 4) % 4));
+            return footprints;
         }
 
         private static ShapePlaysetDifficultyMetrics EvaluateDifficulty(
@@ -417,9 +577,7 @@ namespace FitMe.GameData.Editor
                 playableMask[row, column] = board[row, column] == 1 && !isObstacle ? 1 : 0;
             }
 
-            var footprints = new List<int[,]>(playset.PlayerBlocks.Count);
-            for (var index = 0; index < playset.PlayerBlocks.Count; index++)
-                footprints.Add(playset.PlayerBlocks[index].Footprint);
+            var footprints = GetStoredFootprints(playset);
             var discoveredCount = solutionResult?.SolutionCount ?? 0;
             var knownLowerBound = Math.Max(1, discoveredCount);
             var countIsExact = solutionResult != null && solutionResult.IsSearchComplete && discoveredCount > 0;
@@ -493,9 +651,10 @@ namespace FitMe.GameData.Editor
                 : "Generated inline footprint";
             EditorGUILayout.LabelField($"Block {index + 1} · {source}", EditorStyles.boldLabel);
             EditorGUILayout.EndHorizontal();
-            EditorGUILayout.LabelField("Solved cells / clockwise rotation",
-                $"{block.SolvedPlacement.Length} · {block.PlacementRotationQuarterTurns} quarter-turn(s)");
-            DrawFootprint(block.Footprint);
+            EditorGUILayout.LabelField("Cells · stored orientation",
+                $"{block.SolvedPlacement.Length} · rotation is disabled in Shape Mode");
+            DrawFootprint(RotateFootprint(
+                block.Footprint, ((block.PlacementRotationQuarterTurns % 4) + 4) % 4));
             EditorGUILayout.EndVertical();
         }
 

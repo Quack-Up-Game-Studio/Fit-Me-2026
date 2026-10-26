@@ -10,6 +10,82 @@ namespace FitMe.Grid.Tests
     public sealed class ShapePlaysetGeneratorTests
     {
         [Test]
+        public void GenerateForBoard_PartitionsSuppliedPlayableCellsWithoutChangingBoardOrObstacles()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 2, maxBoardColumns: 2,
+                minBoardRows: 2, maxBoardRows: 2,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2,
+                minPlayableRegionCells: 1,
+                maxTilingSearchNodes: 1000,
+                maxCandidateAttempts: 1,
+                maxSingletonFallbackBlocks: 4);
+            var board = new[,] { { 1, 1 }, { 1, 1 } };
+            var obstacles = new[,] { { 0, 0 }, { 0, 0 } };
+
+            var result = ShapePlaysetGenerator.GenerateForBoard(config, seed: 17, board, obstacles);
+
+            Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
+            Assert.That(result.Playset.BoardMask, Is.EqualTo(board));
+            Assert.That(result.Playset.ObstacleMask, Is.EqualTo(obstacles));
+            var covered = new int[2, 2];
+            foreach (var block in result.Playset.PlayerBlocks)
+            foreach (var cell in block.SolvedPlacement)
+            {
+                Assert.That(board[cell.x, cell.y], Is.EqualTo(1));
+                Assert.That(obstacles[cell.x, cell.y], Is.Zero);
+                Assert.That(covered[cell.x, cell.y], Is.Zero);
+                covered[cell.x, cell.y] = 1;
+            }
+            Assert.That(covered, Is.EqualTo(board));
+            var storedSchemas = new List<int[,]>();
+            foreach (var block in result.Playset.PlayerBlocks)
+            {
+                var schema = block.Footprint;
+                for (var turn = 0; turn < block.PlacementRotationQuarterTurns; turn++)
+                {
+                    var rotated = new int[schema.GetLength(1), schema.GetLength(0)];
+                    for (var row = 0; row < schema.GetLength(0); row++)
+                    for (var column = 0; column < schema.GetLength(1); column++)
+                        rotated[column, schema.GetLength(0) - row - 1] = schema[row, column];
+                    schema = rotated;
+                }
+                storedSchemas.Add(schema);
+            }
+            Assert.That(ShapeLevelTilingSolver.Solve(board, storedSchemas, 1000).Status,
+                Is.EqualTo(ShapeLevelTilingStatus.Feasible),
+                "Saved fixed-orientation footprints must tile without relying on gameplay rotation.");
+        }
+
+        [Test]
+        public void GenerateForBoard_RejectsObstacleOnVoidWithoutMutatingInputs()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 2, maxBoardColumns: 2,
+                minBoardRows: 2, maxBoardRows: 2,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2,
+                minPlayableRegionCells: 1,
+                maxTilingSearchNodes: 1000,
+                maxCandidateAttempts: 1,
+                maxSingletonFallbackBlocks: 4);
+            var board = new[,] { { 0, 1 }, { 1, 1 } };
+            var obstacles = new[,] { { 1, 0 }, { 0, 0 } };
+            var originalBoard = (int[,])board.Clone();
+            var originalObstacles = (int[,])obstacles.Clone();
+
+            var result = ShapePlaysetGenerator.GenerateForBoard(config, seed: 17, board, obstacles);
+
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.Error, Is.Not.EqualTo(ShapePlaysetGenerationError.None));
+            Assert.That(board, Is.EqualTo(originalBoard));
+            Assert.That(obstacles, Is.EqualTo(originalObstacles));
+        }
+
+        [Test]
         public void ValidateConfiguration_AcceptsBaseRectangleConfiguration()
         {
             var config = new ShapePlaysetGenerationConfig(

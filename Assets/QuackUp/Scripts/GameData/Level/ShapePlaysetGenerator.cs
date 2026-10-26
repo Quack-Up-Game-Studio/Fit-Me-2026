@@ -108,6 +108,66 @@ namespace FitMe.GameData
                 config.MaxCandidateAttempts, lastAttemptError, candidateFailures.ToSnapshot());
         }
 
+        public static ShapePlaysetGenerationResult GenerateForBoard(
+            ShapePlaysetGenerationConfig config, int seed, int[,] boardMask, int[,] obstacleMask)
+        {
+            var validation = ValidateConfiguration(config);
+            if (!validation.IsValid)
+                return new ShapePlaysetGenerationResult(
+                    ShapePlaysetGenerationError.InvalidConfiguration, validation, null);
+            if (!TryCreatePlayableMask(boardMask, obstacleMask, out var playableMask))
+                return new ShapePlaysetGenerationResult(
+                    ShapePlaysetGenerationError.GenerationInvariantFailed, validation, null);
+
+            if (!TryBuildFallbackBlocks(playableMask, config, seed, out var generatedBlocks,
+                    out var usedPredefined, out var tilingBudgetExceeded))
+                return new ShapePlaysetGenerationResult(
+                    tilingBudgetExceeded
+                        ? ShapePlaysetGenerationError.TilingBudgetExceeded
+                        : ShapePlaysetGenerationError.TilingFailed,
+                    validation, null, attemptsTried: 1,
+                    lastAttemptError: tilingBudgetExceeded
+                        ? ShapePlaysetGenerationError.TilingBudgetExceeded
+                        : ShapePlaysetGenerationError.TilingFailed);
+
+            var rows = boardMask.GetLength(0);
+            var columns = boardMask.GetLength(1);
+            var voidCellCount = rows * columns - CountCells(boardMask);
+            var metrics = CalculateMetrics(
+                playableMask, CountCells(obstacleMask), voidCellCount, generatedBlocks);
+            return Success(seed, 0, config, boardMask, obstacleMask,
+                generatedBlocks, usedPredefined, metrics, tilingBudgetExceeded);
+        }
+
+        private static bool TryCreatePlayableMask(
+            int[,] boardMask, int[,] obstacleMask, out int[,] playableMask)
+        {
+            playableMask = null;
+            if (boardMask == null || obstacleMask == null || boardMask.Length == 0 ||
+                boardMask.GetLength(0) != obstacleMask.GetLength(0) ||
+                boardMask.GetLength(1) != obstacleMask.GetLength(1) ||
+                boardMask.GetLength(0) > MaximumBoardDimension ||
+                boardMask.GetLength(1) > MaximumBoardDimension) return false;
+
+            var rows = boardMask.GetLength(0);
+            var columns = boardMask.GetLength(1);
+            playableMask = new int[rows, columns];
+            var playableCellCount = 0;
+            for (var row = 0; row < rows; row++)
+            for (var column = 0; column < columns; column++)
+            {
+                var boardCell = boardMask[row, column];
+                var obstacleCell = obstacleMask[row, column];
+                if ((boardCell != 0 && boardCell != 1) ||
+                    (obstacleCell != 0 && obstacleCell != 1) ||
+                    (obstacleCell == 1 && boardCell == 0)) return false;
+                if (boardCell != 1 || obstacleCell != 0) continue;
+                playableMask[row, column] = 1;
+                playableCellCount++;
+            }
+            return playableCellCount > 0;
+        }
+
         private static ShapePlaysetGenerationResult GenerateCandidate(
             ShapePlaysetGenerationConfig config, int seed, int attemptIndex, int attemptSeed,
             ShapePlaysetGenerationConfigValidation validation)
