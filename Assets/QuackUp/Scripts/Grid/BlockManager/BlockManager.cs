@@ -498,14 +498,8 @@ namespace FitMe.Grid
                     continue;
                 }
                 Transform spawnTransform = _spawnPoints[i].Transform;
-                var randomSchema = _spawnBag.Dequeue();
-                var block = InstantiateBlock(
-                    spawnTransform,
-                    randomSchema.rotation,
-                    randomSchema.blockShape,
-                    randomSchema.blockColor,
-                    _config.ObjectScale,
-                    randomSchema.blockSchema?.schema);
+                var spawnData = _spawnBag.Dequeue();
+                var block = InstantiateClassicBlock(spawnTransform, spawnData, _config.ObjectScale);
                 block.Model.SpawnIndex = i;
                 _spawnPoints[i].IsFree = false;
                 _spawnPoints[i].CurrentBlock = block;
@@ -558,6 +552,24 @@ namespace FitMe.Grid
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
             ClearPreviewSlots();
             RefreshSwapAvailability();
+        }
+
+        private BlockInstance InstantiateClassicBlock(
+            Transform spawnTransform,
+            SpawnBlockData spawnData,
+            float objectScale,
+            bool allowRotation = true)
+        {
+            // Classic's root rotation orients both the visible block asset and the preset atom footprint.
+            // Applying the queued rotated schema as well would rotate only the atoms and desync grid occupancy.
+            return InstantiateBlock(
+                spawnTransform,
+                spawnData.rotation,
+                spawnData.blockShape,
+                spawnData.blockColor,
+                objectScale,
+                schemaOverride: null,
+                allowRotation: allowRotation);
         }
 
         private BlockInstance InstantiateBlock(
@@ -645,26 +657,18 @@ namespace FitMe.Grid
 
             blockToSwap.ViewModel.DestroyCommand.Execute(Unit.Default);
             FreeSpawnPoint(spawnIndex);
-            var newBlock = InstantiateBlock(
-                spawnPoint.Transform,
-                nextQueue.rotation,
-                nextQueue.blockShape,
-                nextQueue.blockColor,
-                _config.ObjectScale,
-                nextQueue.blockSchema?.schema);
+            var newBlock = InstantiateClassicBlock(spawnPoint.Transform, nextQueue, _config.ObjectScale);
             newBlock.Model.SpawnIndex = spawnIndex;
             spawnPoint.IsFree = false;
             spawnPoint.CurrentBlock = newBlock;
             _messageHub.Publish(new BlockSpawnedEvent(new List<BlockInstance> { newBlock }));
 
             previewBlock.ViewModel.DestroyCommand.Execute(Unit.Default);
-            var newPreviewBlock = InstantiateBlock(
+            var newPreviewBlock = InstantiateClassicBlock(
                 previewPoint.Transform,
-                swapBlockData.rotation,
-                swapBlockData.blockShape,
-                swapBlockData.blockColor,
+                swapBlockData,
                 _config.PreviewScale,
-                swapBlockData.blockSchema?.schema);
+                allowRotation: false);
             newPreviewBlock.Controller.SetActive(false);
             previewPoint.IsFree = false;
             previewPoint.CurrentBlock = newPreviewBlock;
@@ -776,8 +780,8 @@ namespace FitMe.Grid
             if (_spawnBag.Count == 0) return;
             _currentPreviewBlock?.ViewModel.DestroyCommand.Execute(Unit.Default);
             
-            var nextBlock = _spawnBag.Peek(); 
-            _currentPreviewBlock = InstantiateBlock(_previewTransform, nextBlock.rotation, nextBlock.blockShape, nextBlock.blockColor, _config.PreviewScale);
+            var nextBlock = _spawnBag.Peek();
+            _currentPreviewBlock = InstantiateClassicBlock(_previewTransform, nextBlock, _config.PreviewScale, allowRotation: false);
             _currentPreviewBlock.Controller.SetActive(false);
         }
         
@@ -800,13 +804,11 @@ namespace FitMe.Grid
             for (var i = 0; i < count; i++)
             {
                 var nextBlocks = bagList[i];
-                var block = InstantiateBlock(
+                var block = InstantiateClassicBlock(
                     _spawnPreviews[i].Transform,
-                    nextBlocks.rotation,
-                    nextBlocks.blockShape,
-                    nextBlocks.blockColor,
+                    nextBlocks,
                     _config.PreviewScale,
-                    nextBlocks.blockSchema?.schema);
+                    allowRotation: false);
 
                 block.Controller.SetActive(false);
                 _spawnPreviews[i].CurrentBlock = block;
