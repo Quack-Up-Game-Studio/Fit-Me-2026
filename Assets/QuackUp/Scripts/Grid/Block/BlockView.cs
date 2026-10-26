@@ -330,7 +330,7 @@ namespace FitMe.Grid
                 transform.localScale = _originalScale;
                 Place(_originalScale);
                 _viewModel.SetSortingLayerCommand.Execute(_blockManagerConfig.SpawnSortingLayer);
-                _viewModel.SetSortingOrderCommand.Execute(trayPiece.PieceId);
+                _viewModel.SetSortingOrderCommand.Execute(trayPiece.SortingOrder);
                 return;
             }
             var returnTarget = _viewModel.SpawnReturnTarget.CurrentValue;

@@ -582,6 +582,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  <TrayBlockScale>k__BackingField: 0.3
   <TrayTiltMin>k__BackingField: -15
   <TrayTiltMax>k__BackingField: 15
   <TrayInset>k__BackingField: {x: 0.1, y: 0.15}

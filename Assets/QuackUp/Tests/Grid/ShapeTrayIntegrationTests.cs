@@ -82,6 +82,174 @@ namespace FitMe.Grid.Tests
             return block;
         }
 
+        private BlockManager CreateStackingTray(out TrayPointer pointer, out BlockManagerConfig config)
+        {
+            SetUpOneCellPlacement();
+            config = Keep(UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<BlockManagerConfig>(ArtRoot + "Settings/Grid/Block/BlockManagerConfig.asset")));
+            foreach (var name in new[] { "UseBlockScaleTween", "UseBlockDragTween", "UseDynamicDragOffset" })
+                typeof(BlockManagerConfig).GetProperty(name).SetValue(config, false);
+            typeof(BlockManagerConfig).GetProperty("BlockDragInertia").SetValue(config, 0f);
+            var gridConfig = Keep(ScriptableObject.CreateInstance<GridManagerConfig>());
+            pointer = new TrayPointer();
+            var atom = AssetDatabase.LoadAssetAtPath<GameObject>(ArtRoot + "Prefabs/Atom/AtomView.prefab").GetComponent<AtomView>();
+            var view = AssetDatabase.LoadAssetAtPath<GameObject>(ArtRoot + "Prefabs/Block/BlockView.prefab").GetComponent<BlockView>();
+            var factory = new BlockFactory(view, config, gridConfig, new AtomFactory(config, atom), new BlockControllerFactory(config, _manager,
+                new LevelManagerMock(GameState.PlaceBlock), new QuackUp.Audio.AudioManagerMock(), pointer));
+            var tray = (RectTransform)Keep(new GameObject("Stacking tray", typeof(RectTransform))).transform;
+            tray.position = new Vector3(0, -3);
+            tray.sizeDelta = new Vector2(6, 2);
+            var manager = new BlockManager(_manager, config, null, Array.Empty<BlockManager.SpawnPointData>(), factory,
+                Array.Empty<BlockManager.SpawnPointData>(), _hub, tray);
+            var entries = Enumerable.Range(0, 3).Select(_ => new ShapePlayerBlockRuntimeEntry(null, new[,] { { 1 } })).ToArray();
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(null, new[,] { { 1 } }, Array.Empty<ShapeObstacleRuntimeData>(), entries)));
+            SetManagerField("<IsGameplay>k__BackingField", true);
+            ((Subject<Unit>)typeof(GridManager).GetField("_onCellsCreated", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_manager)).OnNext(Unit.Default);
+            foreach (var block in manager.BlockOnHand)
+            {
+                _additionalBlockControllers.Add(block.Controller);
+                _additionalBlockViewModels.Add(block.ViewModel);
+                _additionalBlockModels.Add(block.Model);
+                _objects.Add(block.GameObject);
+
+                block.GameObject.transform.localScale = new Vector3(block.Model.TrayPiece.Scale, block.Model.TrayPiece.Scale, 1);
+            }
+            return manager;
+        }
+
+        private static void DropTrayBlock(BlockInstance block, TrayPointer pointer, Vector2 target)
+        {
+            pointer.MouseWorldPosition = block.GameObject.transform.position;
+            var evt = new UnityEngine.EventSystems.PointerEventData(null);
+            block.Controller.BeingDragCommand.Execute(evt);
+            pointer.MouseWorldPosition = target;
+            block.Controller.DragCommand.Execute(evt);
+            block.Controller.EndDragCommand.Execute(evt);
+        }
+
+        private static int TrayRendererOrder(BlockInstance block)
+        {
+            var mesh = block.GameObject.GetComponentInChildren<MeshRenderer>(true);
+            var sprites = block.Model.Atoms.Select(atom => atom.GameObject.GetComponent<SpriteRenderer>()).ToArray();
+            Assert.That(sprites, Is.Not.Empty);
+            Assert.That(sprites.All(sprite => sprite.enabled), Is.True, "Real Shape atom renderers must be active");
+            Assert.That(sprites.All(sprite => sprite.sortingOrder == mesh.sortingOrder), Is.True, "Mesh and atom sorting must agree");
+            return mesh.sortingOrder;
+        }
+
+        [Test]
+        public void ShapeTray_LastDroppedPieceStaysAboveOlderPiecesAcrossAlternatingDropsAndRaycasts()
+        {
+            using var manager = CreateStackingTray(out var pointer, out var config);
+            var blocks = manager.BlockOnHand.OrderBy(block => block.Model.TrayPiece.PieceId).ToArray();
+            var camera = Keep(new GameObject("Tray event camera")).AddComponent<Camera>();
+            camera.orthographic = true;
+            camera.orthographicSize = 5;
+            camera.transform.position = new Vector3(0, -3, -10);
+            camera.gameObject.AddComponent<UnityEngine.EventSystems.Physics2DRaycaster>();
+            var events = Keep(new GameObject("Tray events")).AddComponent<UnityEngine.EventSystems.EventSystem>();
+            var target = new Vector2(0, -3);
+            foreach (var block in blocks.Reverse()) DropTrayBlock(block, pointer, target);
+            foreach (var index in new[] { 0, 2, 0, 1, 2, 1, 0 })
+            {
+                var latest = blocks[index];
+                DropTrayBlock(latest, pointer, target);
+                var order = TrayRendererOrder(latest);
+                Assert.That(blocks.Where(block => block != latest).All(block => TrayRendererOrder(block) < order), Is.True,
+                    "Last dropped piece must stay above older pieces, independent of stable PieceId");
+                Assert.That(latest.Model.TrayPiece.PieceId, Is.EqualTo(index));
+                Physics2D.SyncTransforms();
+                var hits = new List<UnityEngine.EventSystems.RaycastResult>();
+                var raycaster = camera.GetComponent<UnityEngine.EventSystems.Physics2DRaycaster>();
+                // Ordinary MonoBehaviour lifecycle does not run automatically in EditMode.
+                var baseRaycaster = typeof(UnityEngine.EventSystems.BaseRaycaster);
+                baseRaycaster.GetMethod("OnEnable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(raycaster, null);
+                try
+                {
+                    events.RaycastAll(new UnityEngine.EventSystems.PointerEventData(events) { position = camera.WorldToScreenPoint(target) }, hits);
+                }
+                finally
+                {
+                    baseRaycaster.GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(raycaster, null);
+                }
+                Assert.That(hits, Is.Not.Empty);
+                Assert.That(UnityEngine.EventSystems.ExecuteEvents.GetEventHandler<UnityEngine.EventSystems.IPointerDownHandler>(hits[0].gameObject),
+                    Is.EqualTo(latest.GameObject), "EventSystem must dispatch the overlap click to the visually topmost block");
+            }
+            Assert.That(blocks.Select(TrayRendererOrder).Distinct().Count(), Is.EqualTo(blocks.Length));
+        }
+
+        [Test]
+        public void ShapeTray_BouncedPiecesKeepLatestPickupOnTopAndGridPlacementUsesGridOrder()
+        {
+            using var manager = CreateStackingTray(out var pointer, out var config);
+            var blocks = manager.BlockOnHand.OrderBy(block => block.Model.TrayPiece.PieceId).ToArray();
+            var target = new Vector2(0, -3);
+            DropTrayBlock(blocks[2], pointer, target);
+            var latest = blocks[0];
+            var saved = latest.Model.TrayPiece.Position;
+            DropTrayBlock(latest, pointer, Vector2.one * 50);
+            Assert.That(latest.Model.TrayPiece.Position, Is.EqualTo(saved));
+            Assert.That((Vector2)latest.GameObject.transform.position, Is.EqualTo(saved));
+            Assert.That(TrayRendererOrder(latest), Is.GreaterThan(TrayRendererOrder(blocks[2])));
+            Assert.That(latest.GameObject.GetComponentInChildren<MeshRenderer>(true).sortingLayerID, Is.EqualTo(config.SpawnSortingLayer));
+            var existing = _blockModel.Atoms[0];
+            _cell.CurrentAtom.Value = existing;
+            DropTrayBlock(blocks[1], pointer, _grid.GetCellCenterWorld(Vector3Int.zero));
+            Assert.That(_cell.CurrentAtom.Value, Is.SameAs(existing));
+            Assert.That(TrayRendererOrder(blocks[1]), Is.GreaterThan(TrayRendererOrder(latest)));
+            _cell.CurrentAtom.Value = null;
+            SetManagerField("<IsGameplay>k__BackingField", false); // No unrelated async fit/game-over effects.
+            DropTrayBlock(latest, pointer, _grid.GetCellCenterWorld(Vector3Int.zero));
+            Assert.That(latest.Model.TrayPiece.IsPlaced, Is.True);
+            Assert.That(_cell.CurrentAtom.Value, Is.SameAs(latest.Model.Atoms[0]));
+            Assert.That(TrayRendererOrder(latest), Is.Zero, "GridManager owns grid ranks; pickup/tray order must not leak");
+            Assert.That(latest.GameObject.GetComponentInChildren<MeshRenderer>(true).sortingLayerID, Is.EqualTo(config.GridSortingLayer));
+            var gridPosition = latest.GameObject.transform.position;
+            DropTrayBlock(latest, pointer, target);
+            Assert.That(latest.GameObject.transform.position, Is.EqualTo(gridPosition));
+        }
+
+        [Test]
+        public void ShapeTray_RanksStayBoundedBeyondSignedSortingRangeAndRestartPerSession()
+        {
+            using var manager = CreateStackingTray(out var pointer, out _);
+            var blocks = manager.BlockOnHand.OrderBy(block => block.Model.TrayPiece.PieceId).ToArray();
+            Assert.That(blocks.Select(TrayRendererOrder), Is.EqualTo(new[] { 0, 1, 2 }), "Spawn order is explicit and matches initial visibility assumptions");
+            for (var i = 0; i < short.MaxValue + 3; i++)
+                DropTrayBlock(blocks[i % blocks.Length], pointer, new Vector2(0, -3));
+            Assert.That(blocks.Select(block => block.Model.TrayPiece.SortingOrder).OrderBy(order => order), Is.EqualTo(new[] { 0, 1, 2 }));
+            Assert.That(blocks.Select(TrayRendererOrder).OrderBy(order => order), Is.EqualTo(new[] { 0, 1, 2 }));
+            foreach (var block in blocks) UnityEngine.Object.DestroyImmediate(block.GameObject);
+            var entries = Enumerable.Range(0, 3).Select(_ => new ShapePlayerBlockRuntimeEntry(null, new[,] { { 1 } })).ToArray();
+            _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(null, new[,] { { 1 } }, Array.Empty<ShapeObstacleRuntimeData>(), entries)));
+            ((Subject<Unit>)typeof(GridManager).GetField("_onCellsCreated", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_manager)).OnNext(Unit.Default);
+            var fresh = manager.BlockOnHand.ToArray();
+            foreach (var block in fresh)
+            {
+                _additionalBlockControllers.Add(block.Controller);
+                _additionalBlockViewModels.Add(block.ViewModel);
+                _additionalBlockModels.Add(block.Model);
+                _objects.Add(block.GameObject);
+            }
+            Assert.That(fresh.Select(block => block.Model.TrayPiece.PieceId), Is.EqualTo(new[] { 0, 1, 2 }));
+            Assert.That(fresh.Select(TrayRendererOrder), Is.EqualTo(new[] { 0, 1, 2 }), "Retry starts a fresh stack, not a static drag counter");
+            ((Subject<Unit>)blocks[0].Controller.OnTrayBringToFront).OnNext(Unit.Default);
+            Assert.That(fresh.Select(TrayRendererOrder), Is.EqualTo(new[] { 0, 1, 2 }), "Old-session requests cannot affect the new stack");
+            manager.Dispose();
+            ((Subject<Unit>)fresh[0].Controller.OnTrayBringToFront).OnNext(Unit.Default);
+            Assert.That(fresh.Select(TrayRendererOrder), Is.EqualTo(new[] { 0, 1, 2 }), "Manager disposal detaches stacking requests");
+        }
+
+        [Test]
+        public void ShapeTrayFix_LeavesNonTrayPickupSortingUnchanged()
+        {
+            var block = CreateTrayDragBlock(out _, out _);
+            block.Model.TrayPiece = null;
+            block.ViewModel.SetSortingOrderCommand.Execute(73);
+            block.Controller.BeingDragCommand.Execute(new UnityEngine.EventSystems.PointerEventData(null));
+            Assert.That(TrayRendererOrder(block), Is.EqualTo(73), "Classic/Adventure/legacy blocks do not participate in tray stacking");
+        }
+
         [TestCase(.2f)]
         [TestCase(.7f)]
         public void ShapeTray_DragUsesGridScaleWithoutTiltAndTrayDropPersistsLatestReturnPoint(float trayScale)
@@ -158,6 +326,8 @@ namespace FitMe.Grid.Tests
                 new QuackUp.Audio.AudioManagerMock(), null);
             controller.Initialize(block);
             var requested = Quaternion.identity;
+            var sortingUpdates = 0;
+            using var sortingSub = block.ViewModel.SetSortingOrderCommand.Subscribe(_ => sortingUpdates++);
             using var sub = block.ViewModel.RotateCommand.Subscribe(data => { requested = data.Rotation; data.Promise.TrySetResult(Unit.Default); });
             var evt = new UnityEngine.EventSystems.PointerEventData(null);
             controller.PointerDownCommand.Execute(evt);
@@ -171,6 +341,7 @@ namespace FitMe.Grid.Tests
             Assert.That(Quaternion.Angle(piece.GameplayRotation, Quaternion.Euler(0, 0, 270)), Is.LessThan(.01f));
             Assert.That(Quaternion.Angle(requested, Quaternion.Euler(0, 0, 283)), Is.LessThan(.01f));
             Assert.That(piece.Tilt, Is.EqualTo(13));
+            Assert.That(sortingUpdates, Is.Zero, "Tap rotation must not replace the persistent stacking rank");
             Assert.That(controller.IsRotating, Is.False);
         }
 

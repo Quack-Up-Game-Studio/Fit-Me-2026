@@ -6,6 +6,8 @@ namespace FitMe.Grid
     public sealed class ShapeTrayPiece
     {
         public int PieceId { get; }
+        // Session-owned resting rank, not the authored identity or a drag counter.
+        public int SortingOrder { get; internal set; }
         public Rect TrayBounds { get; }
         public Rect DropBounds { get; set; }
         public float Scale { get; }
