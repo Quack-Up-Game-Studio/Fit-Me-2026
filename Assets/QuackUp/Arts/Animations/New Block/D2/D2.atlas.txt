@@ -1,44 +1,41 @@
 D2.png
-	size: 403, 268
+	size: 407, 268
 	filter: Linear, Linear
 Design_2/Blue_Design_2/Body
 	bounds: 2, 2, 131, 130
 	rotate: 90
 Design_2/Blue_Design_2/Eye_Base_1
-	bounds: 332, 230, 12, 12
+	bounds: 364, 236, 12, 12
 Design_2/Blue_Design_2/Eye_Base_3
-	bounds: 332, 230, 12, 12
+	bounds: 364, 236, 12, 12
 Design_2/Green_Design_2/Eye_Base_1
-	bounds: 332, 230, 12, 12
+	bounds: 364, 236, 12, 12
 Design_2/Green_Design_2/Eye_Base_3
-	bounds: 332, 230, 12, 12
+	bounds: 364, 236, 12, 12
 Design_2/Purple_Design_2/Eye_Base_3
-	bounds: 332, 230, 12, 12
+	bounds: 364, 236, 12, 12
 Design_2/Red_Design_2/Eye_Base_3
-	bounds: 332, 230, 12, 12
+	bounds: 364, 236, 12, 12
 Design_2/Blue_Design_2/Eye_Base_2
-	bounds: 346, 230, 12, 12
+	bounds: 376, 254, 12, 12
 Design_2/Green_Design_2/Eye_Base_2
-	bounds: 346, 230, 12, 12
+	bounds: 376, 254, 12, 12
 Design_2/Purple_Design_2/Eye_Base_2
-	bounds: 346, 230, 12, 12
+	bounds: 376, 254, 12, 12
 Design_2/Red_Design_2/Eye_Base_2
-	bounds: 346, 230, 12, 12
+	bounds: 376, 254, 12, 12
 Design_2/Blue_Design_2/Eye_Blink_1
-	bounds: 339, 156, 12, 6
-	rotate: 90
+	bounds: 303, 136, 12, 6
 Design_2/Blue_Design_2/Eye_Blink_2
-	bounds: 347, 156, 12, 6
-	rotate: 90
+	bounds: 317, 136, 12, 6
 Design_2/Blue_Design_2/Eye_Blink_3
-	bounds: 355, 156, 12, 6
-	rotate: 90
+	bounds: 331, 137, 12, 6
 Design_2/Blue_Design_2/Eye_Default_1
-	bounds: 367, 171, 7, 7
+	bounds: 388, 231, 7, 7
 Design_2/Blue_Design_2/Eye_Default_2
-	bounds: 367, 171, 7, 7
+	bounds: 388, 231, 7, 7
 Design_2/Blue_Design_2/Eye_Default_3
-	bounds: 367, 171, 7, 7
+	bounds: 388, 231, 7, 7
 Design_2/Blue_Design_2/Eye_Drop_1
 	bounds: 267, 138, 16, 10
 	rotate: 90
@@ -49,7 +46,7 @@ Design_2/Blue_Design_2/Eye_Drop_3
 	bounds: 291, 138, 16, 10
 	rotate: 90
 Design_2/Blue_Design_2/Mouth_Default
-	bounds: 327, 244, 22, 21
+	bounds: 303, 144, 22, 21
 	rotate: 90
 Design_2/Blue_Design_2/Mouth_Drag
 	bounds: 267, 193, 35, 34
@@ -58,31 +55,29 @@ Design_2/Green_Design_2/Body
 	bounds: 134, 2, 131, 130
 	rotate: 90
 Design_2/Green_Design_2/Eye_Blink_1
-	bounds: 363, 156, 12, 6
-	rotate: 90
+	bounds: 345, 137, 12, 6
 Design_2/Green_Design_2/Eye_Blink_2
-	bounds: 367, 180, 12, 6
+	bounds: 390, 254, 12, 6
 	rotate: 90
 Design_2/Green_Design_2/Eye_Blink_3
-	bounds: 371, 157, 12, 6
+	bounds: 361, 181, 12, 6
 	rotate: 90
 Design_2/Green_Design_2/Eye_Default_1
-	bounds: 376, 171, 7, 7
+	bounds: 388, 222, 7, 7
 Design_2/Green_Design_2/Eye_Default_2
-	bounds: 376, 171, 7, 7
+	bounds: 388, 222, 7, 7
 Design_2/Green_Design_2/Eye_Default_3
-	bounds: 376, 171, 7, 7
+	bounds: 388, 222, 7, 7
 Design_2/Green_Design_2/Eye_Drop_1
-	bounds: 303, 138, 16, 10
-	rotate: 90
+	bounds: 339, 195, 16, 10
 Design_2/Green_Design_2/Eye_Drop_2
-	bounds: 315, 138, 16, 10
+	bounds: 340, 250, 16, 10
 	rotate: 90
 Design_2/Green_Design_2/Eye_Drop_3
-	bounds: 327, 138, 16, 10
+	bounds: 340, 232, 16, 10
 	rotate: 90
 Design_2/Green_Design_2/Mouth_Default
-	bounds: 339, 206, 22, 21
+	bounds: 326, 169, 22, 21
 	rotate: 90
 Design_2/Green_Design_2/Mouth_Drag
 	bounds: 267, 156, 35, 34
@@ -91,34 +86,33 @@ Design_2/Purple_Design_2/Body
 	bounds: 135, 135, 131, 130
 	rotate: 90
 Design_2/Purple_Design_2/Eye_Base_1
-	bounds: 360, 230, 12, 12
+	bounds: 374, 222, 12, 12
 Design_2/Red_Design_2/Eye_Base_1
-	bounds: 360, 230, 12, 12
+	bounds: 374, 222, 12, 12
 Design_2/Purple_Design_2/Eye_Blink_1
-	bounds: 375, 143, 12, 6
+	bounds: 361, 167, 12, 6
 	rotate: 90
 Design_2/Purple_Design_2/Eye_Blink_2
-	bounds: 375, 135, 12, 6
+	bounds: 361, 159, 12, 6
 Design_2/Purple_Design_2/Eye_Blink_3
-	bounds: 376, 180, 12, 6
-	rotate: 90
+	bounds: 367, 151, 12, 6
 Design_2/Purple_Design_2/Eye_Default_1
-	bounds: 384, 193, 7, 7
+	bounds: 391, 245, 7, 7
 Design_2/Purple_Design_2/Eye_Default_2
-	bounds: 384, 193, 7, 7
+	bounds: 391, 245, 7, 7
 Design_2/Purple_Design_2/Eye_Default_3
-	bounds: 384, 193, 7, 7
+	bounds: 391, 245, 7, 7
 Design_2/Purple_Design_2/Eye_Drop_1
-	bounds: 339, 138, 16, 10
+	bounds: 352, 250, 16, 10
 	rotate: 90
 Design_2/Purple_Design_2/Eye_Drop_2
-	bounds: 339, 188, 16, 10
+	bounds: 352, 232, 16, 10
 	rotate: 90
 Design_2/Purple_Design_2/Eye_Drop_3
-	bounds: 339, 170, 16, 10
+	bounds: 349, 177, 16, 10
 	rotate: 90
 Design_2/Purple_Design_2/Mouth_Default
-	bounds: 304, 243, 23, 21
+	bounds: 303, 168, 23, 21
 	rotate: 90
 Design_2/Purple_Design_2/Mouth_Drag
 	bounds: 267, 230, 36, 35
@@ -126,30 +120,29 @@ Design_2/Purple_Design_2/Mouth_Drag
 Design_2/Red_Design_2/Body
 	bounds: 2, 135, 131, 131
 Design_2/Red_Design_2/Eye_Blink_1
-	bounds: 379, 157, 12, 6
+	bounds: 377, 137, 12, 6
 	rotate: 90
 Design_2/Red_Design_2/Eye_Blink_2
-	bounds: 383, 143, 12, 6
+	bounds: 369, 181, 12, 6
 	rotate: 90
 Design_2/Red_Design_2/Eye_Blink_3
-	bounds: 389, 135, 12, 6
+	bounds: 375, 200, 12, 6
 Design_2/Red_Design_2/Eye_Default_1
-	bounds: 384, 184, 7, 7
+	bounds: 398, 259, 7, 7
 Design_2/Red_Design_2/Eye_Default_2
-	bounds: 384, 184, 7, 7
+	bounds: 398, 259, 7, 7
 Design_2/Red_Design_2/Eye_Default_3
-	bounds: 384, 184, 7, 7
+	bounds: 398, 259, 7, 7
 Design_2/Red_Design_2/Eye_Drop_1
-	bounds: 351, 138, 16, 10
-	rotate: 90
+	bounds: 357, 195, 16, 10
 Design_2/Red_Design_2/Eye_Drop_2
-	bounds: 355, 188, 16, 10
+	bounds: 362, 214, 16, 10
 	rotate: 90
 Design_2/Red_Design_2/Eye_Drop_3
-	bounds: 362, 212, 16, 10
+	bounds: 349, 159, 16, 10
 	rotate: 90
 Design_2/Red_Design_2/Mouth_Default
-	bounds: 350, 244, 22, 21
+	bounds: 326, 145, 22, 21
 	rotate: 90
 Design_2/Red_Design_2/Mouth_Drag
 	bounds: 303, 193, 35, 34
@@ -157,41 +150,35 @@ Design_2/Red_Design_2/Mouth_Drag
 Design_2/Yellow_Design_2/Body
 	bounds: 266, 3, 130, 130
 Design_2/Yellow_Design_2/Eye_Base_1
-	bounds: 304, 230, 11, 12
-	rotate: 90
+	bounds: 374, 208, 11, 12
 Design_2/Yellow_Design_2/Eye_Base_3
-	bounds: 304, 230, 11, 12
-	rotate: 90
+	bounds: 374, 208, 11, 12
 Design_2/Yellow_Design_2/Eye_Base_2
-	bounds: 318, 230, 11, 12
-	rotate: 90
+	bounds: 378, 240, 11, 12
 Design_2/Yellow_Design_2/Eye_Blink_1
-	bounds: 374, 230, 12, 6
+	bounds: 387, 208, 12, 6
 	rotate: 90
 Design_2/Yellow_Design_2/Eye_Blink_2
-	bounds: 374, 216, 12, 6
+	bounds: 369, 167, 12, 6
 	rotate: 90
 Design_2/Yellow_Design_2/Eye_Blink_3
-	bounds: 379, 202, 12, 6
-	rotate: 90
+	bounds: 375, 159, 12, 6
 Design_2/Yellow_Design_2/Eye_Default_1
-	bounds: 385, 175, 7, 7
+	bounds: 385, 150, 7, 7
 Design_2/Yellow_Design_2/Eye_Default_2
-	bounds: 385, 175, 7, 7
+	bounds: 385, 150, 7, 7
 Design_2/Yellow_Design_2/Eye_Default_3
-	bounds: 385, 175, 7, 7
+	bounds: 385, 150, 7, 7
 Design_2/Yellow_Design_2/Eye_Drop_1
-	bounds: 355, 170, 16, 10
-	rotate: 90
+	bounds: 349, 147, 16, 10
 Design_2/Yellow_Design_2/Eye_Drop_2
-	bounds: 363, 138, 16, 10
-	rotate: 90
+	bounds: 359, 135, 16, 10
 Design_2/Yellow_Design_2/Eye_Drop_3
-	bounds: 367, 194, 16, 10
+	bounds: 364, 250, 16, 10
 	rotate: 90
 Design_2/Yellow_Design_2/Mouth_Default
-	bounds: 373, 244, 22, 21
+	bounds: 339, 207, 22, 21
 	rotate: 90
 Design_2/Yellow_Design_2/Mouth_Drag
-	bounds: 303, 156, 35, 34
+	bounds: 304, 231, 35, 34
 	rotate: 90
