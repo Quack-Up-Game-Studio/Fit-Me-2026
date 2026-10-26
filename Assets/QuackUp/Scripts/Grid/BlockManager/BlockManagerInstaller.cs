@@ -34,9 +34,13 @@ namespace FitMe.Grid
         
         public override void Install(IContainerBuilder builder)
         {
+            if (!blockManagerConfig || !blockManagerConfig.ExplosionVfxPoolConfig)
+                throw new InvalidOperationException("BlockManagerInstaller requires an ExplosionVfxPoolConfig on BlockManagerConfig.");
+
             //Shared
             builder.RegisterInstance(blockManagerConfig);
             builder.RegisterInstance(blockConfig);
+            builder.RegisterInstance(blockManagerConfig.ExplosionVfxPoolConfig);
             
             //Atom
             builder.RegisterInstance(atomViewPrefab);
@@ -46,6 +50,7 @@ namespace FitMe.Grid
             builder.RegisterInstance(blockViewPrefab);
             builder.Register<BlockControllerFactory>(Lifetime.Scoped);
             builder.Register<BlockFactory>(Lifetime.Scoped);
+            builder.Register<ExplosionVfxPool>(Lifetime.Scoped);
             
             //BlockManager
             builder.RegisterInstance(previewSpawnPoint).Keyed(BlockManager.PreviewTransformKey);

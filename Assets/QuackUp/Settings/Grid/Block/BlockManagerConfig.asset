@@ -593,6 +593,7 @@ MonoBehaviour:
   <PreviewScale>k__BackingField: 0.17
   <ObjectScale>k__BackingField: 0.35
   <ShapeModeBlockConfig>k__BackingField: {fileID: 11400000, guid: 9c3ab7eb54d1b8cf19077125bd79ea34, type: 2}
+  <ExplosionVfxPoolConfig>k__BackingField: {fileID: 11400000, guid: 846d4e4480af3d94088fe9efafdf8abb, type: 2}
   <CanRefill>k__BackingField: 0
   PreviewCount: 4
   SpawnSpace: 1

@@ -33,6 +33,7 @@ namespace FitMe.Grid
         [field: OdinSerialize] private Dictionary<BlockShape, BlockConfig> _blockConfigDictionary = new();
         public IReadOnlyDictionary<BlockShape, BlockConfig> BlockConfigDictionary => _blockConfigDictionary;
         [field: SerializeField] public BlockConfig ShapeModeBlockConfig { get; private set; }
+        [field: SerializeField] public ExplosionVfxPoolConfig ExplosionVfxPoolConfig { get; private set; }
         [field: SerializeField] public bool CanRefill { get; private set; } = true;
         [field: OdinSerialize] private Dictionary<BlockShape, int> _bagSettings = new();
         public IReadOnlyDictionary<BlockShape, int> BagSettings => _bagSettings;

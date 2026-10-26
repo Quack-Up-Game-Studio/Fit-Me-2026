@@ -35,6 +35,7 @@ namespace FitMe.Grid
         private readonly GridManagerConfig _gridConfig;
         private readonly AtomFactory _atomFactory;
         private readonly BlockControllerFactory _blockControllerFactory;
+        private readonly ExplosionVfxPool _explosionVfxPool;
 
         [Inject]
         public BlockFactory(
@@ -42,13 +43,15 @@ namespace FitMe.Grid
             BlockManagerConfig blockManagerConfig,
             GridManagerConfig gridConfig,
             AtomFactory atomFactory,
-            BlockControllerFactory blockControllerFactory)
+            BlockControllerFactory blockControllerFactory,
+            ExplosionVfxPool explosionVfxPool = null)
         {
             _blockViewPrefab = blockViewPrefab;
             _blockManagerConfig = blockManagerConfig;
             _gridConfig = gridConfig;
             _atomFactory = atomFactory;
             _blockControllerFactory = blockControllerFactory;
+            _explosionVfxPool = explosionVfxPool;
         }
 
         public BlockInstance Create(BlockShape blockShape, Vector3 position, Quaternion rotation,
@@ -56,6 +59,7 @@ namespace FitMe.Grid
             BlockPreset presetOverride = null, BlockConfig blockConfigOverride = null)
         {
             var blockConfig = _blockManagerConfig.GetBlockConfig(blockShape, blockConfigOverride);
+            _explosionVfxPool?.Warmup(blockConfig);
 
             BlockPreset blockPreset;
             if (presetOverride)
@@ -79,7 +83,8 @@ namespace FitMe.Grid
                 _blockManagerConfig, 
                 _gridConfig, 
                 controller, 
-                viewModel);
+                viewModel,
+                _explosionVfxPool);
             var blockInstance = new BlockInstance(model, viewModel, controller, view.gameObject);
             controller.Initialize(blockInstance);
             model.GenerateAtom(blockShape, blockPreset, blockInstance, schemaOverride);

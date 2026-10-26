@@ -54,6 +54,7 @@ namespace FitMe.Grid
         private GridManagerConfig _gridConfig;
         private BlockController _blockController;
         private BlockViewModel _viewModel;
+        private ExplosionVfxPool _explosionVfxPool;
         private IDisposable _bindings;
         #endregion
 
@@ -63,13 +64,15 @@ namespace FitMe.Grid
             BlockManagerConfig blockManagerConfig,
             GridManagerConfig gridConfig,
             BlockController blockController,
-            BlockViewModel viewModel)
+            BlockViewModel viewModel,
+            ExplosionVfxPool explosionVfxPool)
         {
             _blockConfig = blockConfig;
             _blockManagerConfig = blockManagerConfig;
             _gridConfig = gridConfig;
             _blockController = blockController;
             _viewModel = viewModel;
+            _explosionVfxPool = explosionVfxPool;
             _originalParent = transform.parent;
             _originalPosition = transform.position;
             _originalEulerAngles = transform.eulerAngles;
@@ -274,8 +277,7 @@ namespace FitMe.Grid
             await explodeAnim.WaitUntilComplete(); 
             if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
             {
-                var vfxInstance = Instantiate(vfx, transform.position, Quaternion.identity);
-                vfxInstance.Play(true);
+                _explosionVfxPool?.Play(vfx, transform.position);
             }
             else
             {
