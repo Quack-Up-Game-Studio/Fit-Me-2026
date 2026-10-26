@@ -71,14 +71,6 @@ namespace FitMe.Panel
                     hintCountText = hintButton.GetComponentInChildren<TMP_Text>(true);
                 if (hintCountText != null)
                 {
-                    var countRect = hintCountText.rectTransform;
-                    countRect.anchorMin = Vector2.one;
-                    countRect.anchorMax = Vector2.one;
-                    countRect.pivot = Vector2.one;
-                    countRect.sizeDelta = new Vector2(36f, 36f);
-                    countRect.anchoredPosition = new Vector2(-4f, -4f);
-                    hintCountText.alignment = TextAlignmentOptions.Center;
-                    hintCountText.fontSize = 28f;
                     ViewModel.RemainingHints
                         .Subscribe(count => hintCountText.text = count.ToString())
                         .AddTo(ref disposableBuilder);
