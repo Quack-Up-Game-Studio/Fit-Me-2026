@@ -26,7 +26,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _FaceDilate: -0.34
-    - _InnerOutlineWidth: 0.785
+    - _InnerOutlineWidth: 0.5
     - _OutlineWidth: 1
     - _ScaleRatioC: 0.518625
     - _UnderlayDilate: 1
