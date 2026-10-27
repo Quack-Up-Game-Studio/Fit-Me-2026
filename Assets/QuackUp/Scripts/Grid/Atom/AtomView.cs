@@ -15,6 +15,8 @@ namespace FitMe.Grid
         [SerializeField] private SpriteOutlineController spriteOutlineController;
         [SerializeField] private AtomSkeletonAnimation skeletonAnimation;
         [SerializeField] private MeshRenderer spineMeshRenderer;
+        [SerializeField] private BoxCollider2D boxCollider;
+        [SerializeField] private float edgeRadius = 0.25f;
         
         private BlockManagerConfig _blockManagerConfig;
         private AtomViewModel _viewModel;
@@ -37,6 +39,8 @@ namespace FitMe.Grid
         {
             _blockManagerConfig = blockManagerConfig;
             _viewModel = viewModel;
+            if (boxCollider)
+                boxCollider.edgeRadius = edgeRadius * Mathf.Abs(transform.lossyScale.x);
             spriteRenderer.enabled = false;
             if (skeletonAnimation) skeletonAnimation.enabled = false;
             if (spineMeshRenderer) spineMeshRenderer.enabled = false;
