@@ -14,6 +14,12 @@ namespace FitMe.Panel
         {
             builder.Register<SwapBlockViewModel>(Lifetime.Singleton);
             builder.RegisterComponent(swapBlockView);
+
+            var rotateBlockView = swapBlockView.transform.parent.GetComponentInChildren<RotateBlockView>(true);
+            if (!rotateBlockView) return;
+
+            builder.Register<RotateBlockViewModel>(Lifetime.Singleton);
+            builder.RegisterComponent(rotateBlockView);
         }
     }
 }

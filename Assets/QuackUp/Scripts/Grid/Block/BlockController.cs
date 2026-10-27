@@ -185,10 +185,6 @@ namespace FitMe.Grid
                     _isPickedUp = false;
                 }
             }
-            else
-            {
-                RotateBlock().Forget();
-            }
         }
 
         private void OnBeginDrag(PointerEventData eventData)
@@ -379,6 +375,11 @@ namespace FitMe.Grid
 
             _isRotating = isRotating;
             _onRotationStateChanged.OnNext(isRotating);
+        }
+
+        public void RequestRotation()
+        {
+            RotateBlock().Forget();
         }
 
         private async UniTaskVoid RotateBlock()

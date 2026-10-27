@@ -32,10 +32,9 @@ namespace FitMe.Scene.MainMenu
         private readonly OutOfEnergyManager _outOfEnergyManager;
         private readonly IAudioManager _audioManager;
         private readonly IMessageHub _messageHub;
-        private readonly IPendingScenePayload _pendingScenePayload;
+
         
         private IDisposable _subscriptions;
-        private IDisposable _panelSubscriptions;
         private AudioReference _bgmReference;
         
         [Inject]
@@ -50,7 +49,6 @@ namespace FitMe.Scene.MainMenu
             AdsService adsService,
             OutOfEnergyManager outOfEnergyManager,
             IAudioManager audioManager,
-            IPendingScenePayload pendingScenePayload,
             [Key(MainMenuManagerMessageHub.MainMenuManagerMessageHubKey)] IMessageHub messageHub)
         {
             _mainMenuManagerConfig = mainMenuManagerConfig;
@@ -63,7 +61,7 @@ namespace FitMe.Scene.MainMenu
             _adsService = adsService;
             _outOfEnergyManager = outOfEnergyManager;
             _audioManager = audioManager;
-            _pendingScenePayload = pendingScenePayload;
+
             _messageHub = messageHub;
             Subscribe();
         }
@@ -123,12 +121,6 @@ namespace FitMe.Scene.MainMenu
             var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
             saveData.IsFirstTimePlayer = false;
             _saveManager.Save(saveObjects);
-            if (!_panelManager.GetFirstPanelOfType<MainMenuPanelViewModel>(out var mainMenuPanel))
-            {
-                DebugUtils.LogError("MainMenu panel not found!");
-            }
-            _panelSubscriptions = mainMenuPanel.ToTutorial
-                .SubscribeAwait((_, _) => ToTutorial(), AwaitOperation.Switch);
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
@@ -142,31 +134,18 @@ namespace FitMe.Scene.MainMenu
         public void Dispose()
         {
             _subscriptions?.Dispose();
-            _panelSubscriptions?.Dispose();
         }
 
         private bool ShouldCancelPlacement()
         {
             if (!_saveManager.IsSaveReady) return false;
-            var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
-            var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
-            if (!saveData.CompletedTutorial) return false;
             return !_energyManager.HasEnoughEnergy(1);
         }
 
         private void OnBlockPlaced()
         {
             //_loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false).Forget();
-            var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
-            var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
-            if (saveData.CompletedTutorial)
-            {
-                ToGameplay().Forget();
-            }
-            else
-            {
-                ToTutorial().Forget();
-            }
+            ToGameplay().Forget();
         }
 
         private void OnToShop()
@@ -177,11 +156,6 @@ namespace FitMe.Scene.MainMenu
             }).Forget();
         }
 
-        private async UniTask ToTutorial()
-        {
-            _pendingScenePayload.Set(new LevelSessionRequest(GameMode.Classic, null));
-            await _loadSceneManager.LoadScene(SceneType.Tutorial, LoadSceneMode.Single, false);
-        }
 
         private async UniTaskVoid ToGameplay()
         {

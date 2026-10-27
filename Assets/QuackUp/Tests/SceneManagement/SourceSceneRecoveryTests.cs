@@ -46,7 +46,7 @@ namespace QuackUp.SceneManagement.Tests
             using var popupSubscription = outOfEnergy.TransitionInCommand.Subscribe(_ => popups++);
             object consumer = level
                 ? new LevelManager(levelConfig, null, new AudioManagerMock(), hub, hub, grid, null, null, null, ads, null, null, null, null, new PendingScenePayload(), null)
-                : new MainMenuManager(mainConfig, null, grid, null, null, null, null, ads, outOfEnergy, new AudioManagerMock(), new PendingScenePayload(), hub);
+                : new MainMenuManager(mainConfig, null, grid, null, null, null, null, ads, outOfEnergy, new AudioManagerMock(), hub);
             if (consumer is LevelManager manager) manager.IsTutorial = source == SceneType.Tutorial;
             try
             {

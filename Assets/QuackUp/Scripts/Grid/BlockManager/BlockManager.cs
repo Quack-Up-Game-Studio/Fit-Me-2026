@@ -175,6 +175,7 @@ namespace FitMe.Grid
         }
 
         public ReadOnlyReactiveProperty<bool> CanSwap => _readOnlyCanSwap;
+        public ReadOnlyReactiveProperty<bool> CanRotate => _readOnlyCanRotate;
 
         public bool TryGetShapeHintSupply(out List<int[,]> schemas, out int activeHandCount)
         {
@@ -224,6 +225,8 @@ namespace FitMe.Grid
         private readonly Subject<Unit> _onSwap = new();
         private readonly ReactiveProperty<bool> _canSwap = new(false);
         private readonly ReadOnlyReactiveProperty<bool> _readOnlyCanSwap;
+        private readonly ReactiveProperty<bool> _canRotate = new(false);
+        private readonly ReadOnlyReactiveProperty<bool> _readOnlyCanRotate;
         private Queue<SpawnBlockData> _spawnBag = new();
         private readonly ShapeBlockSupplyQueue _shapeBlockQueue = new();
         public const string ShapeTrayKey = "ShapeTray";
@@ -250,6 +253,12 @@ namespace FitMe.Grid
         private IDisposable _subscriptions;
         private IDisposable _swapTargetRotationSubscription;
         private BlockInstance _rotationTrackedSwapTarget;
+        private IDisposable _rotateTargetSubscriptions;
+        private BlockInstance _rotationTrackedRotateTarget;
+        private readonly IGameStateManager _gameStateManager;
+        private ReadOnlyReactiveProperty<GameState> _gameState;
+        private ReadOnlyReactiveProperty<bool> _isPaused;
+        private IDisposable _gameStateSubscriptions;
         #endregion
 
         [Inject]
@@ -261,7 +270,8 @@ namespace FitMe.Grid
             BlockFactory blockFactory,
             [Key(PreviewTransformKey)] SpawnPointData[] spawnPreviews,
             [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub messageHub,
-            [Key(ShapeTrayKey)] RectTransform trayPanel = null)
+            [Key(ShapeTrayKey)] RectTransform trayPanel = null,
+            IGameStateManager gameStateManager = null)
         {
             _gridManager = gridManager;
             _config = config;
@@ -271,8 +281,19 @@ namespace FitMe.Grid
             _spawnPreviews = spawnPreviews;
             _messageHub = messageHub;
             _trayPanel = trayPanel;
+            _gameStateManager = gameStateManager;
             if (_trayPanel) _trayPanel.gameObject.SetActive(false);
             _readOnlyCanSwap = _canSwap.ToReadOnlyReactiveProperty();
+            _readOnlyCanRotate = _canRotate.ToReadOnlyReactiveProperty();
+            if (_gameStateManager != null)
+            {
+                _gameState = _gameStateManager.GameState;
+                _isPaused = _gameStateManager.IsPaused;
+                var builder = Disposable.CreateBuilder();
+                _gameState.Subscribe(_ => RefreshRotateAvailability()).AddTo(ref builder);
+                _isPaused.Subscribe(_ => RefreshRotateAvailability()).AddTo(ref builder);
+                _gameStateSubscriptions = builder.Build();
+            }
             Subscribe();
         }
 
@@ -304,8 +325,14 @@ namespace FitMe.Grid
         {
             _subscriptions?.Dispose();
             _swapTargetRotationSubscription?.Dispose();
+            _rotateTargetSubscriptions?.Dispose();
+            _gameStateSubscriptions?.Dispose();
+            _gameState?.Dispose();
+            _isPaused?.Dispose();
             _readOnlyCanSwap.Dispose();
             _canSwap.Dispose();
+            _readOnlyCanRotate.Dispose();
+            _canRotate.Dispose();
         }
 
         #region Events
@@ -676,6 +703,14 @@ namespace FitMe.Grid
             RefreshSwapAvailability();
         }
 
+        public void Rotate()
+        {
+            RefreshRotateAvailability();
+            if (!_canRotate.CurrentValue) return;
+
+            BlockOnHand.FirstOrDefault()?.Controller.RequestRotation();
+        }
+
         private void SwapShapeBlock()
         {
             if (_shapeBlockQueue.Count == 0 || _spawnPoints == null || _spawnPreviews == null ||
@@ -900,6 +935,7 @@ namespace FitMe.Grid
 
         private void RefreshSwapAvailability()
         {
+            RefreshRotateAvailability();
             if (_shapeLevelRuntimeData != null)
             {
                 TrackSwapTargetRotation(null);
@@ -945,6 +981,52 @@ namespace FitMe.Grid
 
             _swapTargetRotationSubscription = activeBlock.Controller.OnRotationStateChanged
                 .Subscribe(_ => RefreshSwapAvailability());
+        }
+
+        private void RefreshRotateAvailability()
+        {
+            var activeBlock = _shapeLevelRuntimeData == null && _spawnPoints != null
+                ? BlockOnHand.FirstOrDefault()
+                : null;
+            TrackRotateTarget(activeBlock);
+
+            var spawnIndex = activeBlock?.Model.SpawnIndex ?? -1;
+            var spawnPoint = _spawnPoints != null && spawnIndex >= 0 && spawnIndex < _spawnPoints.Length
+                ? _spawnPoints[spawnIndex]
+                : null;
+            var hasActiveBlock = activeBlock != null && activeBlock.GameObject &&
+                                 activeBlock.Controller != null && activeBlock.Controller.AllowRotation &&
+                                 !activeBlock.Controller.IsRotating &&
+                                 activeBlock.ViewModel != null &&
+                                 activeBlock.ViewModel.BlockInteractionState.CurrentValue != BlockInteractionState.PlacedOnGrid &&
+                                 spawnPoint != null && !spawnPoint.IsFree &&
+                                 ReferenceEquals(spawnPoint.CurrentBlock, activeBlock) && spawnPoint.Transform != null;
+            var canRotate = hasActiveBlock &&
+                            (_gameState == null || _gameState.CurrentValue == GameState.PlaceBlock) &&
+                            (_isPaused == null || !_isPaused.CurrentValue);
+            if (_canRotate.Value != canRotate)
+                _canRotate.Value = canRotate;
+        }
+
+        private void TrackRotateTarget(BlockInstance activeBlock)
+        {
+            if (ReferenceEquals(_rotationTrackedRotateTarget, activeBlock))
+                return;
+
+            _rotateTargetSubscriptions?.Dispose();
+            _rotateTargetSubscriptions = null;
+            _rotationTrackedRotateTarget = activeBlock;
+            if (activeBlock?.Controller == null || activeBlock.ViewModel == null)
+                return;
+
+            var builder = Disposable.CreateBuilder();
+            activeBlock.Controller.OnRotationStateChanged
+                .Subscribe(_ => RefreshRotateAvailability())
+                .AddTo(ref builder);
+            activeBlock.ViewModel.BlockInteractionState
+                .Subscribe(_ => RefreshRotateAvailability())
+                .AddTo(ref builder);
+            _rotateTargetSubscriptions = builder.Build();
         }
 
         private static bool IsValidShapeSupply(ShapeBlockSupplyQueue.Item supply)

@@ -146,7 +146,30 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void ShapeTray_RepeatedTapRotationUsesGameplayQuarterTurnsRatherThanVisualTilt()
+        public void ShapeTray_TappingBlockDoesNotRotateIt()
+        {
+            var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
+            var entry = new ShapePlayerBlockRuntimeEntry(null, new[,] { { 1, 1 } });
+            var block = CreateShapeTestBlock(config, new ShapeBlockSupplyQueue.Item(entry, Quaternion.Euler(0, 0, 90), BlockColor.Red), _grid.transform, -1, true);
+            var piece = new ShapeTrayPiece(7, entry.Schema, new Rect(-2, -4, 4, 2), .3f, 13f, Quaternion.Euler(0, 0, 90), new Vector2(0, -3));
+            block.Model.TrayPiece = piece;
+            block.GameObject.transform.rotation = piece.TrayRotation;
+            using var controller = new BlockController(config, _manager, new LevelManagerMock(GameState.PlaceBlock),
+                new QuackUp.Audio.AudioManagerMock(), null);
+            controller.Initialize(block);
+            var requestedRotations = 0;
+            using var sub = block.ViewModel.RotateCommand.Subscribe(data => { requestedRotations++; data.Promise.TrySetResult(Unit.Default); });
+            var evt = new UnityEngine.EventSystems.PointerEventData(null);
+            controller.PointerDownCommand.Execute(evt);
+            controller.PointerUpCommand.Execute(evt);
+
+            Assert.That(requestedRotations, Is.Zero);
+            Assert.That(Quaternion.Angle(piece.GameplayRotation, Quaternion.identity), Is.LessThan(.01f));
+            Assert.That(controller.IsRotating, Is.False);
+        }
+
+        [Test]
+        public void ShapeTray_ExplicitRotationRequestKeepsGameplayQuarterTurnLogic()
         {
             var config = Keep(ScriptableObject.CreateInstance<BlockManagerConfig>());
             var entry = new ShapePlayerBlockRuntimeEntry(null, new[,] { { 1, 1 } });
@@ -159,17 +182,11 @@ namespace FitMe.Grid.Tests
             controller.Initialize(block);
             var requested = Quaternion.identity;
             using var sub = block.ViewModel.RotateCommand.Subscribe(data => { requested = data.Rotation; data.Promise.TrySetResult(Unit.Default); });
-            var evt = new UnityEngine.EventSystems.PointerEventData(null);
-            controller.PointerDownCommand.Execute(evt);
-            controller.PointerUpCommand.Execute(evt);
+
+            controller.RequestRotation();
+
             Assert.That(Quaternion.Angle(piece.GameplayRotation, Quaternion.identity), Is.LessThan(.01f));
             Assert.That(Quaternion.Angle(requested, Quaternion.Euler(0, 0, 13)), Is.LessThan(.01f));
-            // No View applies the first request in this isolated controller test: the
-            // second tap must still use gameplay state, not the stale visual transform.
-            controller.PointerDownCommand.Execute(evt);
-            controller.PointerUpCommand.Execute(evt);
-            Assert.That(Quaternion.Angle(piece.GameplayRotation, Quaternion.Euler(0, 0, 270)), Is.LessThan(.01f));
-            Assert.That(Quaternion.Angle(requested, Quaternion.Euler(0, 0, 283)), Is.LessThan(.01f));
             Assert.That(piece.Tilt, Is.EqualTo(13));
             Assert.That(controller.IsRotating, Is.False);
         }

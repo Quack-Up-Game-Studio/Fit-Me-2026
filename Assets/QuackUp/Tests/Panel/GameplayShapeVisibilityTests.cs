@@ -132,10 +132,15 @@ namespace FitMe.Panel.Tests
                 Assert.That(hintCountField.GetValue(view), Is.SameAs(hintCount),
                     "The saved scene must explicitly bind the Shape hint count to the Hint button label");
                 var targets = (GameObject[])typeof(GameplayPanelView).GetField("hideInShapeMode", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(view);
-                var paths = new[] { "Back/NextQueue", "Back/Hands", "Back/Swap Icon", "Back/Next Queue", "SwapButton", "Back/Score" };
+                var paths = new[] { "Back/NextQueue", "Back/Hands", "Back/Swap Icon", "Back/Next Queue", "SwapButton", "RotateButton", "Back/Score" };
                 var expected = paths.Select(path => panel.Find(path).gameObject).ToArray();
                 Assert.That(targets, Is.EquivalentTo(expected),
                     "Saved list must include the Shape legacy targets and score UI");
+                var rotateView = panel.Find("RotateButton").GetComponent<RotateBlockView>();
+                Assert.That(rotateView, Is.Not.Null, "The saved Gameplay scene must bind the explicit rotate control");
+                var rotateButton = (Button)typeof(RotateBlockView)
+                    .GetField("rotateButton", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(rotateView);
+                Assert.That(rotateButton, Is.SameAs(panel.Find("RotateButton").GetComponent<Button>()));
                 var fitCount = panel.GetComponentsInChildren<Transform>(true)
                     .Single(transform => transform.name == "FitCount").gameObject;
                 var untouched = new[] { "Back/Fit BG", "Back/BG", "Back/Banner" }

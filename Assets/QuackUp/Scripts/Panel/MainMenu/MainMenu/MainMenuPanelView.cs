@@ -51,9 +51,6 @@ namespace FitMe.Panel
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            ViewModel.CompletedTutorial
-                .Subscribe(OnTutorialCompletionChanged)
-                .AddTo(ref disposableBuilder);
             ViewModel.IsSaveLoading
                 .Subscribe(loading =>
                 {
@@ -75,9 +72,8 @@ namespace FitMe.Panel
             shopButton.OnClickAsObservable()
                 .Subscribe(_ => OnShopButtonClicked())
                 .AddTo(ref disposableBuilder);
-            tutorialButton.OnClickAsObservable()
-                .Subscribe(_ => OnTutorialButtonClicked())
-                .AddTo(ref disposableBuilder);
+            if (tutorialButton != null)
+                tutorialButton.gameObject.SetActive(false);
             watchAdsButton.Button.OnClickAsObservable()
                 .Subscribe(_ => ViewModel.WatchAdCommand.Execute(Unit.Default))
                 .AddTo(ref disposableBuilder);
@@ -224,15 +220,6 @@ namespace FitMe.Panel
             timeUntilNextAdText.text = $"{roundedTime:mm\\:ss}";
         }
         
-        private void OnTutorialCompletionChanged(bool completed)
-        {
-            if (!ViewModel.IsSaveReady)
-            {
-                tutorialButton.gameObject.SetActive(false);
-                return;
-            }
-            tutorialButton.gameObject.SetActive(completed);
-        }
 
         private void OnChallengeButtonClicked()
         {
@@ -258,9 +245,6 @@ namespace FitMe.Panel
             ViewModel.CrossfadeCommand.Execute(new CrossfadeCommandData(shopPanelId, rule.crossfadeSettings));
         }
 
-        private void OnTutorialButtonClicked()
-        {
-            ViewModel.ToTutorial.Execute(Unit.Default);
-        }
+
     }
 }

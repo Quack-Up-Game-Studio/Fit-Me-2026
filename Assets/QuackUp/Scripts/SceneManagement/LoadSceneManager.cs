@@ -196,6 +196,11 @@ namespace QuackUp.SceneManagement
         public virtual async UniTask LoadScene(SceneType sceneType, LoadSceneMode loadSceneMode, bool useLoadingScene)
         {
             if (_disposed || _request != null) return;
+            if (sceneType == SceneType.Tutorial)
+            {
+                Debug.LogError("Scene Tutorial is disabled.");
+                return;
+            }
             if (!_config.SceneReferences.TryGetValue(sceneType, out var reference))
             {
                 Debug.LogError($"Scene {sceneType} not found in the dictionary.");

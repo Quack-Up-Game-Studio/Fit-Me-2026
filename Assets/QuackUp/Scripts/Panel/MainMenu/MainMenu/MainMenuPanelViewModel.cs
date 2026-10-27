@@ -14,8 +14,7 @@ namespace FitMe.Panel
     public class MainMenuPanelViewModel : PanelViewModel
     {
         public ReactiveCommand WatchAdCommand { get; } = new();
-        public ReactiveCommand ToTutorial { get; private set; } = new();
-        public ReactiveProperty<bool> CompletedTutorial { get; private set; } = new(false);
+
         public ReactiveProperty<bool> IsSaveLoading { get; private set; } = new(true);
         public bool IsSaveReady => _saveManager.IsSaveReady;
         public ReadOnlyReactiveProperty<int> RemainingAdCount => _outOfEnergyManager.RemainingAdCount;
@@ -29,7 +28,7 @@ namespace FitMe.Panel
         public ReadOnlyReactiveProperty<bool> ShowPlaceBlockHint => _showPlaceBlockHint;
         private readonly ReactiveProperty<bool> _showPlaceBlockHint = new(false);
         
-        private PlayerRecordSaveObject _playerRecordSaveObject;
+
         private readonly MessagePackSaveManager _saveManager;
         private readonly EnergyManager _energyManager;
         private readonly OutOfEnergyManager _outOfEnergyManager;
@@ -65,8 +64,6 @@ namespace FitMe.Panel
         {
             IsSaveLoading.Value = true;
             await _saveManager.WaitForSaveDataReady;
-            _playerRecordSaveObject = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
-            CompletedTutorial.Value = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>().CompletedTutorial;
             IsSaveLoading.Value = false;
         }
 
