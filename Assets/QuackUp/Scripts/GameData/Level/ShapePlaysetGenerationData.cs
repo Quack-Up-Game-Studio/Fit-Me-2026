@@ -18,7 +18,8 @@ namespace FitMe.GameData
         InvalidPreferredBlockSupply,
         InvalidPlayableRegionThreshold,
         InvalidSearchBudget,
-        InvalidSingletonFallbackLimit
+        InvalidSingletonFallbackLimit,
+        InvalidShapeStylePreference
     }
 
     public enum ShapePlaysetGenerationError
@@ -66,6 +67,8 @@ namespace FitMe.GameData
         public int MaxTilingSearchNodes { get; }
         public int MaxCandidateAttempts { get; }
         public int MaxSingletonFallbackBlocks { get; }
+        public float RectangularPreference { get; }
+        public float RepetitionPenalty { get; }
         public IReadOnlyList<ShapePlayerBlockEntry> PreferredPlayerBlocks { get; }
 
         public ShapePlaysetGenerationConfig(
@@ -81,7 +84,9 @@ namespace FitMe.GameData
             int maxCandidateAttempts = 8,
             int maxSingletonFallbackBlocks = 0,
             int minVoidCells = 0,
-            int maxVoidCells = 0)
+            int maxVoidCells = 0,
+            float rectangularPreference = 0.35f,
+            float repetitionPenalty = 0.5f)
         {
             MinBoardColumns = minBoardColumns;
             MaxBoardColumns = maxBoardColumns;
@@ -100,6 +105,8 @@ namespace FitMe.GameData
             MaxTilingSearchNodes = maxTilingSearchNodes;
             MaxCandidateAttempts = maxCandidateAttempts;
             MaxSingletonFallbackBlocks = maxSingletonFallbackBlocks;
+            RectangularPreference = rectangularPreference;
+            RepetitionPenalty = repetitionPenalty;
             PreferredPlayerBlocks = preferredPlayerBlocks == null
                 ? Array.Empty<ShapePlayerBlockEntry>()
                 : Array.AsReadOnly(new List<ShapePlayerBlockEntry>(preferredPlayerBlocks).ToArray());
@@ -141,6 +148,8 @@ namespace FitMe.GameData
         public int MaxTilingSearchNodes { get; }
         public int MaxCandidateAttempts { get; }
         public int MaxSingletonFallbackBlocks { get; }
+        public float RectangularPreference { get; }
+        public float RepetitionPenalty { get; }
         public IReadOnlyList<ShapePlayerBlockConfigSnapshot> PreferredPlayerBlocks { get; }
 
         internal ShapePlaysetGenerationConfigSnapshot(ShapePlaysetGenerationConfig config)
@@ -162,6 +171,8 @@ namespace FitMe.GameData
             MaxTilingSearchNodes = config.MaxTilingSearchNodes;
             MaxCandidateAttempts = config.MaxCandidateAttempts;
             MaxSingletonFallbackBlocks = config.MaxSingletonFallbackBlocks;
+            RectangularPreference = config.RectangularPreference;
+            RepetitionPenalty = config.RepetitionPenalty;
             var preferredBlocks = new List<ShapePlayerBlockConfigSnapshot>(config.PreferredPlayerBlocks.Count);
             for (var index = 0; index < config.PreferredPlayerBlocks.Count; index++)
             {
@@ -258,7 +269,7 @@ namespace FitMe.GameData
 
     public sealed class GeneratedShapePlayset
     {
-        public const int CurrentGeneratorVersion = 5;
+        public const int CurrentGeneratorVersion = 6;
 
         public int Seed { get; }
         public int AttemptIndex { get; }
@@ -274,12 +285,14 @@ namespace FitMe.GameData
         public bool IsSolvable => true;
         public ShapePlaysetDifficultyMetrics Difficulty { get; }
         public ShapePlaysetOptimizationStatus OptimizationStatus { get; }
+        public int OptimizationNodesVisited { get; }
 
         internal GeneratedShapePlayset(
             int seed, int attemptIndex, ShapePlaysetGenerationConfig config,
             int[,] boardMask, int[,] obstacleMask,
             IReadOnlyList<GeneratedShapeBlock> playerBlocks, bool usedPredefinedBlocks,
-            ShapePlaysetDifficultyMetrics difficulty, ShapePlaysetOptimizationStatus optimizationStatus)
+            ShapePlaysetDifficultyMetrics difficulty, ShapePlaysetOptimizationStatus optimizationStatus,
+            int optimizationNodesVisited)
         {
             Seed = seed;
             AttemptIndex = attemptIndex;
@@ -290,6 +303,7 @@ namespace FitMe.GameData
             UsedPredefinedBlocks = usedPredefinedBlocks;
             Difficulty = difficulty;
             OptimizationStatus = optimizationStatus;
+            OptimizationNodesVisited = optimizationNodesVisited;
         }
     }
 

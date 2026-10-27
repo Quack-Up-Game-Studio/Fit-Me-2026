@@ -26,6 +26,18 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ShapeStyleSliders_DefaultAndMapIntoGenerationConfig()
+        {
+            var profile = Keep(ScriptableObject.CreateInstance<ShapePlaysetGenerationProfile>());
+
+            Assert.That(GetPrivateField(profile, "_rectangularPreference"), Is.EqualTo(0.35f));
+            Assert.That(GetPrivateField(profile, "_repetitionPenalty"), Is.EqualTo(0.5f));
+            var config = profile.CreateConfig();
+            AssertProperty(config, "RectangularPreference", 0.35f);
+            AssertProperty(config, "RepetitionPenalty", 0.5f);
+        }
+
+        [Test]
         public void ReloadedProfileBuildsConfigFromSavedRangesBudgetsAndPreferredPresets()
         {
             _assetFolderPath = $"Assets/__ShapePlaysetGenerationProfileTests_{System.Guid.NewGuid():N}";
@@ -62,6 +74,8 @@ namespace FitMe.Grid.Tests
             SetPrivateField(profile, "_maxTilingSearchNodes", 4000);
             SetPrivateField(profile, "_maxCandidateAttempts", 7);
             SetPrivateField(profile, "_maxSingletonFallbackBlocks", 2);
+            SetPrivateField(profile, "_rectangularPreference", 0.1f);
+            SetPrivateField(profile, "_repetitionPenalty", 0.9f);
             SetPrivateField(profile, "_preferredPlayerBlocks", new List<ShapePlayerBlockEntry>
             {
                 new(preset, 2)
@@ -96,6 +110,8 @@ namespace FitMe.Grid.Tests
             Assert.That(config.MaxTilingSearchNodes, Is.EqualTo(4000));
             Assert.That(config.MaxCandidateAttempts, Is.EqualTo(7));
             Assert.That(config.MaxSingletonFallbackBlocks, Is.EqualTo(2));
+            AssertProperty(config, "RectangularPreference", 0.1f);
+            AssertProperty(config, "RepetitionPenalty", 0.9f);
             Assert.That(config.PreferredPlayerBlocks, Has.Count.EqualTo(1));
             Assert.That(config.PreferredPlayerBlocks[0].Preset, Is.SameAs(
                 AssetDatabase.LoadAssetAtPath<BlockPreset>(presetPath)));
@@ -136,9 +152,15 @@ namespace FitMe.Grid.Tests
                 minPlayableRegionCells: 1,
                 maxSingletonFallbackBlocks: 1,
                 minVoidCells: 1,
-                maxVoidCells: 1);
+                maxVoidCells: 1,
+                rectangularPreference: 0.2f,
+                repetitionPenalty: 0.8f);
             var generation = ShapePlaysetGenerator.Generate(config, seed: 9);
             Assert.That(generation.IsSuccess, Is.True, generation.Error.ToString());
+            AssertProperty(generation.Playset.Configuration, "RectangularPreference", 0.2f);
+            AssertProperty(generation.Playset.Configuration, "RepetitionPenalty", 0.8f);
+            var optimizationNodesVisited = GetProperty(generation.Playset, "OptimizationNodesVisited");
+            Assert.That((int)optimizationNodesVisited, Is.InRange(1, config.MaxTilingSearchNodes));
             Assert.That(generation.Playset.PlayerBlocks, Has.Count.EqualTo(2));
             Assert.That(generation.Playset.UsedPredefinedBlocks, Is.True);
 
@@ -208,6 +230,7 @@ namespace FitMe.Grid.Tests
             AssertProperty(provenance, "Seed", generation.Playset.Seed);
             AssertProperty(provenance, "AttemptIndex", generation.Playset.AttemptIndex);
             AssertProperty(provenance, "GeneratorVersion", generation.Playset.GeneratorVersion);
+            AssertProperty(provenance, "OptimizationNodesVisited", optimizationNodesVisited);
             AssertProperty(provenance, "IsOriginOnly", true);
             var provenanceConfiguration = GetProperty(provenance, "Configuration");
             AssertProperty(provenanceConfiguration, "MinBoardColumns", config.MinBoardColumns);
@@ -215,6 +238,8 @@ namespace FitMe.Grid.Tests
             AssertProperty(provenanceConfiguration, "MaxTilingSearchNodes", config.MaxTilingSearchNodes);
             AssertProperty(provenanceConfiguration, "MinVoidCells", 1);
             AssertProperty(provenanceConfiguration, "MaxVoidCells", 1);
+            AssertProperty(provenanceConfiguration, "RectangularPreference", 0.2f);
+            AssertProperty(provenanceConfiguration, "RepetitionPenalty", 0.8f);
             var preferredSnapshots = GetProperty(provenanceConfiguration, "PreferredPlayerBlocks") as ICollection;
             Assert.That(preferredSnapshots, Is.Not.Null);
             Assert.That(preferredSnapshots.Count, Is.EqualTo(1));
@@ -250,8 +275,11 @@ namespace FitMe.Grid.Tests
             AssertProperty(reloadedProvenance, "OptimizationStatus", expectedOptimizationStatus);
             AssertProperty(reloadedProvenance, "Seed", generation.Playset.Seed);
             AssertProperty(reloadedProvenance, "GeneratorVersion", generation.Playset.GeneratorVersion);
+            AssertProperty(reloadedProvenance, "OptimizationNodesVisited", optimizationNodesVisited);
             AssertProperty(GetProperty(reloadedProvenance, "Configuration"), "MinVoidCells", 1);
             AssertProperty(GetProperty(reloadedProvenance, "Configuration"), "MaxVoidCells", 1);
+            AssertProperty(GetProperty(reloadedProvenance, "Configuration"), "RectangularPreference", 0.2f);
+            AssertProperty(GetProperty(reloadedProvenance, "Configuration"), "RepetitionPenalty", 0.8f);
             AssertProperty(GetProperty(reloadedProvenance, "Difficulty"), "VoidCellCount", 1);
             AssertProperty(GetProperty(reloadedProvenance, "Difficulty"), "IsProvisional", true);
             Assert.That(AssetDatabase.FindAssets("t:BlockPreset", new[] { _assetFolderPath }),

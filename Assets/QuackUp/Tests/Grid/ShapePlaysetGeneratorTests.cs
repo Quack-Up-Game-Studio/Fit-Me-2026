@@ -101,6 +101,49 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
+        public void ValidateConfiguration_AcceptsStylePreferenceEndpoints()
+        {
+            var config = new ShapePlaysetGenerationConfig(
+                minBoardColumns: 2, maxBoardColumns: 2,
+                minBoardRows: 2, maxBoardRows: 2,
+                minObstacleCells: 0, maxObstacleCells: 0,
+                minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 2,
+                minGeneratedBlockRows: 1, maxGeneratedBlockRows: 2,
+                minPlayableRegionCells: 1,
+                maxTilingSearchNodes: 1000,
+                maxCandidateAttempts: 1,
+                maxSingletonFallbackBlocks: 4,
+                rectangularPreference: 0f,
+                repetitionPenalty: 1f);
+
+            var validation = ShapePlaysetGenerator.ValidateConfiguration(config);
+
+            Assert.That(validation.IsValid, Is.True, string.Join(", ", validation.Errors));
+        }
+
+        [Test]
+        public void ValidateConfiguration_RejectsNonFiniteOrOutOfRangeStylePreferences()
+        {
+            ShapePlaysetGenerationConfig CreateConfig(float rectangularPreference, float repetitionPenalty) =>
+                new ShapePlaysetGenerationConfig(
+                    2, 2, 2, 2, 0, 0, 1, 2, 1, 2,
+                    minPlayableRegionCells: 1,
+                    maxTilingSearchNodes: 1000,
+                    maxCandidateAttempts: 1,
+                    maxSingletonFallbackBlocks: 4,
+                    rectangularPreference: rectangularPreference,
+                    repetitionPenalty: repetitionPenalty);
+
+            var invalidRectangle = ShapePlaysetGenerator.ValidateConfiguration(CreateConfig(-0.01f, 0.5f));
+            var invalidRepetition = ShapePlaysetGenerator.ValidateConfiguration(CreateConfig(0.5f, float.NaN));
+
+            Assert.That(invalidRectangle.Errors,
+                Does.Contain(ShapePlaysetConfigurationError.InvalidShapeStylePreference));
+            Assert.That(invalidRepetition.Errors,
+                Does.Contain(ShapePlaysetConfigurationError.InvalidShapeStylePreference));
+        }
+
+        [Test]
         public void DifficultyEvaluator_ReducesProvisionalScoreAsSolutionMultiplicityIncreases()
         {
             var playableMask = new[,] { { 1, 1 }, { 1, 1 } };
@@ -354,6 +397,7 @@ namespace FitMe.Grid.Tests
             Assert.That(first.Playset.Configuration.MinBoardColumns, Is.EqualTo(config.MinBoardColumns));
             Assert.That(first.Playset.Configuration.MaxObstacleCells, Is.EqualTo(config.MaxObstacleCells));
             Assert.That(first.Playset.GeneratorVersion, Is.EqualTo(GeneratedShapePlayset.CurrentGeneratorVersion));
+            Assert.That(first.Playset.GeneratorVersion, Is.EqualTo(6));
             Assert.That(first.Playset.Difficulty.ScoreModelVersion,
                 Is.EqualTo(ShapePlaysetDifficultyEvaluator.CurrentScoreModelVersion));
             for (var blockIndex = 0; blockIndex < first.Playset.PlayerBlocks.Count; blockIndex++)
@@ -983,7 +1027,8 @@ namespace FitMe.Grid.Tests
                 minBoardRows: 4, maxBoardRows: 4,
                 minObstacleCells: 1, maxObstacleCells: 1,
                 minGeneratedBlockColumns: 2, maxGeneratedBlockColumns: 2,
-                minGeneratedBlockRows: 2, maxGeneratedBlockRows: 2);
+                minGeneratedBlockRows: 2, maxGeneratedBlockRows: 2,
+                rectangularPreference: 0.5f, repetitionPenalty: 0f);
 
             var result = ShapePlaysetGenerator.Generate(config, seed: 5);
 
@@ -1213,7 +1258,8 @@ namespace FitMe.Grid.Tests
                 minGeneratedBlockColumns: 1, maxGeneratedBlockColumns: 1,
                 minGeneratedBlockRows: 1, maxGeneratedBlockRows: 1,
                 preferredPlayerBlocks: new[] { new ShapePlayerBlockEntry(preset, 0) },
-                minPlayableRegionCells: 1);
+                minPlayableRegionCells: 1,
+                rectangularPreference: 0.5f, repetitionPenalty: 0f);
 
             try
             {
@@ -1352,7 +1398,8 @@ namespace FitMe.Grid.Tests
                     new ShapePlayerBlockEntry(largerPreset, 1),
                     new ShapePlayerBlockEntry(smallerPreset, 1)
                 },
-                maxSingletonFallbackBlocks: 1);
+                maxSingletonFallbackBlocks: 1,
+                rectangularPreference: 0.5f, repetitionPenalty: 0f);
 
             try
             {
@@ -1394,7 +1441,8 @@ namespace FitMe.Grid.Tests
                 {
                     new ShapePlayerBlockEntry(squarePreset, 1),
                     new ShapePlayerBlockEntry(dominoPreset, 3)
-                });
+                },
+                rectangularPreference: 0.5f, repetitionPenalty: 0f);
 
             try
             {
@@ -1415,7 +1463,7 @@ namespace FitMe.Grid.Tests
         }
 
         [Test]
-        public void Generate_SingletonCapOverridesFallbackMinimumDimensions()
+        public void Generate_MinimizesSingletonsWhenACompleteFallbackExists()
         {
             var preset = CreatePreset(new[,] { { 1, 0 }, { 1, 1 } });
             var config = new ShapePlaysetGenerationConfig(
@@ -1425,20 +1473,22 @@ namespace FitMe.Grid.Tests
                 minGeneratedBlockColumns: 2, maxGeneratedBlockColumns: 2,
                 minGeneratedBlockRows: 2, maxGeneratedBlockRows: 2,
                 preferredPlayerBlocks: new[] { new ShapePlayerBlockEntry(preset, 1) },
-                maxSingletonFallbackBlocks: 1);
+                maxSingletonFallbackBlocks: 1,
+                rectangularPreference: 0.5f, repetitionPenalty: 0f);
 
             try
             {
                 var result = ShapePlaysetGenerator.Generate(config, seed: 101);
 
                 Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
-                Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(2));
+                Assert.That(result.Playset.PlayerBlocks, Has.Count.EqualTo(1));
                 var singletonCount = 0;
                 for (var index = 0; index < result.Playset.PlayerBlocks.Count; index++)
                     if (!result.Playset.PlayerBlocks[index].IsPredefined &&
                         CountMaskCells(result.Playset.PlayerBlocks[index].Footprint) == 1)
                         singletonCount++;
-                Assert.That(singletonCount, Is.EqualTo(1));
+                Assert.That(singletonCount, Is.Zero);
+                Assert.That(CountMaskCells(result.Playset.PlayerBlocks[0].Footprint), Is.EqualTo(4));
             }
             finally
             {
@@ -1471,6 +1521,238 @@ namespace FitMe.Grid.Tests
             {
                 Object.DestroyImmediate(preset);
             }
+        }
+
+        [Test]
+        public void ShapeStyleMetrics_ClassifyLinesAndSolidRectanglesButNotSingletonsOrPolyominoes()
+        {
+            Assert.That(IsSolidRectangleFootprint(new[,] { { 1, 1, 1 } }), Is.True);
+            Assert.That(IsSolidRectangleFootprint(new[,] { { 1 }, { 1 }, { 1 } }), Is.True);
+            Assert.That(IsSolidRectangleFootprint(new[,] { { 1, 1 }, { 1, 1 } }), Is.True);
+            Assert.That(IsSolidRectangleFootprint(new[,] { { 1, 1 }, { 1, 0 } }), Is.False);
+            Assert.That(IsSolidRectangleFootprint(new[,] { { 1 } }), Is.False);
+        }
+
+        [Test]
+        public void GenerateForBoard_RectangularPreferenceChangesCompletedCoverStyleDeterministically()
+        {
+            var board = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var avoidRectangles = GenerateStylePlayset(board, 0f, 0f, seed: 319);
+            var favorRectangles = GenerateStylePlayset(board, 1f, 0f, seed: 319);
+
+            AssertCompleteFixedOrientationCover(board, avoidRectangles);
+            AssertCompleteFixedOrientationCover(board, favorRectangles);
+            Assert.That(CountRectangles(avoidRectangles), Is.LessThan(CountRectangles(favorRectangles)));
+            var repeated = GenerateStylePlayset(board, 0f, 0f, seed: 319);
+            Assert.That(GetOutputKey(avoidRectangles), Is.EqualTo(GetOutputKey(repeated)));
+        }
+
+        [Test]
+        public void GenerateForBoard_ExtremeStyleProfileFindsBestSmallBoardPartitionWithinBound()
+        {
+            var board = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var config = CreateStyleConfig(0f, 1f, searchNodes: 30,
+                maxBlockRows: 2, maxBlockColumns: 2);
+
+            var result = ShapePlaysetGenerator.GenerateForBoard(config, 319, board, new int[2, 3]);
+
+            Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
+            Assert.That(result.Playset.OptimizationStatus, Is.EqualTo(ShapePlaysetOptimizationStatus.ProvenOptimal));
+            var nodesVisited = (int)GetProperty(result.Playset, "OptimizationNodesVisited");
+            TestContext.WriteLine($"Extreme style optimum found in {nodesVisited}/{config.MaxTilingSearchNodes} nodes.");
+            Assert.That(nodesVisited, Is.LessThan(config.MaxTilingSearchNodes));
+            AssertCompleteFixedOrientationCover(board, result.Playset);
+            Assert.That(CountRectangles(result.Playset), Is.Zero);
+            Assert.That(CountDuplicatePairs(result.Playset), Is.Zero);
+        }
+
+        [Test]
+        public void GenerateForBoard_RepetitionPenaltyReducesDuplicateFootprints()
+        {
+            var board = new int[4, 4];
+            for (var row = 0; row < board.GetLength(0); row++)
+            for (var column = 0; column < board.GetLength(1); column++)
+                board[row, column] = 1;
+
+            var allowRepeats = GenerateStylePlayset(
+                board, 0.5f, 0f, seed: 517, searchNodes: 300000, maxBlockRows: 2, maxBlockColumns: 2);
+            var discourageRepeats = GenerateStylePlayset(
+                board, 0.5f, 1f, seed: 517, searchNodes: 300000, maxBlockRows: 2, maxBlockColumns: 2);
+
+            AssertCompleteFixedOrientationCover(board, allowRepeats);
+            AssertCompleteFixedOrientationCover(board, discourageRepeats);
+            Assert.That(CountDuplicatePairs(discourageRepeats),
+                Is.LessThan(CountDuplicatePairs(allowRepeats)));
+        }
+
+        [Test]
+        public void GenerateForBoard_StyleCanOutrankPreferredCoverageWithoutBreakingFullCoverage()
+        {
+            var board = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var rectanglePreset = CreatePreset(new[,] { { 1, 1, 1 }, { 1, 1, 1 } });
+            var config = CreateStyleConfig(0f, 0f, searchNodes: 100000,
+                preferred: new[] { new ShapePlayerBlockEntry(rectanglePreset, 1) },
+                maxBlockRows: 2, maxBlockColumns: 2);
+
+            try
+            {
+                var result = ShapePlaysetGenerator.GenerateForBoard(config, 811, board, new int[2, 3]);
+
+                Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
+                AssertCompleteFixedOrientationCover(board, result.Playset);
+                var hasPredefinedBlock = false;
+                foreach (var block in result.Playset.PlayerBlocks)
+                    hasPredefinedBlock |= block.IsPredefined;
+                Assert.That(hasPredefinedBlock, Is.False,
+                    "Style score should be allowed to trade away preferred coverage.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(rectanglePreset);
+            }
+        }
+
+        [Test]
+        public void GenerateForBoard_StyleUpperBoundStopsSearchBeforeBudgetAndProvesOptimal()
+        {
+            var board = new[,] { { 1, 1, 1 }, { 1, 1, 1 } };
+            var config = CreateStyleConfig(0.5f, 0.5f, searchNodes: 30);
+
+            var result = ShapePlaysetGenerator.GenerateForBoard(config, 112, board, new int[2, 3]);
+
+            Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
+            AssertCompleteFixedOrientationCover(board, result.Playset);
+            Assert.That(result.Playset.OptimizationStatus, Is.EqualTo(ShapePlaysetOptimizationStatus.ProvenOptimal));
+            var nodesVisited = (int)GetProperty(result.Playset, "OptimizationNodesVisited");
+            TestContext.WriteLine($"Early optimal stop used {nodesVisited}/{config.MaxTilingSearchNodes} nodes.");
+            Assert.That(nodesVisited, Is.LessThan(config.MaxTilingSearchNodes));
+        }
+
+        [Test]
+        public void GenerateForBoard_BudgetTooSmallToFindSolutionRemainsAnInconclusiveFailure()
+        {
+            var board = new[,] { { 1, 1 }, { 1, 1 } };
+            var config = CreateStyleConfig(0.5f, 0.5f, searchNodes: 1,
+                maxBlockRows: 2, maxBlockColumns: 2);
+
+            var result = ShapePlaysetGenerator.GenerateForBoard(config, 112, board, new int[2, 2]);
+
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.Error, Is.EqualTo(ShapePlaysetGenerationError.TilingBudgetExceeded));
+            Assert.That(result.ConfigurationValidation.FeasibilityStatus,
+                Is.EqualTo(ShapePlaysetFeasibilityStatus.Unproven));
+        }
+
+        private static ShapePlaysetGenerationConfig CreateStyleConfig(
+            float rectangularPreference, float repetitionPenalty, int searchNodes = 100000,
+            IReadOnlyList<ShapePlayerBlockEntry> preferred = null,
+            int maxBlockRows = 3, int maxBlockColumns = 3) =>
+            new ShapePlaysetGenerationConfig(
+                2, 4, 2, 4, 0, 0, 1, maxBlockColumns, 1, maxBlockRows,
+                preferredPlayerBlocks: preferred,
+                minPlayableRegionCells: 1,
+                maxTilingSearchNodes: searchNodes,
+                maxCandidateAttempts: 1,
+                maxSingletonFallbackBlocks: 0,
+                rectangularPreference: rectangularPreference,
+                repetitionPenalty: repetitionPenalty);
+
+        private static GeneratedShapePlayset GenerateStylePlayset(
+            int[,] board, float rectangularPreference, float repetitionPenalty,
+            int seed, int searchNodes = 100000,
+            int maxBlockRows = 3, int maxBlockColumns = 3)
+        {
+            var config = CreateStyleConfig(rectangularPreference, repetitionPenalty, searchNodes,
+                maxBlockRows: maxBlockRows, maxBlockColumns: maxBlockColumns);
+            var result = ShapePlaysetGenerator.GenerateForBoard(
+                config, seed, board, new int[board.GetLength(0), board.GetLength(1)]);
+            Assert.That(result.IsSuccess, Is.True, result.Error.ToString());
+            return result.Playset;
+        }
+
+        private static bool IsSolidRectangleFootprint(int[,] footprint)
+        {
+            var method = typeof(ShapePlaysetGenerator).GetMethod(
+                "IsSolidRectangleFootprint",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null, "Expected the generator's solid-rectangle classifier.");
+            return (bool)method.Invoke(null, new object[] { footprint });
+        }
+
+        private static int CountRectangles(GeneratedShapePlayset playset)
+        {
+            var count = 0;
+            foreach (var block in playset.PlayerBlocks)
+                if (IsSolidRectangleFootprint(GetStoredFootprint(block))) count++;
+            return count;
+        }
+
+        private static int CountDuplicatePairs(GeneratedShapePlayset playset)
+        {
+            var frequencies = new Dictionary<string, int>();
+            foreach (var block in playset.PlayerBlocks)
+            {
+                var key = CreateFootprintKey(GetStoredFootprint(block));
+                frequencies.TryGetValue(key, out var count);
+                frequencies[key] = count + 1;
+            }
+            var pairs = 0;
+            foreach (var count in frequencies.Values) pairs += count * (count - 1) / 2;
+            return pairs;
+        }
+
+        private static int[,] GetStoredFootprint(GeneratedShapeBlock block)
+        {
+            var schema = block.Footprint;
+            for (var turn = 0; turn < block.PlacementRotationQuarterTurns; turn++)
+            {
+                var rotated = new int[schema.GetLength(1), schema.GetLength(0)];
+                for (var row = 0; row < schema.GetLength(0); row++)
+                for (var column = 0; column < schema.GetLength(1); column++)
+                    rotated[column, schema.GetLength(0) - row - 1] = schema[row, column];
+                schema = rotated;
+            }
+            return schema;
+        }
+
+        private static string CreateFootprintKey(int[,] footprint)
+        {
+            var parts = new List<string>();
+            for (var row = 0; row < footprint.GetLength(0); row++)
+            for (var column = 0; column < footprint.GetLength(1); column++)
+                if (footprint[row, column] != 0) parts.Add($"{row},{column}");
+            return footprint.GetLength(0) + "x" + footprint.GetLength(1) + ":" + string.Join(";", parts);
+        }
+
+        private static string GetOutputKey(GeneratedShapePlayset playset)
+        {
+            var parts = new List<string>();
+            foreach (var block in playset.PlayerBlocks)
+            {
+                var placement = new List<string>();
+                foreach (var cell in block.SolvedPlacement) placement.Add($"{cell.x},{cell.y}");
+                parts.Add(CreateFootprintKey(GetStoredFootprint(block)) + "@" + string.Join(";", placement));
+            }
+            return string.Join("|", parts);
+        }
+
+        private static void AssertCompleteFixedOrientationCover(int[,] board, GeneratedShapePlayset playset)
+        {
+            var covered = new int[board.GetLength(0), board.GetLength(1)];
+            var footprints = new List<int[,]>();
+            foreach (var block in playset.PlayerBlocks)
+            {
+                footprints.Add(GetStoredFootprint(block));
+                foreach (var cell in block.SolvedPlacement)
+                {
+                    Assert.That(board[cell.x, cell.y], Is.EqualTo(1));
+                    Assert.That(covered[cell.x, cell.y], Is.Zero);
+                    covered[cell.x, cell.y] = 1;
+                }
+            }
+            Assert.That(covered, Is.EqualTo(board));
+            Assert.That(ShapeLevelTilingSolver.Solve(board, footprints, 300000).Status,
+                Is.EqualTo(ShapeLevelTilingStatus.Feasible));
         }
 
         private static void SetProfileInt(ShapePlaysetGenerationProfile profile, string fieldName, int value)

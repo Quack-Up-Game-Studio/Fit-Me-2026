@@ -26,6 +26,16 @@
 - Configuration errors are reserved for proven-invalid/impossible settings. Bounded config preflight that cannot decide returns a distinct feasibility-unproven result. A mask rejected by repair/tiling, or a search that exceeds its budget, is a candidate failure. Retry exhaustion returns a candidate-retries-exhausted result with per-stage failure counts.
 - Difficulty outputs remain algorithmic proxies, versioned separately and not presented as human-validated difficulty.
 
+## Shape-character controls (generator v6)
+
+- The generation profile exposes `Rectangular Preference` and `Repetition Penalty`, each on `[0, 1]` with defaults `0.35` and `0.5`. Rectangular preference `0.5` is neutral; values below it penalize and values above it reward solid rectangles. Repetition penalty `0` ignores duplicates and `1` strongly discourages repeated shapes.
+- A solid multi-cell rectangle includes horizontal and vertical lines; singletons are excluded from rectangle scoring because singleton fallbacks have their own objective. Repetition identity is the exact normalized footprint in its stored orientation; rotations are distinct because Shape Mode blocks do not rotate.
+- Complete playable-cell coverage remains mandatory. The bounded tiling search ranks complete layouts first by fewer singleton fallbacks, then by greater style score (`(2 * rectangularPreference - 1) * rectangleRate - repetitionPenalty * duplicatePairRate`), followed by preferred-preset cell coverage and the existing preset-balance penalty. Preferred presets are preferences and may be traded for style.
+- The generator keeps the best complete solution found within the existing tiling-node budget. If further optimization reaches the cap, it returns that valid solution with `BudgetLimited`; a budget exhaustion before any complete solution remains a tiling-budget failure. No exhaustive solution list is retained.
+- Search orders each anchor's preferred and fallback placements by their immediate style contribution, retaining preset balance and seeded deterministic tie-breaks where style is tied. Reaching the provable upper bound (zero singletons, maximum style score, maximum preferred coverage, and minimum preset-balance penalty) stops search early as `ProvenOptimal`; this bound is safe for every score term and does not claim optimality when any term can still improve.
+- Each generated playset and its provenance record the optimizer's actual node count. The editor labels these separately from solution-analysis nodes; the default 100,000-node budget is unchanged pending broader measurements.
+- The optimization objective changes deterministic outputs, so new generated playsets use generator version `6`; existing serialized provenance is preserved as authored.
+
 ## Implementation phases
 
 ### 0. Establish baseline and freeze the contract — COMPLETE

@@ -66,6 +66,8 @@ namespace FitMe.GameData
         [SerializeField] private int _maxTilingSearchNodes;
         [SerializeField] private int _maxCandidateAttempts;
         [SerializeField] private int _maxSingletonFallbackBlocks;
+        [SerializeField] private float _rectangularPreference = 0.35f;
+        [SerializeField] private float _repetitionPenalty = 0.5f;
         [SerializeField] private List<ShapePlaysetPreferredBlockProvenance> _preferredPlayerBlocks = new();
 
         public int MinBoardColumns => _minBoardColumns;
@@ -85,6 +87,8 @@ namespace FitMe.GameData
         public int MaxTilingSearchNodes => _maxTilingSearchNodes;
         public int MaxCandidateAttempts => _maxCandidateAttempts;
         public int MaxSingletonFallbackBlocks => _maxSingletonFallbackBlocks;
+        public float RectangularPreference => _rectangularPreference;
+        public float RepetitionPenalty => _repetitionPenalty;
         public IReadOnlyList<ShapePlaysetPreferredBlockProvenance> PreferredPlayerBlocks =>
             _preferredPlayerBlocks == null
                 ? Array.Empty<ShapePlaysetPreferredBlockProvenance>()
@@ -109,6 +113,8 @@ namespace FitMe.GameData
             _maxTilingSearchNodes = snapshot.MaxTilingSearchNodes;
             _maxCandidateAttempts = snapshot.MaxCandidateAttempts;
             _maxSingletonFallbackBlocks = snapshot.MaxSingletonFallbackBlocks;
+            _rectangularPreference = snapshot.RectangularPreference;
+            _repetitionPenalty = snapshot.RepetitionPenalty;
             _preferredPlayerBlocks = new List<ShapePlaysetPreferredBlockProvenance>(
                 snapshot.PreferredPlayerBlocks.Count);
             for (var index = 0; index < snapshot.PreferredPlayerBlocks.Count; index++)
@@ -178,6 +184,7 @@ namespace FitMe.GameData
         [SerializeField] private int _attemptIndex;
         [SerializeField] private int _generatorVersion;
         [SerializeField] private ShapePlaysetOptimizationStatus _optimizationStatus;
+        [SerializeField] private int _optimizationNodesVisited;
         [SerializeField] private ShapePlaysetConfigurationProvenance _configuration;
         [SerializeField] private ShapePlaysetDifficultyProvenance _difficulty;
 
@@ -185,6 +192,7 @@ namespace FitMe.GameData
         public int AttemptIndex => _attemptIndex;
         public int GeneratorVersion => _generatorVersion;
         public ShapePlaysetOptimizationStatus OptimizationStatus => _optimizationStatus;
+        public int OptimizationNodesVisited => _optimizationNodesVisited;
         public ShapePlaysetConfigurationProvenance Configuration => _configuration;
         public ShapePlaysetDifficultyProvenance Difficulty => _difficulty;
         /// <summary>Records generation origin only; it does not assert that current level data is unchanged.</summary>
@@ -197,6 +205,7 @@ namespace FitMe.GameData
             _attemptIndex = playset.AttemptIndex;
             _generatorVersion = playset.GeneratorVersion;
             _optimizationStatus = playset.OptimizationStatus;
+            _optimizationNodesVisited = playset.OptimizationNodesVisited;
             _configuration = new ShapePlaysetConfigurationProvenance(playset.Configuration);
             _difficulty = new ShapePlaysetDifficultyProvenance(difficultyMetrics ?? playset.Difficulty);
         }

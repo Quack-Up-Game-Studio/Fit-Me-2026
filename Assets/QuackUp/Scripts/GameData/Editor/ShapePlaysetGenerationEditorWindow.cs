@@ -187,7 +187,7 @@ namespace FitMe.GameData.Editor
                 _difficultyMetrics = EvaluateDifficulty(playset, _solutionResult);
                 _generationMessage = playset.OptimizationStatus == ShapePlaysetOptimizationStatus.BudgetLimited
                     ? $"Generated a valid layout with seed {playset.Seed} on attempt {playset.AttemptIndex + 1}. " +
-                      "The preferred-coverage search reached its limit; this is the best layout found so far, " +
+                      $"The optimizer used {playset.OptimizationNodesVisited:N0}/{playset.Configuration.MaxTilingSearchNodes:N0} nodes; this is the best layout found so far, " +
                       "not a proven maximum."
                     : $"Generated successfully with seed {playset.Seed} on attempt {playset.AttemptIndex + 1}.";
             }
@@ -236,7 +236,7 @@ namespace FitMe.GameData.Editor
                 _solutionResult = AnalyzeSolutions(playset);
                 _difficultyMetrics = EvaluateDifficulty(playset, _solutionResult);
                 _generationMessage = playset.OptimizationStatus == ShapePlaysetOptimizationStatus.BudgetLimited
-                    ? "Found a valid block partition, but the profile optimization search reached its limit."
+                    ? $"Found a valid block partition; optimization used {playset.OptimizationNodesVisited:N0}/{playset.Configuration.MaxTilingSearchNodes:N0} nodes and reached its limit."
                     : "Board partitioned successfully. Browse the retained valid tilings below.";
             }
             catch (Exception exception)
@@ -361,6 +361,9 @@ namespace FitMe.GameData.Editor
             var obstacles = playset.ObstacleMask;
             var difficulty = _difficultyMetrics ?? playset.Difficulty;
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Generator optimization",
+                $"{playset.OptimizationNodesVisited:N0} / {playset.Configuration.MaxTilingSearchNodes:N0} nodes · {playset.OptimizationStatus}",
+                EditorStyles.miniLabel);
             DrawSolutionNavigation();
             EditorGUILayout.LabelField("Board dimensions",
                 $"{board.GetLength(1)} columns × {board.GetLength(0)} rows");
@@ -525,7 +528,7 @@ namespace FitMe.GameData.Editor
                 ? $"Solution {_selectedSolutionIndex + 1} of {_solutionResult.SolutionCount}"
                 : $"Preview {_selectedSolutionIndex + 1} of {_solutionResult.Solutions.Count} retained";
             EditorGUILayout.LabelField(
-                $"{countLabel} · {previewLabel} · {_solutionResult.NodesVisited:N0} search nodes",
+                $"{countLabel} · {previewLabel} · {_solutionResult.NodesVisited:N0} solution-analysis nodes",
                 EditorStyles.miniLabel);
         }
 

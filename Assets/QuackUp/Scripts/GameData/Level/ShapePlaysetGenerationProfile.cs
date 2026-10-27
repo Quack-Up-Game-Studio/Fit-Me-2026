@@ -26,6 +26,9 @@ namespace FitMe.GameData
         [SerializeField, MinValue(1)] private int _maxTilingSearchNodes = 100000;
         [SerializeField, MinValue(1)] private int _maxCandidateAttempts = 8;
         [SerializeField, MinValue(0)] private int _maxSingletonFallbackBlocks;
+        [InfoBox("0 avoids rectangles, 0.5 is neutral, and 1 favors them. Repetition Penalty 0 allows duplicates; 1 strongly discourages them.", InfoMessageType.Info)]
+        [SerializeField, Range(0f, 1f)] private float _rectangularPreference = 0.35f;
+        [SerializeField, Range(0f, 1f)] private float _repetitionPenalty = 0.5f;
         [InfoBox("Preferred presets are reusable without limit. Count is ignored; fallback blocks use the dimension settings above.", InfoMessageType.Info)]
         [SerializeField, ListDrawerSettings(ShowIndexLabels = true)]
         private List<ShapePlayerBlockEntry> _preferredPlayerBlocks = new();
@@ -50,7 +53,9 @@ namespace FitMe.GameData
                 _maxCandidateAttempts,
                 _maxSingletonFallbackBlocks,
                 _minVoidCells,
-                _maxVoidCells);
+                _maxVoidCells,
+                _rectangularPreference,
+                _repetitionPenalty);
         }
     }
 }
