@@ -126,7 +126,7 @@ namespace FitMe.Panel.Tests
                 var canvas = scene.GetRootGameObjects().Single(go => go.name == "OverlayCanvas");
                 var panel = canvas.transform.Find("GameplayPanel");
                 var view = panel.GetComponent<GameplayPanelView>();
-                var hintCount = panel.Find("HintAndRetry/HintButton/Label").GetComponent("TextMeshProUGUI");
+                var hintCount = panel.Find("HintAndRetry/HintButton/BG/Label").GetComponent("TextMeshProUGUI");
                 Assert.That(hintCount, Is.Not.Null, "The Hint button must contain its TMP count label");
                 var hintCountField = typeof(GameplayPanelView).GetField("hintCountText", BindingFlags.Instance | BindingFlags.NonPublic);
                 Assert.That(hintCountField.GetValue(view), Is.SameAs(hintCount),

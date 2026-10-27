@@ -154,6 +154,7 @@ namespace FitMe.Grid.Tests
             var piece = new ShapeTrayPiece(7, entry.Schema, new Rect(-2, -4, 4, 2), .3f, 13f, Quaternion.Euler(0, 0, 90), new Vector2(0, -3));
             block.Model.TrayPiece = piece;
             block.GameObject.transform.rotation = piece.TrayRotation;
+            var initialGameplayRotation = piece.GameplayRotation;
             using var controller = new BlockController(config, _manager, new LevelManagerMock(GameState.PlaceBlock),
                 new QuackUp.Audio.AudioManagerMock(), null);
             controller.Initialize(block);
@@ -164,7 +165,7 @@ namespace FitMe.Grid.Tests
             controller.PointerUpCommand.Execute(evt);
 
             Assert.That(requestedRotations, Is.Zero);
-            Assert.That(Quaternion.Angle(piece.GameplayRotation, Quaternion.identity), Is.LessThan(.01f));
+            Assert.That(Quaternion.Angle(piece.GameplayRotation, initialGameplayRotation), Is.LessThan(.01f));
             Assert.That(controller.IsRotating, Is.False);
         }
 
@@ -303,6 +304,7 @@ namespace FitMe.Grid.Tests
             builder.RegisterInstance(Array.Empty<BlockManager.SpawnPointData>()).Keyed(BlockManager.PreviewTransformKey);
             builder.RegisterInstance(new BlockFactory(null, config, null, null, null));
             builder.RegisterInstance<QuackUp.Utils.IMessageHub>(_hub).Keyed(BlockManagerMessageHub.MessageHubKey);
+            builder.RegisterInstance<IGameStateManager>(new LevelManagerMock(GameState.PlaceBlock));
             builder.Register<RectTransform>(_ => hasTray ? rect : null, VContainer.Lifetime.Scoped).Keyed(BlockManager.ShapeTrayKey);
             builder.Register<BlockManager>(VContainer.Lifetime.Scoped);
             using var container = builder.Build();
