@@ -24,5 +24,11 @@ MonoBehaviour:
   _entries:
   - _worldKey: world-1
     _levelCatalog: {fileID: 11400000, guid: 05943feebf0b65fa7803da3c80baaeea, type: 2}
+    _subtitle: ALIEN NEIGHBORHOOD
+    _unlockedSprite: {fileID: 1728137151769013075, guid: e9ed42247b18a4644b057ec1273c4699, type: 3}
+    _lockedSprite: {fileID: 0}
   - _worldKey: world-2
     _levelCatalog: {fileID: 11400000, guid: 280b2d665ffbd3efca076cbd4f45477a, type: 2}
+    _subtitle:
+    _unlockedSprite: {fileID: 0}
+    _lockedSprite: {fileID: 2289022283475321347, guid: 72fc32a3ea1ee2e42b3934ecd023ccda, type: 3}

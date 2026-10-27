@@ -16,6 +16,7 @@ namespace FitMe.Panel
         [SerializeField, Required] private ShapeLevelSelectItemView levelItemPrefab;
         [SerializeField, Required] private Button backToWorldsButton;
         [SerializeField, Required] private TMP_Text worldNameText;
+        [SerializeField] private TMP_Text worldSubtitleText;
         [SerializeField] private TMP_Text emptyStateText;
 
         private ShapeLevelSelectViewModel _viewModel;
@@ -75,6 +76,13 @@ namespace FitMe.Panel
                 _viewModel.WorldDisplayName.Subscribe(value => worldNameText.text = value).AddTo(ref disposableBuilder);
             else
                 DebugUtils.LogError("Shape Level Select requires a World Name text reference.");
+
+            if (worldSubtitleText)
+                _viewModel.WorldSubtitle.Subscribe(value =>
+                {
+                    worldSubtitleText.text = value;
+                    worldSubtitleText.gameObject.SetActive(!string.IsNullOrWhiteSpace(value));
+                }).AddTo(ref disposableBuilder);
 
             backToWorldsButton.OnClickAsObservable().Subscribe(_ => _viewModel.BackToWorldsCommand.Execute(Unit.Default)).AddTo(ref disposableBuilder);
             _viewModel.ItemInitialized

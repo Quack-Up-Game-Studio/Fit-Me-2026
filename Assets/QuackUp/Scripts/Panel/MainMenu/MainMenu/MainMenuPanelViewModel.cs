@@ -14,7 +14,7 @@ namespace FitMe.Panel
     public class MainMenuPanelViewModel : PanelViewModel
     {
         public ReactiveCommand WatchAdCommand { get; } = new();
-
+        public ReactiveCommand StartGameCommand { get; } = new();
         public ReactiveProperty<bool> IsSaveLoading { get; private set; } = new(true);
         public bool IsSaveReady => _saveManager.IsSaveReady;
         public ReadOnlyReactiveProperty<int> RemainingAdCount => _outOfEnergyManager.RemainingAdCount;

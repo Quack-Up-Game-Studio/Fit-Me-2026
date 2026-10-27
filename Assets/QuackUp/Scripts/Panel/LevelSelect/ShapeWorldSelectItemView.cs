@@ -13,6 +13,9 @@ namespace FitMe.Panel
     {
         [SerializeField, Required] private Button selectButton;
         [SerializeField, Required] private TMP_Text worldNameText;
+        [SerializeField, Required] private Image worldImage;
+        [SerializeField] private Sprite fallbackUnlockedSprite;
+        [SerializeField] private Sprite fallbackLockedSprite;
         [SerializeField] private GameObject lockedIndicator;
         [SerializeField] private GameObject completedIndicator;
         private IDisposable _binding;
@@ -20,11 +23,24 @@ namespace FitMe.Panel
         {
             if (!selectButton || !worldNameText) { DebugUtils.LogError("World item requires button and name references."); return; }
             worldNameText.text = item.DisplayName;
-            if (lockedIndicator) lockedIndicator.SetActive(!item.IsUnlocked);
+            worldNameText.gameObject.SetActive(item.IsUnlocked);
+            var sprite = item.IsUnlocked ? item.UnlockedSprite : item.LockedSprite;
+            if (!sprite) sprite = item.IsUnlocked ? fallbackUnlockedSprite : fallbackLockedSprite;
+            if (worldImage)
+            {
+                worldImage.sprite = sprite;
+                worldImage.enabled = sprite;
+                worldImage.preserveAspect = true;
+            }
+            // Locked artwork already contains its own lock; avoid drawing it twice.
+            if (lockedIndicator) lockedIndicator.SetActive(!item.IsUnlocked && !sprite);
             if (completedIndicator) completedIndicator.SetActive(item.IsComplete);
             selectButton.interactable = item.IsUnlocked;
             _binding?.Dispose();
-            _binding = selectButton.OnClickAsObservable().Subscribe(_ => onSelected?.Invoke(item.WorldKey));
+            _binding = selectButton.OnClickAsObservable().Subscribe(_ =>
+            {
+                if (item.IsUnlocked) onSelected?.Invoke(item.WorldKey);
+            });
         }
         private void OnDestroy() => _binding?.Dispose();
     }

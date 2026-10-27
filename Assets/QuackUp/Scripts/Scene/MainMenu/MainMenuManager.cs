@@ -35,7 +35,9 @@ namespace FitMe.Scene.MainMenu
 
         
         private IDisposable _subscriptions;
+        private IDisposable _panelSubscriptions;
         private AudioReference _bgmReference;
+        private bool _startRequested;
         
         [Inject]
         public MainMenuManager(
@@ -84,7 +86,7 @@ namespace FitMe.Scene.MainMenu
                 })
                 .AddTo(ref disposableBuilder);
             _gridManager.OnBlockPlaced
-                .Subscribe(_ => OnBlockPlaced())
+                .Subscribe(_ => RequestStart())
                 .AddTo(ref disposableBuilder);
             _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage is LoadSceneStage.StartOut)
@@ -99,6 +101,7 @@ namespace FitMe.Scene.MainMenu
                     x.PreviousSceneType == SceneType.MainMenu && x.NextSceneType == SceneType.MainMenu)
                 .Subscribe(_ =>
                 {
+                    _startRequested = false;
                     _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
                     ShowBanner();
                 })
@@ -121,6 +124,14 @@ namespace FitMe.Scene.MainMenu
             var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
             saveData.IsFirstTimePlayer = false;
             _saveManager.Save(saveObjects);
+            if (!_panelManager.GetFirstPanelOfType<MainMenuPanelViewModel>(out var mainMenuPanel))
+            {
+                DebugUtils.LogError("MainMenu panel not found!");
+            }
+            else
+            {
+                BindPanel(mainMenuPanel);
+            }
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
@@ -131,9 +142,16 @@ namespace FitMe.Scene.MainMenu
             }
         }
 
+        private void BindPanel(MainMenuPanelViewModel mainMenuPanel)
+        {
+            _panelSubscriptions = mainMenuPanel.StartGameCommand
+                .Subscribe(_ => RequestStart());
+        }
+
         public void Dispose()
         {
             _subscriptions?.Dispose();
+            _panelSubscriptions?.Dispose();
         }
 
         private bool ShouldCancelPlacement()
@@ -142,9 +160,18 @@ namespace FitMe.Scene.MainMenu
             return !_energyManager.HasEnoughEnergy(1);
         }
 
-        private void OnBlockPlaced()
+        private void RequestStart()
         {
-            //_loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false).Forget();
+            if (_startRequested || !_saveManager.IsSaveReady) return;
+            var action = MainMenuStartRules.Resolve(_saveManager.IsSaveReady,
+                _energyManager.HasEnoughEnergy(1));
+            if (action == MainMenuStartAction.OutOfEnergy)
+            {
+                _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
+                return;
+            }
+            if (action == MainMenuStartAction.WaitForSave) return;
+            _startRequested = true;
             ToGameplay().Forget();
         }
 
@@ -157,12 +184,17 @@ namespace FitMe.Scene.MainMenu
         }
 
 
-        private async UniTaskVoid ToGameplay()
+        private async UniTask ToGameplay()
         {
-            /*_energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.MainMenuPlay);
-            _pendingScenePayload.Set(new LevelSessionRequest(GameMode.Classic, null));
-            await _loadSceneManager.LoadScene(SceneType.Gameplay, LoadSceneMode.Single, false);*/
-            await _loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false);
+            try
+            {
+                await _loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false);
+            }
+            catch
+            {
+                _startRequested = false;
+                throw;
+            }
         }
 
         private void OnSceneFinishIn(LoadSceneStageEvent evt)

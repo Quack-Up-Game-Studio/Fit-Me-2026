@@ -40,6 +40,7 @@ namespace FitMe.Panel
 
         public IReadOnlyList<ShapeLevelSelectItem> Items => _items;
         public ReactiveProperty<string> WorldDisplayName { get; } = new(string.Empty);
+        public ReactiveProperty<string> WorldSubtitle { get; } = new(string.Empty);
         public ReactiveCommand<string> SelectLevelCommand { get; } = new();
         public ReactiveCommand<Unit> BackToWorldsCommand { get; } = new();
         public Observable<IReadOnlyList<ShapeLevelSelectItem>> ItemInitialized => _itemInitialized;
@@ -55,6 +56,7 @@ namespace FitMe.Panel
         {
             base.Dispose();
             WorldDisplayName.Dispose();
+            WorldSubtitle.Dispose();
             SelectLevelCommand.Dispose();
             BackToWorldsCommand.Dispose();
             _itemInitialized.Dispose();
@@ -64,9 +66,16 @@ namespace FitMe.Panel
             string worldKey,
             System.Collections.Generic.IDictionary<string, ShapeWorldProgressData> progress)
         {
-            WorldDisplayName.Value = _catalogService != null && _catalogService.TryGetWorld(worldKey, out var worldInfo)
-                ? worldInfo.DisplayName
-                : string.Empty;
+            if (_catalogService != null && _catalogService.TryGetWorld(worldKey, out var worldInfo))
+            {
+                WorldDisplayName.Value = worldInfo.DisplayName;
+                WorldSubtitle.Value = worldInfo.Subtitle;
+            }
+            else
+            {
+                WorldDisplayName.Value = string.Empty;
+                WorldSubtitle.Value = string.Empty;
+            }
 
             ShapeWorldProgressData worldProgress = null;
             if (progress != null) progress.TryGetValue(worldKey, out worldProgress);

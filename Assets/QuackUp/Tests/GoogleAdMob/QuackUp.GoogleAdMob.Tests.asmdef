@@ -2,6 +2,8 @@
   "name": "QuackUp.GoogleAdMob.Tests",
   "references": [
     "QuackUp.GoogleAdMob",
+    "QuackUp.Analytics",
+    "VContainer",
     "R3",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"

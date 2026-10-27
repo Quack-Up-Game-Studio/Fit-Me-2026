@@ -25,7 +25,8 @@
     "ObservableCollections",
     "FMODUnity",
     "PrimeTween.Runtime",
-    "Unity.ugui"
+    "Unity.ugui",
+    "Unity.TextMeshPro"
   ],
   "includePlatforms": [
     "Editor"

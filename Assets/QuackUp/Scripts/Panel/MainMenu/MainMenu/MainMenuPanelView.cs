@@ -18,6 +18,7 @@ namespace FitMe.Panel
         [SerializeField] private Button leaderboardButton;
         [SerializeField] private Button shopButton;
         [SerializeField] private Button tutorialButton;
+        [SerializeField] private MainMenuStartView startView;
         [SerializeField] private CustomTintButton watchAdsButton;
         [SerializeField] private TMP_Text timeUntilNextAdText;
         [SerializeField] private RectTransform logoRect;
@@ -51,6 +52,19 @@ namespace FitMe.Panel
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
+            if (startView)
+            {
+                startView.ModeChanged += OnStartModeChanged;
+                startView.ApplyMode();
+                if (startView.PressStartButton)
+                    startView.PressStartButton.OnClickAsObservable()
+                        .Subscribe(_ =>
+                        {
+                            if (startView.Mode == MainMenuStartMode.PressToStart && ViewModel.IsSaveReady)
+                                ViewModel.StartGameCommand.Execute(Unit.Default);
+                        })
+                        .AddTo(ref disposableBuilder);
+            }
             ViewModel.IsSaveLoading
                 .Subscribe(loading =>
                 {
@@ -58,6 +72,8 @@ namespace FitMe.Panel
                     {
                         loadingOverlay.SetActive(loading);
                     }
+                    if (startView && startView.PressStartButton)
+                        startView.PressStartButton.interactable = !loading;
                 })
                 .AddTo(ref disposableBuilder);
             challengeButton.OnClickAsObservable()
@@ -116,6 +132,7 @@ namespace FitMe.Panel
         {
             base.Dispose();
             _bindings?.Dispose();
+            if (startView) startView.ModeChanged -= OnStartModeChanged;
             _logoTween.Stop();
             if (_hintCts is { IsCancellationRequested: false })
             {
@@ -165,11 +182,22 @@ namespace FitMe.Panel
         private async UniTask ShowHint()
         {
             if (!placeBlockHint) return;
+            if (startView && startView.Mode == MainMenuStartMode.PressToStart) return;
             CancelHint();
             var token = _hintCts.Token;
             placeBlockHint.Reset();
             await placeBlockHint.TransitionIn(token);
             placeBlockHint.Animate(token).Forget();
+        }
+
+        private void OnStartModeChanged(MainMenuStartMode mode)
+        {
+            CancelHint();
+            if (!placeBlockHint) return;
+            var useDrag = mode == MainMenuStartMode.DragToStart;
+            placeBlockHint.gameObject.SetActive(useDrag);
+            if (useDrag && ViewModel.ShowPlaceBlockHint.CurrentValue)
+                ShowHint().Forget();
         }
 
         private async UniTask HideHint()

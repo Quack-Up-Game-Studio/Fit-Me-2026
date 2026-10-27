@@ -16,6 +16,8 @@ namespace FitMe.Panel
         [SerializeField, Required] private ShapeWorldSelectItemView worldItemPrefab;
         [SerializeField, Required] private Button returnToModeSelectButton;
         [SerializeField] private TMP_Text emptyStateText;
+        [SerializeField, Tooltip("Locked UI-only worlds. These entries do not affect progression or saves.")]
+        private List<ShapeWorldSelectComingSoonEntry> comingSoonWorlds = new();
         private ShapeWorldSelectViewModel _viewModel;
         private IDisposable _bindings;
         public override void Construct(IPanelViewModel viewModel) { base.Construct(viewModel); _viewModel = (ShapeWorldSelectViewModel)viewModel; Bind(); }
@@ -33,12 +35,13 @@ namespace FitMe.Panel
             if (!worldListScrollRect || !worldListScrollRect.content || !worldItemPrefab)
             { if (emptyStateText) { emptyStateText.text = "World selection references are not assigned."; emptyStateText.gameObject.SetActive(true); } return; }
             foreach (Transform child in worldListScrollRect.content) Destroy(child.gameObject);
-            foreach (var item in items)
+            var displayItems = ShapeWorldSelectDisplayItems.Build(items, comingSoonWorlds);
+            foreach (var item in displayItems)
             {
                 var view = Instantiate(worldItemPrefab, worldListScrollRect.content);
-                view.Construct(item, _viewModel.SelectWorldCommand.Execute);
+                view.Construct(item, item.IsUnlocked ? _viewModel.SelectWorldCommand.Execute : null);
             }
-            if (emptyStateText) { emptyStateText.text = "No worlds are configured."; emptyStateText.gameObject.SetActive(items.Count == 0); }
+            if (emptyStateText) { emptyStateText.text = "No worlds are configured."; emptyStateText.gameObject.SetActive(displayItems.Count == 0); }
         }
     }
 }

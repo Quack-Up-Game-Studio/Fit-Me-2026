@@ -26,9 +26,11 @@ namespace FitMe.Grid
         public bool AllowDrag { get; set; } = true;
         public bool IsRotating => _isRotating;
         public Observable<Unit> OnRotate => _onRotate;
+        public Observable<Unit> OnTrayBringToFront => _onTrayBringToFront;
         public Observable<bool> OnRotationStateChanged => _onRotationStateChanged;
         
         private readonly Subject<Unit> _onRotate = new();
+        private readonly Subject<Unit> _onTrayBringToFront = new();
         private readonly Subject<bool> _onRotationStateChanged = new();
         private readonly BlockManagerConfig _config;
         private readonly GridManager _gridManager;
@@ -104,6 +106,7 @@ namespace FitMe.Grid
             _longTapCts?.Cancel();
             _longTapCts?.Dispose();
             _onRotate.Dispose();
+            _onTrayBringToFront.Dispose();
             _onRotationStateChanged.Dispose();
         }
 
@@ -159,7 +162,10 @@ namespace FitMe.Grid
             _audioManager.PlayAudioOneShot(_blockInstance.Model.BlockPreset.PickupSfx, _blockInstance.GameObject.transform.position);
             _blockInstance.ViewModel.SetSortingLayerCommand.Execute(_config.PickUpSortingLayer);
             if (_blockInstance.Model.TrayPiece != null)
-                _blockInstance.ViewModel.SetSortingOrderCommand.Execute(30000);
+            {
+                _onTrayBringToFront.OnNext(Unit.Default);
+                _blockInstance.ViewModel.SetSortingOrderCommand.Execute(_blockInstance.Model.TrayPiece.SortingOrder);
+            }
             _dragSequencePlayed = false;
             _blockDragTimeStamp = TimeSpan.FromSeconds(Time.timeSinceLevelLoad);
 
@@ -359,6 +365,8 @@ namespace FitMe.Grid
             else
             {
                 if (!inTray) _audioManager.PlayAudioOneShot(_config.PlaceFailSfx, Vector3.zero);
+                // Invalid/outside returns keep the picked piece on top too.
+                if (trayPiece != null) _onTrayBringToFront.OnNext(Unit.Default);
                 _blockInstance.ViewModel.BlockInteractionState.Value = BlockInteractionState.PlacedOnSpawn;
             }
             _mousePositionDifference = Vector3.zero;

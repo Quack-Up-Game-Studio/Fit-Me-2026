@@ -87,6 +87,7 @@ namespace QuackUp.GoogleAdMob
             _adsSettings = adsSettings;
             _analyticsService = analyticsService;
             _adMobImpressionRevenueBridge = adMobImpressionRevenueBridge;
+            if (_adsSettings != null) _adsSettings.AdsEnabledChanged += OnMasterSwitchChanged;
         }
         
         /// <summary>
@@ -97,7 +98,23 @@ namespace QuackUp.GoogleAdMob
         /// <summary>
         /// ใช้สำหรับเปิดปิดการแสดงโฆษณา (เช่น ผู้เล่นซื้อการลบโฆษณา หรือ ปิดโฆษณาชั่วคราวเพื่อทดสอบ)
         /// </summary>
-        public virtual bool Enabled { get; set; } = true;
+        private bool _enabled = true;
+        public virtual bool Enabled
+        {
+            get => _enabled && AdsAllowed;
+            set => _enabled = value;
+        }
+
+        protected bool AdsAllowed => !IsDisposed && (_adsSettings == null || _adsSettings.AdsEnabled);
+
+        private void OnMasterSwitchChanged(bool enabled)
+        {
+            if (enabled || IsDisposed) return;
+            CancelAdsSessionTimer();
+            CancelPendingLoadRetry();
+            DisposeAd();
+            _onAdFailed.OnNext(Unit.Default);
+        }
 
         public abstract bool CanShowAd();
 
@@ -105,6 +122,7 @@ namespace QuackUp.GoogleAdMob
         {
             if (_isDisposed) return;
             _isDisposed = true;
+            if (_adsSettings != null) _adsSettings.AdsEnabledChanged -= OnMasterSwitchChanged;
             DisposeAd();
             CancelAdsSessionTimer();
             CancelPendingLoadRetry();
@@ -149,7 +167,7 @@ namespace QuackUp.GoogleAdMob
 
         protected void ScheduleLoadRetry(Action retry)
         {
-            if (_isDisposed || retry == null) return;
+            if (!AdsAllowed || retry == null) return;
 
             CancelPendingLoadRetry();
             var exponent = Math.Min(_loadRetryAttempt, MaximumLoadRetryExponent);
@@ -208,7 +226,7 @@ namespace QuackUp.GoogleAdMob
 
         public override bool Enabled
         {
-            get => _enabled;
+            get => _enabled && AdsAllowed;
             set
             {
                 if (!AllowShow)
@@ -259,6 +277,7 @@ namespace QuackUp.GoogleAdMob
         public override void Load()
         {
             CancelPendingLoadRetry();
+            if (!AdsAllowed) return;
             DisposeAd();
             // Get the device safe width in density-independent pixels.
             var deviceWidth = MobileAds.Utils.GetDeviceSafeWidth();
@@ -274,6 +293,12 @@ namespace QuackUp.GoogleAdMob
 
         public override bool TryShow()
         {
+            if (IsDisposed) return false;
+            if (!Enabled)
+            {
+                _onAdFailed.OnNext(Unit.Default);
+                return false;
+            }
             DebugUtils.Log($"BannerAdInstance: TryShow called. _bannerView is null: {_bannerView == null}, CanShowAd: {CanShowAd()}, Enabled: {Enabled}");
             if (_bannerView == null || _bannerView.IsDestroyed)
             {
@@ -374,10 +399,10 @@ namespace QuackUp.GoogleAdMob
 
         private void HandleAdLoaded()
         {
-            if (IsDisposed) return;
+            if (!AdsAllowed || _bannerView == null) return;
             ResetLoadRetry();
             DebugUtils.Log($"BannerAdInstance: HandleAdLoaded called. _wasVisible is: {_wasVisible}");
-            if (!_wasVisible)
+            if (!_wasVisible || !CanShowAd())
             {
                 DebugUtils.Log("BannerAdInstance: _wasVisible is false, calling Hide()");
                 _bannerView.Hide();
@@ -434,7 +459,7 @@ namespace QuackUp.GoogleAdMob
         {
             attempt = null;
             // Reject before installing listeners, changing placement, or touching the active SDK ad.
-            if (IsDisposed || _showInProgress || _activeShowAttempt != null) return false;
+            if (!AdsAllowed || _showInProgress || _activeShowAttempt != null) return false;
             var ownedAttempt = new RewardedAdShowAttempt(OnUserEarnedReward, OnAdClosed, OnAdFailed, onReward);
             _activeShowAttempt = ownedAttempt;
             attempt = ownedAttempt;
@@ -456,7 +481,7 @@ namespace QuackUp.GoogleAdMob
         protected int BeginLoadGeneration() => ++_loadGeneration;
 
         protected bool CanAcceptLoadedAd(int generation) =>
-            !IsDisposed && generation == _loadGeneration && !_showInProgress;
+            AdsAllowed && generation == _loadGeneration && !_showInProgress;
 
         protected void MarkShowStarted() => _showInProgress = true;
 
@@ -470,7 +495,7 @@ namespace QuackUp.GoogleAdMob
 
         public override void Load()
         {
-            if (IsDisposed || _showInProgress) return;
+            if (!AdsAllowed || _showInProgress) return;
             DisposeAd();
             var loadGeneration = BeginLoadGeneration();
             RewardedAd.Load(UnitId, new AdRequest(), (ad, error) =>
@@ -501,13 +526,13 @@ namespace QuackUp.GoogleAdMob
         public override bool TryShow()
         {
             if (IsDisposed || _showInProgress) return false;
-#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             if (!Enabled)
             {
                 DebugUtils.LogWarning("Ads is disabled");
                 _onAdFailed?.OnNext(Unit.Default);
                 return false;
             }
+#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             if (CanShowAd())
             {
                 var rewardCallbackHandled = 0;
@@ -625,6 +650,7 @@ namespace QuackUp.GoogleAdMob
         public override bool CanShowAd() => Enabled && _interstitialAd != null && _interstitialAd.CanShowAd();
         public override void Load()
         {
+            if (!AdsAllowed) return;
             DisposeAd();
             InterstitialAd.Load(UnitId, new AdRequest(), (ad, error) =>
             {
@@ -639,7 +665,7 @@ namespace QuackUp.GoogleAdMob
                 _adMobImpressionRevenueBridge.SubscribeAdMobImpressions(UnitId, ad);
                 ExecuteOnUnityMainThread(() =>
                 {
-                    if (IsDisposed)
+                    if (!AdsAllowed)
                     {
                         ad.Destroy();
                         return;
@@ -653,13 +679,14 @@ namespace QuackUp.GoogleAdMob
         
         public override bool TryShow()
         {
-#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
+            if (IsDisposed) return false;
             if (!Enabled)
             {
                 DebugUtils.LogWarning("Ads is disabled");
                 _onAdFailed?.OnNext(Unit.Default);
                 return false;
             }
+#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             if (CanShowAd())
             {
                 _interstitialAd.Show();
@@ -742,6 +769,10 @@ namespace QuackUp.GoogleAdMob
         private readonly IAnalyticsService _analyticsService;
         private readonly IAdMobImpressionRevenueBridge _adMobImpressionRevenueBridge;
         private bool _isDisposed;
+        private bool _requestedEnabled = true;
+        private bool _postInitialized;
+        private bool _sdkInitializationStarted;
+        private bool _sdkInitialized;
 
         [Inject]
         public AdsService(AdsSettings adsSettings, IAnalyticsService analyticsService,
@@ -750,11 +781,28 @@ namespace QuackUp.GoogleAdMob
             _adsSettings = adsSettings;
             _analyticsService = analyticsService;
             _adMobImpressionRevenueBridge = adMobImpressionRevenueBridge;
+            if (_adsSettings != null) _adsSettings.AdsEnabledChanged += OnSettingsEnabledChanged;
+            RefreshEnabledState();
         }
 
         public void PostInitialize()
         {
-            if (_isDisposed) return;
+            if (_isDisposed || _postInitialized) return;
+            _postInitialized = true;
+            TryInitializeAds();
+        }
+
+        private void TryInitializeAds()
+        {
+            if (_isDisposed || !_adsEnabled.Value) return;
+            if (_sdkInitialized)
+            {
+                if (_adsInstances.Count == 0) InitializeAd();
+                else foreach (var instance in _adsInstances.Values) instance.Load();
+                return;
+            }
+            if (_sdkInitializationStarted) return;
+            _sdkInitializationStarted = true;
 #if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS
             var requestConfiguration = new RequestConfiguration
             {
@@ -762,15 +810,21 @@ namespace QuackUp.GoogleAdMob
                 MaxAdContentRating = MaxAdContentRating.G
             };
             MobileAds.SetRequestConfiguration(requestConfiguration);
-            MobileAds.Initialize(status => MobileAdsEventExecutor.ExecuteInUpdate(InitializeAd));
+            MobileAds.Initialize(status => MobileAdsEventExecutor.ExecuteInUpdate(OnSdkInitialized));
 #else
-                InitializeAd();
+            OnSdkInitialized();
 #endif
+        }
+
+        private void OnSdkInitialized()
+        {
+            _sdkInitialized = true;
+            InitializeAd();
         }
 
         private void InitializeAd()
         {
-            if (_isDisposed) return;
+            if (_isDisposed || !_adsEnabled.Value || _adsInstances.Count > 0) return;
             var rewardedAdInstance = new RewardedAdInstance(_adsSettings, _analyticsService, _adMobImpressionRevenueBridge);
             rewardedAdInstance.Enabled = _adsEnabled.Value;
             rewardedAdInstance.Load();
@@ -789,6 +843,7 @@ namespace QuackUp.GoogleAdMob
         {
             if (_isDisposed) return;
             _isDisposed = true;
+            if (_adsSettings != null) _adsSettings.AdsEnabledChanged -= OnSettingsEnabledChanged;
             _adsInstances.Values.ForEach(instance => instance?.Dispose());
             _adsInstances.Clear();
             _adsEnabled.Dispose();
@@ -807,11 +862,24 @@ namespace QuackUp.GoogleAdMob
 
         public void SetEnableStateAll(bool state)
         {
+            if (_isDisposed) return;
+            _requestedEnabled = state;
+            RefreshEnabledState();
+        }
+
+        private void OnSettingsEnabledChanged(bool enabled) => RefreshEnabledState();
+
+        private void RefreshEnabledState()
+        {
+            if (_isDisposed) return;
+            var state = _requestedEnabled && (_adsSettings == null || _adsSettings.AdsEnabled);
+            var changed = _adsEnabled.Value != state;
             _adsEnabled.Value = state;
             foreach (var instance in _adsInstances.Values)
             {
                 instance.Enabled = state;
             }
+            if (changed && state && _postInitialized) TryInitializeAds();
         }
     }
 }

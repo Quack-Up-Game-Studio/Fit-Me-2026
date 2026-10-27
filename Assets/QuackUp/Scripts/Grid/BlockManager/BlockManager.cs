@@ -232,6 +232,7 @@ namespace FitMe.Grid
         public const string ShapeTrayKey = "ShapeTray";
         private readonly RectTransform _trayPanel;
         private readonly List<BlockInstance> _trayBlocks = new();
+        private IDisposable _trayStackingSubscriptions;
         private bool _traySpawned;
         private readonly Dictionary<int, ShapeBlockSupplyQueue.Item> _activeShapeSupplyBySpawnIndex = new();
         private ShapeLevelRuntimeData _shapeLevelRuntimeData;
@@ -324,6 +325,7 @@ namespace FitMe.Grid
         public void Dispose()
         {
             _subscriptions?.Dispose();
+            _trayStackingSubscriptions?.Dispose();
             _swapTargetRotationSubscription?.Dispose();
             _rotateTargetSubscriptions?.Dispose();
             _gameStateSubscriptions?.Dispose();
@@ -460,6 +462,8 @@ namespace FitMe.Grid
 
         private void ResetBlockInSlot()
         {
+            _trayStackingSubscriptions?.Dispose();
+            _trayStackingSubscriptions = null;
             foreach (var block in _trayBlocks)
                 if (block.GameObject && !block.Model.TrayPiece.IsPlaced)
                     block.ViewModel.DestroyCommand.Execute(Unit.Default);
@@ -548,6 +552,8 @@ namespace FitMe.Grid
                 throw new InvalidOperationException("Shape Mode requires the Gameplay Tray Panel bounds in BlockManagerInstaller.");
             _traySpawned = true;
             var count = _shapeBlockQueue.Count;
+            if (count > short.MaxValue + 1)
+                throw new InvalidOperationException("Shape Tray supply exceeds Unity's sorting-order capacity.");
             var corners = new Vector3[4];
             _trayPanel.GetWorldCorners(corners);
             var panelBounds = Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
@@ -564,6 +570,7 @@ namespace FitMe.Grid
                 if (!_shapeBlockQueue.TryTakeNext(out var item)) continue;
                 var schema = item.PlayerBlock.Schema;
                 var piece = pieces[i];
+                piece.SortingOrder = i;
                 piece.DropBounds = panelBounds;
                 var block = InstantiateBlock(_trayPanel, item.Rotation, BlockShape.OneByOne, item.Color,
                     piece.Scale, schema, false, item.PlayerBlock.Preset, _config.ArbitraryBlockConfig);
@@ -571,10 +578,16 @@ namespace FitMe.Grid
                 block.Model.TrayPiece = piece;
                 block.GameObject.transform.position = piece.Position;
                 block.GameObject.transform.rotation = piece.TrayRotation;
-                block.ViewModel.SetSortingOrderCommand.Execute(i);
+                block.ViewModel.SetSortingOrderCommand.Execute(piece.SortingOrder);
                 _trayBlocks.Add(block);
                 spawnedBlocks.Add(block);
             }
+            var stackingBuilder = Disposable.CreateBuilder();
+            foreach (var block in spawnedBlocks)
+                block.Controller.OnTrayBringToFront
+                    .Subscribe(_ => BringTrayPieceToFront(block))
+                    .AddTo(ref stackingBuilder);
+            _trayStackingSubscriptions = stackingBuilder.Build();
             if (spawnedBlocks.Count > 0)
                 _messageHub.Publish(new BlockSpawnedEvent(spawnedBlocks));
             ClearPreviewSlots();
@@ -597,6 +610,22 @@ namespace FitMe.Grid
                 objectScale,
                 schemaOverride: null,
                 allowRotation: allowRotation);
+        }
+
+        private void BringTrayPieceToFront(BlockInstance selected)
+        {
+            if (!_trayBlocks.Contains(selected) || selected.Model.TrayPiece.IsPlaced) return;
+            var resting = _trayBlocks.Where(block => block.GameObject && !block.Model.TrayPiece.IsPlaced)
+                .OrderBy(block => block.Model.TrayPiece.SortingOrder).ToList();
+            resting.Remove(selected);
+            resting.Add(selected);
+            // Dense ranks bound every renderer to the current supply size, even
+            // after arbitrarily many drags. Preserve all other relative ordering.
+            for (var i = 0; i < resting.Count; i++)
+            {
+                resting[i].Model.TrayPiece.SortingOrder = i;
+                resting[i].ViewModel.SetSortingOrderCommand.Execute(i);
+            }
         }
 
         private BlockInstance InstantiateBlock(

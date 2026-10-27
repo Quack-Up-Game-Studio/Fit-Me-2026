@@ -120,8 +120,17 @@ namespace FitMe.GameData
     {
         [SerializeField] private string _worldKey;
         [SerializeField] private ShapeLevelCatalog _levelCatalog;
+        [SerializeField, Tooltip("Optional subtitle displayed under this world's name on level selection.")]
+        private string _subtitle;
+        [SerializeField, Tooltip("Complete button artwork shown when this world is unlocked.")]
+        private Sprite _unlockedSprite;
+        [SerializeField, Tooltip("Complete button artwork including the lock. Optional until the art is available.")]
+        private Sprite _lockedSprite;
         public string WorldKey => _worldKey;
         public ShapeLevelCatalog LevelCatalog => _levelCatalog;
+        public string Subtitle => _subtitle ?? string.Empty;
+        public Sprite UnlockedSprite => _unlockedSprite;
+        public Sprite LockedSprite => _lockedSprite;
         public ShapeLevelWorldEntry() { }
         public ShapeLevelWorldEntry(string worldKey, ShapeLevelCatalog levelCatalog)
         {

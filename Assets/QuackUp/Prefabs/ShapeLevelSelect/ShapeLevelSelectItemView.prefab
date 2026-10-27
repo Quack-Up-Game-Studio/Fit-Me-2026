@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7448885921917556756
 RectTransform:
   m_ObjectHideFlags: 0
@@ -142,15 +142,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: cb09555b97d32ba4baf9ecb1c8dd6f9e, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 3b0eeb3e47d34869b0a5af344d73c013, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -269,6 +269,9 @@ MonoBehaviour:
   selectButton: {fileID: 326030787446587486}
   levelNameText: {fileID: 7688431930753208648}
   levelOrderText: {fileID: 6213482979763726250}
+  buttonImage: {fileID: 6220392044229876829}
+  unlockedSprite: {fileID: 322230777352791681, guid: a7d20ce21b7a9e0489654d07f346aa60, type: 3}
+  lockedSprite: {fileID: 249108345963259706, guid: 350329ef7a4a6fb479e2447c86625147, type: 3}
   lockedIndicator: {fileID: 7067761842575284372}
   invalidIndicator: {fileID: 407062640167415564}
 --- !u!1 &3891658501433168340
@@ -288,7 +291,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &702116735731974189
 RectTransform:
   m_ObjectHideFlags: 0
@@ -510,7 +513,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -525,7 +528,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 4657029850307969503}
+  m_TargetGraphic: {fileID: 6220392044229876829}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
@@ -594,9 +597,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 322230777352791681, guid: a7d20ce21b7a9e0489654d07f346aa60, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -758,7 +761,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2006037509061073178
 RectTransform:
   m_ObjectHideFlags: 0

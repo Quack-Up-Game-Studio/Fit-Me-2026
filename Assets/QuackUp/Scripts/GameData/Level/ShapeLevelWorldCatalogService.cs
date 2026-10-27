@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace FitMe.GameData
 {
@@ -10,10 +11,23 @@ namespace FitMe.GameData
         public int Order { get; }
 
         public ShapeLevelWorldInfo(string worldKey, string displayName, int order)
+            : this(worldKey, displayName, order, null, null) { }
+
+        public Sprite UnlockedSprite { get; }
+        public Sprite LockedSprite { get; }
+        public string Subtitle { get; }
+
+        public ShapeLevelWorldInfo(string worldKey, string displayName, int order, Sprite unlockedSprite, Sprite lockedSprite)
+            : this(worldKey, displayName, order, unlockedSprite, lockedSprite, string.Empty) { }
+
+        public ShapeLevelWorldInfo(string worldKey, string displayName, int order, Sprite unlockedSprite, Sprite lockedSprite, string subtitle)
         {
             WorldKey = worldKey;
             DisplayName = displayName;
             Order = order;
+            UnlockedSprite = unlockedSprite;
+            LockedSprite = lockedSprite;
+            Subtitle = subtitle ?? string.Empty;
         }
     }
 
@@ -57,7 +71,8 @@ namespace FitMe.GameData
                 for (var index = 0; index < _catalog.Count; index++)
                 {
                     var entry = _catalog.Entries[index];
-                    worlds.Add(new ShapeLevelWorldInfo(entry.WorldKey, entry.LevelCatalog.name, index + 1));
+                    worlds.Add(new ShapeLevelWorldInfo(entry.WorldKey, entry.LevelCatalog.name, index + 1,
+                        entry.UnlockedSprite, entry.LockedSprite, entry.Subtitle));
                 }
                 return worlds;
             }
@@ -70,7 +85,8 @@ namespace FitMe.GameData
 
             var order = _catalog.GetOrder(worldKey);
             if (order == 0) return false;
-            worldInfo = new ShapeLevelWorldInfo(entry.WorldKey, entry.LevelCatalog.name, order);
+            worldInfo = new ShapeLevelWorldInfo(entry.WorldKey, entry.LevelCatalog.name, order,
+                entry.UnlockedSprite, entry.LockedSprite, entry.Subtitle);
             return true;
         }
 
@@ -86,7 +102,8 @@ namespace FitMe.GameData
             if (!IsValid || order < 1 || order > _catalog.Count) return false;
 
             var entry = _catalog.Entries[order - 1];
-            worldInfo = new ShapeLevelWorldInfo(entry.WorldKey, entry.LevelCatalog.name, order);
+            worldInfo = new ShapeLevelWorldInfo(entry.WorldKey, entry.LevelCatalog.name, order,
+                entry.UnlockedSprite, entry.LockedSprite, entry.Subtitle);
             return true;
         }
 

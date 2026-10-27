@@ -14,6 +14,9 @@ namespace FitMe.Panel
         [SerializeField, Required] private Button selectButton;
         [SerializeField, Required] private TMP_Text levelNameText;
         [SerializeField, Required] private TMP_Text levelOrderText;
+        [SerializeField] private Image buttonImage;
+        [SerializeField] private Sprite unlockedSprite;
+        [SerializeField] private Sprite lockedSprite;
         [SerializeField] private GameObject lockedIndicator;
         [SerializeField] private GameObject invalidIndicator;
 
@@ -28,8 +31,17 @@ namespace FitMe.Panel
             }
 
             levelNameText.text = item.DisplayName;
+            levelNameText.gameObject.SetActive(false);
             levelOrderText.text = item.Order.ToString();
-            if (lockedIndicator) lockedIndicator.SetActive(!item.IsUnlocked);
+            levelOrderText.gameObject.SetActive(item.IsUnlocked);
+            if (buttonImage)
+            {
+                var sprite = item.IsUnlocked ? unlockedSprite : lockedSprite;
+                if (sprite) buttonImage.sprite = sprite;
+                buttonImage.preserveAspect = true;
+            }
+            // Complete locked artwork includes its own padlock.
+            if (lockedIndicator) lockedIndicator.SetActive(!item.IsUnlocked && (!buttonImage || !lockedSprite));
             if (invalidIndicator) invalidIndicator.SetActive(!item.IsValid);
             selectButton.interactable = item.IsSelectable;
 

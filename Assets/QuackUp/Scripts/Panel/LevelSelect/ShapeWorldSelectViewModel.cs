@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using FitMe.GameData;
 using R3;
 using VContainer;
+using UnityEngine;
 
 namespace FitMe.Panel
 {
@@ -11,13 +12,21 @@ namespace FitMe.Panel
         public string DisplayName { get; }
         public bool IsUnlocked { get; }
         public bool IsComplete { get; }
+        public Sprite UnlockedSprite { get; }
+        public Sprite LockedSprite { get; }
 
         public ShapeWorldSelectItem(string worldKey, string displayName, bool isUnlocked, bool isComplete)
+            : this(worldKey, displayName, isUnlocked, isComplete, null, null) { }
+
+        public ShapeWorldSelectItem(string worldKey, string displayName, bool isUnlocked, bool isComplete,
+            Sprite unlockedSprite, Sprite lockedSprite)
         {
             WorldKey = worldKey;
             DisplayName = displayName;
             IsUnlocked = isUnlocked;
             IsComplete = isComplete;
+            UnlockedSprite = unlockedSprite;
+            LockedSprite = lockedSprite;
         }
     }
 
@@ -48,7 +57,8 @@ namespace FitMe.Panel
                     progress.TryGetValue(world.WorldKey, out var state);
                     _items.Add(new ShapeWorldSelectItem(world.WorldKey, world.DisplayName,
                         state?.IsUnlocked == true,
-                        _catalogService.IsWorldComplete(world.WorldKey, progress)));
+                        _catalogService.IsWorldComplete(world.WorldKey, progress),
+                        world.UnlockedSprite, world.LockedSprite));
                 }
             _itemInitialized.OnNext(_items);
         }
