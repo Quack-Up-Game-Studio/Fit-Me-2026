@@ -40,8 +40,13 @@ namespace FitMe.Grid.Tests
             piece.Rotate(-90f);
             Assert.That(Quaternion.Angle((Quaternion)piece.GameplayRotation, Quaternion.identity), Is.LessThan(.001f));
             Assert.That((float)piece.Tilt, Is.EqualTo(12f));
-            // Rejected grid/outside drops never update the latest stored tray point.
-            Assert.That((Vector2)piece.Position, Is.EqualTo(saved));
+            // A turn may move the pivot inward to keep the whole new footprint
+            // inside the tray; that clamped position becomes the return point.
+            Assert.That(piece.PresentationBounds.xMin, Is.GreaterThanOrEqualTo(bounds.xMin - .0001f));
+            Assert.That(piece.PresentationBounds.xMax, Is.LessThanOrEqualTo(bounds.xMax + .0001f));
+            Assert.That(piece.PresentationBounds.yMin, Is.GreaterThanOrEqualTo(bounds.yMin - .0001f));
+            Assert.That(piece.PresentationBounds.yMax, Is.LessThanOrEqualTo(bounds.yMax + .0001f));
+            saved = piece.Position;
             piece.MarkPlaced();
             Assert.That((bool)piece.IsPlaced, Is.True);
             piece.DropInTray(Vector2.zero);

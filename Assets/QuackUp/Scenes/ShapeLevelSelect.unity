@@ -1907,6 +1907,8 @@ MonoBehaviour:
   returnToModeSelectButton: {fileID: 1814952665}
   emptyStateText: {fileID: 489867839}
   comingSoonWorlds:
+  - worldKey: world-2
+    lockedSprite: {fileID: 2289022283475321347, guid: 72fc32a3ea1ee2e42b3934ecd023ccda, type: 3}
   - worldKey: world-3
     lockedSprite: {fileID: 2307785428801280824, guid: 0924221a3a4749f479e31458b398744c, type: 3}
   - worldKey: world-4

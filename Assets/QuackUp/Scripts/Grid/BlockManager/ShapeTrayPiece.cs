@@ -60,7 +60,9 @@ namespace FitMe.Grid
 
         public void Rotate(float degrees)
         {
-            if (!IsPlaced) GameplayRotation *= Quaternion.Euler(0, 0, degrees);
+            if (IsPlaced) return;
+            GameplayRotation *= Quaternion.Euler(0, 0, degrees);
+            DropInTray(Position);
         }
 
         public void MarkPlaced() => IsPlaced = true;

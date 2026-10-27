@@ -5,6 +5,7 @@ using FitMe.Panel;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -124,6 +125,58 @@ namespace QuackUp.SceneManagement.Tests
             GetField<Button>(view, "selectButton").onClick.Invoke();
 
             Assert.That(selected, Is.Empty);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void PointerOverArtworkOrTitleReachesButtonAndTintsArtwork(bool overTitle)
+        {
+            var canvasObject = new GameObject("Input test canvas", typeof(Canvas), typeof(GraphicRaycaster));
+            _objects.Add(canvasObject);
+            var cameraObject = new GameObject("Input test camera", typeof(Camera));
+            _objects.Add(cameraObject);
+            var camera = cameraObject.GetComponent<Camera>();
+            var texture = new RenderTexture(800, 800, 24);
+            _objects.Add(texture);
+            camera.targetTexture = texture;
+            var canvas = canvasObject.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera = camera;
+            canvas.planeDistance = 10;
+            var eventObject = new GameObject("Input test events", typeof(EventSystem));
+            _objects.Add(eventObject);
+            var events = eventObject.GetComponent<EventSystem>();
+            var view = CreateView();
+            view.transform.SetParent(canvasObject.transform, false);
+            ((RectTransform)view.transform).sizeDelta = new Vector2(400, 400);
+            var button = GetField<Button>(view, "selectButton");
+            var image = GetField<Image>(view, "worldImage");
+            var colors = button.colors;
+            colors.fadeDuration = 0;
+            button.colors = colors;
+            view.Construct(CreateItem("world-1", true, CreateSprite(), null), _ => { });
+            Canvas.ForceUpdateCanvases();
+            camera.Render();
+            var rect = overTitle
+                ? (RectTransform)GetField<Component>(view, "worldNameText").transform
+                : image.rectTransform;
+            var pointer = new PointerEventData(events)
+            {
+                position = RectTransformUtility.WorldToScreenPoint(camera, rect.TransformPoint(rect.rect.center)),
+                button = PointerEventData.InputButton.Left
+            };
+            var hits = new List<RaycastResult>();
+            canvasObject.GetComponent<GraphicRaycaster>().Raycast(pointer, hits);
+            Assert.That(hits, Is.Not.Empty);
+            var handler = ExecuteEvents.GetEventHandler<IPointerDownHandler>(hits[0].gameObject);
+            Assert.That(handler, Is.EqualTo(button.gameObject), "Top raycast hit: " + hits[0].gameObject.name);
+            ExecuteEvents.Execute(handler, pointer, ExecuteEvents.pointerEnterHandler);
+            ExecuteEvents.Execute(handler, pointer, ExecuteEvents.pointerDownHandler);
+            Assert.That(image.canvasRenderer.GetColor(), Is.EqualTo(colors.pressedColor * colors.colorMultiplier));
+            ExecuteEvents.Execute(handler, pointer, ExecuteEvents.pointerUpHandler);
+            Assert.That(image.canvasRenderer.GetColor(), Is.EqualTo(colors.highlightedColor * colors.colorMultiplier));
+            button.interactable = false;
+            Assert.That(image.canvasRenderer.GetColor(), Is.EqualTo(Color.white));
         }
 
         private Sprite CreateSprite()

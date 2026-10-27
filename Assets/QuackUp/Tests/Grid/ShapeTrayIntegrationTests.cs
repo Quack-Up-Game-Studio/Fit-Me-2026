@@ -82,7 +82,7 @@ namespace FitMe.Grid.Tests
             return block;
         }
 
-        private BlockManager CreateStackingTray(out TrayPointer pointer, out BlockManagerConfig config)
+        private BlockManager CreateStackingTray(out TrayPointer pointer, out BlockManagerConfig config, bool mixed = false)
         {
             SetUpOneCellPlacement();
             config = Keep(UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<BlockManagerConfig>(ArtRoot + "Settings/Grid/Block/BlockManagerConfig.asset")));
@@ -100,7 +100,9 @@ namespace FitMe.Grid.Tests
             tray.sizeDelta = new Vector2(6, 2);
             var manager = new BlockManager(_manager, config, null, Array.Empty<BlockManager.SpawnPointData>(), factory,
                 Array.Empty<BlockManager.SpawnPointData>(), _hub, tray);
-            var entries = Enumerable.Range(0, 3).Select(_ => new ShapePlayerBlockRuntimeEntry(null, new[,] { { 1 } })).ToArray();
+            var schemas = new[] { new[,] { { 1 } }, new[,] { { 1, 1 } }, new[,] { { 1, 1, 1, 1 } } };
+            var entries = Enumerable.Range(0, 3).Select(i => new ShapePlayerBlockRuntimeEntry(null,
+                mixed ? schemas[i] : new[,] { { 1 } })).ToArray();
             _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(null, new[,] { { 1 } }, Array.Empty<ShapeObstacleRuntimeData>(), entries)));
             SetManagerField("<IsGameplay>k__BackingField", true);
             ((Subject<Unit>)typeof(GridManager).GetField("_onCellsCreated", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_manager)).OnNext(Unit.Default);
@@ -134,6 +136,50 @@ namespace FitMe.Grid.Tests
             Assert.That(sprites.All(sprite => sprite.enabled), Is.True, "Real Shape atom renderers must be active");
             Assert.That(sprites.All(sprite => sprite.sortingOrder == mesh.sortingOrder), Is.True, "Mesh and atom sorting must agree");
             return mesh.sortingOrder;
+        }
+
+        [Test]
+        public void ShapeTray_MixedSupplyPickupReturnAndPlacementKeepInitialCommonScale()
+        {
+            UnityEngine.Random.InitState(719);
+            using var manager = CreateStackingTray(out var pointer, out var config, mixed: true);
+            var blocks = manager.BlockOnHand.OrderBy(b => b.Model.TrayPiece.PieceId).ToArray();
+            var pieces = blocks.Select(b => b.Model.TrayPiece).ToArray();
+            var scale = pieces[0].Scale;
+            Assert.That(scale, Is.LessThanOrEqualTo(config.TrayBlockScale));
+            Assert.That(pieces.All(p => p.Scale == scale), Is.True);
+            var evt = new UnityEngine.EventSystems.PointerEventData(null);
+            foreach (var block in blocks)
+            {
+                var piece = block.Model.TrayPiece;
+                var position = piece.Position;
+                pointer.MouseWorldPosition = block.GameObject.transform.position;
+                block.Controller.BeingDragCommand.Execute(evt);
+                var gridSize = Keep(ScriptableObject.CreateInstance<GridManagerConfig>()).CellSize;
+                Assert.That(block.GameObject.transform.localScale.x, Is.EqualTo(gridSize.x).Within(.0001f));
+                Assert.That(block.GameObject.transform.localScale.y, Is.EqualTo(gridSize.y).Within(.0001f));
+                Assert.That(Quaternion.Angle(block.GameObject.transform.rotation, piece.GameplayRotation), Is.LessThan(.01f));
+                pointer.MouseWorldPosition = Vector2.one * 50;
+                block.Controller.DragCommand.Execute(evt);
+                block.Controller.EndDragCommand.Execute(evt);
+                Assert.That(block.GameObject.transform.localScale.x, Is.EqualTo(scale).Within(.0001f));
+                Assert.That(piece.Position, Is.EqualTo(position));
+                Assert.That(Quaternion.Angle(block.GameObject.transform.rotation, piece.TrayRotation), Is.LessThan(.01f));
+                Assert.That(pieces.All(p => p.Scale == scale), Is.True);
+            }
+            // Deliberate repositioning and consumption never trigger another layout.
+            DropTrayBlock(blocks[1], pointer, pieces[1].TrayBounds.center);
+            var positions = pieces.Select(p => p.Position).ToArray();
+            SetManagerField("<IsGameplay>k__BackingField", false);
+            DropTrayBlock(blocks[0], pointer, _grid.GetCellCenterWorld(Vector3Int.zero));
+            Assert.That(pieces[0].IsPlaced, Is.True);
+            for (var i = 1; i < pieces.Length; i++)
+            {
+                Assert.That(blocks[i].Model.TrayPiece, Is.SameAs(pieces[i]));
+                Assert.That(pieces[i].Scale, Is.EqualTo(scale));
+                Assert.That(pieces[i].Position, Is.EqualTo(positions[i]));
+                Assert.That(blocks[i].GameObject.transform.localScale.x, Is.EqualTo(scale).Within(.0001f));
+            }
         }
 
         [Test]

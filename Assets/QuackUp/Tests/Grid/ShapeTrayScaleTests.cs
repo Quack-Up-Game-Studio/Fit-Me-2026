@@ -11,7 +11,7 @@ namespace FitMe.Grid.Tests
 {
     public partial class GridManagerLifecycleTests
     {
-        private BlockInstance[] SpawnScaleTray(int count, float scale, int[,] schema = null, float objectScale = .03f, Vector2? traySize = null)
+        private BlockInstance[] SpawnScaleTray(int count, float scale, int[,] schema = null, float objectScale = .03f, Vector2? traySize = null, bool mixed = false)
         {
             var config = Keep(UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<BlockManagerConfig>(ArtRoot + "Settings/Grid/Block/BlockManagerConfig.asset")));
             var property = typeof(BlockManagerConfig).GetProperty("TrayBlockScale");
@@ -28,7 +28,9 @@ namespace FitMe.Grid.Tests
                 new BlockControllerFactory(config, _manager, null, null, null));
             using var manager = new BlockManager(_manager, config, null, Array.Empty<BlockManager.SpawnPointData>(), factory,
                 Array.Empty<BlockManager.SpawnPointData>(), _hub, rect);
-            var entries = Enumerable.Range(0, count).Select(_ => new ShapePlayerBlockRuntimeEntry(null, schema ?? new[,] { { 1, 1 }, { 1, 0 } })).ToArray();
+            var mixedSchemas = new[] { new[,] { { 1 } }, new[,] { { 1, 1 } }, new[,] { { 1, 1, 1, 1 } } };
+            var entries = Enumerable.Range(0, count).Select(i => new ShapePlayerBlockRuntimeEntry(null,
+                mixed ? mixedSchemas[i % mixedSchemas.Length] : schema ?? new[,] { { 1, 1 }, { 1, 0 } })).ToArray();
             UnityEngine.Random.InitState(719);
             _hub.Publish(new SpawnWithShapeLevelEvent(new ShapeLevelRuntimeData(null, new[,] { { 1 } }, Array.Empty<ShapeObstacleRuntimeData>(), entries)));
             SetManagerField("<IsGameplay>k__BackingField", true);
@@ -45,6 +47,76 @@ namespace FitMe.Grid.Tests
             return blocks;
         }
 
+
+        [TestCase(3, .5f)]
+        [TestCase(3, 10f)]
+        [TestCase(6, .5f)]
+        [TestCase(7, .5f)]
+        [TestCase(20, 10f)]
+        public void ShapeTray_MixedFootprintsShareOneEffectiveRestingScale(int count, float requestedScale)
+        {
+            var schemas = new[] { new[,] { { 1 } }, new[,] { { 1, 1 } }, new[,] { { 1, 1, 1, 1 } } };
+            var items = Enumerable.Range(0, count).Select(i => new ShapeBlockSupplyQueue.Item(
+                new ShapePlayerBlockRuntimeEntry(null, schemas[i % schemas.Length]),
+                Quaternion.Euler(0, 0, i * 90), BlockColor.Red)).ToArray();
+            UnityEngine.Random.InitState(719);
+            var tilts = Enumerable.Range(0, count).Select(_ => UnityEngine.Random.Range(-15f, 15f)).ToArray();
+            UnityEngine.Random.InitState(719);
+            var bounds = new Rect(0, 0, 5, 3);
+            var pieces = ShapeTrayLayout.Create(items, bounds, requestedScale, -15, 15);
+            Assert.That(pieces[0].Scale, Is.GreaterThan(0));
+            Assert.That(pieces[0].Scale, Is.LessThanOrEqualTo(requestedScale));
+            foreach (var piece in pieces)
+            {
+                Assert.That(piece.Scale, Is.EqualTo(pieces[0].Scale),
+                    $"Piece {piece.PieceId}: every atom must use the same initial resting scale, including fit/visibility reductions");
+                Assert.That(piece.Tilt, Is.EqualTo(tilts[piece.PieceId]), "Common-scale retries must not reroll tilt");
+                Assert.That(Quaternion.Angle(piece.GameplayRotation, items[piece.PieceId].Rotation), Is.LessThan(.001f));
+            }
+        }
+
+        [TestCase(7)]
+        [TestCase(20)]
+        public void ShapeTray_SeparatedFallbackKeepsMixedFootprintsAtOneScale(int count)
+        {
+            var shapes = new[] { new[,] { { 1 } }, new[,] { { 1, 1 } }, new[,] { { 1, 1, 1, 1 } } };
+            var schemas = Enumerable.Range(0, count).Select(i => shapes[i % shapes.Length]).ToArray();
+            var bounds = new Rect(0, 0, 8, 5);
+            var pieces = Enumerable.Range(0, count).Select(i => new ShapeTrayPiece(i, schemas[i], bounds,
+                .5f, i % 2 == 0 ? -13 : 13, Quaternion.Euler(0, 0, i * 90), bounds.center)).ToArray();
+            // Exercise the deterministic safety path without relying on random
+            // candidate exhaustion (which is not a stable public repro trigger).
+            typeof(ShapeTrayLayout).GetMethod("PackSeparated", BindingFlags.Static | BindingFlags.NonPublic)
+                .Invoke(null, new object[] { pieces, schemas, bounds });
+            typeof(ShapeTrayLayout).GetMethod("ValidatePickablePatches", BindingFlags.Static | BindingFlags.NonPublic)
+                .Invoke(null, new object[] { pieces, schemas, bounds });
+            foreach (var piece in pieces)
+            {
+                Assert.That(piece.Scale, Is.EqualTo(pieces[0].Scale));
+                Assert.That(piece.Scale, Is.InRange(float.Epsilon, .5f));
+                Assert.That(piece.PresentationBounds.xMin, Is.GreaterThanOrEqualTo(-.0001f));
+                Assert.That(piece.PresentationBounds.yMin, Is.GreaterThanOrEqualTo(-.0001f));
+                Assert.That(piece.PresentationBounds.xMax, Is.LessThanOrEqualTo(8.0001f));
+                Assert.That(piece.PresentationBounds.yMax, Is.LessThanOrEqualTo(5.0001f));
+            }
+        }
+
+        [Test]
+        public void ShapeTray_QuarterTurnClampsWholeFootprintWithoutChangingRestingScale()
+        {
+            var piece = new ShapeTrayPiece(0, new[,] { { 1, 1, 1, 1 } }, new Rect(0, 0, 5, 3),
+                .5f, 13f, Quaternion.identity, new Vector2(100, 100));
+            var scale = piece.Scale;
+            for (var turn = 0; turn < 4; turn++)
+            {
+                piece.Rotate(90);
+                Assert.That(piece.Scale, Is.EqualTo(scale));
+                Assert.That(piece.PresentationBounds.xMax, Is.LessThanOrEqualTo(5.0001f));
+                Assert.That(piece.PresentationBounds.yMax, Is.LessThanOrEqualTo(3.0001f));
+                Assert.That(piece.PresentationBounds.xMin, Is.GreaterThanOrEqualTo(-.0001f));
+                Assert.That(piece.PresentationBounds.yMin, Is.GreaterThanOrEqualTo(-.0001f));
+            }
+        }
 
         [Test]
         public void ShapeTray_TinyDenseFallbackRejectsUnpickableConfiguration()
@@ -127,6 +199,36 @@ namespace FitMe.Grid.Tests
         public void ShapeTray_IdenticalDenseShapesHaveExposedHittableAtomArea(int count, float scale)
         {
             var blocks = SpawnScaleTray(count, scale, new[,] { { 1, 1 }, { 1, 1 } });
+            AssertExposedAtomPatches(blocks);
+        }
+
+        [TestCase(6, .5f)]
+        [TestCase(7, .5f)]
+        [TestCase(20, 10f)]
+        public void ShapeTray_MixedRealPrefabsShareScaleBoundsAndExposedHitPatches(int count, float scale)
+        {
+            var blocks = SpawnScaleTray(count, scale, mixed: true);
+            foreach (var block in blocks)
+            {
+                var piece = block.Model.TrayPiece;
+                Assert.That(piece.Scale, Is.EqualTo(blocks[0].Model.TrayPiece.Scale));
+                Assert.That(piece.Scale, Is.LessThanOrEqualTo(scale));
+                var target = (Vector3)typeof(BlockView).GetField("_originalScale", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .GetValue(block.GameObject.GetComponent<BlockView>());
+                Assert.That(target.x, Is.EqualTo(piece.Scale), "Actual view resting target must match the shared layout scale");
+            }
+            AssertTrayBoundsAndSeparation(blocks, count <= 6);
+            AssertExposedAtomPatches(blocks);
+            foreach (var block in blocks)
+                for (var turn = 0; turn < 4; turn++)
+                {
+                    block.Model.TrayPiece.Rotate(90);
+                    AssertTrayBoundsAndSeparation(new[] { block }, false);
+                }
+        }
+
+        private static void AssertExposedAtomPatches(BlockInstance[] blocks)
+        {
             Physics2D.SyncTransforms();
             for (var i = 0; i < blocks.Length; i++)
             {
@@ -201,7 +303,7 @@ namespace FitMe.Grid.Tests
         public void ShapeTray_InspectorScaleEnlargesDenseSupplyIndependentlyOfObjectScale(int count)
         {
             // Leave enough physical room for unoccluded hit patches at both sizes;
-            // an overfilled tray may legitimately shrink some pieces for visibility.
+            // an overfilled tray may legitimately shrink all pieces for visibility.
             var size = count == 20 ? new Vector2(8, 5) : new Vector2(5, 3);
             var small = SpawnScaleTray(count, .12f, traySize: size);
             var large = SpawnScaleTray(count, .45f, traySize: size);

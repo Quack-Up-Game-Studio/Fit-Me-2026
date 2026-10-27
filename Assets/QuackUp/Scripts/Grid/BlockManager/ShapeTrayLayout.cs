@@ -21,6 +21,11 @@ namespace FitMe.Grid
                     Random.Range(Mathf.Min(tiltMin, tiltMax), Mathf.Max(tiltMin, tiltMax)), items[i].Rotation, bounds.center);
             }
 
+            // Keep standalone constructor safety, but apply its strictest cap to
+            // every shape. All further reductions are supply-wide too.
+            var commonScale = pieces[0].Scale;
+            foreach (var piece in pieces) commonScale = Mathf.Min(commonScale, piece.Scale);
+            RebuildAtScale(pieces, schemas, bounds, commonScale);
             var columns = Mathf.Max(1, Mathf.CeilToInt(Mathf.Sqrt(items.Count * bounds.width / bounds.height)));
             if (items.Count <= 6)
             {
@@ -39,6 +44,11 @@ namespace FitMe.Grid
                     bestRatio = ratio;
                     columns = candidate;
                 }
+                if (bestRatio < 1f)
+                {
+                    commonScale *= bestRatio * .999f;
+                    RebuildAtScale(pieces, schemas, bounds, commonScale);
+                }
             }
             var rows = Mathf.CeilToInt((float)items.Count / columns);
             var cellSize = new Vector2(bounds.width / columns, bounds.height / rows);
@@ -55,22 +65,48 @@ namespace FitMe.Grid
                 var center = bounds.min + new Vector2((cells[i] % columns + .5f) * cellSize.x, (cells[i] / columns + .5f) * cellSize.y);
                 if (items.Count <= 6)
                 {
-                    var size = piece.PresentationBounds.size;
-                    var ratio = Mathf.Min(1, cellSize.x / size.x, cellSize.y / size.y);
-                    if (ratio < 1)
-                        piece = new ShapeTrayPiece(i, schemas[i], bounds, piece.Scale * ratio * .999f,
-                            piece.Tilt, items[i].Rotation, center);
                     var slack = Vector2.Max(Vector2.zero, cellSize - piece.PresentationBounds.size);
                     center += new Vector2(Random.Range(-.4f, .4f) * slack.x, Random.Range(-.4f, .4f) * slack.y);
                 }
                 piece.DropInTray(center);
                 pieces[i] = piece;
             }
-            if (items.Count >= 7) ExposeDensePieces(pieces, schemas, bounds);
+            if (items.Count >= 7)
+            {
+                var exposed = false;
+                // Bounded initial-layout retries, never rescaling live inventory.
+                for (var reduction = 0; reduction < 48; reduction++)
+                {
+                    if (TryExposeDensePieces(pieces, schemas, bounds))
+                    {
+                        exposed = true;
+                        break;
+                    }
+                    if (reduction == 47) break;
+                    commonScale *= .85f;
+                    RebuildAtScale(pieces, schemas, bounds, commonScale);
+                }
+                if (!exposed)
+                {
+                    PackSeparated(pieces, schemas, bounds);
+                    ValidatePickablePatches(pieces, schemas, bounds);
+                }
+            }
             return pieces;
         }
 
-        private static void ExposeDensePieces(ShapeTrayPiece[] pieces,
+        private static void RebuildAtScale(ShapeTrayPiece[] pieces, IReadOnlyList<int[,]> schemas,
+            Rect bounds, float scale)
+        {
+            for (var i = 0; i < pieces.Length; i++)
+            {
+                var piece = pieces[i];
+                pieces[i] = new ShapeTrayPiece(i, schemas[i], bounds, scale,
+                    piece.Tilt, piece.GameplayRotation, piece.Position);
+            }
+        }
+
+        private static bool TryExposeDensePieces(ShapeTrayPiece[] pieces,
             IReadOnlyList<int[,]> schemas, Rect bounds)
         {
             var visiblePoints = new List<List<Vector2>>();
@@ -78,64 +114,58 @@ namespace FitMe.Grid
             {
                 var piece = pieces[i];
                 // Retain a patch of a real atom on every lower-sorted piece, not
-                // merely a distinct pivot. A bounded search shrinks only when
-                // the requested size cannot preserve these hit targets.
+                // merely a distinct pivot. Failure retries the entire supply.
                 var accepted = false;
-                for (var reduction = 0; reduction < 48 && !accepted; reduction++)
+                var bestPosition = piece.Position;
+                var bestScore = -1f;
+                for (var attempt = 0; attempt < 256; attempt++)
                 {
-                    var bestPosition = piece.Position;
-                    var bestScore = -1f;
-                    for (var attempt = 0; attempt < 256; attempt++)
+                    if (attempt > 0)
+                        piece.DropInTray(new Vector2(Random.Range(bounds.xMin, bounds.xMax), Random.Range(bounds.yMin, bounds.yMax)));
+                    var preservesTargets = true;
+                    var score = 0f;
+                    foreach (var points in visiblePoints)
                     {
-                        if (attempt > 0)
-                            piece.DropInTray(new Vector2(Random.Range(bounds.xMin, bounds.xMax), Random.Range(bounds.yMin, bounds.yMax)));
-                        var preservesTargets = true;
-                        var score = 0f;
-                        foreach (var points in visiblePoints)
+                        var remaining = 0;
+                        foreach (var point in points)
+                            if (!CoversAtom(piece, schemas[i], point)) remaining++;
+                        if (remaining == 0)
                         {
-                            var remaining = 0;
-                            foreach (var point in points)
-                                if (!CoversAtom(piece, schemas[i], point)) remaining++;
-                            if (remaining == 0)
-                            {
-                                preservesTargets = false;
-                                break;
-                            }
-                            score += (float)remaining / points.Count;
+                            preservesTargets = false;
+                            break;
                         }
-                        if (!preservesTargets || score <= bestScore) continue;
-                        bestScore = score;
-                        bestPosition = piece.Position;
-                        accepted = true;
+                        score += (float)remaining / points.Count;
                     }
-                    if (accepted) piece.DropInTray(bestPosition);
-                    if (!accepted)
-                        piece = new ShapeTrayPiece(i, schemas[i], bounds, piece.Scale * .85f,
-                            piece.Tilt, piece.GameplayRotation, bounds.center);
+                    if (!preservesTargets || score <= bestScore) continue;
+                    bestScore = score;
+                    bestPosition = piece.Position;
+                    accepted = true;
                 }
-                // Visual separation alone cannot clear a fixed world-space
-                // collider radius. Validate the deterministic fallback too.
-                if (!accepted)
-                {
-                    PackSeparated(pieces, schemas, bounds);
-                    for (var lower = 0; lower < pieces.Length; lower++)
-                    {
-                        var targets = AtomPoints(pieces[lower], schemas[lower]);
-                        for (var higher = lower + 1; higher < pieces.Length; higher++)
-                        {
-                            var occluder = higher;
-                            targets.RemoveAll(p => CoversAtom(pieces[occluder], schemas[occluder], p));
-                        }
-                        if (targets.Count == 0)
-                            throw new System.InvalidOperationException(
-                                $"Shape Tray usable bounds {bounds.size} cannot preserve a pickable atom patch for all {pieces.Length} pieces with the current collider radius; enlarge the tray usable bounds or reduce the authored supply.");
-                    }
-                    return;
-                }
+                if (!accepted) return false;
+                piece.DropInTray(bestPosition);
                 foreach (var points in visiblePoints)
                     points.RemoveAll(p => CoversAtom(piece, schemas[i], p));
                 visiblePoints.Add(AtomPoints(piece, schemas[i]));
                 pieces[i] = piece;
+            }
+            return true;
+        }
+
+        private static void ValidatePickablePatches(ShapeTrayPiece[] pieces,
+            IReadOnlyList<int[,]> schemas, Rect bounds)
+        {
+            // Fixed world-space collider radii do not shrink with the artwork.
+            for (var lower = 0; lower < pieces.Length; lower++)
+            {
+                var targets = AtomPoints(pieces[lower], schemas[lower]);
+                for (var higher = lower + 1; higher < pieces.Length; higher++)
+                {
+                    var occluder = higher;
+                    targets.RemoveAll(p => CoversAtom(pieces[occluder], schemas[occluder], p));
+                }
+                if (targets.Count == 0)
+                    throw new System.InvalidOperationException(
+                        $"Shape Tray usable bounds {bounds.size} cannot preserve a pickable atom patch for all {pieces.Length} pieces with the current collider radius; enlarge the tray usable bounds or reduce the authored supply.");
             }
         }
 
@@ -178,13 +208,13 @@ namespace FitMe.Grid
         {
             var columns = Mathf.CeilToInt(Mathf.Sqrt(pieces.Length * bounds.width / bounds.height));
             var cell = new Vector2(bounds.width / columns, bounds.height / Mathf.CeilToInt((float)pieces.Length / columns));
+            var ratio = 1f;
+            foreach (var piece in pieces)
+                ratio = Mathf.Min(ratio, cell.x / piece.PresentationBounds.width, cell.y / piece.PresentationBounds.height);
+            RebuildAtScale(pieces, schemas, bounds, pieces[0].Scale * ratio * .6f);
             for (var i = 0; i < pieces.Length; i++)
             {
-                var piece = pieces[i];
-                var ratio = Mathf.Min(1f, cell.x / piece.PresentationBounds.width, cell.y / piece.PresentationBounds.height) * .6f;
-                pieces[i] = new ShapeTrayPiece(i, schemas[i], bounds, piece.Scale * ratio,
-                    piece.Tilt, piece.GameplayRotation,
-                    bounds.min + new Vector2((i % columns + .5f) * cell.x, (i / columns + .5f) * cell.y));
+                pieces[i].DropInTray(bounds.min + new Vector2((i % columns + .5f) * cell.x, (i / columns + .5f) * cell.y));
             }
         }
     }
