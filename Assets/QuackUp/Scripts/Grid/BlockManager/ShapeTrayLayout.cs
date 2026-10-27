@@ -7,7 +7,7 @@ namespace FitMe.Grid
     public static class ShapeTrayLayout
     {
         public static ShapeTrayPiece[] Create(IReadOnlyList<ShapeBlockSupplyQueue.Item> items, Rect bounds,
-            float requestedScale, float tiltMin, float tiltMax)
+            float requestedScale, float tiltMin, float tiltMax, float atomEdgeRadius)
         {
             var pieces = new ShapeTrayPiece[items.Count];
             if (items.Count == 0) return pieces;
@@ -77,7 +77,7 @@ namespace FitMe.Grid
                 // Bounded initial-layout retries, never rescaling live inventory.
                 for (var reduction = 0; reduction < 48; reduction++)
                 {
-                    if (TryExposeDensePieces(pieces, schemas, bounds))
+                    if (TryExposeDensePieces(pieces, schemas, bounds, atomEdgeRadius))
                     {
                         exposed = true;
                         break;
@@ -89,7 +89,7 @@ namespace FitMe.Grid
                 if (!exposed)
                 {
                     PackSeparated(pieces, schemas, bounds);
-                    ValidatePickablePatches(pieces, schemas, bounds);
+                    ValidatePickablePatches(pieces, schemas, bounds, atomEdgeRadius);
                 }
             }
             return pieces;
@@ -107,7 +107,7 @@ namespace FitMe.Grid
         }
 
         private static bool TryExposeDensePieces(ShapeTrayPiece[] pieces,
-            IReadOnlyList<int[,]> schemas, Rect bounds)
+            IReadOnlyList<int[,]> schemas, Rect bounds, float atomEdgeRadius)
         {
             var visiblePoints = new List<List<Vector2>>();
             for (var i = 0; i < pieces.Length; i++)
@@ -128,7 +128,7 @@ namespace FitMe.Grid
                     {
                         var remaining = 0;
                         foreach (var point in points)
-                            if (!CoversAtom(piece, schemas[i], point)) remaining++;
+                            if (!CoversAtom(piece, schemas[i], point, atomEdgeRadius)) remaining++;
                         if (remaining == 0)
                         {
                             preservesTargets = false;
@@ -144,7 +144,7 @@ namespace FitMe.Grid
                 if (!accepted) return false;
                 piece.DropInTray(bestPosition);
                 foreach (var points in visiblePoints)
-                    points.RemoveAll(p => CoversAtom(piece, schemas[i], p));
+                    points.RemoveAll(p => CoversAtom(piece, schemas[i], p, atomEdgeRadius));
                 visiblePoints.Add(AtomPoints(piece, schemas[i]));
                 pieces[i] = piece;
             }
@@ -152,16 +152,15 @@ namespace FitMe.Grid
         }
 
         private static void ValidatePickablePatches(ShapeTrayPiece[] pieces,
-            IReadOnlyList<int[,]> schemas, Rect bounds)
+            IReadOnlyList<int[,]> schemas, Rect bounds, float atomEdgeRadius)
         {
-            // Fixed world-space collider radii do not shrink with the artwork.
             for (var lower = 0; lower < pieces.Length; lower++)
             {
                 var targets = AtomPoints(pieces[lower], schemas[lower]);
                 for (var higher = lower + 1; higher < pieces.Length; higher++)
                 {
                     var occluder = higher;
-                    targets.RemoveAll(p => CoversAtom(pieces[occluder], schemas[occluder], p));
+                    targets.RemoveAll(p => CoversAtom(pieces[occluder], schemas[occluder], p, atomEdgeRadius));
                 }
                 if (targets.Count == 0)
                     throw new System.InvalidOperationException(
@@ -187,14 +186,14 @@ namespace FitMe.Grid
             return points;
         }
 
-        private static bool CoversAtom(ShapeTrayPiece piece, int[,] schema, Vector2 point)
+        private static bool CoversAtom(ShapeTrayPiece piece, int[,] schema, Vector2 point, float atomEdgeRadius)
         {
             var local = (Vector2)(Quaternion.Inverse(piece.TrayRotation) * (point - piece.Position)) / piece.Scale;
             // The existing BlockView also has a unit hit box at the pivot.
             if (Mathf.Abs(local.x) < .55f && Mathf.Abs(local.y) < .55f) return true;
-            // Physics2D edgeRadius is world-space (not included in bounds or
-            // scaled with the atom). Keep a real patch clear of its .25 radius.
-            var hitHalfSize = .55f + .25f / piece.Scale;
+            // The collider edge radius is configured in block-local units and
+            // scales with the block while it rests in the tray.
+            var hitHalfSize = .55f + atomEdgeRadius;
             for (var row = 0; row < schema.GetLength(0); row++)
             for (var column = 0; column < schema.GetLength(1); column++)
                 if (schema[row, column] != 0 &&

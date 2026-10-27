@@ -563,7 +563,7 @@ namespace FitMe.Grid
                 panelBounds.width * (1f - 2f * inset.x), panelBounds.height * (1f - 2f * inset.y));
             var items = _shapeBlockQueue.PeekNext(count);
             var pieces = ShapeTrayLayout.Create(items, bounds, _config.TrayBlockScale,
-                _config.TrayTiltMin, _config.TrayTiltMax);
+                _config.TrayTiltMin, _config.TrayTiltMax, _config.AtomEdgeRadius);
             var spawnedBlocks = new List<BlockInstance>();
             for (var i = 0; i < count; i++)
             {

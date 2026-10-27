@@ -63,7 +63,7 @@ namespace FitMe.Grid.Tests
             var tilts = Enumerable.Range(0, count).Select(_ => UnityEngine.Random.Range(-15f, 15f)).ToArray();
             UnityEngine.Random.InitState(719);
             var bounds = new Rect(0, 0, 5, 3);
-            var pieces = ShapeTrayLayout.Create(items, bounds, requestedScale, -15, 15);
+            var pieces = ShapeTrayLayout.Create(items, bounds, requestedScale, -15, 15, .25f);
             Assert.That(pieces[0].Scale, Is.GreaterThan(0));
             Assert.That(pieces[0].Scale, Is.LessThanOrEqualTo(requestedScale));
             foreach (var piece in pieces)
@@ -89,7 +89,7 @@ namespace FitMe.Grid.Tests
             typeof(ShapeTrayLayout).GetMethod("PackSeparated", BindingFlags.Static | BindingFlags.NonPublic)
                 .Invoke(null, new object[] { pieces, schemas, bounds });
             typeof(ShapeTrayLayout).GetMethod("ValidatePickablePatches", BindingFlags.Static | BindingFlags.NonPublic)
-                .Invoke(null, new object[] { pieces, schemas, bounds });
+                .Invoke(null, new object[] { pieces, schemas, bounds, .25f });
             foreach (var piece in pieces)
             {
                 Assert.That(piece.Scale, Is.EqualTo(pieces[0].Scale));
@@ -125,8 +125,8 @@ namespace FitMe.Grid.Tests
                 new ShapePlayerBlockRuntimeEntry(null, new[,] { { 1 } }), Quaternion.identity, BlockColor.Red)).ToArray();
             UnityEngine.Random.InitState(719);
             var error = Assert.Throws<InvalidOperationException>(() =>
-                ShapeTrayLayout.Create(items, new Rect(0, 0, .1f, .1f), .5f, 0, 0),
-                "The separated fallback must not return pieces hidden by the fixed world-space collider radius");
+                ShapeTrayLayout.Create(items, new Rect(0, 0, .1f, .1f), .5f, 0, 0, .25f),
+                "The separated fallback must not return pieces hidden by the scaled collider edge radius");
             StringAssert.Contains("Shape Tray", error.Message);
             StringAssert.Contains("usable bounds", error.Message);
             StringAssert.Contains("enlarge", error.Message);

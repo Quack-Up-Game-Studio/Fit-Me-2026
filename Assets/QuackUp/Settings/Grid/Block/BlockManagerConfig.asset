@@ -604,6 +604,7 @@ MonoBehaviour:
   <AllowPickUpAfterPlacement>k__BackingField: 0
   <RotateClockwise>k__BackingField: 1
   <PickUpScaleMultiplier>k__BackingField: 1.2
+  <AtomEdgeRadius>k__BackingField: 0.25
   <SwitchIdleTimeRange>k__BackingField: {x: 30, y: 60}
   <LongTapDuration>k__BackingField: 0.2
   <UseBlockDragTween>k__BackingField: 0

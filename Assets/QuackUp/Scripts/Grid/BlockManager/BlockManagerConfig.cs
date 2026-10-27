@@ -50,6 +50,8 @@ namespace FitMe.Grid
         [field: SerializeField] public bool AllowPickUpAfterPlacement { get; private set; }
         [field: SerializeField] public bool RotateClockwise { get; private set; } = true;
         [field: SerializeField] public float PickUpScaleMultiplier { get; private set; } = 1.2f;
+        [field: SerializeField, Min(0f), Tooltip("Base BoxCollider2D edge radius while a block is resting on its spawn/tray and can be picked up.")]
+        public float AtomEdgeRadius { get; private set; } = .25f;
         [field: SerializeField] public Vector2 SwitchIdleTimeRange { get; private set; } = new(30f, 60f);
         [field: SerializeField] public float LongTapDuration { get; private set; } = 0.2f;
         [field: SerializeField] public bool UseBlockDragTween { get; private set; } = true;

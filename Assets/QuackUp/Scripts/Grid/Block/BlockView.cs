@@ -263,11 +263,13 @@ namespace FitMe.Grid
             var targetScale = new Vector3(scale.x, scale.y, _originalScale.z);
             if (_blockManagerConfig.UseBlockScaleTween)
             {
-                _pickUpTween = Tween.Scale(transform, targetScale, 0.2f);
+                _pickUpTween = Tween.Scale(transform, targetScale, 0.2f)
+                    .OnComplete(this, target => target.RefreshPickupColliderEdgeRadius());
             }
             else
             {
                 transform.localScale = targetScale;
+                RefreshPickupColliderEdgeRadius();
             }
             skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.IdleAnimations[0], true);
             StartIdleTimer();
@@ -384,6 +386,7 @@ namespace FitMe.Grid
             _originalScale = data.Scale;
             var sequence = Tween.Scale(transform, new TweenSettings<Vector3>(data.Scale, scaleTweenSettings));
             await sequence.ToUniTask();
+            RefreshPickupColliderEdgeRadius();
             data.Promise.TrySetResult(Unit.Default);
         }
         
@@ -412,9 +415,17 @@ namespace FitMe.Grid
                     transform.position = piece.Position;
                     transform.rotation = piece.TrayRotation;
                     transform.localScale = new Vector3(piece.Scale, piece.Scale, 1f);
+                    RefreshPickupColliderEdgeRadius();
                 }
                 data.Promise.TrySetResult(Unit.Default);
             }
+        }
+
+        private void RefreshPickupColliderEdgeRadius()
+        {
+            if (_viewModel.BlockInteractionState.Value != BlockInteractionState.PlacedOnSpawn) return;
+            foreach (var atomView in GetComponentsInChildren<AtomView>(true))
+                atomView.SetPickupEdgeRadius(_blockManagerConfig.AtomEdgeRadius);
         }
 
         private void Destroy()
