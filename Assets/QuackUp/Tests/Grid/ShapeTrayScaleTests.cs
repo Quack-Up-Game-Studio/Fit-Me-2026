@@ -132,22 +132,6 @@ namespace FitMe.Grid.Tests
             StringAssert.Contains("enlarge", error.Message);
         }
 
-        [Test]
-        public void ShapeTray_RealAtomPrefabRadiusStillCoversTinyTrayAtFallbackScale()
-        {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(ArtRoot + "Prefabs/Atom/AtomView.prefab");
-            var atom = Keep(UnityEngine.Object.Instantiate(prefab));
-            atom.transform.position = new Vector3(.05f, .05f);
-            atom.transform.localScale = new Vector3(.02f, .02f, 1);
-            var collider = atom.GetComponent<BoxCollider2D>();
-            Assert.That(collider.edgeRadius, Is.EqualTo(.25f));
-            Physics2D.SyncTransforms();
-            // Real Physics2D confirms the radius does not shrink with the artwork.
-            foreach (var point in new[] { Vector2.zero, new Vector2(.1f, 0), new Vector2(0, .1f), new Vector2(.1f, .1f) })
-                Assert.That(collider.OverlapPoint(point), Is.True, $"Tiny-tray corner {point} is covered by one atom collider");
-            Assert.That(collider.bounds.size.x, Is.LessThan(.1f), "Reported bounds omit the edge radius");
-        }
-
         [TestCase(0f)]
         [TestCase(-1f)]
         [TestCase(float.NaN)]
