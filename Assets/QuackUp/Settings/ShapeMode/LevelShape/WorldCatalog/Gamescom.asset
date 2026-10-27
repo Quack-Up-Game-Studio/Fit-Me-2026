@@ -24,3 +24,6 @@ MonoBehaviour:
   _entries:
   - _worldKey: gamescom
     _levelCatalog: {fileID: 11400000, guid: 568954089605f5f03837b4674eb50cb5, type: 2}
+    _subtitle: ALIEN NEIGHBORHOOD
+    _unlockedSprite: {fileID: 0}
+    _lockedSprite: {fileID: 0}

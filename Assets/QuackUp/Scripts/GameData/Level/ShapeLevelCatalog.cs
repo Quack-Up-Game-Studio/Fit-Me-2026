@@ -9,7 +9,9 @@ namespace FitMe.GameData
     [CreateAssetMenu(fileName = "Shape Level Catalog", menuName = "FitMe/GameData/Level/Shape Level Catalog")]
     public sealed class ShapeLevelCatalog : SerializedScriptableObject
     {
+#if UNITY_EDITOR
         [InfoBox("$InspectorValidationMessage", InfoMessageType.Error, nameof(HasInspectorValidationErrors))]
+#endif
         [SerializeField, ListDrawerSettings(DraggableItems = true)]
         private List<ShapeLevelCatalogEntry> _entries = new();
 
