@@ -114,6 +114,18 @@ namespace QuackUp.SceneManagement.Tests
             Assert.That(prefab.transform.Find("Completed").gameObject.activeSelf, Is.False);
         }
 
+        [Test]
+        public void LockedWorldNeverDispatchesSelectionEvenWhenClickIsInvokedFromCode()
+        {
+            var view = CreateView();
+            var selected = new List<string>();
+            view.Construct(CreateItem("world-3", false, null, CreateSprite()), selected.Add);
+
+            GetField<Button>(view, "selectButton").onClick.Invoke();
+
+            Assert.That(selected, Is.Empty);
+        }
+
         private Sprite CreateSprite()
         {
             var texture = new Texture2D(4, 4);

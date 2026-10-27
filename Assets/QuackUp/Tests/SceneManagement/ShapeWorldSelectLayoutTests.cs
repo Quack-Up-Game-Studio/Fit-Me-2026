@@ -93,6 +93,19 @@ namespace QuackUp.SceneManagement.Tests
         }
 
         [Test]
+        public void WideViewportEnlargesButtonsToFillBothColumnsWithoutOverflow()
+        {
+            var content = CreateLayout(1124, 5);
+            var first = (RectTransform)content.GetChild(0);
+            var second = (RectTransform)content.GetChild(1);
+            Assert.That(first.localScale.x, Is.GreaterThan(1));
+            var firstLeft = first.anchoredPosition.x - first.rect.width * first.pivot.x * first.localScale.x;
+            var secondRight = second.anchoredPosition.x + second.rect.width * (1 - second.pivot.x) * second.localScale.x;
+            Assert.That(firstLeft, Is.EqualTo(30).Within(0.01f));
+            Assert.That(secondRight, Is.EqualTo(content.rect.width - 30).Within(0.01f));
+        }
+
+        [Test]
         public void ResizingViewportRecalculatesItemScaleAndContentHeight()
         {
             var content = CreateLayout(960, 5);

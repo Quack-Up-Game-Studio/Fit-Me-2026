@@ -14,6 +14,7 @@ namespace FitMe.Panel
     public class MainMenuPanelViewModel : PanelViewModel
     {
         public ReactiveCommand WatchAdCommand { get; } = new();
+        public ReactiveCommand StartGameCommand { get; } = new();
         public ReactiveCommand ToTutorial { get; private set; } = new();
         public ReactiveProperty<bool> CompletedTutorial { get; private set; } = new(false);
         public ReactiveProperty<bool> IsSaveLoading { get; private set; } = new(true);

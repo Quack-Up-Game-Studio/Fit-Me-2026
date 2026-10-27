@@ -37,7 +37,10 @@ namespace FitMe.Panel
             if (completedIndicator) completedIndicator.SetActive(item.IsComplete);
             selectButton.interactable = item.IsUnlocked;
             _binding?.Dispose();
-            _binding = selectButton.OnClickAsObservable().Subscribe(_ => onSelected?.Invoke(item.WorldKey));
+            _binding = selectButton.OnClickAsObservable().Subscribe(_ =>
+            {
+                if (item.IsUnlocked) onSelected?.Invoke(item.WorldKey);
+            });
         }
         private void OnDestroy() => _binding?.Dispose();
     }

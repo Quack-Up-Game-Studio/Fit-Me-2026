@@ -11,7 +11,7 @@ namespace FitMe.Panel
         [SerializeField] private Vector2 spacing = new(50, 50);
 
         private float AvailableWidth => Mathf.Max(0, rectTransform.rect.width - padding.horizontal);
-        private float ItemScale => Mathf.Min(1, AvailableWidth / Mathf.Max(1, cellSize.x * Columns + spacing.x));
+        private float ItemScale => AvailableWidth / Mathf.Max(1, cellSize.x * Columns + spacing.x);
         private int RowCount => (rectChildren.Count + Columns - 1) / Columns;
 
         public override void CalculateLayoutInputHorizontal()

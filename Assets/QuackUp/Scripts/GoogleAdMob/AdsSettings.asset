@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35ea93f047ebbaf4a8bbb160e67ac340, type: 3}
   m_Name: AdsSettings
   m_EditorClassIdentifier: QuackUp.Utils::QuackUp.Utils.AdsSettings
+  adsEnabled: 0
   isTestMode: 0
   androidBannerTestId: ca-app-pub-3940256099942544/6300978111
   androidBannerProdId: ca-app-pub-1737894207840657/5082361310

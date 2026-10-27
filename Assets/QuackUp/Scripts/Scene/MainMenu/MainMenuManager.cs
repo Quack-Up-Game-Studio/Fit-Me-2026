@@ -37,6 +37,7 @@ namespace FitMe.Scene.MainMenu
         private IDisposable _subscriptions;
         private IDisposable _panelSubscriptions;
         private AudioReference _bgmReference;
+        private bool _startRequested;
         
         [Inject]
         public MainMenuManager(
@@ -86,7 +87,7 @@ namespace FitMe.Scene.MainMenu
                 })
                 .AddTo(ref disposableBuilder);
             _gridManager.OnBlockPlaced
-                .Subscribe(_ => OnBlockPlaced())
+                .Subscribe(_ => RequestStart())
                 .AddTo(ref disposableBuilder);
             _messageHub.GetObservable<LoadSceneStageEvent>()
                 .Where(x => x.Stage is LoadSceneStage.StartOut)
@@ -101,6 +102,7 @@ namespace FitMe.Scene.MainMenu
                     x.PreviousSceneType == SceneType.MainMenu && x.NextSceneType == SceneType.MainMenu)
                 .Subscribe(_ =>
                 {
+                    _startRequested = false;
                     _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
                     ShowBanner();
                 })
@@ -127,8 +129,7 @@ namespace FitMe.Scene.MainMenu
             {
                 DebugUtils.LogError("MainMenu panel not found!");
             }
-            _panelSubscriptions = mainMenuPanel.ToTutorial
-                .SubscribeAwait((_, _) => ToTutorial(), AwaitOperation.Switch);
+            BindPanel(mainMenuPanel);
             var randomPreset = _blockManagerConfig.BlockPresetDictionary.Values.GetRandomElement();
             _messageHub.Publish(new SpawnWithBlockPresetEvent(randomPreset, false));
             _bgmReference = _audioManager.PlayAudio(_mainMenuManagerConfig.MainMenuBgm, Vector3.zero);
@@ -137,6 +138,18 @@ namespace FitMe.Scene.MainMenu
                 _outOfEnergyManager.OpenShopAcrossScene = false;
                 OnToShop();
             }
+        }
+
+        private void BindPanel(MainMenuPanelViewModel mainMenuPanel)
+        {
+            var panelBindings = Disposable.CreateBuilder();
+            mainMenuPanel.ToTutorial
+                .SubscribeAwait((_, _) => ToTutorial(), AwaitOperation.Switch)
+                .AddTo(ref panelBindings);
+            mainMenuPanel.StartGameCommand
+                .Subscribe(_ => RequestStart())
+                .AddTo(ref panelBindings);
+            _panelSubscriptions = panelBindings.Build();
         }
 
         public void Dispose()
@@ -154,18 +167,36 @@ namespace FitMe.Scene.MainMenu
             return !_energyManager.HasEnoughEnergy(1);
         }
 
-        private void OnBlockPlaced()
+        private void RequestStart()
         {
-            //_loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false).Forget();
+            if (_startRequested || !_saveManager.IsSaveReady) return;
             var saveObjects = _saveManager.GetFirstSaveObjectOfType<PlayerRecordSaveObject>();
             var saveData = saveObjects.GetSaveData<PlayerRecordSaveData>();
-            if (saveData.CompletedTutorial)
+            var action = MainMenuStartRules.Resolve(_saveManager.IsSaveReady,
+                saveData.CompletedTutorial, _energyManager.HasEnoughEnergy(1));
+            if (action == MainMenuStartAction.OutOfEnergy)
             {
-                ToGameplay().Forget();
+                _outOfEnergyManager.TransitionInCommand.Execute(new Promise<Unit>());
+                return;
             }
-            else
+            if (action == MainMenuStartAction.WaitForSave) return;
+            _startRequested = true;
+            StartGame(action).Forget();
+        }
+
+        private async UniTask StartGame(MainMenuStartAction action)
+        {
+            try
             {
-                ToTutorial().Forget();
+                if (action == MainMenuStartAction.Tutorial)
+                    await ToTutorial();
+                else
+                    await ToGameplay();
+            }
+            catch
+            {
+                _startRequested = false;
+                throw;
             }
         }
 
@@ -183,7 +214,7 @@ namespace FitMe.Scene.MainMenu
             await _loadSceneManager.LoadScene(SceneType.Tutorial, LoadSceneMode.Single, false);
         }
 
-        private async UniTaskVoid ToGameplay()
+        private async UniTask ToGameplay()
         {
             /*_energyManager.ChangeEnergy(-1, itemType: GAItemType.Play, itemId: GAItemId.MainMenuPlay);
             _pendingScenePayload.Set(new LevelSessionRequest(GameMode.Classic, null));

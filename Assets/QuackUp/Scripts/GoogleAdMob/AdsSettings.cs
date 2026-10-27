@@ -8,6 +8,32 @@ namespace QuackUp.GoogleAdMob
     [CreateAssetMenu(fileName = "AdsSettings", menuName = "QuackUp/Ads/AdsSettings")]
     public class AdsSettings : ScriptableObject
     {
+        [Title("Ads Master Switch")]
+        [SerializeField, OnValueChanged(nameof(NotifyAdsEnabledChanged))]
+        [Tooltip("Disable ALL ads, including rewarded ads. No ad requests are made while disabled.")]
+        private bool adsEnabled = true;
+
+        public bool AdsEnabled => adsEnabled;
+        public event System.Action<bool> AdsEnabledChanged;
+
+        public void SetAdsEnabled(bool enabled)
+        {
+            if (adsEnabled == enabled) return;
+            adsEnabled = enabled;
+            NotifyAdsEnabledChanged();
+#if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(this);
+#endif
+        }
+
+        private void NotifyAdsEnabledChanged() => AdsEnabledChanged?.Invoke(adsEnabled);
+
+        [Button(ButtonSizes.Medium), ShowIf(nameof(adsEnabled))]
+        public void DisableAds() => SetAdsEnabled(false);
+
+        [Button(ButtonSizes.Medium), ShowIf("@!adsEnabled")]
+        public void EnableAds() => SetAdsEnabled(true);
+
         [SerializeField]
         [ReadOnly]
         [InfoBox("Currently using TEST Ads", InfoMessageType.Warning, "isTestMode")]
