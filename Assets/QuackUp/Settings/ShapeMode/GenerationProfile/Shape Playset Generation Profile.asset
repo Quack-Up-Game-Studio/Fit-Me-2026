@@ -21,9 +21,9 @@ MonoBehaviour:
   _minVoidCells: 0
   _maxVoidCells: 4
   _minGeneratedBlockColumns: 1
-  _maxGeneratedBlockColumns: 2
+  _maxGeneratedBlockColumns: 3
   _minGeneratedBlockRows: 1
-  _maxGeneratedBlockRows: 3
+  _maxGeneratedBlockRows: 2
   _minPlayableRegionCells: 10
   _maxObstacleRepairNodes: 50000
   _maxTilingSearchNodes: 100000
