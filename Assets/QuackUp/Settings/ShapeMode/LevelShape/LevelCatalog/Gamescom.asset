@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a5ab80c020b4278a422176fd7b1d995, type: 3}
+  m_Name: Gamescom
+  m_EditorClassIdentifier: FitMe.GameData::FitMe.GameData.ShapeLevelCatalog
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  _entries:
+  - _key: GC-1
+    _levelDefinition: {fileID: 11400000, guid: 102fdea0cae5a87af8c854afbb06bb8b, type: 2}
+  - _key: GC-2
+    _levelDefinition: {fileID: 11400000, guid: c4a33df83260d15d1a0e9b30669bac91, type: 2}
+  - _key: GC-3
+    _levelDefinition: {fileID: 11400000, guid: f7d9bbaa2a24b9b5a823c3c01ddffd88, type: 2}
+  - _key: GC-4
+    _levelDefinition: {fileID: 11400000, guid: e60404ce7130314e0a2cddd5646f1701, type: 2}
+  - _key: GC-5
+    _levelDefinition: {fileID: 11400000, guid: ba00128e6a22b6ff3ac421d6b20d334d, type: 2}
+  - _key: GC-6
+    _levelDefinition: {fileID: 11400000, guid: 77f0e3f21767c0a8f920f605c64262d6, type: 2}
+  - _key: GC-7
+    _levelDefinition: {fileID: 11400000, guid: a59bc4bfbef1693a796d3ae89bab9cb0, type: 2}
+  - _key: GC-8
+    _levelDefinition: {fileID: 11400000, guid: 5e90c6adceb01200884d2de37b07dc63, type: 2}
+  - _key: GC-9
+    _levelDefinition: {fileID: 11400000, guid: d327610f3a68eb0b1818922f0abe1776, type: 2}
+  - _key: GC-10
+    _levelDefinition: {fileID: 11400000, guid: dade37d7e015dee629d6e22a0b55fa5f, type: 2}
+  - _key: GC-11
+    _levelDefinition: {fileID: 11400000, guid: b253a7bfbe071e4b4ab17a925b4a20c0, type: 2}

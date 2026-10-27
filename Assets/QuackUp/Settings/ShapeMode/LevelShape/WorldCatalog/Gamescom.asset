@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72c975f25da54b8f9b2a0e791cffd241, type: 3}
+  m_Name: Gamescom
+  m_EditorClassIdentifier: FitMe.GameData::FitMe.GameData.ShapeLevelWorldCatalog
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  _entries:
+  - _worldKey: gamescom
+    _levelCatalog: {fileID: 11400000, guid: 568954089605f5f03837b4674eb50cb5, type: 2}

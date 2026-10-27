@@ -21,12 +21,14 @@ MonoBehaviour:
   _minVoidCells: 0
   _maxVoidCells: 4
   _minGeneratedBlockColumns: 1
-  _maxGeneratedBlockColumns: 3
+  _maxGeneratedBlockColumns: 2
   _minGeneratedBlockRows: 1
-  _maxGeneratedBlockRows: 2
+  _maxGeneratedBlockRows: 3
   _minPlayableRegionCells: 10
   _maxObstacleRepairNodes: 50000
   _maxTilingSearchNodes: 100000
   _maxCandidateAttempts: 8
-  _maxSingletonFallbackBlocks: 0
+  _maxSingletonFallbackBlocks: 3
+  _rectangularPreference: 0.35
+  _repetitionPenalty: 0.5
   _preferredPlayerBlocks: []

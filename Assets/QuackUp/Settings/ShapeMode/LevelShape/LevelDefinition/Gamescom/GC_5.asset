@@ -1,0 +1,414 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b16e4466fa2d42ce8298b0c870a738b8, type: 3}
+  m_Name: GC_5
+  m_EditorClassIdentifier: FitMe.GameData::FitMe.GameData.ShapeLevelDefinition
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: _generatedBoardMask
+      Entry: 7
+      Data: 0|System.Int32[,], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 42
+    - Name: ranks
+      Entry: 1
+      Data: 6|7
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: _generatedObstacleMask
+      Entry: 7
+      Data: 1|System.Int32[,], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 42
+    - Name: ranks
+      Entry: 1
+      Data: 6|7
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  _board: {fileID: 0}
+  _playerBlocks:
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 2, y: 3}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 3}
+    _inlineFootprintCells: 010000000100000000000000010000000100000001000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 2, y: 3}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 3}
+    _inlineFootprintCells: 010000000000000001000000010000000100000001000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 2, y: 3}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 3}
+    _inlineFootprintCells: 000000000100000001000000010000000100000001000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 1, y: 1}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 1, y: 1}
+    _inlineFootprintCells: 01000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 3, y: 2}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 3, y: 2}
+    _inlineFootprintCells: 000000000000000001000000010000000100000001000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 2, y: 3}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 3}
+    _inlineFootprintCells: 010000000100000001000000010000000100000000000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 2, y: 2}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 2}
+    _inlineFootprintCells: 01000000010000000000000001000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 2, y: 2}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 2}
+    _inlineFootprintCells: 00000000010000000100000001000000
+  - _preset: {fileID: 0}
+    _appearancePreset: {fileID: 0}
+    _count: 1
+    _source: 1
+    <InlineFootprintSize>k__BackingField: {x: 2, y: 2}
+    <InlineFootprintResizeTarget>k__BackingField: {x: 2, y: 2}
+    _inlineFootprintCells: 01000000010000000100000000000000
+  _generationProvenance:
+    _seed: 25691030
+    _attemptIndex: 0
+    _generatorVersion: 6
+    _optimizationStatus: 1
+    _optimizationNodesVisited: 5969
+    _configuration:
+      _minBoardColumns: 7
+      _maxBoardColumns: 7
+      _minBoardRows: 6
+      _maxBoardRows: 6
+      _minObstacleCells: 0
+      _maxObstacleCells: 0
+      _minVoidCells: 0
+      _maxVoidCells: 0
+      _minGeneratedBlockColumns: 1
+      _maxGeneratedBlockColumns: 4
+      _minGeneratedBlockRows: 1
+      _maxGeneratedBlockRows: 4
+      _minPlayableRegionCells: 1
+      _maxObstacleRepairNodes: 50000
+      _maxTilingSearchNodes: 1000000
+      _maxCandidateAttempts: 1
+      _maxSingletonFallbackBlocks: 0
+      _rectangularPreference: 0.35
+      _repetitionPenalty: 0.5
+      _preferredPlayerBlocks: []
+    _difficulty:
+      _playableCellCount: 34
+      _obstacleCellCount: 0
+      _voidCellCount: 8
+      _playerCellCount: 34
+      _blockCount: 4
+      _totalLegalPlacements: 145
+      _averageLegalPlacementsPerBlock: 36.25
+      _minimumLegalPlacementsPerBlock: 20
+      _maximumLegalPlacementsPerBlock: 52
+      _obstacleRatio: 0
+      _solutionCount: 0
+      _isSolutionCountExact: 0
+      _provisionalDifficultyScore: 28
+      _scoreModelVersion: 2
+  _boardSource: 1
+  <GeneratedBoardSize>k__BackingField: {x: 7, y: 6}
