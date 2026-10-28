@@ -13,7 +13,7 @@ namespace QuackUp.Utils
         private static readonly int Size = Shader.PropertyToID("_RectTransformSize");
         private Image _image;
 
-        private void Start()
+        private void Awake()
         {
             _image = GetComponent<Graphic>() as Image;
             if (!_image)
@@ -23,7 +23,18 @@ namespace QuackUp.Utils
             }
             UpdateMaterial();
         }
-        
+
+        private void OnRectTransformDimensionsChange()
+        {
+            if (!_image)
+            {
+                _image = GetComponent<Graphic>() as Image;
+                if (!_image) return;
+            }
+
+            UpdateMaterial();
+        }
+
 #if UNITY_EDITOR
         private void OnValidate()
         {
