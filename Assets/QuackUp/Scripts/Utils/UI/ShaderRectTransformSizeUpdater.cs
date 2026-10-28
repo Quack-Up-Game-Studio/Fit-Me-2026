@@ -1,4 +1,5 @@
 using System;
+using Coffee.UIExtensions;
 using Debug = QuackUp.Utils.DebugUtils;
 using R3;
 using UnityEngine;
@@ -7,15 +8,16 @@ using UnityEngine.UI;
 namespace QuackUp.Utils
 {
     [ExecuteAlways]
-    [RequireComponent(typeof(Graphic))]
+    [RequireComponent(typeof(Graphic), typeof(UIMaterialPropertyInjector))]
     public class ShaderRectTransformSizeUpdater : MonoBehaviour
     {
-        private static readonly int Size = Shader.PropertyToID("_RectTransformSize");
         private Image _image;
+        private UIMaterialPropertyInjector _materialPropertyInjector;
 
         private void Awake()
         {
             _image = GetComponent<Graphic>() as Image;
+            _materialPropertyInjector = GetComponent<UIMaterialPropertyInjector>();
             if (!_image)
             {
                 Debug.LogError("ShaderRectTransformSizeUpdater requires a Graphic component.");
@@ -26,12 +28,6 @@ namespace QuackUp.Utils
 
         private void OnRectTransformDimensionsChange()
         {
-            if (!_image)
-            {
-                _image = GetComponent<Graphic>() as Image;
-                if (!_image) return;
-            }
-
             UpdateMaterial();
         }
 
@@ -44,11 +40,14 @@ namespace QuackUp.Utils
 
         private void UpdateMaterial()
         {
-            if (!_image || !_image.material) return;
-            Debug.Log("Updating material with rect transform size: " + _image.rectTransform.rect.size);
+            if (!_image) _image = GetComponent<Graphic>() as Image;
+            if (!_materialPropertyInjector) _materialPropertyInjector = GetComponent<UIMaterialPropertyInjector>();
+            if (!_image || !_materialPropertyInjector) return;
+
             var imageRect = _image.rectTransform.rect;
             var widthHeight = new Vector2(x: imageRect.width, y: imageRect.height);
-            _image.material.SetVector(Size, widthHeight);
+            Debug.Log("Updating injected material with rect transform size: " + widthHeight);
+            _materialPropertyInjector.SetVector("_RectTransformSize", widthHeight);
         }
     }
 }
