@@ -29,13 +29,11 @@ namespace FitMe.Panel
         private void Bind()
         {
             var disposableBuilder = Disposable.CreateBuilder();
-            
+
+            levelShapeModeButton.interactable = GameModeAvailability.IsAvailable(GameMode.LevelShape);
+
             normalModeButton.OnClickAsObservable()
                 .Subscribe(_ => OnOriginalMode())
-                .AddTo(ref disposableBuilder);
-            
-            levelShapeModeButton.OnClickAsObservable()
-                .Subscribe(_ => OnLevelShapeMode())
                 .AddTo(ref disposableBuilder);
             
             returnToMainMenuButton.OnClickAsObservable()
@@ -56,11 +54,6 @@ namespace FitMe.Panel
             _vm.SelectGameModeCommand.Execute(GameMode.Classic);
         }
         
-        private void OnLevelShapeMode()
-        {
-            _vm.SelectGameModeCommand.Execute(GameMode.LevelShape);
-        }
-
         private void ReturnToMainMenu()
         {
             _vm.ReturnToMainMenuCommand.Execute(Unit.Default);

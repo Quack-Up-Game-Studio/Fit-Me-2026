@@ -62,11 +62,7 @@ namespace FitMe.Scene
         
         private async UniTask OnModeSelected(GameMode mode)
         {
-            if (mode == GameMode.LevelShape)
-            {
-                await _loadSceneManager.LoadScene(SceneType.ShapeLevelSelect, LoadSceneMode.Single, false);
-                return;
-            }
+            if (!GameModeAvailability.IsAvailable(mode)) return;
 
             if (!_energyManager.HasEnoughEnergy(1))
             {

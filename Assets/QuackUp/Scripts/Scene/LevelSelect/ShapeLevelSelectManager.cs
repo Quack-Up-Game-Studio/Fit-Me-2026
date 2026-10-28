@@ -50,6 +50,12 @@ namespace FitMe.Scene
 
         public void Start()
         {
+            if (!GameModeAvailability.IsAvailable(GameMode.LevelShape))
+            {
+                _loadSceneManager.LoadScene(SceneType.ModeSelect, LoadSceneMode.Single, false).Forget();
+                return;
+            }
+
             Subscribe().Forget();
         }
 

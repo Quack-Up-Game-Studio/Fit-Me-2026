@@ -27,4 +27,9 @@ namespace FitMe.Shared
         Classic = 0,
         LevelShape = 1
     }
+
+    public static class GameModeAvailability
+    {
+        public static bool IsAvailable(GameMode mode) => mode == GameMode.Classic;
+    }
 }
