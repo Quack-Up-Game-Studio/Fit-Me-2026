@@ -1888,7 +1888,7 @@ MonoBehaviour:
       Data: PanelCanvasGroup
     - Name: $v
       Entry: 10
-      Data: 0|UnityEngine.CanvasGroup, UnityEngine.UIModule
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -2101,7 +2101,7 @@ MonoBehaviour:
       Data: PrimeTween.TweenSettings`1[[System.Single, mscorlib]], PrimeTween.Runtime
     - Name: startFromCurrent
       Entry: 5
-      Data: 1
+      Data: false
     - Name: startValue
       Entry: 4
       Data: 1
@@ -2169,6 +2169,27 @@ MonoBehaviour:
       Entry: 4
       Data: 0
     - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
       Entry: 13
       Data: 
     - Name: 
@@ -2178,7 +2199,7 @@ MonoBehaviour:
   worldListScrollRect: {fileID: 1182753715}
   worldItemPrefab: {fileID: 4664744095986932060, guid: 442f509a3e7e8795980e39b7169fbed4, type: 3}
   returnToModeSelectButton: {fileID: 1814952665}
-  emptyStateText: {fileID: 489867839}
+  emptyStateText: {fileID: 0}
   comingSoonWorlds:
   - worldKey: world-2
     lockedSprite: {fileID: 2289022283475321347, guid: 72fc32a3ea1ee2e42b3934ecd023ccda, type: 3}
@@ -2871,7 +2892,7 @@ MonoBehaviour:
       Data: PanelCanvasGroup
     - Name: $v
       Entry: 10
-      Data: 0|UnityEngine.CanvasGroup, UnityEngine.UIModule
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -3084,7 +3105,7 @@ MonoBehaviour:
       Data: PrimeTween.TweenSettings`1[[System.Single, mscorlib]], PrimeTween.Runtime
     - Name: startFromCurrent
       Entry: 5
-      Data: 1
+      Data: false
     - Name: startValue
       Entry: 4
       Data: 1
@@ -3151,6 +3172,27 @@ MonoBehaviour:
     - Name: delay
       Entry: 4
       Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 13
       Data: 
