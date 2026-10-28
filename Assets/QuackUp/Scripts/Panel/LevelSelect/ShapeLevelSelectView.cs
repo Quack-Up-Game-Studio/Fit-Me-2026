@@ -21,6 +21,25 @@ namespace FitMe.Panel
 
         private ShapeLevelSelectViewModel _viewModel;
         private IDisposable _bindings;
+        private int _originalSiblingIndex;
+
+        private void Awake()
+        {
+            _originalSiblingIndex = transform.GetSiblingIndex();
+        }
+
+        protected override void OnTransitionOut(TransitionCommandData transitionCommandData)
+        {
+            transform.SetAsLastSibling();
+            base.OnTransitionOut(transitionCommandData);
+        }
+
+        protected override void OnVisibilityStateChanged(VisibilityState state)
+        {
+            base.OnVisibilityStateChanged(state);
+            if (state == VisibilityState.Hidden)
+                transform.SetSiblingIndex(_originalSiblingIndex);
+        }
 
         public override void Construct(IPanelViewModel viewModel)
         {
