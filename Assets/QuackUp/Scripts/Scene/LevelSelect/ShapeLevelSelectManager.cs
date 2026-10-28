@@ -73,7 +73,7 @@ namespace FitMe.Scene
             if (!string.IsNullOrWhiteSpace(_selectedWorldKey) && _catalogService.TryGetWorld(_selectedWorldKey, out _))
             {
                 viewModel.InitializeItems(_selectedWorldKey, progress.ShapeWorldProgress);
-                await _panelManager.Crossfade(WorldPanelId, ShapePanelId, new CrossfadeSettings { crossFadeType = CrossfadeType.OutThenIn });
+                await _panelManager.Crossfade(WorldPanelId, ShapePanelId, new CrossfadeSettings { crossFadeType = CrossfadeType.OutOnly });
             }
             else
                 await _panelManager.Crossfade(null, WorldPanelId, new CrossfadeSettings { crossFadeType = CrossfadeType.InOnly });
@@ -109,12 +109,12 @@ namespace FitMe.Scene
             if (!_panelManager.TryGetPanel<ShapeLevelSelectViewModel>(ShapePanelId, out var viewModel)) return;
             _selectedWorldKey = worldKey;
             viewModel.InitializeItems(worldKey, progress.ShapeWorldProgress);
-            await _panelManager.Crossfade(WorldPanelId, ShapePanelId, new CrossfadeSettings { crossFadeType = CrossfadeType.OutThenIn });
+            await _panelManager.Crossfade(WorldPanelId, ShapePanelId, new CrossfadeSettings { crossFadeType = CrossfadeType.OutOnly });
         }
 
         private async UniTask BackToWorlds()
         {
-            await _panelManager.Crossfade(ShapePanelId, WorldPanelId, new CrossfadeSettings { crossFadeType = CrossfadeType.OutThenIn });
+            await _panelManager.Crossfade(ShapePanelId, WorldPanelId, new CrossfadeSettings { crossFadeType = CrossfadeType.OutOnly });
         }
 
         public void Dispose()

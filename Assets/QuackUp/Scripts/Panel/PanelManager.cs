@@ -160,9 +160,9 @@ namespace FitMe.Panel
                     await TransitionIn(toPanel, fromPanelId, cancellationToken: cancellationToken);
                     break;
                 case CrossfadeType.OutOnly:
+                    await TransitionIn(toPanel, fromPanelId, false, cancellationToken: cancellationToken);
                     await TransitionOut(fromPanel, toPanelId, cancellationToken: cancellationToken);
                     await UniTask.WaitForSeconds(crossfadeSettings.customOffset, cancellationToken: cancellationToken);
-                    await TransitionIn(toPanel, fromPanelId, false, cancellationToken: cancellationToken);
                     break;
                 case CrossfadeType.None:
                     await TransitionOut(fromPanel, toPanelId, false, cancellationToken: cancellationToken);
