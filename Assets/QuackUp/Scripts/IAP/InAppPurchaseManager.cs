@@ -421,6 +421,12 @@ namespace QuackUp.IAP
                 tcs.TrySetResult(false);
                 return;
             }
+            if (!IsSimulatedStore && confirmedSubscriptions.Any(subscription => subscription.SubscriptionInfo == null))
+            {
+                DebugUtils.LogError("IAP: Subscription fetch returned missing metadata; preserving current subscription state.");
+                tcs.TrySetResult(false);
+                return;
+            }
 
             _confirmedSubscriptions.Clear();
             _confirmedSubscriptionTransactions.Clear();
@@ -740,7 +746,12 @@ namespace QuackUp.IAP
         private bool AddConfirmedSubscription(string transactionId, SubscriptionInfo subscriptionInfo)
         {
             if (string.IsNullOrWhiteSpace(transactionId) ||
-                !_confirmedSubscriptionTransactions.Add(transactionId)) return false;
+                _confirmedSubscriptionTransactions.Contains(transactionId)) return false;
+            // A real-store purchase with unresolved metadata must remain retryable,
+            // not grant energy while its VIP status is unknown.
+            if (subscriptionInfo == null && !IsSimulatedStore)
+                throw new InvalidOperationException("IAP: Subscription metadata is unavailable; purchase will be retried.");
+            _confirmedSubscriptionTransactions.Add(transactionId);
             _confirmedSubscriptions.Add(subscriptionInfo);
             return true;
         }
@@ -772,20 +783,21 @@ namespace QuackUp.IAP
 //             }
 //         }
         
+        // Unity IAP's internal FakeAppStore.Name is "fake". Windows builds use
+        // it too, so simulation policy must follow the store, not UNITY_EDITOR.
+        private static bool IsSimulatedStore =>
+            string.Equals(DefaultStoreHelper.GetDefaultStoreName(), "fake", StringComparison.Ordinal);
+
         public bool HasActiveSubscription()
         {
-#if UNITY_EDITOR
-            return _confirmedSubscriptions.Count > 0; // Since in editor, the subscription info is always null, we just assume that any confirmed subscription is active for testing purposes.
-#endif
-            return _confirmedSubscriptions.Any(x => x.IsSubscribed() is Result.True);
+            if (IsSimulatedStore) return _confirmedSubscriptions.Count > 0;
+            return _confirmedSubscriptions.Any(x => x != null && x.IsSubscribed() is Result.True);
         }
 
         public bool IsInFreeTrial()
         {
-#if UNITY_EDITOR
-            return false; // Since in editor, the subscription info is always null, we cannot determine if it's in free trial or not. Returning false for testing purposes.
-#endif
-            return _confirmedSubscriptions.Any(x => x.IsFreeTrial() is Result.True);
+            if (IsSimulatedStore) return false;
+            return _confirmedSubscriptions.Any(x => x != null && x.IsFreeTrial() is Result.True);
         }
 
         #endregion

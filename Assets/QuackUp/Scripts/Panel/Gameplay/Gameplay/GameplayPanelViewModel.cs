@@ -14,6 +14,7 @@ namespace FitMe.Panel
         public ReactiveCommand PauseCommand { get; } = new();
         public ReactiveCommand HintCommand { get; } = new();
         public ReactiveCommand RetryCommand { get; } = new();
+        public ReadOnlyReactiveProperty<bool> CanRetry { get; }
         public ReadOnlyReactiveProperty<bool> IsHintVisible => _shapeHintController.IsVisible;
         public ReadOnlyReactiveProperty<bool> CanUseHint => _shapeHintController.CanUseHint;
         public ReadOnlyReactiveProperty<bool> IsRetryVisible => _shapeHintController.RetryVisible;
@@ -39,6 +40,10 @@ namespace FitMe.Panel
             [Key(BlockManagerMessageHub.MessageHubKey)] IMessageHub blockManagerMessageHub) : base(panelManager)
         {
             _gameStateManager = gameStateManager;
+            CanRetry = gameStateManager.GameState
+                .CombineLatest(gameStateManager.IsPaused,
+                    (state, paused) => state == GameState.PlaceBlock && !paused)
+                .ToReadOnlyReactiveProperty();
             _currentGameMode = new ReactiveProperty<GameMode>(levelManager.CurrentGameMode);
             // LevelManager assigns its mode before publishing this session event,
             // including Classic (null runtime data), retry and seamless Shape levels.
@@ -72,6 +77,7 @@ namespace FitMe.Panel
             _bindings?.Dispose();
             _modeBinding?.Dispose();
             _currentGameMode.Dispose();
+            CanRetry.Dispose();
         }
 
         private void OnPause()
@@ -81,6 +87,10 @@ namespace FitMe.Panel
 
         private void OnRetry()
         {
+            // ClearGrid enters ClearingGrid synchronously before awaiting explosions.
+            // Reject before ContinueEvent too: it mutates the next respawn's intent.
+            if (_gameStateManager.GameState.CurrentValue != GameState.PlaceBlock ||
+                _gameStateManager.IsPaused.CurrentValue) return;
             _blockManagerMessageHub.Publish(new ContinueEvent());
             _gridManagerMessageHub.Publish(new ClearGridEvent(true, false));
         }

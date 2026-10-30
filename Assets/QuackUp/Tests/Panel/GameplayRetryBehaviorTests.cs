@@ -216,6 +216,67 @@ namespace FitMe.Panel.Tests
             Assert.That(clearEvent.ShouldDestroyObstacles, Is.False);
         }
 
+        [Test]
+        public void Retry_DropsSecondClickUntilClearCompletesAndAcceptsNextRetry()
+        {
+            using var gridHub = new ReactiveTestHub();
+            using var blockHub = new ReactiveTestHub();
+            using var state = new RetryGameState();
+            var continueCount = 0;
+            var clearCount = 0;
+            using var continueBinding = blockHub.Subscribe<ContinueEvent>(_ => continueCount++);
+            using var clearBinding = gridHub.Subscribe<ClearGridEvent>(_ =>
+            {
+                clearCount++;
+                state.SetGameState(GameState.ClearingGrid);
+            });
+            using var viewModel = new GameplayPanelViewModel(null, state,
+                new LevelManagerMock(GameState.PlaceBlock), null, gridHub, blockHub);
+
+            Assert.That(viewModel.CanRetry.CurrentValue, Is.True);
+            viewModel.RetryCommand.Execute(Unit.Default);
+            viewModel.RetryCommand.Execute(Unit.Default);
+
+            Assert.That(viewModel.CanRetry.CurrentValue, Is.False);
+            Assert.That(clearCount, Is.EqualTo(1), "A pending clear must not admit another Retry.");
+            Assert.That(continueCount, Is.EqualTo(1), "Rejected Retry must not change respawn intent.");
+            state.SetGameState(GameState.PlaceBlock);
+            Assert.That(viewModel.CanRetry.CurrentValue, Is.True);
+            viewModel.RetryCommand.Execute(Unit.Default);
+            Assert.That(clearCount, Is.EqualTo(2));
+            Assert.That(continueCount, Is.EqualTo(2));
+        }
+
+        [TestCase(GameState.ClearingGrid, false)]
+        [TestCase(GameState.PlaceBlock, true)]
+        public void Retry_RejectsUnavailableGameplayBeforePublishing(GameState gameState, bool paused)
+        {
+            var gridHub = new RecordingHub();
+            var blockHub = new RecordingHub();
+            using var state = new RetryGameState();
+            state.SetGameState(gameState);
+            state.SetPause(paused);
+            using var viewModel = new GameplayPanelViewModel(null, state,
+                new LevelManagerMock(GameState.PlaceBlock), null, gridHub, blockHub);
+
+            viewModel.RetryCommand.Execute(Unit.Default);
+
+            Assert.That(viewModel.CanRetry.CurrentValue, Is.False);
+            Assert.That(gridHub.Published, Is.Empty);
+            Assert.That(blockHub.Published, Is.Empty);
+        }
+
+        private sealed class RetryGameState : IGameStateManager, IDisposable
+        {
+            private readonly ReactiveProperty<GameState> _state = new(FitMe.Shared.GameState.PlaceBlock);
+            private readonly ReactiveProperty<bool> _paused = new(false);
+            public ReadOnlyReactiveProperty<GameState> GameState => _state;
+            public ReadOnlyReactiveProperty<bool> IsPaused => _paused;
+            public void SetGameState(GameState state) => _state.Value = state;
+            public void SetPause(bool pause) => _paused.Value = pause;
+            public void Dispose() { _state.Dispose(); _paused.Dispose(); }
+        }
+
         private static T GetPrivateField<T>(object target, string name) =>
             (T)target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(target);
 

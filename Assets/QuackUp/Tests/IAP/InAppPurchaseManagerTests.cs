@@ -463,6 +463,108 @@ namespace QuackUp.IAP.Tests
             Assert.That(subscriptions, Has.Count.EqualTo(1));
         }
 
+        [TestCase("fake", true)]
+        [TestCase(GooglePlay.Name, false)]
+        [TestCase(AppleAppStore.Name, false)]
+        public void MissingSubscriptionMetadata_QueriesAreSafeAndOnlyFakeStoreGrantsVip(
+            string storeName, bool expectedActive)
+        {
+            var subscriptions = (List<SubscriptionInfo>)typeof(InAppPurchaseManager)
+                .GetField("_confirmedSubscriptions", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(_manager);
+            subscriptions.Add(null);
+            var previousStore = DefaultStoreHelper.GetDefaultStoreName();
+            try
+            {
+                DefaultStoreHelper.OverrideDefaultStoreName(storeName);
+                Assert.That(_manager.HasActiveSubscription(), Is.EqualTo(expectedActive));
+                Assert.That(_manager.IsInFreeTrial(), Is.False);
+                using var ads = new AdsService(null, null, null);
+                using var panel = new GameOverPanelViewModel(null, ads, _manager, 1, 10f, null, null);
+            }
+            finally
+            {
+                DefaultStoreHelper.OverrideDefaultStoreName(previousStore);
+            }
+        }
+
+        [Test]
+        public void MissingSubscriptionMetadata_RealStoreRejectsGrantWithoutRecordingSubscription()
+        {
+            var addSubscription = typeof(InAppPurchaseManager).GetMethod("AddConfirmedSubscription",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var previousStore = DefaultStoreHelper.GetDefaultStoreName();
+            try
+            {
+                DefaultStoreHelper.OverrideDefaultStoreName(GooglePlay.Name);
+                var exception = Assert.Throws<TargetInvocationException>(() =>
+                    addSubscription.Invoke(_manager, new object[] { "tx-missing-metadata", null }));
+                Assert.That(exception.InnerException, Is.TypeOf<InvalidOperationException>());
+                Assert.That(_manager.HasActiveSubscription(), Is.False);
+                Assert.That(_effects.SubscriptionStateChangeCount, Is.Zero);
+            }
+            finally
+            {
+                DefaultStoreHelper.OverrideDefaultStoreName(previousStore);
+            }
+        }
+
+        [TestCase("fake")]
+        [TestCase(GooglePlay.Name)]
+        public void MissingSubscriptionMetadata_PendingPurchaseKeepsEnergyAndVipConsistent(string initialStore)
+        {
+            using var fixture = new PurchaseSaveFixture();
+            using var ads = new AdsService(null, null, null);
+            var confirmation = new SpyPurchaseConfirmation();
+            using var manager = new InAppPurchaseManager(
+                new StorePurchaseEffects(fixture.Energy, ads), _persistence, confirmation);
+            var constructor = typeof(Product).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic,
+                null, new[] { typeof(ProductDefinition), typeof(ProductMetadata) }, null);
+            var product = (Product)constructor.Invoke(new object[]
+                { new ProductDefinition(ProductIds.MonthlyPass, ProductType.Subscription), new ProductMetadata() });
+            const string transactionId = "tx-missing-subscription-metadata";
+            var order = (PendingOrder)Activator.CreateInstance(typeof(PendingOrder),
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null,
+                new object[] { new Cart(new CartItem(product)), new TestOrderInfo(transactionId) }, null);
+            var callback = typeof(InAppPurchaseManager).GetMethod("OnPurchasePending",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var previousStore = DefaultStoreHelper.GetDefaultStoreName();
+            try
+            {
+                DefaultStoreHelper.OverrideDefaultStoreName(initialStore);
+                if (initialStore != "fake")
+                {
+                    LogAssert.Expect(LogType.Error, new Regex(
+                        "IAP: Failed to durably process pending transaction .*Subscription metadata is unavailable"));
+                    callback.Invoke(manager, new object[] { order });
+                    Assert.That(fixture.Energy.InfiniteEnergy.CurrentValue, Is.False);
+                    Assert.That(manager.HasActiveSubscription(), Is.False);
+                    Assert.That(ads.AdsEnabled.CurrentValue, Is.True);
+                    Assert.That(confirmation.ConfirmCount, Is.Zero);
+                    Assert.That(_persistence.IsPurchaseCompleted(transactionId), Is.False);
+                    // The rejected metadata must not poison transaction deduplication.
+                    DefaultStoreHelper.OverrideDefaultStoreName("fake");
+                }
+
+                callback.Invoke(manager, new object[] { order });
+
+                Assert.That(fixture.Energy.InfiniteEnergy.CurrentValue, Is.True);
+                Assert.That(manager.HasActiveSubscription(), Is.True);
+                Assert.That(ads.AdsEnabled.CurrentValue, Is.False);
+                Assert.That(confirmation.ConfirmCount, Is.EqualTo(1));
+                Assert.That(_persistence.IsPurchaseCompleted(transactionId), Is.True);
+                Assert.That(_persistence.PlayerTierValues, Is.EqualTo(new[] { true }));
+                using var panel = new GameOverPanelViewModel(null, ads, manager, 1, 10f, null, null);
+                var energyBeforePlay = fixture.Energy.CurrentEnergy.CurrentValue;
+                fixture.Energy.ChangeEnergy(-1);
+                Assert.That(fixture.Energy.CurrentEnergy.CurrentValue, Is.EqualTo(energyBeforePlay));
+            }
+            finally
+            {
+                DefaultStoreHelper.OverrideDefaultStoreName(previousStore);
+            }
+        }
+
         [Test]
         public void FailedSubscriptionRefreshDoesNotRevokeExistingState()
         {

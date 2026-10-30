@@ -97,6 +97,9 @@ namespace FitMe.Panel
                 ViewModel.IsRetryVisible
                     .Subscribe(isVisible => retryButton.gameObject.SetActive(isVisible))
                     .AddTo(ref disposableBuilder);
+                ViewModel.CanRetry
+                    .Subscribe(canRetry => retryButton.interactable = canRetry)
+                    .AddTo(ref disposableBuilder);
                 ViewModel.RetryFlashVisible
                     .Subscribe(isFlashing =>
                     {
