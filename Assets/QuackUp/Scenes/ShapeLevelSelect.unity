@@ -1888,7 +1888,7 @@ MonoBehaviour:
       Data: PanelCanvasGroup
     - Name: $v
       Entry: 10
-      Data: 0|UnityEngine.CanvasGroup, UnityEngine.UIModule
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -2101,7 +2101,7 @@ MonoBehaviour:
       Data: PrimeTween.TweenSettings`1[[System.Single, mscorlib]], PrimeTween.Runtime
     - Name: startFromCurrent
       Entry: 5
-      Data: 1
+      Data: false
     - Name: startValue
       Entry: 4
       Data: 1
@@ -2168,6 +2168,27 @@ MonoBehaviour:
     - Name: delay
       Entry: 4
       Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 13
       Data: 
@@ -2871,7 +2892,7 @@ MonoBehaviour:
       Data: PanelCanvasGroup
     - Name: $v
       Entry: 10
-      Data: 0|UnityEngine.CanvasGroup, UnityEngine.UIModule
+      Data: 0
     - Name: 
       Entry: 8
       Data: 
@@ -3084,7 +3105,7 @@ MonoBehaviour:
       Data: PrimeTween.TweenSettings`1[[System.Single, mscorlib]], PrimeTween.Runtime
     - Name: startFromCurrent
       Entry: 5
-      Data: 1
+      Data: false
     - Name: startValue
       Entry: 4
       Data: 1
@@ -3151,6 +3172,27 @@ MonoBehaviour:
     - Name: delay
       Entry: 4
       Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 13
       Data: 
