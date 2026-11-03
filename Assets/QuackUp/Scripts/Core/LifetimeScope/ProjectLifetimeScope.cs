@@ -27,6 +27,9 @@ namespace QuackUp.Core
             {
                 installer.Install(builder);
             }
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            builder.RegisterEntryPoint<PerformanceDiagnosticsRecorder>(Lifetime.Singleton);
+#endif
             if (platformSpecificInstallers.TryGetValue(Application.platform, out var platformInstallers))
             {
                 foreach (var installer in platformInstallers.PlatformSpecificInstallers)
