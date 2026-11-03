@@ -24,6 +24,8 @@ namespace QuackUp.Core
         private readonly ProfilerRecorder _renderThreadRecorder;
         private readonly ProfilerRecorder _memoryRecorder;
         private StreamWriter _writer;
+        private string _logPath;
+        private PerformanceDiagnosticsPauseHandler _pauseHandler;
         private int _framesSinceFlush;
         private bool _disposed;
 
@@ -37,8 +39,8 @@ namespace QuackUp.Core
         public void Start()
         {
             string fileName = FilePrefix + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + ".csv";
-            string path = Path.Combine(Application.persistentDataPath, fileName);
-            _writer = new StreamWriter(path, false, new UTF8Encoding(false), 4096);
+            _logPath = Path.Combine(Application.persistentDataPath, fileName);
+            _writer = new StreamWriter(_logPath, false, new UTF8Encoding(false), 4096);
             _writer.WriteLine("# Fit Me performance diagnostics");
             _writer.WriteLine("# utc," + Csv(DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture)));
             _writer.WriteLine("# applicationVersion," + Csv(Application.version));
@@ -59,10 +61,13 @@ namespace QuackUp.Core
             _writer.Flush();
             AddMarker("recording_started");
             Application.focusChanged += OnFocusChanged;
-            Application.pauseStateChanged += OnPauseStateChanged;
             Application.lowMemory += OnLowMemory;
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
-            Debug.Log("Performance diagnostics recording to " + path);
+            var pauseHandlerObject = new GameObject(nameof(PerformanceDiagnosticsPauseHandler));
+            UnityEngine.Object.DontDestroyOnLoad(pauseHandlerObject);
+            _pauseHandler = pauseHandlerObject.AddComponent<PerformanceDiagnosticsPauseHandler>();
+            _pauseHandler.PauseChanged += OnPauseStateChanged;
+            Debug.Log("Performance diagnostics recording to " + _logPath);
         }
 
         public void Tick()
@@ -84,9 +89,9 @@ namespace QuackUp.Core
 
         private void OnFocusChanged(bool hasFocus) => AddMarker(hasFocus ? "focus_gained" : "focus_lost");
 
-        private void OnPauseStateChanged(PauseState pauseState)
+        private void OnPauseStateChanged(bool isPaused)
         {
-            AddMarker(pauseState == PauseState.Paused ? "app_paused" : "app_resumed");
+            AddMarker(isPaused ? "app_paused" : "app_resumed");
         }
 
         private void OnLowMemory() => AddMarker("low_memory");
@@ -127,14 +132,46 @@ namespace QuackUp.Core
             return "\"" + value.Replace("\"", "\"\"") + "\"";
         }
 
+        public void ShareLatestLog()
+        {
+            if (string.IsNullOrEmpty(_logPath) || !File.Exists(_logPath))
+            {
+                Debug.LogWarning("No performance diagnostics log is available to share.");
+                return;
+            }
+
+            Flush();
+#if UNITY_ANDROID && !UNITY_EDITOR
+            try
+            {
+                using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+                using var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+                using var sharePlugin = new AndroidJavaClass("com.fitme.diagnostics.PerformanceLogShare");
+                if (!sharePlugin.CallStatic<bool>("share", activity, _logPath))
+                    Debug.LogWarning("The Android share sheet could not open for the performance log.");
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("Failed to share performance diagnostics log: " + exception);
+            }
+#else
+            Debug.Log("Performance diagnostics log is available at " + _logPath);
+#endif
+        }
+
         public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
             Application.focusChanged -= OnFocusChanged;
-            Application.pauseStateChanged -= OnPauseStateChanged;
             Application.lowMemory -= OnLowMemory;
             SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+            if (_pauseHandler != null)
+            {
+                _pauseHandler.PauseChanged -= OnPauseStateChanged;
+                UnityEngine.Object.Destroy(_pauseHandler.gameObject);
+                _pauseHandler = null;
+            }
             if (_writer != null)
             {
                 _pendingRows.Append(Time.frameCount.ToString(CultureInfo.InvariantCulture)).Append(',')

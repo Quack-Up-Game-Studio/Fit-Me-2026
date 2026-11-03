@@ -22,11 +22,17 @@ namespace FitMe.Panel
         
         private UniversalSettingsPanelViewModel ViewModel => (UniversalSettingsPanelViewModel)BaseViewModel;
         private IDisposable _bindings;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        private Button _sharePerformanceLogButton;
+#endif
         
         [Inject]
         public override void Construct(IPanelViewModel viewModel)
         {
             base.Construct(viewModel);
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            CreatePerformanceLogShareButton();
+#endif
             Bind();
         }
 
@@ -52,6 +58,14 @@ namespace FitMe.Panel
             facebookButton.OnClickAsObservable()
                 .Subscribe(_ => OnFacebookButtonClicked())
                 .AddTo(ref disposableBuilder);
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            if (_sharePerformanceLogButton)
+            {
+                _sharePerformanceLogButton.OnClickAsObservable()
+                    .Subscribe(_ => ViewModel.SharePerformanceLogCommand.Execute(Unit.Default))
+                    .AddTo(ref disposableBuilder);
+            }
+#endif
 
             if (mainMenuButton)
             {
@@ -62,6 +76,47 @@ namespace FitMe.Panel
             
             _bindings = disposableBuilder.Build();
         }
+
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        private void CreatePerformanceLogShareButton()
+        {
+            if (Application.platform != RuntimePlatform.Android) return;
+
+            var shareButtonObject = new GameObject(
+                "SharePerformanceLogButton",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Button));
+            shareButtonObject.transform.SetParent(transform, false);
+
+            var buttonRect = (RectTransform)shareButtonObject.transform;
+            buttonRect.anchorMin = new Vector2(0.5f, 0f);
+            buttonRect.anchorMax = new Vector2(0.5f, 0f);
+            buttonRect.pivot = new Vector2(0.5f, 0f);
+            buttonRect.anchoredPosition = new Vector2(0f, 100f);
+            buttonRect.sizeDelta = new Vector2(520f, 120f);
+
+            var image = shareButtonObject.GetComponent<Image>();
+            image.color = new Color(0.16f, 0.34f, 0.53f, 1f);
+            var shareButton = shareButtonObject.GetComponent<Button>();
+            shareButton.targetGraphic = image;
+
+            var labelObject = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            labelObject.transform.SetParent(shareButtonObject.transform, false);
+            var labelRect = (RectTransform)labelObject.transform;
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            var label = labelObject.GetComponent<TextMeshProUGUI>();
+            label.font = TMP_Settings.defaultFontAsset;
+            label.fontSize = 32f;
+            label.alignment = TextAlignmentOptions.Center;
+            label.text = "Share Performance Log";
+            _sharePerformanceLogButton = shareButton;
+        }
+#endif
 
         protected override void OnVisibilityStateChanged(VisibilityState state)
         {

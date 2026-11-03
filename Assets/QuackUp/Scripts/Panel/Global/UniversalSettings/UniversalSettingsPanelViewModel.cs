@@ -2,6 +2,9 @@ using System;
 using Cysharp.Threading.Tasks;
 using FitMe.Shared;
 using QuackUp.Audio;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+using QuackUp.Core;
+#endif
 using QuackUp.SceneManagement;
 using QuackUp.Utils;
 using R3;
@@ -16,11 +19,17 @@ namespace FitMe.Panel
         public ReactiveProperty<bool> SfxMuteState { get; } = new(true);
         public ReactiveCommand ApplyChangesCommand { get; } = new();
         public ReactiveCommand ToMainMenuCommand { get; } = new();
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        public ReactiveCommand SharePerformanceLogCommand { get; } = new();
+#endif
 
         private readonly IAudioBusManager _audioBusManager;
         private readonly LoadSceneManager _loadSceneManager;
         private readonly IGameStateManager _gameStateManager;
         private readonly ILevelManager _levelManager;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        private readonly PerformanceDiagnosticsRecorder _performanceDiagnosticsRecorder;
+#endif
         private IDisposable _bindings;
         
         [Inject]
@@ -29,12 +38,19 @@ namespace FitMe.Panel
             LoadSceneManager loadSceneManager,
             IGameStateManager gameStateManager,
             ILevelManager levelManager,
-            PanelManager panelManager) : base(panelManager)
+            PanelManager panelManager
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            , PerformanceDiagnosticsRecorder performanceDiagnosticsRecorder
+#endif
+        ) : base(panelManager)
         {
             _audioBusManager = audioBusManager;
             _loadSceneManager = loadSceneManager;
             _gameStateManager = gameStateManager;
             _levelManager = levelManager;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            _performanceDiagnosticsRecorder = performanceDiagnosticsRecorder;
+#endif
             Bind();
         }
         
@@ -55,6 +71,11 @@ namespace FitMe.Panel
             ToMainMenuCommand
                 .SubscribeAwait((_, _) => ToMainMenu(), AwaitOperation.Drop)
                 .AddTo(ref disposableBuilder);
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            SharePerformanceLogCommand
+                .Subscribe(_ => _performanceDiagnosticsRecorder.ShareLatestLog())
+                .AddTo(ref disposableBuilder);
+#endif
             _bindings = disposableBuilder.Build();
         }
 

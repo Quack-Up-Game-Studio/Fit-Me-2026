@@ -1,20 +1,20 @@
 # Android Performance Diagnostics Build
 
-This opt-in recorder writes lightweight CSV frame/lifecycle diagnostics to `Application.persistentDataPath`. It is not a replacement for Unity Profiler: it captures unscaled frame delta, available `ProfilerRecorder` last values for Main Thread, Render Thread, and Total Used Memory, plus focus, low-memory, and active-scene markers. The file includes device, OS, Unity/application version, graphics, quality, and target frame-rate metadata.
+This opt-in recorder writes lightweight CSV frame/lifecycle diagnostics to `Application.persistentDataPath`. It is not a replacement for Unity Profiler: it captures unscaled frame delta, available `ProfilerRecorder` last values for Main Thread, Render Thread, and Total Used Memory, plus app pause/resume, focus, low-memory, and active-scene markers. The file includes device, OS, Unity/application version, graphics, quality, and target frame-rate metadata.
 
 ## Build
 
-1. In **Project Settings → Player → Android → Script Compilation**, add `FITME_PERFORMANCE_DIAGNOSTICS` to the Android scripting define symbols for the diagnostic build only.
-2. Enable **Development Build** in the Android Build Profile. Do not enable Deep Profile for tester captures; it adds substantial overhead.
-3. Build/install the APK. Normal release builds must omit `FITME_PERFORMANCE_DIAGNOSTICS` and have no recorder enabled.
+1. Open the Unity project with its configured Unity version and select **Fit Me → Build Android Performance Diagnostics APK**. The build helper uses `BuildOptions.Development` and adds `FITME_PERFORMANCE_DIAGNOSTICS` only to that player build; it does not change Player Settings scripting symbols.
+2. The APK is written to `Builds/Android/FitMe-Performance-Diagnostics.apk`. Do not enable Deep Profile for tester captures; it adds substantial overhead.
+3. This test APK is debug-signed; the helper temporarily disables custom-keystore signing and restores the project's previous setting. Install and distribute it only as a tester build, not as a release. Normal release builds omit `FITME_PERFORMANCE_DIAGNOSTICS` and have no recorder or share control enabled.
 
 ## Tester capture and submission
 
 1. Launch the diagnostic build and reproduce the issue, including cold launch and background/resume as applicable.
-2. Keep the app alive for several seconds after the reproduction; rows flush every 120 frames, and the app closes by flushing pending data.
-3. Find the file named `fitme-performance-*.csv` in the app's private `Application.persistentDataPath` (normally `/storage/emulated/0/Android/data/<application-id>/files/`). Use Android's Files app or a file-transfer utility; if scoped storage prevents access, use a file-sharing/export UI or pull it via Android Debug Bridge. Send the CSV to the developer with a short description of the actions and approximate hitch time.
-4. Preserve the app data until the file is copied. Uninstalling or clearing app storage deletes the CSV.
+2. Keep the app alive for several seconds after the reproduction; rows flush every 120 frames, and the app closes by flushing pending data. A force-stop or OS process kill can lose the unflushed tail.
+3. Open **Settings → Share Performance Log**. On diagnostic Android builds this creates the button in the settings panel and opens Android's standard share chooser with the current CSV attached. Pick a messaging, mail, or file-sharing app and send the attachment to the developer with a short description of the actions and approximate hitch time.
+4. If sharing fails or the chooser has no suitable app, the CSV remains in app-private `Application.persistentDataPath` (normally `/storage/emulated/0/Android/data/<application-id>/files/`). Preserve app data until it is copied; uninstalling or clearing app storage deletes it.
 
 ## Interpretation and limits
 
-`unscaledDeltaTimeMs` is the observed frame interval, so large values identify hitch frames even if frame-rate limiting is active. Profiler recorder availability is reported in the metadata; blank counter columns mean a counter was unavailable on that Unity/player/device, not zero cost. Recorder values are last sampled profiler-counter values, not GPU frame time. This first version does not record GPU timing, Android scheduler/thermal state, or full Unity Profiler samples. Use connected Unity Profiler or Android system traces for deeper attribution. Compare diagnostic-build results cautiously against release because Development Build and sampling introduce overhead.
+`unscaledDeltaTimeMs` is the observed frame interval, so large values identify hitch frames even if frame-rate limiting is active. Profiler recorder availability is reported in the metadata; blank counter columns mean a counter was unavailable on that Unity/player/device, not zero cost. Recorder values are last sampled profiler-counter values, not GPU frame time. This first version does not record GPU timing, Android scheduler/thermal state, or full Unity Profiler samples. Use connected Unity Profiler or Android system traces for deeper attribution. Compare diagnostic-build results cautiously against release because Development Build and sampling introduce overhead. The share button and Android FileProvider integration are compiled only for diagnostic builds; regular releases do not expose the control.
