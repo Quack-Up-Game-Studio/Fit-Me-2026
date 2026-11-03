@@ -7,6 +7,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+using QuackUp.Core;
+using VContainer;
+#endif
 
 namespace FitMe.Grid.Tests
 {
@@ -15,12 +19,22 @@ namespace FitMe.Grid.Tests
         private ExplosionVfxPool _pool;
         private ExplosionVfxPoolConfig _config;
         private BlockConfig _dynamicBlockConfig;
+        private GameObject _testPrefabObject;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        private BlockManagerConfig _blockManagerConfig;
+        private PerformanceDiagnosticsRecorder _diagnosticsRecorder;
+#endif
 
         [UnityTearDown]
         public IEnumerator TearDown()
         {
             _pool?.Dispose();
+            if (_testPrefabObject) Object.DestroyImmediate(_testPrefabObject);
             if (_dynamicBlockConfig) Object.DestroyImmediate(_dynamicBlockConfig);
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            if (_blockManagerConfig) Object.DestroyImmediate(_blockManagerConfig);
+            _diagnosticsRecorder?.Dispose();
+#endif
             if (_config) Object.DestroyImmediate(_config);
             yield return null;
         }
@@ -72,6 +86,59 @@ namespace FitMe.Grid.Tests
             Assert.That(active.Count, Is.EqualTo(1));
             Assert.That(System.Linq.Enumerable.First(active), Is.SameAs(instance));
         }
+
+        [Test]
+        public void Play_WhenConcurrentRequestsExceedPrewarm_TracksPoolMissAndPeakActiveCount()
+        {
+            _config = ScriptableObject.CreateInstance<ExplosionVfxPoolConfig>();
+            _testPrefabObject = new GameObject("ExplosionTelemetryTestPrefab");
+            var prefab = _testPrefabObject.AddComponent<ParticleSystem>();
+            _pool = new ExplosionVfxPool(_config, null, null);
+
+            for (var i = 0; i < 11; i++)
+                _pool.Play(prefab, Vector3.zero);
+
+            var pools = (System.Collections.IDictionary)typeof(ExplosionVfxPool)
+                .GetField("_pools", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_pool);
+            var prefabPool = pools[prefab];
+            var createdOnDemand = prefabPool.GetType().GetField("CreatedOnDemandCount");
+            var peakActive = prefabPool.GetType().GetField("PeakActiveCount");
+
+            Assert.That(createdOnDemand, Is.Not.Null,
+                "The diagnostic pool snapshot should expose on-demand creation beyond the ten-instance prewarm.");
+            Assert.That(peakActive, Is.Not.Null,
+                "The diagnostic pool snapshot should track the maximum simultaneous checkouts.");
+            if (createdOnDemand == null || peakActive == null) return;
+
+            Assert.That(createdOnDemand.GetValue(prefabPool), Is.EqualTo(1));
+            Assert.That(peakActive.GetValue(prefabPool), Is.EqualTo(11));
+        }
+
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        [Test]
+        public void ContainerInjection_AssignsPerformanceDiagnosticsRecorderToPool()
+        {
+            _config = ScriptableObject.CreateInstance<ExplosionVfxPoolConfig>();
+            _blockManagerConfig = ScriptableObject.CreateInstance<BlockManagerConfig>();
+            _dynamicBlockConfig = ScriptableObject.CreateInstance<BlockConfig>();
+            _diagnosticsRecorder = new PerformanceDiagnosticsRecorder();
+
+            var builder = new ContainerBuilder();
+            builder.RegisterInstance(_config);
+            builder.RegisterInstance(_blockManagerConfig);
+            builder.RegisterInstance(_dynamicBlockConfig);
+            builder.RegisterInstance(_diagnosticsRecorder);
+            builder.Register<ExplosionVfxPool>(Lifetime.Scoped);
+
+            using var container = builder.Build();
+            _pool = container.Resolve<ExplosionVfxPool>();
+
+            var recorderField = typeof(ExplosionVfxPool)
+                .GetField("_diagnosticsRecorder", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(recorderField, Is.Not.Null);
+            Assert.That(recorderField.GetValue(_pool), Is.SameAs(_diagnosticsRecorder));
+        }
+#endif
 
         [Test]
         public void Warmup_PrewarmsPrefabsFromLateBoundBlockConfig()

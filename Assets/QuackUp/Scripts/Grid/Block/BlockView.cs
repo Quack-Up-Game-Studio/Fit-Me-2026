@@ -296,6 +296,10 @@ namespace FitMe.Grid
         
         private async UniTask Explode(ExplodeCommandData data)
         {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            _blockVfxPool?.RecordExplosionEvent("block_explode_start", GetInstanceID(),
+                _blockColor.ToString(), data.FitType.ToString());
+#endif
             DebugUtils.Log($"Block {_blockColor} exploded at position {transform.position}");
             CancelIdleTimer();
             var usesAtomRenderer = _blockConfig.UsesAtomRenderer;
@@ -305,10 +309,18 @@ namespace FitMe.Grid
             var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.ExplodeAnimation, false);
             explodeAnim.TimeScale *= speedMultiplier;
             await explodeAnim.WaitUntilComplete(); 
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            _blockVfxPool?.RecordExplosionEvent("block_explode_animation_complete", GetInstanceID(),
+                _blockColor.ToString(), data.FitType.ToString());
+#endif
             if (usesAtomRenderer) skeletonAnimation.enabled = false;
             if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
             {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                _blockVfxPool?.Play(vfx, transform.position, GetInstanceID());
+#else
                 _blockVfxPool?.Play(vfx, transform.position);
+#endif
             }
             else
             {

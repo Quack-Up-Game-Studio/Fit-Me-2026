@@ -28,6 +28,8 @@ namespace QuackUp.Core
         private PerformanceDiagnosticsPauseHandler _pauseHandler;
         private int _framesSinceFlush;
         private bool _disposed;
+        private double? _pauseStartedRealtimeSeconds;
+        private readonly PerformanceResumeFrameWindow _postResumeFrameWindow = new(30);
 
         public PerformanceDiagnosticsRecorder()
         {
@@ -57,6 +59,7 @@ namespace QuackUp.Core
             _writer.WriteLine("# targetFrameRate," + Application.targetFrameRate.ToString(CultureInfo.InvariantCulture));
             _writer.WriteLine("# qualityLevel," + QualitySettings.names[QualitySettings.GetQualityLevel()]);
             _writer.WriteLine("# profilerRecorderAvailability,mainThread=" + _mainThreadRecorder.Valid + ",renderThread=" + _renderThreadRecorder.Valid + ",usedMemory=" + _memoryRecorder.Valid);
+            _writer.WriteLine("# postResumeFrameSamples,30");
             _writer.WriteLine("# frame,utc,unscaledDeltaTimeMs,mainThreadLastFrameNs,renderThreadLastFrameNs,totalUsedMemoryBytes,scene,marker");
             _writer.Flush();
             AddMarker("recording_started");
@@ -74,13 +77,24 @@ namespace QuackUp.Core
         {
             if (_writer == null || _disposed) return;
 
+            var frameMarker = string.Empty;
+            if (_postResumeFrameWindow.TryCapture(Time.realtimeSinceStartupAsDouble,
+                    out var postResumeFrameIndex, out var callbackToUpdateMilliseconds))
+            {
+                frameMarker = "post_resume_frame_index=" + postResumeFrameIndex +
+                              ";callback_to_update_ms=" + callbackToUpdateMilliseconds.ToString("F3", CultureInfo.InvariantCulture);
+                if (postResumeFrameIndex == 1)
+                    frameMarker += ";unscaled_delta_includes_background=1";
+            }
+
             _pendingRows.Append(Time.frameCount.ToString(CultureInfo.InvariantCulture)).Append(',')
                 .Append(DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture)).Append(',')
                 .Append((Time.unscaledDeltaTime * 1000f).ToString("F3", CultureInfo.InvariantCulture)).Append(',')
                 .Append(LastValue(_mainThreadRecorder)).Append(',')
                 .Append(LastValue(_renderThreadRecorder)).Append(',')
                 .Append(LastValue(_memoryRecorder)).Append(',')
-                .Append(Csv(SceneManager.GetActiveScene().name)).AppendLine(",");
+                .Append(Csv(SceneManager.GetActiveScene().name)).Append(',')
+                .Append(Csv(frameMarker)).AppendLine();
 
             _framesSinceFlush++;
             if (_framesSinceFlush >= FlushIntervalFrames || _pendingRows.Length >= MaxPendingRows * 128)
@@ -91,7 +105,29 @@ namespace QuackUp.Core
 
         private void OnPauseStateChanged(bool isPaused)
         {
-            AddMarker(isPaused ? "app_paused" : "app_resumed");
+            if (isPaused)
+            {
+                _pauseStartedRealtimeSeconds = Time.realtimeSinceStartupAsDouble;
+                AddMarker("app_paused");
+                return;
+            }
+
+            var resumedAtRealtimeSeconds = Time.realtimeSinceStartupAsDouble;
+            AddMarker("app_resumed");
+            if (!_pauseStartedRealtimeSeconds.HasValue) return;
+
+            var backgroundDurationMilliseconds =
+                (resumedAtRealtimeSeconds - _pauseStartedRealtimeSeconds.Value) * 1000d;
+            AddMarker("app_background_duration_ms=" +
+                      backgroundDurationMilliseconds.ToString("F3", CultureInfo.InvariantCulture));
+            _pauseStartedRealtimeSeconds = null;
+            _postResumeFrameWindow.Begin(resumedAtRealtimeSeconds);
+        }
+
+        public void RecordEvent(string eventName, string details)
+        {
+            if (string.IsNullOrEmpty(eventName)) return;
+            AddMarker(string.IsNullOrEmpty(details) ? eventName : eventName + ":" + details);
         }
 
         private void OnLowMemory() => AddMarker("low_memory");
