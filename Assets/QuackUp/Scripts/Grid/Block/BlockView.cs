@@ -31,7 +31,7 @@ namespace FitMe.Grid
         #endregion
 
         #region Fields and Properties
-        
+
         public Transform Transform => transform;
         
         private Transform _originalParent;
@@ -56,6 +56,9 @@ namespace FitMe.Grid
         private BlockViewModel _viewModel;
         private ExplosionVfxPool _blockVfxPool;
         private IDisposable _bindings;
+        private Promise<Unit> _activeExplosionPromise;
+        private CancellationTokenSource _activeExplosionCancellation;
+        private bool _hasExplosionCommandHandlerRegistration;
         #endregion
 
         [Inject]
@@ -120,10 +123,26 @@ namespace FitMe.Grid
                 .Subscribe(_ => Destroy())
                 .AddTo(ref disposableBuilder);
             _bindings = disposableBuilder.Build();
+            _viewModel.RegisterExplosionCommandHandler();
+            _hasExplosionCommandHandlerRegistration = true;
         }
 
         public void Dispose()
         {
+            var activeExplosionPromise = _activeExplosionPromise;
+            _activeExplosionPromise = null;
+            activeExplosionPromise?.TrySetResult(Unit.Default);
+
+            var activeExplosionCancellation = _activeExplosionCancellation;
+            _activeExplosionCancellation = null;
+            activeExplosionCancellation?.Cancel();
+
+            if (_hasExplosionCommandHandlerRegistration)
+            {
+                _viewModel?.UnregisterExplosionCommandHandler();
+                _hasExplosionCommandHandlerRegistration = false;
+            }
+
             if (_placingVfxInstance)
             {
                 _blockVfxPool?.CancelReturnCallback(_placingVfxInstance, OnPlacementVfxReturned);
@@ -296,52 +315,118 @@ namespace FitMe.Grid
         
         private async UniTask Explode(ExplodeCommandData data)
         {
-#if FITME_PERFORMANCE_DIAGNOSTICS
-            _blockVfxPool?.RecordExplosionEvent("block_explode_start", GetInstanceID(),
-                _blockColor.ToString(), data.FitType.ToString());
-#endif
-            DebugUtils.Log($"Block {_blockColor} exploded at position {transform.position}");
-            CancelIdleTimer();
-            var usesAtomRenderer = _blockConfig.UsesAtomRenderer;
-            if (usesAtomRenderer) skeletonAnimation.enabled = true;
-            var speedMultiplier = data.FitType == FitType.FitMe ? 2f : 6.67f;
-            skeletonAnimation.AnimationState.ClearTrack(0);
-            var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.ExplodeAnimation, false);
-            explodeAnim.TimeScale *= speedMultiplier;
-            await explodeAnim.WaitUntilComplete(); 
-#if FITME_PERFORMANCE_DIAGNOSTICS
-            _blockVfxPool?.RecordExplosionEvent("block_explode_animation_complete", GetInstanceID(),
-                _blockColor.ToString(), data.FitType.ToString());
-#endif
-            if (usesAtomRenderer) skeletonAnimation.enabled = false;
-#if FITME_DISABLE_EXPLOSION_VFX
-            if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out _))
+            var cancellationSource = new CancellationTokenSource();
+            var cancellationToken = cancellationSource.Token;
+            _activeExplosionPromise = data.Promise;
+            _activeExplosionCancellation = cancellationSource;
+            try
             {
 #if FITME_PERFORMANCE_DIAGNOSTICS
-                _blockVfxPool?.RecordExplosionEvent("block_explosion_vfx_suppressed", GetInstanceID(),
+                _blockVfxPool?.RecordExplosionEvent("block_explode_start", GetInstanceID(),
                     _blockColor.ToString(), data.FitType.ToString());
 #endif
-            }
-            else
-            {
-                DebugUtils.LogWarning($"No explosion VFX found for block type: {_blockColor}");
-            }
-#else
-            if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
-            {
+                DebugUtils.Log($"Block {_blockColor} exploded at position {transform.position}");
+                CancelIdleTimer();
+                var speedMultiplier = data.FitType == FitType.FitMe ? 2f : 6.67f;
+                var usesShapeMode = _blockConfig is ArbitraryBlockConfig;
+                var explosionStartTime = data.ExplosionStartTime > 0d
+                    ? data.ExplosionStartTime
+                    : Time.realtimeSinceStartupAsDouble;
+                if (usesShapeMode)
+                {
+                    skeletonAnimation.enabled = false;
+                    var explosionFallbackDeadline = data.ExplosionDeadline > 0d
+                        ? data.ExplosionDeadline
+                        : GetExplosionAnimationDeadline(speedMultiplier, explosionStartTime);
+                    var childAnimationsCompleted = data.ChildAnimationCompletion != null &&
+                        await ChildExplosionAnimationWait.WaitForAnimationOrTimeout(
+                            token => data.ChildAnimationCompletion.Task.AttachExternalCancellation(token),
+                            GetRemainingExplosionAnimationWait(explosionFallbackDeadline), cancellationToken);
+                    if (!childAnimationsCompleted)
+                        await WaitForExplosionAnimationDeadline(explosionFallbackDeadline, cancellationToken);
+                }
+                else
+                {
+                    if (_blockConfig.UsesAtomRenderer) skeletonAnimation.enabled = true;
+                    skeletonAnimation.AnimationState.ClearTrack(0);
+                    var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.ExplodeAnimation, false);
+                    explodeAnim.TimeScale *= speedMultiplier;
+                    await explodeAnim.WaitUntilComplete(cancellationToken: cancellationToken);
+                    if (_blockConfig.UsesAtomRenderer) skeletonAnimation.enabled = false;
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
 #if FITME_PERFORMANCE_DIAGNOSTICS
-                _blockVfxPool?.Play(vfx, transform.position, GetInstanceID());
+                _blockVfxPool?.RecordExplosionEvent("block_explode_animation_complete", GetInstanceID(),
+                    _blockColor.ToString(), data.FitType.ToString());
+#endif
+#if FITME_DISABLE_EXPLOSION_VFX
+                if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out _))
+                {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                    _blockVfxPool?.RecordExplosionEvent("block_explosion_vfx_suppressed", GetInstanceID(),
+                        _blockColor.ToString(), data.FitType.ToString());
+#endif
+                }
+                else
+                {
+                    DebugUtils.LogWarning($"No explosion VFX found for block type: {_blockColor}");
+                }
 #else
-                _blockVfxPool?.Play(vfx, transform.position);
+                if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
+                {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                    _blockVfxPool?.Play(vfx, transform.position, GetInstanceID());
+#else
+                    _blockVfxPool?.Play(vfx, transform.position);
 #endif
+                }
+                else
+                {
+                    DebugUtils.LogWarning($"No explosion VFX found for block type: {_blockColor}");
+                }
+#endif
+                if (data.Destroy) Destroy(gameObject);
             }
-            else
+            catch (OperationCanceledException)
             {
-                DebugUtils.LogWarning($"No explosion VFX found for block type: {_blockColor}");
+                // Destruction/disposal cancels the visual wait; the removal promise is still settled below.
             }
-#endif
-            if (data.Destroy) Destroy(gameObject);
-            data.Promise.TrySetResult(Unit.Default);
+            finally
+            {
+                if (ReferenceEquals(_activeExplosionPromise, data.Promise)) _activeExplosionPromise = null;
+                if (ReferenceEquals(_activeExplosionCancellation, cancellationSource))
+                    _activeExplosionCancellation = null;
+                cancellationSource.Dispose();
+                data.Promise.TrySetResult(Unit.Default);
+            }
+        }
+
+        private async UniTask WaitForExplosionAnimationDuration(
+            float speedMultiplier, double explosionStartTime, CancellationToken cancellationToken)
+        {
+            var deadline = GetExplosionAnimationDeadline(speedMultiplier, explosionStartTime);
+            await WaitForExplosionAnimationDeadline(deadline, cancellationToken);
+        }
+
+        private async UniTask WaitForExplosionAnimationDeadline(double deadline, CancellationToken cancellationToken)
+        {
+            var remainingDuration = GetRemainingExplosionAnimationWait(deadline);
+            if (remainingDuration <= TimeSpan.Zero) return;
+
+            await UniTask.Delay(remainingDuration,
+                delayType: DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
+        }
+
+        private TimeSpan GetRemainingExplosionAnimationWait(double deadline)
+        {
+            var remainingDuration = deadline - Time.realtimeSinceStartupAsDouble;
+            return remainingDuration > 0d ? TimeSpan.FromSeconds(remainingDuration) : TimeSpan.Zero;
+        }
+
+        private double GetExplosionAnimationDeadline(float speedMultiplier, double explosionStartTime)
+        {
+            return ShapeExplosionTiming.GetDeadline(_blockConfig, speedMultiplier, explosionStartTime);
         }
 
         private void OnSetSortingLayer(int layer)

@@ -6,6 +6,7 @@ namespace FitMe.Grid
 {
     public class AtomViewModel
     {
+        internal AtomModel Model => _model;
         public ReadOnlyReactiveProperty<BlockInstance> ParentBlock => _model.ParentBlock;
         public ReactiveCommand<SpriteOutlineSettings> SetOutlineCommand { get; } = new();
         

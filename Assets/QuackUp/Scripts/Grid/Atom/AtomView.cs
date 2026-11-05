@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Cysharp.Threading.Tasks;
 using FitMe.Shared;
 using QuackUp.Utils;
 using R3;
@@ -28,8 +29,21 @@ namespace FitMe.Grid
         private Vector2 _defaultPhysicsPositionInheritanceFactor;
         private float _defaultPhysicsRotationInheritanceFactor;
         private bool _hasDefaultPhysicsInheritanceFactors;
+        private ChildExplosionAnimationCompletion _activeExplosionCompletion;
+        private CancellationTokenSource _activeExplosionCancellation;
+        private UpdateMode _previousExplosionUpdateMode;
+        private UpdateMode _previousExplosionInvisibleUpdateMode;
+        private int _explosionUpdateModeGeneration;
+        private int _activeExplosionUpdateModeGeneration;
+        private bool _hasExplosionUpdateModeOverride;
         
         public Transform Transform => transform;
+        internal bool IsExplosionCommandBoundTo(BlockViewModel blockViewModel, AtomModel atomModel)
+        {
+            return blockViewModel != null && atomModel != null && _parentBlockSubscriptions != null &&
+                   _viewModel?.Model == atomModel &&
+                   _viewModel?.ParentBlock.CurrentValue?.ViewModel == blockViewModel;
+        }
         
         [Inject]
         public void Construct(
@@ -87,8 +101,17 @@ namespace FitMe.Grid
                 .Subscribe(pair => OnInteractionStateChanged(pair.Previous, pair.Current))
                 .AddTo(ref disposableBuilder);
             instance.ViewModel.ExplodeCommand
-                .Subscribe(data => PlayArbitraryAnimation(ArbitraryBlockAnimation.Explode, false, false,
-                    data.FitType == FitType.FitMe ? 2f : 6.67f))
+                .Subscribe(data =>
+                {
+                    if (data.ChildAnimationCompletion == null)
+                    {
+                        PlayArbitraryAnimation(ArbitraryBlockAnimation.Explode, false, false,
+                            data.FitType == FitType.FitMe ? 2f : 6.67f);
+                        return;
+                    }
+
+                    PlayArbitraryExplosionAsync(data).Forget();
+                })
                 .AddTo(ref disposableBuilder);
             instance.ViewModel.SetSortingLayerCommand
                 .Subscribe(OnSetSortingLayer)
@@ -247,27 +270,27 @@ namespace FitMe.Grid
             }
         }
 
-        private void PlayArbitraryAnimation(
+        private Spine.TrackEntry PlayArbitraryAnimation(
             ArbitraryBlockAnimation animation,
             bool loop,
             bool resumeIdleOnComplete,
             float timeScale = 1f)
         {
-            if (!_arbitraryBlockConfig) return;
+            if (!_arbitraryBlockConfig) return null;
             CancelIdleTimer();
-            if (_arbitraryBlockConfig.UseAtomSprite || !skeletonAnimation || skeletonAnimation.Skeleton == null) return;
+            if (_arbitraryBlockConfig.UseAtomSprite || !skeletonAnimation || skeletonAnimation.Skeleton == null) return null;
             if (!_arbitraryBlockConfig.TryGetAnimation(animation, out var animationName))
             {
                 DebugUtils.LogWarning($"ArbitraryBlockConfig has no animation mapped for {animation}.");
                 if (resumeIdleOnComplete) StartIdleTimer();
-                return;
+                return null;
             }
 
             if (animation is ArbitraryBlockAnimation.Drag or ArbitraryBlockAnimation.Drop or ArbitraryBlockAnimation.Explode)
                 skeletonAnimation.AnimationState.ClearTrack(0);
             var track = skeletonAnimation.AnimationState.SetAnimation(0, animationName, loop);
             track.TimeScale *= timeScale;
-            if (!resumeIdleOnComplete) return;
+            if (!resumeIdleOnComplete) return track;
             var generation = _idleGeneration;
             track.Complete += _ =>
             {
@@ -277,6 +300,128 @@ namespace FitMe.Grid
                 PlayArbitraryIdle(0);
                 StartIdleTimer();
             };
+            return track;
+        }
+
+        private async UniTask PlayArbitraryExplosionAsync(ExplodeCommandData data)
+        {
+            var completion = data.ChildAnimationCompletion;
+            if (completion == null) return;
+
+            CancelActiveExplosion();
+            var cancellation = new CancellationTokenSource();
+            _activeExplosionCompletion = completion;
+            _activeExplosionCancellation = cancellation;
+            var animationCompleted = false;
+            try
+            {
+                if (!isActiveAndEnabled || !gameObject.activeInHierarchy || !skeletonAnimation ||
+                    !skeletonAnimation.enabled || skeletonAnimation.Skeleton == null)
+                    return;
+
+                var track = PlayArbitraryAnimation(ArbitraryBlockAnimation.Explode, false, false,
+                    data.FitType == FitType.FitMe ? 2f : 6.67f);
+                if (track == null) return;
+
+                animationCompleted = await WaitForExplosionTrack(track, data.ExplosionDeadline, cancellation.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                animationCompleted = false;
+            }
+            catch (Exception exception)
+            {
+                animationCompleted = false;
+                DebugUtils.LogError($"Atom explosion animation failed: {exception}");
+            }
+            finally
+            {
+                completion.Report(GetInstanceID(), animationCompleted);
+                if (ReferenceEquals(_activeExplosionCompletion, completion))
+                    _activeExplosionCompletion = null;
+                if (ReferenceEquals(_activeExplosionCancellation, cancellation))
+                    _activeExplosionCancellation = null;
+                cancellation.Dispose();
+            }
+        }
+
+        private async UniTask<bool> WaitForExplosionTrack(
+            Spine.TrackEntry track, double explosionDeadline, CancellationToken cancellationToken)
+        {
+            var updateModeGeneration = BeginExplosionUpdateModeOverride();
+
+            try
+            {
+                var timeoutDuration = GetExplosionTrackTimeout(track, explosionDeadline);
+                return await ChildExplosionAnimationWait.WaitForAnimationOrTimeout(
+                    token => track.WaitUntilComplete(cancellationToken: token).ContinueWith(() => true),
+                    timeoutDuration, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return false;
+            }
+            finally
+            {
+                RestoreExplosionUpdateModeOverride(updateModeGeneration);
+            }
+        }
+
+        private TimeSpan GetExplosionTrackTimeout(Spine.TrackEntry track, double explosionDeadline)
+        {
+            if (explosionDeadline > 0d)
+            {
+                var remainingDuration = explosionDeadline - Time.realtimeSinceStartupAsDouble;
+                return remainingDuration > 0d ? TimeSpan.FromSeconds(remainingDuration) : TimeSpan.Zero;
+            }
+
+            // Commands without a parent-provided deadline are still bounded; use canonical child timing.
+            var animationDuration = track.Animation != null && track.Animation.Duration > 0f
+                ? track.Animation.Duration
+                : 2f;
+            var effectiveTimeScale = track.TimeScale * skeletonAnimation.timeScale *
+                                     skeletonAnimation.AnimationState.TimeScale;
+            if (!skeletonAnimation.UnscaledTime && Time.timeScale > 0f) effectiveTimeScale *= Time.timeScale;
+            if (effectiveTimeScale <= 0f || float.IsNaN(effectiveTimeScale) || float.IsInfinity(effectiveTimeScale))
+                effectiveTimeScale = 1f;
+
+            return TimeSpan.FromSeconds(Math.Min(animationDuration / (double)effectiveTimeScale, 5d));
+        }
+
+        private int BeginExplosionUpdateModeOverride()
+        {
+            if (_hasExplosionUpdateModeOverride)
+                RestoreExplosionUpdateModeOverride(_activeExplosionUpdateModeGeneration);
+
+            var generation = ++_explosionUpdateModeGeneration;
+            _activeExplosionUpdateModeGeneration = generation;
+            _previousExplosionUpdateMode = skeletonAnimation.UpdateMode;
+            _previousExplosionInvisibleUpdateMode = skeletonAnimation.updateWhenInvisible;
+            _hasExplosionUpdateModeOverride = true;
+
+            skeletonAnimation.updateWhenInvisible = UpdateMode.OnlyEventTimelines;
+            if (_previousExplosionUpdateMode is UpdateMode.OnlyAnimationStatus or UpdateMode.Nothing)
+                skeletonAnimation.UpdateMode = UpdateMode.OnlyEventTimelines;
+
+            return generation;
+        }
+
+        private void RestoreExplosionUpdateModeOverride(int generation)
+        {
+            if (!_hasExplosionUpdateModeOverride || generation != _activeExplosionUpdateModeGeneration) return;
+
+            _hasExplosionUpdateModeOverride = false;
+            if (!skeletonAnimation) return;
+
+            skeletonAnimation.updateWhenInvisible = _previousExplosionInvisibleUpdateMode;
+            if (skeletonAnimation.UpdateMode == UpdateMode.OnlyEventTimelines)
+            {
+                var restoreMode = _previousExplosionUpdateMode is UpdateMode.OnlyAnimationStatus or UpdateMode.Nothing or
+                    UpdateMode.OnlyEventTimelines
+                    ? _previousExplosionUpdateMode
+                    : _previousExplosionInvisibleUpdateMode;
+                skeletonAnimation.UpdateMode = restoreMode;
+            }
         }
 
         private void PlayArbitraryIdle(int index)
@@ -390,14 +535,31 @@ namespace FitMe.Grid
             Dispose();
         }
 
+        private void OnDisable()
+        {
+            CancelActiveExplosion();
+        }
+
         public void Dispose()
         {
+            CancelActiveExplosion();
             SetSpinePhysicsSimulationEnabled(true);
             CancelIdleTimer();
             _bindings?.Dispose();
             _parentBlockSubscriptions?.Dispose();
             _bindings = null;
             _parentBlockSubscriptions = null;
+        }
+
+        private void CancelActiveExplosion()
+        {
+            var completion = _activeExplosionCompletion;
+            var cancellation = _activeExplosionCancellation;
+            _activeExplosionCompletion = null;
+            _activeExplosionCancellation = null;
+            RestoreExplosionUpdateModeOverride(_activeExplosionUpdateModeGeneration);
+            cancellation?.Cancel();
+            completion?.Report(GetInstanceID(), false);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using FitMe.Grid;
 using FitMe.Shared;
 using NUnit.Framework;
@@ -461,6 +462,141 @@ namespace FitMe.Grid.Tests
             Assert.That(clearedCount, Is.EqualTo(1));
             Assert.That(_cell.CurrentAtom.Value, Is.Null);
             Assert.That(_manager.BlocksOnGrid, Is.Empty);
+        }
+
+        [Test]
+        public void RemoveBlock_PassesCompletionBarrierForActiveShapeAtomViews()
+        {
+            SetUpOneCellPlacement();
+            var config = AssetDatabase.LoadAssetAtPath<ArbitraryBlockConfig>(
+                "Assets/QuackUp/Settings/Grid/Block/BlockConfig/ArbitraryBlockConfig.asset");
+            Assert.That(config, Is.Not.Null);
+
+            var blockModel = new BlockModel(config, null);
+            var blockViewModel = new BlockViewModel(blockModel);
+            var blockObject = Keep(new GameObject("Lifecycle shape block"));
+            var block = new BlockInstance(blockModel, blockViewModel, null, blockObject);
+            _additionalBlockModels.Add(blockModel);
+            _additionalBlockViewModels.Add(blockViewModel);
+
+            var atomViews = new List<AtomView>();
+            for (var i = 0; i < 2; i++)
+            {
+                var atomModel = new AtomModel();
+                atomModel.ParentBlock.Value = block;
+                _additionalAtomModels.Add(atomModel);
+
+                var atomObject = Keep(new GameObject($"Lifecycle shape atom {i}"));
+                atomObject.transform.SetParent(blockObject.transform, false);
+                atomObject.transform.position = new Vector3(100 + i, 100, 0);
+                var atomView = atomObject.AddComponent<AtomView>();
+                typeof(AtomView).GetField("_viewModel", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(atomView, new AtomViewModel(atomModel));
+                typeof(AtomView).GetField("_parentBlockSubscriptions", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(atomView, Disposable.Empty);
+                atomViews.Add(atomView);
+                blockModel.Atoms.Add(new AtomInstance(atomModel, null, atomObject));
+            }
+
+            var unboundAtomModel = new AtomModel();
+            unboundAtomModel.ParentBlock.Value = block;
+            _additionalAtomModels.Add(unboundAtomModel);
+            var unboundAtomObject = Keep(new GameObject("Unbound lifecycle shape atom"));
+            unboundAtomObject.transform.SetParent(blockObject.transform, false);
+            unboundAtomObject.AddComponent<AtomView>();
+            blockModel.Atoms.Add(new AtomInstance(unboundAtomModel, null, unboundAtomObject));
+
+            var gridBlockData = new GridBlockData(block, Disposable.Empty);
+            ((ObservableList<GridBlockData>)_manager.BlocksOnGrid).Add(gridBlockData);
+            SetManagerField("<IsGameplay>k__BackingField", true);
+
+            ChildExplosionAnimationCompletion completion = null;
+            var pendingAfterFirstChild = false;
+            var completedAfterSecondChild = false;
+            var allExpectedChildrenSucceeded = false;
+            using var subscription = blockViewModel.ExplodeCommand.Subscribe(data =>
+            {
+                completion = data.ChildAnimationCompletion;
+                completion.Report(atomViews[0].GetInstanceID(), true);
+                pendingAfterFirstChild = !completion.Task.GetAwaiter().IsCompleted;
+                completion.Report(atomViews[1].GetInstanceID(), true);
+                completedAfterSecondChild = completion.Task.GetAwaiter().IsCompleted;
+                allExpectedChildrenSucceeded = completion.Task.GetAwaiter().GetResult();
+                data.Promise.TrySetResult(Unit.Default);
+            });
+
+            _manager.RemoveBlock(gridBlockData, FitType.FitMe).GetAwaiter().GetResult();
+
+            Assert.That(pendingAfterFirstChild, Is.True);
+            Assert.That(completedAfterSecondChild, Is.True);
+            Assert.That(allExpectedChildrenSucceeded, Is.False,
+                "An unbound expected atom child must force the duration-preserving fallback.");
+            Assert.That(_manager.BlocksOnGrid, Is.Empty);
+        }
+
+        [Test]
+        public async Task RemoveBlock_WithoutBoundBlockViewDoesNotStrandRemovalPromise()
+        {
+            var config = AssetDatabase.LoadAssetAtPath<ArbitraryBlockConfig>(
+                "Assets/QuackUp/Settings/Grid/Block/BlockConfig/ArbitraryBlockConfig.asset");
+            Assert.That(config, Is.Not.Null);
+
+            var blockModel = new BlockModel(config, null);
+            var blockViewModel = new BlockViewModel(blockModel);
+            var blockObject = Keep(new GameObject("Shape block without bound view"));
+            var block = new BlockInstance(blockModel, blockViewModel, null, blockObject);
+            _additionalBlockModels.Add(blockModel);
+            _additionalBlockViewModels.Add(blockViewModel);
+            var gridBlockData = new GridBlockData(block, Disposable.Empty);
+            ((ObservableList<GridBlockData>)_manager.BlocksOnGrid).Add(gridBlockData);
+            SetManagerField("<IsGameplay>k__BackingField", true);
+
+            Promise<Unit> observedPromise = null;
+            ChildExplosionAnimationCompletion observedCompletion = null;
+            var explosionDeadline = 0d;
+            using var captureExplosion = blockViewModel.ExplodeCommand.Subscribe(
+                data =>
+                {
+                    observedPromise = data.Promise;
+                    observedCompletion = data.ChildAnimationCompletion;
+                    explosionDeadline = data.ExplosionDeadline;
+                });
+            Task removalTask = null;
+            var originalTimeScale = Time.timeScale;
+            try
+            {
+                Time.timeScale = 1f;
+                removalTask = ObserveRemoval();
+                Assert.That(observedPromise, Is.Not.Null);
+                Assert.That(observedCompletion, Is.Not.Null);
+                Assert.That(observedCompletion.Task.GetAwaiter().GetResult(), Is.False,
+                    "An empty child barrier must use the canonical duration fallback.");
+                Assert.That(explosionDeadline, Is.GreaterThan(Time.realtimeSinceStartupAsDouble));
+
+                var earlyWinner = await Task.WhenAny(removalTask, Task.Delay(TimeSpan.FromMilliseconds(150)));
+                Assert.That(earlyWinner, Is.Not.SameAs(removalTask),
+                    "Without BlockView, the parent promise must still wait for child completion or the deadline.");
+                Assert.That(observedPromise.Task.GetAwaiter().IsCompleted, Is.False);
+
+                var remainingUntilDeadline = Math.Max(0d, explosionDeadline - Time.realtimeSinceStartupAsDouble);
+                var winner = await Task.WhenAny(removalTask,
+                    Task.Delay(TimeSpan.FromSeconds(remainingUntilDeadline + 0.5d)));
+
+                Assert.That(winner, Is.SameAs(removalTask),
+                    "Removal must settle by the shared deadline even when BlockView has no live subscriber.");
+                Assert.That(observedPromise.Task.GetAwaiter().IsCompleted, Is.True);
+            }
+            finally
+            {
+                observedPromise?.TrySetResult(Unit.Default);
+                if (removalTask != null) await removalTask;
+                Time.timeScale = originalTimeScale;
+            }
+
+            async Task ObserveRemoval()
+            {
+                await _manager.RemoveBlock(gridBlockData, FitType.FitMe);
+            }
         }
 
         [Test]

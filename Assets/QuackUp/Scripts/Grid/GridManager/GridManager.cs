@@ -674,12 +674,52 @@ namespace FitMe.Grid
             {
                 gridBlockData.BlockInstance.Model.BlockState.Value = BlockState.Exploding;
                 var promise = new Promise<Unit>();
-                gridBlockData.BlockInstance.ViewModel.ExplodeCommand.Execute(
-                    new ExplodeCommandData(promise, fitType, destroy));
+                var boundChildViewIds = new HashSet<int>();
+                var boundChildModels = new HashSet<AtomModel>();
+                var unavailableChildModels = new HashSet<AtomModel>();
+                var unavailableChildCount = 0;
+                if (gridBlockData.BlockInstance.Model.Config is ArbitraryBlockConfig)
+                {
+                    foreach (var atom in atoms)
+                    {
+                        if (atom == null || atom.Model == null)
+                        {
+                            unavailableChildCount++;
+                            continue;
+                        }
+
+                        var atomGameObject = atom.GameObject;
+                        var atomView = atomGameObject ? atomGameObject.GetComponent<AtomView>() : null;
+                        if (atomView && atomView.IsExplosionCommandBoundTo(
+                                gridBlockData.BlockInstance.ViewModel, atom.Model))
+                        {
+                            boundChildViewIds.Add(atomView.GetInstanceID());
+                            boundChildModels.Add(atom.Model);
+                            unavailableChildModels.Remove(atom.Model);
+                        }
+                        else if (!boundChildModels.Contains(atom.Model))
+                        {
+                            unavailableChildModels.Add(atom.Model);
+                        }
+                    }
+                }
+
+                var childAnimationCompletion = gridBlockData.BlockInstance.Model.Config is ArbitraryBlockConfig
+                    ? new ChildExplosionAnimationCompletion(
+                        boundChildViewIds.Count + unavailableChildModels.Count + unavailableChildCount)
+                    : null;
+                for (var unavailableChildIndex = 0;
+                     unavailableChildIndex < unavailableChildModels.Count + unavailableChildCount;
+                     unavailableChildIndex++)
+                    childAnimationCompletion?.ReportUnavailableChild();
+
+                gridBlockData.BlockInstance.ViewModel.ExecuteExplosion(
+                    new ExplodeCommandData(promise, fitType, destroy, childAnimationCompletion));
                 await promise.Task;
             }
             foreach (var atom in atoms)
             {
+                if (atom == null || !atom.GameObject) continue;
                 var cell = GetCellByPosition(atom.GameObject.transform.position);
                 if (cell == null || cell.Model.CurrentAtom.Value != atom)
                 {
