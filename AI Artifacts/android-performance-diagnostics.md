@@ -8,6 +8,8 @@ This opt-in recorder writes lightweight CSV frame/lifecycle diagnostics to `Appl
 2. The APK is written to `Builds/Android/FitMe-Performance-Diagnostics.apk`. Do not enable Deep Profile for tester captures; it adds substantial overhead.
 3. This test APK is debug-signed; the helper temporarily disables custom-keystore signing and restores the project's previous setting. Install and distribute it only as a tester build, not as a release. Normal release builds omit `FITME_PERFORMANCE_DIAGNOSTICS` and have no recorder or share control enabled.
 
+For the comparison build with explosion particles suppressed, select **Fit Me → Build Android Performance Diagnostics APK (Explosion VFX Off)**. It writes a separate `Builds/Android/FitMe-Performance-Diagnostics-ExplosionVfxOff.apk` and adds `FITME_DISABLE_EXPLOSION_VFX` only to that player build. This suppresses explosion particle playback after the block animation while preserving block removal, Spine animation, camera shake, and placement VFX. The CSV identifies this variant with `# explosionVfxPlayback,disabled` and `block_explosion_vfx_suppressed` events. The regular diagnostics APK keeps explosion playback enabled. For manual builds, add `FITME_DISABLE_EXPLOSION_VFX` alongside the diagnostics define only for the VFX-off comparison, then remove it afterward.
+
 ## Tester capture and submission
 
 1. Launch the diagnostic build and reproduce the issue, including cold launch and background/resume as applicable.

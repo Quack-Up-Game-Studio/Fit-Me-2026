@@ -60,6 +60,11 @@ namespace QuackUp.Core
             _writer.WriteLine("# qualityLevel," + QualitySettings.names[QualitySettings.GetQualityLevel()]);
             _writer.WriteLine("# profilerRecorderAvailability,mainThread=" + _mainThreadRecorder.Valid + ",renderThread=" + _renderThreadRecorder.Valid + ",usedMemory=" + _memoryRecorder.Valid);
             _writer.WriteLine("# postResumeFrameSamples,30");
+#if FITME_DISABLE_EXPLOSION_VFX
+            _writer.WriteLine("# explosionVfxPlayback,disabled");
+#else
+            _writer.WriteLine("# explosionVfxPlayback,enabled");
+#endif
             _writer.WriteLine("# frame,utc,unscaledDeltaTimeMs,mainThreadLastFrameNs,renderThreadLastFrameNs,totalUsedMemoryBytes,scene,marker");
             _writer.Flush();
             AddMarker("recording_started");

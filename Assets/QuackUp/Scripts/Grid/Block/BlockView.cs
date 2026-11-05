@@ -314,6 +314,19 @@ namespace FitMe.Grid
                 _blockColor.ToString(), data.FitType.ToString());
 #endif
             if (usesAtomRenderer) skeletonAnimation.enabled = false;
+#if FITME_DISABLE_EXPLOSION_VFX
+            if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out _))
+            {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                _blockVfxPool?.RecordExplosionEvent("block_explosion_vfx_suppressed", GetInstanceID(),
+                    _blockColor.ToString(), data.FitType.ToString());
+#endif
+            }
+            else
+            {
+                DebugUtils.LogWarning($"No explosion VFX found for block type: {_blockColor}");
+            }
+#else
             if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
             {
 #if FITME_PERFORMANCE_DIAGNOSTICS
@@ -326,6 +339,7 @@ namespace FitMe.Grid
             {
                 DebugUtils.LogWarning($"No explosion VFX found for block type: {_blockColor}");
             }
+#endif
             if (data.Destroy) Destroy(gameObject);
             data.Promise.TrySetResult(Unit.Default);
         }
