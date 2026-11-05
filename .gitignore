@@ -92,6 +92,9 @@ fmod_editor.log
 # Local runtime test artifacts (runtime-generated, not source)
 Assets/TestSave/
 
+# Local Unity Profiler captures (diagnostic data, not source)
+/ProfilerCaptures/
+
 # OS-specific files
 .DS_Store
 .DS_Store?
