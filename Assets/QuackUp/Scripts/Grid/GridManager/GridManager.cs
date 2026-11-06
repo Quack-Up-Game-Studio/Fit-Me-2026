@@ -16,6 +16,9 @@ using Sirenix.Utilities;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+#if FITME_PERFORMANCE_DIAGNOSTICS
+using Unity.Profiling;
+#endif
 using UnityEngine;
 using VContainer;
 using Random = UnityEngine.Random;
@@ -107,6 +110,17 @@ namespace FitMe.Grid
     [Serializable]
     public class GridManager : IDisposable
     {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        private static readonly ProfilerMarker _tryPlaceBlockMarker = new("FitMe.Grid.TryPlaceBlock");
+        private static readonly ProfilerMarker _updateBlockOnGridMarker = new("FitMe.Grid.UpdateBlockOnGrid");
+        private static readonly ProfilerMarker _fitMePostClearMarker = new("FitMe.Grid.FitMe.PostClear");
+        private static readonly ProfilerMarker _clearGridStartMarker = new("FitMe.Grid.ClearGrid.Start");
+        private static readonly ProfilerMarker _clearGridCompleteMarker = new("FitMe.Grid.ClearGrid.Complete");
+        private static readonly ProfilerMarker _removeAllBlocksStartMarker = new("FitMe.Grid.RemoveAllBlocks.Start");
+        private static readonly ProfilerMarker _removeBlockSetupMarker = new("FitMe.Grid.RemoveBlock.Setup");
+        private static readonly ProfilerMarker _removeBlockCleanupMarker = new("FitMe.Grid.RemoveBlock.Cleanup");
+#endif
+
         #region Inspector
         [field: Title("Grid Debug")] 
         [field: SerializeField, InlineEditor]
@@ -551,6 +565,9 @@ namespace FitMe.Grid
         /// <returns>true if the placement is valid, false otherwise</returns>
         public bool TryPlaceBlock(BlockInstance blockInstance, bool updateGrid = true)
         {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using var profilerScope = _tryPlaceBlockMarker.Auto();
+#endif
             ResetPreviousValidationCells();
             var blockViewTransform = blockInstance.GameObject.transform;
             var cellSize = _grid.cellSize.x;
@@ -606,6 +623,9 @@ namespace FitMe.Grid
         /// <returns>FitType indicating the result of the update</returns>
         public FitType UpdateBlockOnGrid(BlockInstance blockInstance)
         {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using var profilerScope = _updateBlockOnGridMarker.Auto();
+#endif
             var contacts = new List<BlockInstance>();
             var hasContact = CheckForContact(blockInstance, contacts);
             AddContact(contacts, blockInstance);
@@ -629,9 +649,14 @@ namespace FitMe.Grid
         {
             if (!IsGameplay) return;
             await ClearGrid(true);
-            //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
-            DestroyGrid();
-            _onScoreAdded.OnNext(new(ScoreTypes.FitMe, contacts, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (_fitMePostClearMarker.Auto())
+#endif
+            {
+                //PlayerDataManager.Instance.SaveBlockDestroyed(FitType.FitMe, blocksToSave);
+                DestroyGrid();
+                _onScoreAdded.OnNext(new(ScoreTypes.FitMe, contacts, worldPosition:_grid.GetGridCenter(CurrentGridSize, CurrentOffset)));
+            }
         }
 
         private async UniTask Combo(List<BlockInstance> contacts)
@@ -672,63 +697,74 @@ namespace FitMe.Grid
             var atoms = new List<AtomInstance>(gridBlockData.BlockInstance.Model.Atoms);
             if (IsGameplay)
             {
-                gridBlockData.BlockInstance.Model.BlockState.Value = BlockState.Exploding;
-                var promise = new Promise<Unit>();
-                var boundChildViewIds = new HashSet<int>();
-                var boundChildModels = new HashSet<AtomModel>();
-                var unavailableChildModels = new HashSet<AtomModel>();
-                var unavailableChildCount = 0;
-                if (gridBlockData.BlockInstance.Model.Config is ArbitraryBlockConfig)
+                Promise<Unit> promise;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using (_removeBlockSetupMarker.Auto())
+#endif
                 {
-                    foreach (var atom in atoms)
+                    gridBlockData.BlockInstance.Model.BlockState.Value = BlockState.Exploding;
+                    promise = new Promise<Unit>();
+                    var boundChildViewIds = new HashSet<int>();
+                    var boundChildModels = new HashSet<AtomModel>();
+                    var unavailableChildModels = new HashSet<AtomModel>();
+                    var unavailableChildCount = 0;
+                    if (gridBlockData.BlockInstance.Model.Config is ArbitraryBlockConfig)
                     {
-                        if (atom == null || atom.Model == null)
+                        foreach (var atom in atoms)
                         {
-                            unavailableChildCount++;
-                            continue;
-                        }
+                            if (atom == null || atom.Model == null)
+                            {
+                                unavailableChildCount++;
+                                continue;
+                            }
 
-                        var atomGameObject = atom.GameObject;
-                        var atomView = atomGameObject ? atomGameObject.GetComponent<AtomView>() : null;
-                        if (atomView && atomView.IsExplosionCommandBoundTo(
-                                gridBlockData.BlockInstance.ViewModel, atom.Model))
-                        {
-                            boundChildViewIds.Add(atomView.GetInstanceID());
-                            boundChildModels.Add(atom.Model);
-                            unavailableChildModels.Remove(atom.Model);
-                        }
-                        else if (!boundChildModels.Contains(atom.Model))
-                        {
-                            unavailableChildModels.Add(atom.Model);
+                            var atomGameObject = atom.GameObject;
+                            var atomView = atomGameObject ? atomGameObject.GetComponent<AtomView>() : null;
+                            if (atomView && atomView.IsExplosionCommandBoundTo(
+                                    gridBlockData.BlockInstance.ViewModel, atom.Model))
+                            {
+                                boundChildViewIds.Add(atomView.GetInstanceID());
+                                boundChildModels.Add(atom.Model);
+                                unavailableChildModels.Remove(atom.Model);
+                            }
+                            else if (!boundChildModels.Contains(atom.Model))
+                            {
+                                unavailableChildModels.Add(atom.Model);
+                            }
                         }
                     }
+
+                    var childAnimationCompletion = gridBlockData.BlockInstance.Model.Config is ArbitraryBlockConfig
+                        ? new ChildExplosionAnimationCompletion(
+                            boundChildViewIds.Count + unavailableChildModels.Count + unavailableChildCount)
+                        : null;
+                    for (var unavailableChildIndex = 0;
+                         unavailableChildIndex < unavailableChildModels.Count + unavailableChildCount;
+                         unavailableChildIndex++)
+                        childAnimationCompletion?.ReportUnavailableChild();
+
+                    gridBlockData.BlockInstance.ViewModel.ExecuteExplosion(
+                        new ExplodeCommandData(promise, fitType, destroy, childAnimationCompletion));
                 }
-
-                var childAnimationCompletion = gridBlockData.BlockInstance.Model.Config is ArbitraryBlockConfig
-                    ? new ChildExplosionAnimationCompletion(
-                        boundChildViewIds.Count + unavailableChildModels.Count + unavailableChildCount)
-                    : null;
-                for (var unavailableChildIndex = 0;
-                     unavailableChildIndex < unavailableChildModels.Count + unavailableChildCount;
-                     unavailableChildIndex++)
-                    childAnimationCompletion?.ReportUnavailableChild();
-
-                gridBlockData.BlockInstance.ViewModel.ExecuteExplosion(
-                    new ExplodeCommandData(promise, fitType, destroy, childAnimationCompletion));
                 await promise.Task;
             }
-            foreach (var atom in atoms)
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (_removeBlockCleanupMarker.Auto())
+#endif
             {
-                if (atom == null || !atom.GameObject) continue;
-                var cell = GetCellByPosition(atom.GameObject.transform.position);
-                if (cell == null || cell.Model.CurrentAtom.Value != atom)
+                foreach (var atom in atoms)
                 {
-                    continue;
+                    if (atom == null || !atom.GameObject) continue;
+                    var cell = GetCellByPosition(atom.GameObject.transform.position);
+                    if (cell == null || cell.Model.CurrentAtom.Value != atom)
+                    {
+                        continue;
+                    }
+                    cell.Model.CurrentAtom.Value = null;
                 }
-                cell.Model.CurrentAtom.Value = null;
-            }
 
-            gridBlockData.Subscription.Dispose();
+                gridBlockData.Subscription.Dispose();
+            }
         }
 
         /// <summary>
@@ -744,9 +780,14 @@ namespace FitMe.Grid
 
         public async UniTask ClearGrid(bool destroyObstacle = true, bool playSound = true)
         {
-            ClearHintFlash();
-            _onAboutToClearGrid?.OnNext(Unit.Default);
-            if (playSound) _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (_clearGridStartMarker.Auto())
+#endif
+            {
+                ClearHintFlash();
+                _onAboutToClearGrid?.OnNext(Unit.Default);
+                if (playSound) _audioManager.PlayAudioOneShot(_config.FitExplodeSfx, Vector3.zero);
+            }
             if (destroyObstacle)
             {
                 await RemoveAllBlocks(true);
@@ -758,7 +799,10 @@ namespace FitMe.Grid
                     .ToList();
                 await UniTask.WhenAll(excludeObstacle.Select(block => RemoveBlock(block, FitType.FitMe, true)));
             }
-            _onClearGrid?.OnNext(Unit.Default);
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (_clearGridCompleteMarker.Auto())
+#endif
+                _onClearGrid?.OnNext(Unit.Default);
         }
     
         /// <summary>
@@ -767,8 +811,15 @@ namespace FitMe.Grid
         /// <param name="destroy">Destroy the blocks, false by default</param>
         private async UniTask RemoveAllBlocks(bool destroy = false)
         {
-            List<GridBlockData> blocksToRemove = new List<GridBlockData>(_blockOnGrid);
-            await UniTask.WhenAll(blocksToRemove.Select(block => RemoveBlock(block, FitType.FitMe, destroy)));
+            UniTask removeBlocksTask;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (_removeAllBlocksStartMarker.Auto())
+#endif
+            {
+                List<GridBlockData> blocksToRemove = new List<GridBlockData>(_blockOnGrid);
+                removeBlocksTask = UniTask.WhenAll(blocksToRemove.Select(block => RemoveBlock(block, FitType.FitMe, destroy)));
+            }
+            await removeBlocksTask;
         }
         
         /// <summary>

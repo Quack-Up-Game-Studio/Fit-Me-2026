@@ -5,6 +5,9 @@ using FitMe.Shared;
 using QuackUp.Utils;
 using R3;
 using Spine.Unity;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+using Unity.Profiling;
+#endif
 using UnityEngine;
 using VContainer;
 
@@ -12,6 +15,11 @@ namespace FitMe.Grid
 {
     public class AtomView : MonoBehaviour, IDisposable
     {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        private static readonly ProfilerMarker _childExplosionAnimationSetupMarker =
+            new("FitMe.Atom.ChildExplosionAnimationSetup");
+#endif
+
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private SpriteOutlineController spriteOutlineController;
         [SerializeField] private AtomSkeletonAnimation skeletonAnimation;
@@ -319,8 +327,14 @@ namespace FitMe.Grid
                     !skeletonAnimation.enabled || skeletonAnimation.Skeleton == null)
                     return;
 
-                var track = PlayArbitraryAnimation(ArbitraryBlockAnimation.Explode, false, false,
-                    data.FitType == FitType.FitMe ? 2f : 6.67f);
+                Spine.TrackEntry track;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using (_childExplosionAnimationSetupMarker.Auto())
+#endif
+                {
+                    track = PlayArbitraryAnimation(ArbitraryBlockAnimation.Explode, false, false,
+                        data.FitType == FitType.FitMe ? 2f : 6.67f);
+                }
                 if (track == null) return;
 
                 animationCompleted = await WaitForExplosionTrack(track, data.ExplosionDeadline, cancellation.Token);

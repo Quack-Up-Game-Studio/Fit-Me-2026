@@ -18,6 +18,9 @@ using QuackUp.SocialService;
 using QuackUp.Utils;
 using R3;
 using Redcode.Extensions;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+using Unity.Profiling;
+#endif
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -31,6 +34,28 @@ namespace FitMe.Scene
 
     public class LevelManager : ILevelManager, IGameStateManager, IScoreManager, IStartable, IDisposable
     {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        private static readonly ProfilerMarker _onScoreAddedMarker = new("FitMe.LevelManager.OnScoreAdded");
+        private static readonly ProfilerMarker _onFitMarker = new("FitMe.LevelManager.OnFit");
+        private static readonly ProfilerMarker _onFitCameraShakeMarker = new("FitMe.LevelManager.OnFit.CameraShake");
+        private static readonly ProfilerMarker _onFitSaveProgressMarker = new("FitMe.LevelManager.OnFit.SaveProgress");
+        private static readonly ProfilerMarker _onFitAnalyticsMarker = new("FitMe.LevelManager.OnFit.Analytics");
+        private static readonly ProfilerMarker _onFitShapeCompletionMarker = new("FitMe.LevelManager.OnFit.ShapeCompletion");
+        private static readonly ProfilerMarker _onFitShapeProgressLookupMarker = new("FitMe.LevelManager.OnFit.ShapeCompletion.ProgressLookup");
+        private static readonly ProfilerMarker _onFitShapeNotificationMarker = new("FitMe.LevelManager.OnFit.ShapeCompletion.Notification");
+        private static readonly ProfilerMarker _onFitShapeFinalLevelCheckMarker = new("FitMe.LevelManager.OnFit.ShapeCompletion.FinalLevelCheck");
+        private static readonly ProfilerMarker _onFitShapeNextLevelResolveMarker = new("FitMe.LevelManager.OnFit.ShapeCompletion.NextLevelResolve");
+        private static readonly ProfilerMarker _onFitShapeSceneLoadMarker = new("FitMe.LevelManager.OnFit.ShapeCompletion.SceneLoad");
+        private static readonly ProfilerMarker _applyShapeLevelRequestMarker = new("FitMe.LevelManager.ApplyShapeLevelRequest");
+        private static readonly ProfilerMarker _applyShapeLevelDataMarker = new("FitMe.LevelManager.ApplyShapeLevelRequest.CreateRuntimeData");
+        private static readonly ProfilerMarker _applyShapeLevelSpawnShapeMarker = new("FitMe.LevelManager.ApplyShapeLevelRequest.SpawnShapeEvent");
+        private static readonly ProfilerMarker _applyShapeLevelSpawnGridMarker = new("FitMe.LevelManager.ApplyShapeLevelRequest.SpawnGridEvent");
+        private static readonly ProfilerMarker _applyShapeLevelCreateGridMarker = new("FitMe.LevelManager.ApplyShapeLevelRequest.StartCreateGridEvent");
+        private static readonly ProfilerMarker _onFitNextLevelMarker = new("FitMe.LevelManager.OnFit.NextLevel");
+        private static readonly ProfilerMarker _onFitSpawnShapeEventMarker = new("FitMe.LevelManager.OnFit.SpawnShapeEvent");
+        private static readonly ProfilerMarker _onFitSpawnGridEventMarker = new("FitMe.LevelManager.OnFit.SpawnGridEvent");
+#endif
+
         public ReactiveProperty<int> Score { get; } = new(0);
         public ReactiveProperty<int> FitMe { get; } = new(0);
         public int CurrentObstacleCount { get; private set; }
@@ -276,6 +301,9 @@ namespace FitMe.Scene
         
         private void OnScoreAdded(ScoreEvent scoreEvent)
         {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using var profilerScope = _onScoreAddedMarker.Auto();
+#endif
             if (_gameMode == GameMode.LevelShape && scoreEvent.ScoreType is ScoreTypes.FitMe)
             {
                 ChangeFitMe(1);
@@ -418,12 +446,27 @@ namespace FitMe.Scene
         
         private void OnFit()
         {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using var profilerScope = _onFitMarker.Auto();
+#endif
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (_onFitCameraShakeMarker.Auto())
+#endif
             _orthographicCameraManager.Shake(_config.CameraFitShakeSettings, _config.CameraFitShakeStrengthFactor);
 
             var completedShapeLevel = _gameMode == GameMode.LevelShape && _shapeLevelDefinition;
-            var progressRecorded = SaveShapeLevelProgress();
+            var progressRecorded = false;
+            {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using var profilerScopeSaveProgress = _onFitSaveProgressMarker.Auto();
+#endif
+                progressRecorded = SaveShapeLevelProgress();
+            }
 
             /* Analytics */
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (var profilerScopeAnalytics = _onFitAnalyticsMarker.Auto())
+#endif
             ReportComplete();
             _scoreLastLevel = Score.Value;
             _fitMeLastLevel = FitMe.Value;
@@ -431,6 +474,9 @@ namespace FitMe.Scene
             if (IsTutorial) return;
             if (completedShapeLevel)
             {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using var profilerScopeShapeCompletion = _onFitShapeCompletionMarker.Auto();
+#endif
                 if (!progressRecorded)
                 {
                     _shapeLevelPassed = false;
@@ -438,25 +484,52 @@ namespace FitMe.Scene
                     return;
                 }
 
-                var progress = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
-                var currentRequest = LevelSessionRequest.ForShapeLevel(
-                    _shapeWorldKey, _shapeLevelId, _shapeLevelDefinition);
+                PlayerRecordSaveData progress;
+                LevelSessionRequest currentRequest;
+                {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                    using var profilerScopeProgressLookup = _onFitShapeProgressLookupMarker.Auto();
+#endif
+                    progress = _playerRecordSaveObject.GetSaveData<PlayerRecordSaveData>();
+                    currentRequest = LevelSessionRequest.ForShapeLevel(
+                        _shapeWorldKey, _shapeLevelId, _shapeLevelDefinition);
+                }
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using (_onFitShapeNotificationMarker.Auto())
+#endif
                 PublishShapeLevelCompletionNotification();
 
-                if (_shapeLevelResultService.IsCompletedFinalLevel(currentRequest, progress))
+                bool isCompletedFinalLevel;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using (_onFitShapeFinalLevelCheckMarker.Auto())
+#endif
+                isCompletedFinalLevel = _shapeLevelResultService.IsCompletedFinalLevel(currentRequest, progress);
+                if (isCompletedFinalLevel)
                 {
                     _shapeLevelPassed = true;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                    using (_onFitShapeSceneLoadMarker.Auto())
+#endif
                     _loadSceneManager.LoadScene(
                         SceneType.ShapeLevelSelect, UnityEngine.SceneManagement.LoadSceneMode.Single, false)
                         .Forget();
                     return;
                 }
 
-                if (_shapeLevelResultService.TryResolve(
-                        ShapeLevelResultAction.NextLevel, currentRequest, wasPassed: true, progress, out var outcome) &&
-                    outcome.SessionRequest.ShapeWorldKey == _shapeWorldKey &&
-                    TryApplyShapeLevelRequest(outcome.SessionRequest))
-                    return;
+                ShapeLevelResultOutcome outcome;
+                bool nextLevelResolved;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using (var profilerScopeNextLevelResolve = _onFitShapeNextLevelResolveMarker.Auto())
+#endif
+                {
+                    nextLevelResolved = _shapeLevelResultService.TryResolve(
+                        ShapeLevelResultAction.NextLevel, currentRequest, wasPassed: true, progress, out outcome);
+                }
+
+                if (nextLevelResolved && outcome.SessionRequest.ShapeWorldKey == _shapeWorldKey)
+                {
+                    if (TryApplyShapeLevelRequest(outcome.SessionRequest)) return;
+                }
 
                 DebugUtils.LogError($"Could not resolve the next Shape Level after completing '{_shapeLevelId}'.");
                 _shapeLevelPassed = false;
@@ -464,6 +537,9 @@ namespace FitMe.Scene
                 return;
             }
 
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using var profilerScopeNextLevel = _onFitNextLevelMarker.Auto();
+#endif
             ChangeDifficultyLevel();
             if (_shapeLevelDefinition)
             {
@@ -495,7 +571,13 @@ namespace FitMe.Scene
             }
 
             _pendingScenePayload.SetActive(request);
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (_onFitSpawnShapeEventMarker.Auto())
+#endif
             _messageHub.Publish(new SpawnWithShapeLevelEvent(shapeRuntimeData));
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (_onFitSpawnGridEventMarker.Auto())
+#endif
             _messageHub.Publish(new SpawnWithGridPresetEvent(_gridPreset));
             _levelNumber++;
 
@@ -505,11 +587,17 @@ namespace FitMe.Scene
 
         private bool TryApplyShapeLevelRequest(LevelSessionRequest request)
         {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using var profilerScope = _applyShapeLevelRequestMarker.Auto();
+#endif
             if (request.GameMode != GameMode.LevelShape || !request.ShapeLevel) return false;
 
             ShapeLevelRuntimeData shapeRuntimeData;
             try
             {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using (_applyShapeLevelDataMarker.Auto())
+#endif
                 shapeRuntimeData = request.CreateShapeRuntimeData();
             }
             catch (InvalidOperationException exception)
@@ -527,11 +615,24 @@ namespace FitMe.Scene
             _pendingScenePayload.SetActive(request);
 
             // BlockManager replaces the authored finite supply before the board is rebuilt.
+#if FITME_PERFORMANCE_DIAGNOSTICS
+            using (_applyShapeLevelSpawnShapeMarker.Auto())
+#endif
             _messageHub.Publish(new SpawnWithShapeLevelEvent(shapeRuntimeData));
             if (_gridPreset)
+            {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using (_applyShapeLevelSpawnGridMarker.Auto())
+#endif
                 _messageHub.Publish(new SpawnWithGridPresetEvent(_gridPreset));
+            }
             else
+            {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                using (_applyShapeLevelCreateGridMarker.Auto())
+#endif
                 _messageHub.Publish(new StartCreateGridEvent());
+            }
 
             _levelNumber++;
             ReportStart();

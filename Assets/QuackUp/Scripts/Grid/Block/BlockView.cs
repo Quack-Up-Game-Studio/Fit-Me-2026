@@ -7,6 +7,9 @@ using QuackUp.Utils;
 using R3;
 using Sirenix.OdinInspector;
 using Spine.Unity;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+using Unity.Profiling;
+#endif
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VContainer;
@@ -17,6 +20,13 @@ namespace FitMe.Grid
     public class BlockView : SerializedMonoBehaviour, IDisposable, IBeginDragHandler, IDragHandler, IEndDragHandler,
         IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
     {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+        private static readonly ProfilerMarker _explosionAnimationSetupMarker =
+            new("FitMe.Block.ExplosionAnimationSetup");
+        private static readonly ProfilerMarker _explosionVfxPlayMarker =
+            new("FitMe.Block.ExplosionVfxPlay");
+#endif
+
         #region Inspectors
         [Title("References")]
         [SerializeField] private MeshRenderer meshRenderer;
@@ -334,10 +344,16 @@ namespace FitMe.Grid
                     : Time.realtimeSinceStartupAsDouble;
                 if (usesShapeMode)
                 {
-                    skeletonAnimation.enabled = false;
-                    var explosionFallbackDeadline = data.ExplosionDeadline > 0d
-                        ? data.ExplosionDeadline
-                        : GetExplosionAnimationDeadline(speedMultiplier, explosionStartTime);
+                    double explosionFallbackDeadline;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                    using (_explosionAnimationSetupMarker.Auto())
+#endif
+                    {
+                        skeletonAnimation.enabled = false;
+                        explosionFallbackDeadline = data.ExplosionDeadline > 0d
+                            ? data.ExplosionDeadline
+                            : GetExplosionAnimationDeadline(speedMultiplier, explosionStartTime);
+                    }
                     var childAnimationsCompleted = data.ChildAnimationCompletion != null &&
                         await ChildExplosionAnimationWait.WaitForAnimationOrTimeout(
                             token => data.ChildAnimationCompletion.Task.AttachExternalCancellation(token),
@@ -347,10 +363,16 @@ namespace FitMe.Grid
                 }
                 else
                 {
-                    if (_blockConfig.UsesAtomRenderer) skeletonAnimation.enabled = true;
-                    skeletonAnimation.AnimationState.ClearTrack(0);
-                    var explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.ExplodeAnimation, false);
-                    explodeAnim.TimeScale *= speedMultiplier;
+                    Spine.TrackEntry explodeAnim;
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                    using (_explosionAnimationSetupMarker.Auto())
+#endif
+                    {
+                        if (_blockConfig.UsesAtomRenderer) skeletonAnimation.enabled = true;
+                        skeletonAnimation.AnimationState.ClearTrack(0);
+                        explodeAnim = skeletonAnimation.AnimationState.SetAnimation(0, _blockConfig.ExplodeAnimation, false);
+                        explodeAnim.TimeScale *= speedMultiplier;
+                    }
                     await explodeAnim.WaitUntilComplete(cancellationToken: cancellationToken);
                     if (_blockConfig.UsesAtomRenderer) skeletonAnimation.enabled = false;
                 }
@@ -376,10 +398,15 @@ namespace FitMe.Grid
                 if (_blockConfig.ExplodeVfx.TryGetValue(_blockColor, out var vfx))
                 {
 #if FITME_PERFORMANCE_DIAGNOSTICS
-                    _blockVfxPool?.Play(vfx, transform.position, GetInstanceID());
-#else
-                    _blockVfxPool?.Play(vfx, transform.position);
+                    using (_explosionVfxPlayMarker.Auto())
 #endif
+                    {
+#if FITME_PERFORMANCE_DIAGNOSTICS
+                        _blockVfxPool?.Play(vfx, transform.position, GetInstanceID());
+#else
+                        _blockVfxPool?.Play(vfx, transform.position);
+#endif
+                    }
                 }
                 else
                 {
